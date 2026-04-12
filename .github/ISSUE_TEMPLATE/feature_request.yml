@@ -1,0 +1,68 @@
+name: Feature request
+description: Suggest a product improvement for the CLI, generated assets, prompts, or workflow model.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion.
+
+        speckeep tries to stay lightweight, strict, and practical for real codebases.
+        Requests are most helpful when they explain the user problem, not just the proposed mechanism.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What user pain, workflow friction, or missing capability does this address?
+      placeholder: Describe the underlying problem first.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should speckeep do?
+      placeholder: Describe the proposed behavior or product change.
+    validations:
+      required: true
+  - type: textarea
+    id: fit
+    attributes:
+      label: Why this fits speckeep
+      description: Explain how the proposal fits speckeep's goals around lightweight workflow, narrow context, or agent-first usage.
+      placeholder: Explain why this improves the product without adding unnecessary weight.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What workarounds or alternative approaches did you consider?
+      placeholder: Existing command, script, prompt tweak, documentation change, or no-op.
+    validations:
+      required: false
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Primary area
+      options:
+        - CLI
+        - Agent integrations
+        - Prompts or templates
+        - Scripts or checks
+        - Docs
+        - Brownfield workflow
+        - Verification or inspect
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples or prior art
+      description: Optional links, screenshots, or comparisons to other tools.
+      placeholder: Reference specific examples if helpful.
+    validations:
+      required: false

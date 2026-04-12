@@ -1,0 +1,124 @@
+name: manual-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing git tag to build and release, for example v0.1.0"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Run test suite
+        run: go test ./...
+
+  build:
+    name: build-${{ matrix.goos }}-${{ matrix.goarch }}
+    runs-on: ubuntu-latest
+    needs: test
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            archive_ext: tar.gz
+            binary_ext: ""
+          - goos: linux
+            goarch: arm64
+            archive_ext: tar.gz
+            binary_ext: ""
+          - goos: windows
+            goarch: amd64
+            archive_ext: zip
+            binary_ext: .exe
+          - goos: windows
+            goarch: arm64
+            archive_ext: zip
+            binary_ext: .exe
+
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build speckeep
+        env:
+          CGO_ENABLED: "0"
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          mkdir -p dist
+          output="dist/speckeep${{ matrix.binary_ext }}"
+          go build -trimpath -ldflags "-X speckeep/src/internal/cli.Version=${{ inputs.tag }}" -o "${output}" ./src/cmd/speckeep
+
+      - name: Package Linux archive
+        if: matrix.goos == 'linux'
+        run: |
+          asset="speckeep_${{ inputs.tag }}_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz"
+          tar -C dist -czf "dist/${asset}" "speckeep"
+
+      - name: Package Windows archive
+        if: matrix.goos == 'windows'
+        run: |
+          asset="speckeep_${{ inputs.tag }}_${{ matrix.goos }}_${{ matrix.goarch }}.zip"
+          cd dist
+          zip "${asset}" "speckeep.exe"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: speckeep-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/speckeep_${{ inputs.tag }}_${{ matrix.goos }}_${{ matrix.goarch }}.${{ matrix.archive_ext }}
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download packaged artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Collect release files
+        run: |
+          mkdir -p release-assets
+          find dist -type f \( -name '*.tar.gz' -o -name '*.zip' \) -exec cp {} release-assets/ \;
+
+      - name: Generate sha256sum.txt
+        run: |
+          cd release-assets
+          ls -1 | sort | xargs -I{} sha256sum "{}" > sha256sum.txt
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          files: release-assets/*
+          generate_release_notes: true

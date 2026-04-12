@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and workflow discussions
+    url: https://github.com/bzdvdn/speckeep/discussions
+    about: Use GitHub Discussions for usage questions, ideas, and broader workflow conversations when Discussions are enabled.
+  - name: Documentation and project overview
+    url: https://github.com/bzdvdn/speckeep#readme
+    about: Start here for product positioning, install steps, and links to the full docs.
+  - name: Security policy
+    url: https://github.com/bzdvdn/speckeep/blob/master/SECURITY.md
+    about: Please review the security policy before reporting vulnerabilities.

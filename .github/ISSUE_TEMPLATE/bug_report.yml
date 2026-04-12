@@ -1,0 +1,74 @@
+name: Bug report
+description: Report a reproducible problem in the CLI, generated assets, prompts, or workflow checks.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug.
+
+        Before submitting, please check:
+
+        - `README.md`
+        - `MVP.md`
+        - `CONTRIBUTING.md`
+        - `SECURITY.md` for vulnerabilities or sensitive issues
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken, and what did you expect instead?
+      placeholder: Briefly describe the problem and the expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Provide the smallest sequence of steps that reproduces the issue.
+      placeholder: |
+        1. Run `speckeep init ...`
+        2. Run `speckeep refresh ...`
+        3. Open generated file ...
+        4. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened?
+      placeholder: Include the error, incorrect output, or broken generated artifact.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+      placeholder: Describe the intended result.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Share the relevant environment details.
+      placeholder: |
+        - OS:
+        - speckeep version or commit:
+        - Go version:
+        - Shell: sh or powershell
+        - Agent target: codex / claude / cursor / ...
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else that would help diagnose the problem.
+      placeholder: Logs, generated paths, related feature slug, screenshots, or suspected root cause.
+    validations:
+      required: false
