@@ -6,6 +6,11 @@ You are executing a planned feature implementation.
 
 Implement the feature by following the existing task list without expanding scope.
 
+## Path Resolution
+
+Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `paths.specs_dir` or `project.constitution_file`, always follow the configured paths instead of the defaults shown here.
+Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
+
 ## Phase Contract
 
 Inputs: `.speckeep/constitution.md`, `.speckeep/specs/<slug>/plan/tasks.md`; deeper artifacts only when the active task requires them.
@@ -101,6 +106,7 @@ Do not broaden scope to solve these problems.
 
 - Implement only unfinished tasks from `tasks.md`.
 - Respect the order and phase structure in `tasks.md`.
+- Do not run git commit/git push/git tag or open a PR unless the user explicitly asks.
 - Never redesign or re-plan the feature silently during implementation.
 - If you modified a file not listed in the active task's `Touches:`, stop and explain why before continuing. Unreported surface changes are a scope violation, not an improvement.
 - Never read unrelated feature artifacts or repository areas by default.

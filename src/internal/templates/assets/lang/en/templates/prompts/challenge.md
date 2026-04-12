@@ -8,6 +8,10 @@ Stress-test the current spec and plan artifacts by finding weak assumptions, sco
 
 This command is optional and outside the required workflow chain. It can be called at any point before `implement`.
 
+## Path Resolution
+
+Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `project.constitution_file` or `paths.specs_dir`, always follow the configured paths instead of the defaults shown here. Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
+
 ## Phase Contract
 
 Inputs: `.speckeep/specs/<slug>/spec.md`; optionally `.speckeep/specs/<slug>/inspect.md`, `.speckeep/specs/<slug>/plan/plan.md`.

@@ -15,15 +15,16 @@ import (
 )
 
 type InitOptions struct {
-	InitGit      bool
-	DefaultLang  string
-	DocsLang     string
-	AgentLang    string
-	CommentsLang string
-	Shell        string
-	SpecsDir     string
-	ArchiveDir   string
-	AgentTargets []string
+	InitGit          bool
+	DefaultLang      string
+	DocsLang         string
+	AgentLang        string
+	CommentsLang     string
+	Shell            string
+	SpecsDir         string
+	ArchiveDir       string
+	ConstitutionFile string
+	AgentTargets     []string
 }
 
 type InitResult struct {
@@ -31,13 +32,14 @@ type InitResult struct {
 
 	RootAbs string
 
-	Shell        string
-	DocsLang     string
-	AgentLang    string
-	CommentsLang string
-	AgentTargets []string
-	SpecsDir     string
-	ArchiveDir   string
+	Shell            string
+	DocsLang         string
+	AgentLang        string
+	CommentsLang     string
+	AgentTargets     []string
+	SpecsDir         string
+	ArchiveDir       string
+	ConstitutionFile string
 
 	GitRepoStatus string // initialized, kept, skipped
 
@@ -119,6 +121,13 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 		if strings.TrimSpace(options.ArchiveDir) != "" {
 			cfg.Paths.ArchiveDir = strings.TrimSpace(options.ArchiveDir)
 		}
+		if strings.TrimSpace(options.ConstitutionFile) != "" {
+			value := strings.TrimSpace(options.ConstitutionFile)
+			if filepath.IsAbs(value) {
+				return InitResult{}, fmt.Errorf("constitution-file must be a relative path, got %q", value)
+			}
+			cfg.Project.ConstitutionFile = value
+		}
 	}
 
 	result := InitResult{
@@ -167,9 +176,21 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 	if err != nil {
 		return InitResult{}, err
 	}
+	constitutionAbs := filepath.Clean(filepath.Join(root, cfg.Project.ConstitutionFile))
 	result.SpecsDir = rel(root, specsDir)
 	result.ArchiveDir = rel(root, archiveDir)
-	subdirs := []string{draftspecDir, specsDir, archiveDir, templatesDir, filepath.Join(templatesDir, "prompts"), filepath.Join(templatesDir, "contracts"), filepath.Join(templatesDir, "archive"), scriptsDir}
+	result.ConstitutionFile = rel(root, constitutionAbs)
+	subdirs := []string{
+		draftspecDir,
+		specsDir,
+		archiveDir,
+		templatesDir,
+		filepath.Join(templatesDir, "prompts"),
+		filepath.Join(templatesDir, "contracts"),
+		filepath.Join(templatesDir, "archive"),
+		scriptsDir,
+		filepath.Dir(constitutionAbs),
+	}
 	for _, dir := range subdirs {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return InitResult{}, err
@@ -184,6 +205,9 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 	}
 	for _, file := range files {
 		target := filepath.Join(draftspecDir, file.TargetPath)
+		if file.TargetPath == "constitution.md" {
+			target = constitutionAbs
+		}
 		written, err := writeIfMissing(target, file.Content, file.Mode)
 		if err != nil {
 			return InitResult{}, err

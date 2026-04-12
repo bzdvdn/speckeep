@@ -173,6 +173,7 @@ speckeep init . --lang ru --shell sh --agents claude
 
 - `--specs-dir` переопределяет директорию для спецификаций (по умолчанию: `.speckeep/specs`)
 - `--archive-dir` переопределяет директорию для архива (по умолчанию: `.speckeep/archive`)
+- `--constitution-file` переопределяет путь к конституции проекта (по умолчанию: `.speckeep/constitution.md`)
 
 ### 2. Написать спек
 

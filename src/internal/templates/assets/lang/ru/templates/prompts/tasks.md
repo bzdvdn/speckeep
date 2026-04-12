@@ -1,10 +1,15 @@
 # Prompt задач SpecKeep
 
-Вы создаете или обновляете `.speckeep/specs/<slug>/plan/tasks.md`.
+Вы создаете или обновляете `<specs_dir>/<slug>/plan/tasks.md` (по умолчанию: `.speckeep/specs/<slug>/plan/tasks.md`).
 
 ## Goal
 
 Разбейте согласованный план на исполнимые implementation tasks.
+
+## Примечание о путях
+
+Пути в этом промпте показаны для layout по умолчанию. Если в `.speckeep/speckeep.yaml` переопределены `paths.specs_dir` или `project.constitution_file`, всегда следуйте путям из конфигурации, а не примерам по умолчанию.
+Читайте `.speckeep/speckeep.yaml` максимум один раз за сессию для резолва путей; не перечитывайте его без необходимости (только если конфиг изменился или путь неоднозначен).
 
 ## Phase Contract
 

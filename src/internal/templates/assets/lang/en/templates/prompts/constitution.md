@@ -1,10 +1,15 @@
 # SpecKeep Constitution Prompt
 
-You are creating or updating `.speckeep/constitution.md` for this project.
+You are creating or updating the project's constitution file (configured via `project.constitution_file`; default: `.speckeep/constitution.md`).
 
 ## Goal
 
 Produce a strict project constitution that is authoritative for both humans and development agents.
+
+## Path Resolution
+
+Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `project.constitution_file`, `paths.specs_dir`, or `paths.archive_dir`, always follow the configured paths instead of the defaults shown here.
+Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
 
 For a **greenfield project** (from scratch), focus on establishing immutable architectural boundaries, selecting the technology stack, and defining quality standards that will serve as the basis for the subsequent "Foundation" design.
 

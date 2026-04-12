@@ -6,6 +6,11 @@ You are archiving one feature package.
 
 Create a durable archive snapshot for one feature, or restore a previously archived feature back to active development.
 
+## Path Resolution
+
+Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `paths.specs_dir` or `paths.archive_dir`, always follow the configured paths instead of the defaults shown here.
+Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
+
 ## Flags
 
 `--copy`: keep originals in place after archiving (copy-only mode). By default, originals are deleted after archiving; `--copy` preserves them. Useful for `deferred` features that may return to active development.

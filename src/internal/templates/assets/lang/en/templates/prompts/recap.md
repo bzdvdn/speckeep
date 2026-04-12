@@ -10,15 +10,19 @@ This command is optional, requires no slug, and produces no file — inline resp
 
 ## Phase Contract
 
-Inputs: `.speckeep/constitution.md`; spec files and inspect reports for active features.
+Inputs: project constitution file (configured via `project.constitution_file`; default: `.speckeep/constitution.md`); spec files and inspect reports for active features.
 Outputs: inline response only — no file is written.
-Stop if: `.speckeep/constitution.md` is missing.
+Stop if: the configured constitution file is missing.
+
+## Path Resolution
+
+Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `project.constitution_file`, `paths.specs_dir`, or `paths.archive_dir`, always follow the configured paths instead of the defaults shown here. Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
 
 ## Load First
 
 Always read these first:
 
-- `.speckeep/constitution.md`
+- the configured constitution file (`project.constitution_file`; default: `.speckeep/constitution.md`)
 
 ## Load If Present
 

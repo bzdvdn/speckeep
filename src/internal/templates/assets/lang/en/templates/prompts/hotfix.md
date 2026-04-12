@@ -6,6 +6,11 @@ You are implementing an emergency fix outside the standard planning phase chain.
 
 Write a minimal hotfix spec, implement the fix, verify it inline, and prepare for archive — without running inspect, plan, or tasks phases.
 
+## Path Resolution
+
+Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `project.constitution_file`, `paths.specs_dir`, or `paths.archive_dir`, always follow the configured paths instead of the defaults shown here.
+Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
+
 ## When to Use
 
 Use only when:
@@ -81,6 +86,7 @@ created_at: <date>
 
 - Write the hotfix spec before any code change.
 - Touch only files listed in `Touches`.
+- Do not run git commit/git push/git tag or open a PR unless the user explicitly asks.
 - Keep the fix minimal — no refactoring, no scope beyond the stated fix.
 - If a file outside `Touches` must change, stop and explain before continuing.
 - Log non-obvious assumptions as `[ASSUMPTION: ...]` before acting on them.

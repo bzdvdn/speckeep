@@ -171,6 +171,7 @@ Optional advanced flags:
 
 - `--specs-dir` overrides where specs are stored (default: `.speckeep/specs`)
 - `--archive-dir` overrides where archived artifacts are stored (default: `.speckeep/archive`)
+- `--constitution-file` overrides where the project constitution is stored (default: `.speckeep/constitution.md`)
 
 ### 2. Write the spec
 

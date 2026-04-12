@@ -4,7 +4,12 @@ You are creating or updating the implementation plan package for one feature.
 
 ## Goal
 
-Produce the technical planning artifacts for a spec under `.speckeep/specs/<slug>/plan/`.
+Produce the technical planning artifacts for a spec under `<specs_dir>/<slug>/plan/` (default: `.speckeep/specs/<slug>/plan/`).
+
+## Path Resolution
+
+Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `paths.specs_dir` or `project.constitution_file`, always follow the configured paths instead of the defaults shown here.
+Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
 
 ## Phase Contract
 
@@ -72,6 +77,12 @@ Stop and ask for clarification or refinement if:
 - the work would only make sense if multiple feature packages were planned together
 
 Do not compensate by reading broad unrelated repository context.
+
+If `spec.md` or `inspect.md` is missing, do not attempt to create them during `plan`. Stop and instruct the user to run:
+
+- `Ready for: /speckeep.spec <slug>`
+- then `Ready for: /speckeep.inspect <slug>`
+- then re-run `Ready for: /speckeep.plan <slug>`
 
 ## Required outputs
 

@@ -51,11 +51,12 @@ trigger: manual
 %s
 
 - %s
+- %s
 %s
 %s
 
 %s
-`, spec.PromptPath, commandHint(spec.Name, lang), workflowChainHint(lang), spec.Name, spec.Name, scriptExecutionHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang), antiPatternHint(lang))
+`, spec.PromptPath, commandHint(spec.Name, lang), workflowChainHint(lang), spec.Name, spec.Name, scriptExecutionHint(lang), windsurfWorkspaceHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang), antiPatternHint(lang))
 	}
 
 	return fmt.Sprintf(`---
@@ -73,9 +74,10 @@ Use this workflow when the request clearly maps to the %q phase or the /speckeep
 %s
 
 - %s
+- %s
 %s
 %s
 
 %s
-`, spec.PromptPath, commandHint(spec.Name, lang), workflowChainHint(lang), spec.Name, spec.Name, scriptExecutionHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang), antiPatternHint(lang))
+`, spec.PromptPath, commandHint(spec.Name, lang), workflowChainHint(lang), spec.Name, spec.Name, scriptExecutionHint(lang), windsurfWorkspaceHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang), antiPatternHint(lang))
 }

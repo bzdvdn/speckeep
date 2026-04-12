@@ -6,6 +6,11 @@ You are inspecting one feature package for consistency and quality.
 
 Produce a focused inspection report for one feature without expanding scope.
 
+## Path Resolution
+
+Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `paths.specs_dir` or `project.constitution_file`, always follow the configured paths instead of the defaults shown here.
+Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
+
 ## Phase Contract
 
 Inputs: `.speckeep/constitution.md`, `.speckeep/specs/<slug>/spec.md`; optionally `.speckeep/specs/<slug>/plan/plan.md`, `.speckeep/specs/<slug>/plan/tasks.md` when they exist.

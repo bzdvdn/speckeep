@@ -21,14 +21,15 @@ const (
 )
 
 type RefreshOptions struct {
-	DefaultLang  string
-	DocsLang     string
-	AgentLang    string
-	CommentsLang string
-	Shell        string
-	AgentTargets []string
-	DryRun       bool
-	RewriteTrace bool
+	DefaultLang      string
+	DocsLang         string
+	AgentLang        string
+	CommentsLang     string
+	Shell            string
+	AgentTargets     []string
+	DryRun           bool
+	RewriteTrace     bool
+	ConstitutionFile string
 }
 
 type RefreshResult struct {
@@ -48,6 +49,7 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 	}
 
 	result := RefreshResult{DryRun: options.DryRun}
+	previousConstitutionFile := cfg.Project.ConstitutionFile
 
 	languages, shell, agentTargets, err := resolveRefreshSettings(cfg, options)
 	if err != nil {
@@ -64,7 +66,19 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 	cfg.Scripts = config.ScriptDefaultsForShell(shell)
 	cfg.Agents.Targets = agentTargets
 
+	if strings.TrimSpace(options.ConstitutionFile) != "" {
+		value := strings.TrimSpace(options.ConstitutionFile)
+		if filepath.IsAbs(value) {
+			return RefreshResult{}, fmt.Errorf("constitution-file must be a relative path, got %q", value)
+		}
+		cfg.Project.ConstitutionFile = value
+	}
+
 	if err := syncConfig(root, cfg, options.DryRun, &result); err != nil {
+		return RefreshResult{}, err
+	}
+
+	if err := moveConstitutionIfRequested(root, previousConstitutionFile, cfg.Project.ConstitutionFile, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
 	}
 
@@ -111,6 +125,48 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 
 	result.Messages = buildRefreshMessages(result)
 	return result, nil
+}
+
+func moveConstitutionIfRequested(root, previousPath, newPath string, dryRun bool, result *RefreshResult) error {
+	previousPath = strings.TrimSpace(previousPath)
+	newPath = strings.TrimSpace(newPath)
+	if previousPath == "" || newPath == "" || previousPath == newPath {
+		return nil
+	}
+
+	src := filepath.Clean(filepath.Join(root, previousPath))
+	dst := filepath.Clean(filepath.Join(root, newPath))
+
+	if !fileExists(src) {
+		result.Messages = append(result.Messages, fmt.Sprintf("warning: constitution not found at %s; nothing to move", rel(root, src)))
+		return nil
+	}
+	if fileExists(dst) {
+		result.Messages = append(result.Messages, fmt.Sprintf("warning: constitution already exists at %s; leaving %s in place", rel(root, dst), rel(root, src)))
+		return nil
+	}
+
+	result.Messages = append(result.Messages, fmt.Sprintf("move constitution: %s → %s", rel(root, src), rel(root, dst)))
+	if dryRun {
+		return nil
+	}
+
+	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+		return err
+	}
+	if err := os.Rename(src, dst); err == nil {
+		return nil
+	}
+
+	// Cross-device fallback: copy+remove.
+	content, err := os.ReadFile(src)
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(dst, content, 0o644); err != nil {
+		return err
+	}
+	return os.Remove(src)
 }
 
 func resolveRefreshSettings(cfg config.Config, options RefreshOptions) (templates.LanguageSettings, string, []string, error) {

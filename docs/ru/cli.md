@@ -35,7 +35,7 @@ powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.c
 ```bash
 speckeep init
 speckeep init my-project --lang ru --shell sh
-speckeep init my-project --lang ru --shell sh --specs-dir .speckeep/specifications --archive-dir .speckeep/artifacts/archive
+speckeep init my-project --lang ru --shell sh --specs-dir .speckeep/specifications --archive-dir .speckeep/artifacts/archive --constitution-file docs/constitution.md
 speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --shell powershell --agents claude --agents cursor
 ```
 
@@ -46,6 +46,7 @@ speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --she
 - `--shell` выбирает семейство генерируемых workflow scripts; обязателен: `sh` или `powershell`
 - `--specs-dir` переопределяет директорию спецификаций (advanced)
 - `--archive-dir` переопределяет директорию архива (advanced)
+- `--constitution-file` переопределяет путь к конституции проекта (advanced)
 - `--docs-lang` задает язык генерируемой документации
 - `--agent-lang` задает язык генерируемых промтов и guidance для агентов
 - `--comments-lang` фиксирует предпочитаемый язык комментариев в коде
@@ -82,6 +83,7 @@ speckeep refresh my-project --agent-lang ru --json
 
 - `--lang`, `--docs-lang`, `--agent-lang`, `--comments-lang` переопределяют существующие language settings из config
 - `--shell` переопределяет семейство генерируемых workflow scripts
+- `--constitution-file` переопределяет путь к конституции в config (и безопасно переносит существующий файл, когда это возможно)
 - `--agents` переопределяет набор включенных project-local agent targets
 - `--dry-run` показывает pending changes без записи на диск
 - `--json` выводит результат refresh в JSON

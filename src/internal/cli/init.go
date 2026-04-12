@@ -14,6 +14,7 @@ func newInitCmd() *cobra.Command {
 	var shell string
 	var specsDir string
 	var archiveDir string
+	var constitutionFile string
 	var agentTargets []string
 	var legacyAgentTargets []string
 
@@ -38,15 +39,16 @@ Notes:
 			}
 
 			result, err := project.Initialize(root, project.InitOptions{
-				InitGit:      initGit,
-				DefaultLang:  defaultLang,
-				DocsLang:     docsLang,
-				AgentLang:    agentLang,
-				CommentsLang: commentsLang,
-				Shell:        shell,
-				SpecsDir:     specsDir,
-				ArchiveDir:   archiveDir,
-				AgentTargets: append(agentTargets, legacyAgentTargets...),
+				InitGit:          initGit,
+				DefaultLang:      defaultLang,
+				DocsLang:         docsLang,
+				AgentLang:        agentLang,
+				CommentsLang:     commentsLang,
+				Shell:            shell,
+				SpecsDir:         specsDir,
+				ArchiveDir:       archiveDir,
+				ConstitutionFile: constitutionFile,
+				AgentTargets:     append(agentTargets, legacyAgentTargets...),
 			})
 			if err != nil {
 				return err
@@ -66,6 +68,7 @@ Notes:
 	cmd.Flags().StringVar(&shell, "shell", "", "shell for generated workflow scripts: sh or powershell")
 	cmd.Flags().StringVar(&specsDir, "specs-dir", "", "override specs directory (advanced): e.g. .speckeep/specs")
 	cmd.Flags().StringVar(&archiveDir, "archive-dir", "", "override archive directory (advanced): e.g. .speckeep/archive")
+	cmd.Flags().StringVar(&constitutionFile, "constitution-file", "", "override constitution file path (advanced): e.g. .speckeep/constitution.md or docs/constitution.md")
 	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "generate project-local agent command files for one or more targets: claude, codex, copilot, cursor, kilocode, trae, all")
 	cmd.Flags().StringSliceVar(&legacyAgentTargets, "agent", nil, "deprecated alias for --agents")
 	cmd.Flags().MarkHidden("agent")

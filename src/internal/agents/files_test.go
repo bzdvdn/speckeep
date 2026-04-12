@@ -125,6 +125,38 @@ func TestRenderEmphasizesRunningScriptsFirst(t *testing.T) {
 	}
 }
 
+func TestRenderWindsurfMentionsHiddenDirsAndRepoRoot(t *testing.T) {
+	spec := commandSpecs("sh")[3] // plan
+
+	_, content, err := render("windsurf", "en", spec)
+	if err != nil {
+		t.Fatalf("render returned error: %v", err)
+	}
+
+	if !strings.Contains(content, "hidden/dotfiles") {
+		t.Fatalf("expected windsurf output to mention hidden/dotfiles\ncontent:\n%s", content)
+	}
+	if !strings.Contains(content, "git rev-parse --show-toplevel") {
+		t.Fatalf("expected windsurf output to mention git rev-parse --show-toplevel\ncontent:\n%s", content)
+	}
+}
+
+func TestRenderIncludesNoCommitRule(t *testing.T) {
+	spec := commandSpecs("sh")[3] // plan
+
+	for _, target := range []string{"claude", "codex", "cursor", "kilocode", "windsurf"} {
+		t.Run(target, func(t *testing.T) {
+			_, content, err := render(target, "en", spec)
+			if err != nil {
+				t.Fatalf("render returned error: %v", err)
+			}
+			if !strings.Contains(content, "git commit") {
+				t.Fatalf("expected %s output to contain no-commit rule\ncontent:\n%s", target, content)
+			}
+		})
+	}
+}
+
 func TestRenderTraeEmphasizesRunningScriptsFirst(t *testing.T) {
 	tests := []struct {
 		name string

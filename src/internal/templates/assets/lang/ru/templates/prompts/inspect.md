@@ -6,6 +6,11 @@
 
 Сформируйте сфокусированный отчет проверки для одной фичи, не расширяя scope.
 
+## Примечание о путях
+
+Пути в этом промпте показаны для layout по умолчанию. Если в `.speckeep/speckeep.yaml` переопределены `paths.specs_dir` или `project.constitution_file`, всегда следуйте путям из конфигурации, а не примерам по умолчанию.
+Читайте `.speckeep/speckeep.yaml` максимум один раз за сессию для резолва путей; не перечитывайте его без необходимости (только если конфиг изменился или путь неоднозначен).
+
 ## Phase Contract
 
 Inputs: `.speckeep/constitution.md`, `.speckeep/specs/<slug>/spec.md`; опционально `.speckeep/specs/<slug>/plan/plan.md`, `.speckeep/specs/<slug>/plan/tasks.md`, если они существуют.

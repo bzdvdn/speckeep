@@ -4,7 +4,12 @@ You are creating or updating one feature spec.
 
 ## Goal
 
-Produce a clear feature specification at `.speckeep/specs/<slug>/spec.md` that is compliant with the constitution.
+Produce a clear feature specification at `<specs_dir>/<slug>/spec.md` (default: `.speckeep/specs/<slug>/spec.md`) that is compliant with the constitution.
+
+## Path Resolution
+
+Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `paths.specs_dir` or `project.constitution_file`, always follow the configured paths instead of the defaults shown here.
+Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
 
 Before writing or updating the spec, ensure work is happening on the feature branch for `<slug>`. The default branch naming convention is `feature/<slug>`.
 If the repo is under git, do this explicitly and reproducibly:
@@ -34,6 +39,7 @@ When `--amend` is present in the user arguments:
 - Prefer patching an existing spec over rewriting it.
 - Load only the minimum context needed to remove ambiguity.
 - Do not drift into planning or implementation.
+- Do not run git commit/git push/git tag or open a PR unless the user explicitly asks.
 - When `/.speckeep/scripts/check-spec-ready.*` is available, run it as a readiness check before writing the spec. If the slug is already known, pass it as an argument to enable the branch check.
 
 ## Load First

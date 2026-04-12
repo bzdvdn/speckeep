@@ -8,6 +8,10 @@ Answer one question: does the current plan, task list, or set of decisions stay 
 
 This command is optional, produces no persistent artifact, and can be called at any point in the workflow.
 
+## Path Resolution
+
+Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `project.constitution_file` or `paths.specs_dir`, always follow the configured paths instead of the defaults shown here. Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
+
 ## Phase Contract
 
 Inputs: `.speckeep/specs/<slug>/spec.md` (scope sections only), plus the target artifact for the flag in use.

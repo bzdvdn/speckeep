@@ -6,6 +6,11 @@ You are verifying one implemented feature package after task execution.
 
 Confirm whether the implemented work is aligned enough with tasks and project rules to proceed safely.
 
+## Path Resolution
+
+Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `paths.specs_dir`, `paths.archive_dir`, or `project.constitution_file`, always follow the configured paths instead of the defaults shown here.
+Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
+
 ## Flags
 
 `--deep`: full implementation validation mode — read all plan artifacts and inspect actual code for every completed task and acceptance criterion, not just structural checks. Produces a comprehensive report with per-AC evidence. Without this flag, verification stays structural and cheap by default.
@@ -64,6 +69,7 @@ Stop and ask for clarification only if:
 - Verify that completed tasks are consistent with the current state of the feature package.
 - **Traceability Evidence**: Use `/.speckeep/scripts/trace.* <slug>` to scan for `@sk-task` and `@sk-test` annotations in the code. Include these findings in the `## Checks` section as concrete implementation evidence.
 - **Legacy Fallback**: If `trace` returns no findings (e.g., for older features without annotations), proceed with manual inspection: for each completed task, read the files listed in its `Touches:` field and confirm the specific change described in the task outcome is present. Check that the observable behavior named in each `AC-*` is reachable from those files. Do not invent evidence — if a claim cannot be confirmed from `Touches:` files, record it as unverified in `## Not Verified`. Note the lack of annotations as a minor warning in the report.
+- Do not run git commit/git push/git tag or open a PR unless the user explicitly asks.
 - Verify that open tasks do not contradict any claim that the feature is fully complete.
 - Verify acceptance-to-task coverage consistency when `tasks.md` includes an `Acceptance Coverage` section.
 - When `tasks.md` uses task IDs such as `T1.1`, reference those IDs directly in checks, findings, and conclusions.

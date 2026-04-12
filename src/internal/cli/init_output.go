@@ -19,7 +19,7 @@ func printInitOutput(w io.Writer, result project.InitResult) {
 	fmt.Fprintf(w, "Selected script type: %s\n", result.Shell)
 	fmt.Fprintf(w, "Configured languages: docs=%s agent=%s comments=%s\n", result.DocsLang, result.AgentLang, result.CommentsLang)
 	if result.SpecsDir != "" || result.ArchiveDir != "" {
-		fmt.Fprintf(w, "Configured paths: specs=%s archive=%s\n", result.SpecsDir, result.ArchiveDir)
+		fmt.Fprintf(w, "Configured paths: constitution=%s specs=%s archive=%s\n", result.ConstitutionFile, result.SpecsDir, result.ArchiveDir)
 	}
 	fmt.Fprintf(w, "enabled agent targets: %s\n\n", agentTargets)
 

@@ -54,16 +54,23 @@ func newInternalListSpecsCmd() *cobra.Command {
 		SilenceErrors: true,
 		Args:          cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			specsDir := ".speckeep/specs"
-			if len(args) == 1 {
-				specsDir = args[0]
+			specsDirDisplay := ".speckeep/specs"
+			if cfg, err := config.Load(root); err == nil {
+				if strings.TrimSpace(cfg.Paths.SpecsDir) != "" {
+					specsDirDisplay = strings.TrimSpace(cfg.Paths.SpecsDir)
+				}
 			}
+			if len(args) == 1 && strings.TrimSpace(args[0]) != "" {
+				specsDirDisplay = args[0]
+			}
+
+			specsDir := specsDirDisplay
 			if !filepath.IsAbs(specsDir) {
-				specsDir = filepath.Join(root, filepath.FromSlash(specsDir))
+				specsDir = filepath.Join(root, filepath.FromSlash(specsDirDisplay))
 			}
 			if _, err := os.Stat(specsDir); err != nil {
 				if os.IsNotExist(err) {
-					return newExitError(1, fmt.Sprintf("specs directory not found: %s", filepath.ToSlash(argsOrDefault(args, ".speckeep/specs"))))
+					return newExitError(1, fmt.Sprintf("specs directory not found: %s", filepath.ToSlash(specsDirDisplay)))
 				}
 				return err
 			}
@@ -91,7 +98,12 @@ func newInternalShowSpecCmd() *cobra.Command {
 		Args:          cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			specsDirDisplay := ".speckeep/specs"
-			if len(args) == 2 {
+			if cfg, err := config.Load(root); err == nil {
+				if strings.TrimSpace(cfg.Paths.SpecsDir) != "" {
+					specsDirDisplay = strings.TrimSpace(cfg.Paths.SpecsDir)
+				}
+			}
+			if len(args) == 2 && strings.TrimSpace(args[1]) != "" {
 				specsDirDisplay = args[1]
 			}
 			specsDir := specsDirDisplay

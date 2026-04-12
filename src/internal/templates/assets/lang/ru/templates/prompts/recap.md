@@ -10,15 +10,19 @@
 
 ## Phase Contract
 
-Inputs: `.speckeep/constitution.md`; spec-файлы и inspect-отчёты для активных фич.
+Inputs: файл конституции проекта (путь задается `project.constitution_file`; по умолчанию: `.speckeep/constitution.md`); spec-файлы и inspect-отчёты для активных фич.
 Outputs: только inline-ответ — файл не записывается.
-Stop if: `.speckeep/constitution.md` отсутствует.
+Stop if: файл конституции из конфигурации отсутствует.
+
+## Примечание о путях
+
+Пути в этом промпте показаны для layout по умолчанию. Если в `.speckeep/speckeep.yaml` переопределены `project.constitution_file`, `paths.specs_dir` или `paths.archive_dir`, всегда следуйте путям из конфигурации, а не примерам по умолчанию. Читайте `.speckeep/speckeep.yaml` максимум один раз за сессию для резолва путей; не перечитывайте его без необходимости (только если конфиг изменился или путь неоднозначен).
 
 ## Load First
 
 Всегда сначала читайте:
 
-- `.speckeep/constitution.md`
+- файл конституции из конфигурации (`project.constitution_file`; по умолчанию: `.speckeep/constitution.md`)
 
 ## Load If Present
 

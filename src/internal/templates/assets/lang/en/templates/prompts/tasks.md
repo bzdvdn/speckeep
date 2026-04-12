@@ -1,10 +1,15 @@
 # SpecKeep Tasks Prompt
 
-You are creating or updating `.speckeep/specs/<slug>/plan/tasks.md`.
+You are creating or updating `<specs_dir>/<slug>/plan/tasks.md` (default: `.speckeep/specs/<slug>/plan/tasks.md`).
 
 ## Goal
 
 Break an approved plan into executable implementation tasks.
+
+## Path Resolution
+
+Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `paths.specs_dir` or `project.constitution_file`, always follow the configured paths instead of the defaults shown here.
+Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
 
 ## Phase Contract
 

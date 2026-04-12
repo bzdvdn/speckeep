@@ -63,8 +63,9 @@ func TestInitCommandSupportsCustomSpecsAndArchiveDirs(t *testing.T) {
 
 	specsDir := ".speckeep/specifications"
 	archiveDir := ".speckeep/artifacts/archive"
+	constitutionFile := "docs/constitution.md"
 
-	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh", "--specs-dir", specsDir, "--archive-dir", archiveDir); err != nil {
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh", "--specs-dir", specsDir, "--archive-dir", archiveDir, "--constitution-file", constitutionFile); err != nil {
 		t.Fatalf("init command returned error: %v", err)
 	}
 
@@ -78,6 +79,9 @@ func TestInitCommandSupportsCustomSpecsAndArchiveDirs(t *testing.T) {
 	}
 	if cfg.Paths.ArchiveDir != archiveDir {
 		t.Fatalf("expected archive_dir=%q, got %q", archiveDir, cfg.Paths.ArchiveDir)
+	}
+	if cfg.Project.ConstitutionFile != constitutionFile {
+		t.Fatalf("expected constitution_file=%q, got %q", constitutionFile, cfg.Project.ConstitutionFile)
 	}
 
 	absSpecsDir, err := cfg.SpecsDir(root)
@@ -94,6 +98,48 @@ func TestInitCommandSupportsCustomSpecsAndArchiveDirs(t *testing.T) {
 	}
 	if _, err := os.Stat(absArchiveDir); err != nil {
 		t.Fatalf("expected archive directory to exist: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(root, constitutionFile)); err != nil {
+		t.Fatalf("expected constitution file to exist: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(root, ".speckeep", "constitution.md")); !os.IsNotExist(err) {
+		t.Fatalf("expected default constitution.md to be absent when constitution-file is overridden, got err=%v", err)
+	}
+}
+
+func TestInternalListSpecsRespectsConfiguredSpecsDir(t *testing.T) {
+	root := t.TempDir()
+
+	specsDir := ".speckeep/specifications"
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh", "--specs-dir", specsDir); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	slug := "alpha"
+	specPath := filepath.Join(root, specsDir, slug, "spec.md")
+	if err := os.MkdirAll(filepath.Dir(specPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(specPath, []byte("# Alpha\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile returned error: %v", err)
+	}
+
+	stdout, _, err := executeRoot(t, "__internal", "list-specs", "--root", root)
+	if err != nil {
+		t.Fatalf("internal list-specs returned error: %v", err)
+	}
+	if strings.TrimSpace(stdout) != "alpha" {
+		t.Fatalf("unexpected list-specs output: %q", stdout)
+	}
+
+	stdout, _, err = executeRoot(t, "__internal", "show-spec", "--root", root, slug)
+	if err != nil {
+		t.Fatalf("internal show-spec returned error: %v", err)
+	}
+	if strings.TrimSpace(stdout) != "# Alpha" {
+		t.Fatalf("unexpected show-spec output: %q", stdout)
 	}
 }
 
@@ -905,6 +951,47 @@ func TestRefreshCommandUpdatesManagedArtifacts(t *testing.T) {
 
 	if _, err := os.Stat(filepath.Join(root, ".speckeep", "scripts", "check-spec-ready.ps1")); err != nil {
 		t.Fatalf("expected refreshed powershell script to exist: %v", err)
+	}
+}
+
+func TestRefreshCommandCanMoveConstitutionFile(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	oldPath := filepath.Join(root, ".speckeep", "constitution.md")
+	oldContent, err := os.ReadFile(oldPath)
+	if err != nil {
+		t.Fatalf("ReadFile returned error: %v", err)
+	}
+
+	newRel := "docs/constitution.md"
+	newAbs := filepath.Join(root, newRel)
+
+	if _, _, err := executeRoot(t, "refresh", root, "--constitution-file", newRel); err != nil {
+		t.Fatalf("refresh command returned error: %v", err)
+	}
+
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("Load config returned error: %v", err)
+	}
+	if cfg.Project.ConstitutionFile != newRel {
+		t.Fatalf("expected constitution_file=%q, got %q", newRel, cfg.Project.ConstitutionFile)
+	}
+
+	if _, err := os.Stat(oldPath); !os.IsNotExist(err) {
+		t.Fatalf("expected old constitution file to be moved away, got err=%v", err)
+	}
+
+	newContent, err := os.ReadFile(newAbs)
+	if err != nil {
+		t.Fatalf("expected new constitution file to exist: %v", err)
+	}
+	if string(newContent) != string(oldContent) {
+		t.Fatalf("expected moved constitution content to match")
 	}
 }
 

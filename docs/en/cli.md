@@ -35,7 +35,7 @@ Examples:
 ```bash
 speckeep init
 speckeep init my-project --lang en --shell sh
-speckeep init my-project --lang en --shell sh --specs-dir .speckeep/specifications --archive-dir .speckeep/artifacts/archive
+speckeep init my-project --lang en --shell sh --specs-dir .speckeep/specifications --archive-dir .speckeep/artifacts/archive --constitution-file docs/constitution.md
 speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --shell powershell --agents claude --agents cursor
 ```
 
@@ -46,6 +46,7 @@ Important flags:
 - `--shell` selects the generated workflow script family; required: `sh` or `powershell`
 - `--specs-dir` overrides the specs directory (advanced)
 - `--archive-dir` overrides the archive directory (advanced)
+- `--constitution-file` overrides the constitution file path (advanced)
 - `--docs-lang` sets the generated documentation language
 - `--agent-lang` sets the generated prompt and agent guidance language
 - `--comments-lang` records the preferred code comment language
@@ -82,6 +83,7 @@ Important flags:
 
 - `--lang`, `--docs-lang`, `--agent-lang`, `--comments-lang` override the existing configured languages
 - `--shell` overrides the generated workflow script family
+- `--constitution-file` overrides the configured constitution file path (and safely moves the existing file when possible)
 - `--agents` overrides enabled project-local agent targets
 - `--dry-run` reports pending managed changes without writing them
 - `--json` outputs the refresh result as JSON

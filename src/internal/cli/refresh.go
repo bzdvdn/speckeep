@@ -14,6 +14,7 @@ func newRefreshCmd() *cobra.Command {
 	var agentLang string
 	var commentsLang string
 	var shell string
+	var constitutionFile string
 	var jsonOutput bool
 	var dryRun bool
 	var rewriteTrace bool
@@ -51,14 +52,15 @@ Tip: use --dry-run to preview changes without writing.`,
 			}
 
 			result, err := project.Refresh(root, project.RefreshOptions{
-				DefaultLang:  defaultLang,
-				DocsLang:     docsLang,
-				AgentLang:    agentLang,
-				CommentsLang: commentsLang,
-				Shell:        shell,
-				AgentTargets: append(agentTargets, legacyAgentTargets...),
-				DryRun:       dryRun,
-				RewriteTrace: rewriteTrace,
+				DefaultLang:      defaultLang,
+				DocsLang:         docsLang,
+				AgentLang:        agentLang,
+				CommentsLang:     commentsLang,
+				Shell:            shell,
+				ConstitutionFile: constitutionFile,
+				AgentTargets:     append(agentTargets, legacyAgentTargets...),
+				DryRun:           dryRun,
+				RewriteTrace:     rewriteTrace,
 			})
 			if err != nil {
 				return err
@@ -94,6 +96,7 @@ Tip: use --dry-run to preview changes without writing.`,
 	cmd.Flags().StringVar(&agentLang, "agent-lang", "", "override the generated prompt and AGENTS guidance language: en or ru")
 	cmd.Flags().StringVar(&commentsLang, "comments-lang", "", "override the preferred code comment language: en or ru")
 	cmd.Flags().StringVar(&shell, "shell", "", "override the generated workflow script family: sh or powershell")
+	cmd.Flags().StringVar(&constitutionFile, "constitution-file", "", "override the constitution file path and (safely) move the existing file when possible")
 	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "override enabled project-local agent targets: claude, codex, copilot, cursor, kilocode, trae, all")
 	cmd.Flags().StringSliceVar(&legacyAgentTargets, "agent", nil, "deprecated alias for --agents")
 	cmd.Flags().MarkHidden("agent")

@@ -203,6 +203,7 @@ func antiPatternHint(lang string) string {
 - читать или анализировать исходный код scripts
 - перепланировать или редизайнить во время implement
 - отмечать таск завершённым без observable proof
+- выполнять git commit/git push/git tag или создавать PR без явной просьбы пользователя (коммиты — ответственность разработчика)
 - читать весь репозиторий, когда промпт говорит "минимальный контекст"`
 	}
 	return `Do not:
@@ -210,6 +211,7 @@ func antiPatternHint(lang string) string {
 - read or inspect script source code
 - re-plan or re-design during implement
 - mark a task as done without observable proof
+- run git commit/git push/git tag or open a PR unless the user explicitly asks (commits are the developer's responsibility)
 - read the full repository when the prompt says "minimum context"`
 }
 
@@ -218,6 +220,13 @@ func scriptExecutionHint(lang string) string {
 		return "Когда для фазы есть связанные scripts — выполняйте их как shell-команды (например `bash ./path/to/script.sh`). Доверяйте stdout и exit-коду скрипта. Не читайте, не анализируйте и не модифицируйте исходный код скриптов. Если скрипт завершился с ошибкой (exit code ≠ 0), сообщите пользователю вывод ошибки и остановитесь."
 	}
 	return "When related scripts are listed for a phase, execute them as shell commands (e.g. `bash ./path/to/script.sh`). Trust the script stdout and exit code as-is. Do not read, inspect, or modify the script source. If a script exits with a non-zero code, report the error output to the user and stop."
+}
+
+func windsurfWorkspaceHint(lang string) string {
+	if lang == "ru" {
+		return "Примечание (Windsurf): убедитесь, что hidden/dotfiles индексируются и видны (папка `.speckeep/`). Перед запуском scripts работайте из корня репозитория (где лежит `.speckeep/`): `cd \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\"`."
+	}
+	return "Note (Windsurf): ensure hidden/dotfiles are indexed and visible (the `.speckeep/` folder). Before running scripts, work from the repo root (where `.speckeep/` lives): `cd \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\"`."
 }
 
 func scriptListBlock(items []string, lang string) string {
