@@ -117,19 +117,58 @@ func TestFilesBuildForSupportedLanguages(t *testing.T) {
 			if tc.settings.Shell == "powershell" {
 				ext = ".ps1"
 			}
-			requiredFiles = append(requiredFiles,
-				"scripts/run-speckeep"+ext,
-				"scripts/check-inspect-ready"+ext,
-				"scripts/check-archive-ready"+ext,
-				"scripts/check-verify-ready"+ext,
-				"scripts/verify-task-state"+ext,
-			)
-			for _, required := range requiredFiles {
-				if _, ok := targets[required]; !ok {
-					t.Fatalf("expected generated file set to include %s", required)
+				requiredFiles = append(requiredFiles,
+					"scripts/run-speckeep"+ext,
+					"scripts/check-inspect-ready"+ext,
+					"scripts/check-archive-ready"+ext,
+					"scripts/check-verify-ready"+ext,
+					"scripts/verify-task-state"+ext,
+					"scripts/inspect-spec"+ext,
+					"scripts/trace"+ext,
+				)
+				for _, required := range requiredFiles {
+					if _, ok := targets[required]; !ok {
+						t.Fatalf("expected generated file set to include %s", required)
+					}
 				}
-			}
-		})
+			})
+		}
+	}
+
+func TestInspectSpecScriptResolvesSlugViaConfig(t *testing.T) {
+	files, err := Files(LanguageSettings{
+		Default:  "en",
+		Docs:     "en",
+		Agent:    "en",
+		Comments: "en",
+		Shell:    "sh",
+	})
+	if err != nil {
+		t.Fatalf("Files() returned error: %v", err)
+	}
+	content := fileContentByTarget(t, files, "scripts/inspect-spec.sh")
+	if !strings.Contains(content, "specs_dir") {
+		t.Fatalf("expected inspect-spec.sh to reference specs_dir for non-default layouts")
+	}
+	if !strings.Contains(content, "<spec-file|slug>") {
+		t.Fatalf("expected inspect-spec.sh usage to accept slug\ncontent:\n%s", content)
+	}
+}
+
+func TestTraceScriptPinsRootDir(t *testing.T) {
+	files, err := Files(LanguageSettings{
+		Default:  "en",
+		Docs:     "en",
+		Agent:    "en",
+		Comments: "en",
+		Shell:    "sh",
+	})
+	if err != nil {
+		t.Fatalf("Files() returned error: %v", err)
+	}
+	content := fileContentByTarget(t, files, "scripts/trace.sh")
+	if !strings.Contains(content, "ROOT_DIR") {
+		t.Fatalf("expected trace.sh to pin ROOT_DIR so it can run from any cwd")
 	}
 }
 

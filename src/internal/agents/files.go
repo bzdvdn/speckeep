@@ -239,7 +239,28 @@ func scriptListBlock(items []string, lang string) string {
 	}
 	lines := []string{"- " + header}
 	for _, item := range items {
-		lines = append(lines, fmt.Sprintf("  - `%s`", item))
+		display := item
+		switch {
+		case strings.Contains(item, "check-spec-ready"):
+			display = item + " <slug>"
+		case strings.Contains(item, "check-inspect-ready"):
+			display = item + " <slug>"
+		case strings.Contains(item, "check-plan-ready"):
+			display = item + " <slug>"
+		case strings.Contains(item, "check-tasks-ready"):
+			display = item + " <slug>"
+		case strings.Contains(item, "check-implement-ready"):
+			display = item + " <slug>"
+		case strings.Contains(item, "check-verify-ready"):
+			display = item + " <slug>"
+		case strings.Contains(item, "check-archive-ready"):
+			display = item + " <slug> completed"
+		case strings.Contains(item, "verify-task-state"):
+			display = item + " <slug>"
+		case strings.Contains(item, "list-open-tasks"):
+			display = item + " <slug>"
+		}
+		lines = append(lines, fmt.Sprintf("  - `%s`", display))
 	}
 	return strings.Join(lines, "\n")
 }

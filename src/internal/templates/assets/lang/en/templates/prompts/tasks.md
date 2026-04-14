@@ -81,6 +81,7 @@ Do not jump ahead into implementation.
 - Never read unrelated feature artifacts to compensate for underspecified planning.
 - Read implementation code only when the task list would otherwise stay vague; prefer a narrow file slice over broad exploration.
 - When `/.speckeep/scripts/check-tasks-ready.*` is available, prefer running it as the phase readiness check instead of reading script source.
+- Important: the readiness wrapper runs with the slug as the first argument. Example: `bash ./.speckeep/scripts/check-tasks-ready.sh <slug>` (or PowerShell: `.\.speckeep\scripts\check-tasks-ready.ps1 <slug>`).
 - Do not read `/.speckeep/scripts/*` by default unless you are debugging the scripts, working on SpecKeep itself, or the user explicitly asks to inspect script logic.
 - The task list must be executable in order.
 - Every acceptance criterion must be covered by at least one task.

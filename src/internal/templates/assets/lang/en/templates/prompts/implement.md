@@ -98,7 +98,7 @@ Do not broaden scope to solve these problems.
 
 **Session start** (before first task):
 
-1. Run `.speckeep/scripts/check-implement-ready.*` if available.
+1. Run `.speckeep/scripts/check-implement-ready.*` if available (pass the slug as the first argument: `bash ./.speckeep/scripts/check-implement-ready.sh <slug>`).
 2. Read `tasks.md`; use `## Surface Map` as the batch-read manifest — it lists every implementation surface and which tasks touch it. If Surface Map is missing, fall back to collecting `Touches:` fields from in-scope tasks.
 3. Batch-read all surfaces from the manifest in one pass. Execute tasks from pre-loaded context — do not re-open files between tasks.
 
@@ -112,6 +112,7 @@ Do not broaden scope to solve these problems.
 - Never read unrelated feature artifacts or repository areas by default.
 - Do not re-read files between tasks; rely on the session start batch read and your own edit history.
 - When `/.speckeep/scripts/check-implement-ready.*` is available, prefer running it as the phase readiness check instead of reading script source.
+- Important: the readiness wrapper runs with the slug as the first argument. Example: `bash ./.speckeep/scripts/check-implement-ready.sh <slug>` (or PowerShell: `.\.speckeep\scripts\check-implement-ready.ps1 <slug>`).
 - Do not read `/.speckeep/scripts/*` by default unless you are debugging the scripts, working on SpecKeep itself, or the user explicitly asks to inspect script logic.
 - If a task cannot be implemented safely from current artifacts, stop and request refinement.
 - If you need to make a non-obvious assumption to proceed (API shape, data format, error handling choice), log it as `[ASSUMPTION: ...]` in your progress output before acting on it. If the assumption significantly affects acceptance scope, stop and ask before proceeding.

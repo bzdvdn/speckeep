@@ -65,6 +65,7 @@ Stop if: slug неоднозначен, spec отсутствует, или от
 
 - Сначала проверяйте соответствие конституции.
 - Если доступен `/.speckeep/scripts/check-inspect-ready.*`, предпочитайте его как cheap first pass перед углублением в артефакты.
+- Важно: readiness wrapper запускается со slug как первым аргументом. Пример: `bash ./.speckeep/scripts/check-inspect-ready.sh <slug>` (или PowerShell: `.\.speckeep\scripts\check-inspect-ready.ps1 <slug>`).
 - Используйте `/.speckeep/scripts/inspect-spec.*` только как fallback, когда phase readiness wrapper недоступен.
 - Если оба скрипта недоступны, выполняйте полную ручную проверку напрямую по `constitution.md` и `spec.md` — не останавливайтесь и не ждите скриптов.
 - Предпочитайте вывод helper scripts чтению их исходников.

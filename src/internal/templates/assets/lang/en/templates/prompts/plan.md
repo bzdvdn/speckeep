@@ -118,6 +118,7 @@ Before creating `research.md`, write down the concrete unknowns first:
 - Never read unrelated feature artifacts to compensate for missing clarity.
 - Read code narrowly: only enough to ground implementation surfaces, integration boundaries, and repository constraints for this feature.
 - When `/.speckeep/scripts/check-plan-ready.*` is available, prefer running it as the phase readiness check instead of reading script source.
+- Important: the readiness wrapper runs with the slug as the first argument. Example: `bash ./.speckeep/scripts/check-plan-ready.sh <slug>` (or PowerShell: `.\.speckeep\scripts\check-plan-ready.ps1 <slug>`).
 - Do not read `/.speckeep/scripts/*` by default unless you are debugging the scripts, working on SpecKeep itself, or the user explicitly asks to inspect script logic.
 - Prefer concrete implementation decisions over generic advice.
 - Record technologies, libraries, framework choices, or version constraints only when they materially affect implementation shape, integration boundaries, validation, or risk.

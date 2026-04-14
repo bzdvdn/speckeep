@@ -61,6 +61,7 @@ Stop and ask for clarification only if:
 
 - Start from `tasks.md` as the verification entrypoint.
 - If `/.speckeep/scripts/check-verify-ready.*` is available, prefer it as the cheap first pass before reading deeper artifacts.
+- Important: the readiness wrapper runs with the slug as the first argument. Example: `bash ./.speckeep/scripts/check-verify-ready.sh <slug>` (or PowerShell: `.\.speckeep\scripts\check-verify-ready.ps1 <slug>`).
 - Use `/.speckeep/scripts/verify-task-state.*` only as a fallback when the phase-readiness wrapper is unavailable.
 - Prefer helper script output over reading helper script source.
 - Do not read `/.speckeep/scripts/*` by default unless you are debugging the script, working on SpecKeep itself, or the user explicitly asks to inspect script logic.

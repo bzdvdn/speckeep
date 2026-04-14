@@ -51,8 +51,8 @@ Examples (Windows):
 
 ### Default mode
 
-- Say: `Ready for: ./.speckeep/scripts/archive-feature.sh <slug> --status <status>` (add `--reason "..."`
-  when status is not `completed`, or when the user explicitly wants to preserve a reason even for `completed`)
+- If archiving as `completed` (default): `Ready for: ./.speckeep/scripts/archive-feature.sh <slug>`
+- If archiving with a different status: `Ready for: ./.speckeep/scripts/archive-feature.sh <slug> --status <status> --reason "<reason>"` (and add `--copy` when needed)
 - After execution: confirm success, summarize status and archived files
 - State that archive is the terminal workflow step for this feature
 

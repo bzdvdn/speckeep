@@ -51,8 +51,8 @@
 
 ### Режим по умолчанию
 
-- Сообщите: `Готово к: ./.speckeep/scripts/archive-feature.sh <slug> --status <status>` (добавьте `--reason "..."`
-  если статус не `completed`, или если пользователь явно хочет сохранить причину даже для `completed`)
+- Если архивируете как `completed` (по умолчанию): `Готово к: ./.speckeep/scripts/archive-feature.sh <slug>`
+- Если архивируете с другим статусом: `Готово к: ./.speckeep/scripts/archive-feature.sh <slug> --status <status> --reason "<причина>"` (а при необходимости добавьте `--copy`)
 - После выполнения: подтвердите успех, суммируйте статус и архивированные файлы
 - Укажите, что archive — это терминальный шаг workflow для этой фичи
 

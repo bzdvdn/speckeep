@@ -139,6 +139,9 @@ func TestRenderWindsurfMentionsHiddenDirsAndRepoRoot(t *testing.T) {
 	if !strings.Contains(content, "git rev-parse --show-toplevel") {
 		t.Fatalf("expected windsurf output to mention git rev-parse --show-toplevel\ncontent:\n%s", content)
 	}
+	if !strings.Contains(content, "require `<slug>` as the first argument") {
+		t.Fatalf("expected windsurf output to mention passing slug to readiness scripts\ncontent:\n%s", content)
+	}
 }
 
 func TestRenderIncludesNoCommitRule(t *testing.T) {

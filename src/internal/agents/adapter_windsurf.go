@@ -50,6 +50,8 @@ trigger: manual
 
 %s
 
+Важно: readiness scripts почти всегда требуют `+"`<slug>`"+` первым аргументом. Пример: `+"`bash ./.speckeep/scripts/check-tasks-ready.sh <slug>`"+`.
+
 - %s
 - %s
 %s
@@ -72,6 +74,8 @@ First, open and read %q (mandatory). Then follow its "Output expectations" secti
 Use this workflow when the request clearly maps to the %q phase or the /speckeep.%s command.
 
 %s
+
+Important: readiness scripts almost always require `+"`<slug>`"+` as the first argument. Example: `+"`bash ./.speckeep/scripts/check-tasks-ready.sh <slug>`"+`.
 
 - %s
 - %s

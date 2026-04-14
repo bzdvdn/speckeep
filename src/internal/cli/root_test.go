@@ -818,6 +818,52 @@ func TestCheckCommandBlocksWhenReadinessErrorsPresent(t *testing.T) {
 	}
 }
 
+func TestCheckCommandResolvesCustomSpecsDir(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh", "--specs-dir", "docs/specs", "--archive-dir", "docs/specs-archive"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	specPath := filepath.Join(root, "docs", "specs", "demo", "spec.md")
+	specContent := "# Demo\n\n## Goal\nx\n\n## Requirements\n- RQ-001 x\n\n## Acceptance Criteria\n### AC-001 Demo\n- Given x\n- When y\n- Then z\n"
+	if err := os.MkdirAll(filepath.Dir(specPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(specPath, []byte(specContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+
+	stdout, _, err := executeRoot(t, "check", "demo", root, "--json")
+	if err != nil {
+		t.Fatalf("check --json command returned error: %v", err)
+	}
+
+	var payload struct {
+		Artifacts struct {
+			Spec struct {
+				Present bool `json:"present"`
+			} `json:"spec"`
+			Inspect struct {
+				Present bool `json:"present"`
+			} `json:"inspect"`
+		} `json:"artifacts"`
+		NextCommand string `json:"next_command"`
+	}
+	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
+		t.Fatalf("failed to parse check json output %q: %v", stdout, err)
+	}
+	if !payload.Artifacts.Spec.Present {
+		t.Fatalf("expected spec present=true in json output, got %q", stdout)
+	}
+	if payload.Artifacts.Inspect.Present {
+		t.Fatalf("expected inspect present=false in json output, got %q", stdout)
+	}
+	if payload.NextCommand != "/speckeep.inspect demo" {
+		t.Fatalf("expected next_command inspect, got %q", payload.NextCommand)
+	}
+}
+
 func TestDoctorCommandPrefixesWorkspaceAndFeatureFindings(t *testing.T) {
 	root := t.TempDir()
 

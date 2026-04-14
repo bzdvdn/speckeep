@@ -61,6 +61,7 @@ Stop if: slug неоднозначен, tasks.md отсутствует, или 
 
 - Начинайте с `tasks.md` как verification entrypoint.
 - Если доступен `/.speckeep/scripts/check-verify-ready.*`, предпочитайте его как cheap first pass перед чтением более глубоких артефактов.
+- Важно: readiness wrapper запускается со slug как первым аргументом. Пример: `bash ./.speckeep/scripts/check-verify-ready.sh <slug>` (или PowerShell: `.\.speckeep\scripts\check-verify-ready.ps1 <slug>`).
 - Используйте `/.speckeep/scripts/verify-task-state.*` только как fallback, когда phase readiness wrapper недоступен.
 - Предпочитайте вывод helper scripts чтению их исходников.
 - Не читайте `/.speckeep/scripts/*` по умолчанию, если только не отлаживаете сам script, не работаете над самим SpecKeep или пользователь явно не просит проанализировать script logic.

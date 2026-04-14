@@ -65,6 +65,7 @@ Stop and ask a minimal follow-up question only if:
 
 - Check constitutional consistency first.
 - If `/.speckeep/scripts/check-inspect-ready.*` is available, prefer it as the cheap first pass before deepening into artifacts.
+- Important: the readiness wrapper runs with the slug as the first argument. Example: `bash ./.speckeep/scripts/check-inspect-ready.sh <slug>` (or PowerShell: `.\.speckeep\scripts\check-inspect-ready.ps1 <slug>`).
 - Use `/.speckeep/scripts/inspect-spec.*` only as a fallback when the phase-readiness wrapper is unavailable.
 - If neither script is available, proceed with full manual inspection using `constitution.md` and `spec.md` directly — do not stop or wait for the scripts.
 - Prefer helper script output over reading helper script source.
