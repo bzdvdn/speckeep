@@ -30,6 +30,8 @@ type RefreshOptions struct {
 	DryRun           bool
 	RewriteTrace     bool
 	ConstitutionFile string
+	SpecsDir         string
+	ArchiveDir       string
 }
 
 type RefreshResult struct {
@@ -50,6 +52,8 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 
 	result := RefreshResult{DryRun: options.DryRun}
 	previousConstitutionFile := cfg.Project.ConstitutionFile
+	previousSpecsDir := cfg.Paths.SpecsDir
+	previousArchiveDir := cfg.Paths.ArchiveDir
 
 	languages, shell, agentTargets, err := resolveRefreshSettings(cfg, options)
 	if err != nil {
@@ -74,11 +78,33 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 		cfg.Project.ConstitutionFile = value
 	}
 
-	if err := syncConfig(root, cfg, options.DryRun, &result); err != nil {
+	if strings.TrimSpace(options.SpecsDir) != "" {
+		value := strings.TrimSpace(options.SpecsDir)
+		if filepath.IsAbs(value) {
+			return RefreshResult{}, fmt.Errorf("specs-dir must be a relative path, got %q", value)
+		}
+		cfg.Paths.SpecsDir = filepath.ToSlash(filepath.Clean(value))
+	}
+
+	if strings.TrimSpace(options.ArchiveDir) != "" {
+		value := strings.TrimSpace(options.ArchiveDir)
+		if filepath.IsAbs(value) {
+			return RefreshResult{}, fmt.Errorf("archive-dir must be a relative path, got %q", value)
+		}
+		cfg.Paths.ArchiveDir = filepath.ToSlash(filepath.Clean(value))
+	}
+
+	if err := moveDirIfRequested(root, "specs", previousSpecsDir, cfg.Paths.SpecsDir, options.DryRun, &result); err != nil {
+		return RefreshResult{}, err
+	}
+	if err := moveDirIfRequested(root, "archive", previousArchiveDir, cfg.Paths.ArchiveDir, options.DryRun, &result); err != nil {
+		return RefreshResult{}, err
+	}
+	if err := moveConstitutionIfRequested(root, previousConstitutionFile, cfg.Project.ConstitutionFile, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
 	}
 
-	if err := moveConstitutionIfRequested(root, previousConstitutionFile, cfg.Project.ConstitutionFile, options.DryRun, &result); err != nil {
+	if err := syncConfig(root, cfg, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
 	}
 
@@ -167,6 +193,83 @@ func moveConstitutionIfRequested(root, previousPath, newPath string, dryRun bool
 		return err
 	}
 	return os.Remove(src)
+}
+
+func moveDirIfRequested(root, label, previousPath, newPath string, dryRun bool, result *RefreshResult) error {
+	previousPath = strings.TrimSpace(previousPath)
+	newPath = strings.TrimSpace(newPath)
+	if previousPath == "" || newPath == "" || previousPath == newPath {
+		return nil
+	}
+	if filepath.IsAbs(previousPath) || filepath.IsAbs(newPath) {
+		return fmt.Errorf("%s path must be relative (got %q → %q)", label, previousPath, newPath)
+	}
+
+	src := filepath.Clean(filepath.Join(root, filepath.FromSlash(previousPath)))
+	dst := filepath.Clean(filepath.Join(root, filepath.FromSlash(newPath)))
+
+	if !dirExists(src) {
+		result.Messages = append(result.Messages, fmt.Sprintf("warning: %s directory not found at %s; nothing to move", label, rel(root, src)))
+		return nil
+	}
+	if dirExists(dst) {
+		return fmt.Errorf("%s directory already exists at %s; refusing to overwrite", label, rel(root, dst))
+	}
+
+	result.Messages = append(result.Messages, fmt.Sprintf("move %s dir: %s → %s", label, rel(root, src), rel(root, dst)))
+	if dryRun {
+		return nil
+	}
+
+	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+		return err
+	}
+	if err := os.Rename(src, dst); err == nil {
+		return nil
+	}
+
+	// Cross-device fallback: copy+remove.
+	if err := copyDir(src, dst); err != nil {
+		return err
+	}
+	return os.RemoveAll(src)
+}
+
+func dirExists(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
+}
+
+func copyDir(src, dst string) error {
+	return filepath.WalkDir(src, func(path string, entry os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		info, err := entry.Info()
+		if err != nil {
+			return err
+		}
+		if info.Mode()&os.ModeSymlink != 0 {
+			return fmt.Errorf("refusing to copy symlink at %s", path)
+		}
+
+		relPath, err := filepath.Rel(src, path)
+		if err != nil {
+			return err
+		}
+		target := filepath.Join(dst, relPath)
+		if entry.IsDir() {
+			return os.MkdirAll(target, info.Mode()&os.ModePerm)
+		}
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+			return err
+		}
+		return os.WriteFile(target, content, info.Mode()&os.ModePerm)
+	})
 }
 
 func resolveRefreshSettings(cfg config.Config, options RefreshOptions) (templates.LanguageSettings, string, []string, error) {

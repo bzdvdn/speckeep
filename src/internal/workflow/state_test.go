@@ -37,7 +37,29 @@ func TestStateInfersLifecycleAndReportStatuses(t *testing.T) {
 	if err := os.WriteFile(specPath, []byte("# Demo\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
+
+	state, err = State(root, "demo")
+	if err != nil {
+		t.Fatalf("State returned error: %v", err)
+	}
+	if state.Phase != "spec" || state.ReadyFor != "inspect" {
+		t.Fatalf("unexpected state after creating spec: %+v", state)
+	}
+
 	inspectPath := filepath.Join(specDir, "inspect.md")
+	inspectInvalid := "# Inspect Report: demo\n\n## Verdict\n\n(no status)\n"
+	if err := os.WriteFile(inspectPath, []byte(inspectInvalid), 0o644); err != nil {
+		t.Fatalf("WriteFile(inspect invalid) returned error: %v", err)
+	}
+
+	state, err = State(root, "demo")
+	if err != nil {
+		t.Fatalf("State returned error: %v", err)
+	}
+	if state.Phase != "spec" || state.ReadyFor != "inspect" {
+		t.Fatalf("expected invalid inspect report to require inspect, got %+v", state)
+	}
+
 	inspectContent := "---\nreport_type: inspect\nslug: demo\nstatus: concerns\ndocs_language: en\ngenerated_at: 2026-03-31\n---\n# Inspect Report: demo\n\n## Verdict\n\n- status: concerns\n"
 	if err := os.WriteFile(inspectPath, []byte(inspectContent), 0o644); err != nil {
 		t.Fatalf("WriteFile(inspect) returned error: %v", err)
@@ -52,6 +74,193 @@ func TestStateInfersLifecycleAndReportStatuses(t *testing.T) {
 	}
 	if state.InspectStatus != StatusConcerns {
 		t.Fatalf("InspectStatus = %q, want %q", state.InspectStatus, StatusConcerns)
+	}
+}
+
+func TestInferLifecycleEmptyTasksFile(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+	inspectContent := "---\nreport_type: inspect\nslug: demo\nstatus: pass\ndocs_language: en\ngenerated_at: 2026-03-31\n---\n## Verdict\n\n- status: pass\n"
+	if err := os.WriteFile(filepath.Join(specDir, "inspect.md"), []byte(inspectContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(inspect) returned error: %v", err)
+	}
+	planDir := filepath.Join(specDir, "plan")
+	if err := os.MkdirAll(planDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(planDir) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(planDir, "plan.md"), []byte("# Plan\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(plan) returned error: %v", err)
+	}
+	// tasks.md with no checkboxes (only headings)
+	if err := os.WriteFile(filepath.Join(planDir, "tasks.md"), []byte("# Tasks\n\n## Phase 1\n\nNo tasks defined yet.\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks) returned error: %v", err)
+	}
+
+	state, err := State(root, "demo")
+	if err != nil {
+		t.Fatalf("State returned error: %v", err)
+	}
+	if state.TasksTotal != 0 {
+		t.Fatalf("expected TasksTotal=0, got %d", state.TasksTotal)
+	}
+	if state.Phase != "plan" || state.ReadyFor != "tasks" {
+		t.Fatalf("expected phase=plan readyFor=tasks for empty tasks file, got phase=%s readyFor=%s", state.Phase, state.ReadyFor)
+	}
+}
+
+func TestStateTreatsInvalidVerifyReportAsNotVerified(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+	inspectContent := "---\nreport_type: inspect\nslug: demo\nstatus: pass\ndocs_language: en\ngenerated_at: 2026-03-31\n---\n## Verdict\n\n- status: pass\n"
+	if err := os.WriteFile(filepath.Join(specDir, "inspect.md"), []byte(inspectContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(inspect) returned error: %v", err)
+	}
+
+	planDir := filepath.Join(specDir, "plan")
+	if err := os.MkdirAll(planDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(planDir) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(planDir, "plan.md"), []byte("# Plan\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(plan) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(planDir, "tasks.md"), []byte("- [x] T1.1 done\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks) returned error: %v", err)
+	}
+
+	// Create an invalid verify report (missing status).
+	if err := os.WriteFile(filepath.Join(planDir, "verify.md"), []byte("# Verify Report: demo\n\n## Verdict\n\n(no status)\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(verify invalid) returned error: %v", err)
+	}
+
+	state, err := State(root, "demo")
+	if err != nil {
+		t.Fatalf("State returned error: %v", err)
+	}
+	if state.Phase != "verify" || state.ReadyFor != "verify" {
+		t.Fatalf("expected invalid verify report to require verify, got %+v", state)
+	}
+}
+
+func TestInferLifecycleSubTaskCheckboxes(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+	inspectContent := "---\nreport_type: inspect\nslug: demo\nstatus: pass\ndocs_language: en\ngenerated_at: 2026-03-31\n---\n## Verdict\n\n- status: pass\n"
+	if err := os.WriteFile(filepath.Join(specDir, "inspect.md"), []byte(inspectContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(inspect) returned error: %v", err)
+	}
+	planDir := filepath.Join(specDir, "plan")
+	if err := os.MkdirAll(planDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(planDir) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(planDir, "plan.md"), []byte("# Plan\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(plan) returned error: %v", err)
+	}
+	// T1.1 has two indented sub-tasks; parent is still open
+	tasksContent := "# Tasks\n\n## Phase 1\n- [ ] T1.1 main task\n  - [x] T1.1.1 sub-task done\n  - [ ] T1.1.2 sub-task open\n"
+	if err := os.WriteFile(filepath.Join(planDir, "tasks.md"), []byte(tasksContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks) returned error: %v", err)
+	}
+
+	state, err := State(root, "demo")
+	if err != nil {
+		t.Fatalf("State returned error: %v", err)
+	}
+	// total = 3 (parent + 2 sub-tasks), completed = 1, open = 2
+	if state.TasksTotal != 3 {
+		t.Fatalf("expected TasksTotal=3, got %d", state.TasksTotal)
+	}
+	if state.TasksCompleted != 1 {
+		t.Fatalf("expected TasksCompleted=1, got %d", state.TasksCompleted)
+	}
+	if state.TasksOpen != 2 {
+		t.Fatalf("expected TasksOpen=2, got %d", state.TasksOpen)
+	}
+	if state.Phase != "implement" {
+		t.Fatalf("expected phase=implement, got %s", state.Phase)
+	}
+}
+
+func TestInferLifecycleBranchMismatchBlocks(t *testing.T) {
+	// Test inferLifecycle directly: BranchMismatch must set Blocked=true.
+	state := FeatureState{
+		Slug:          "demo",
+		SpecExists:    true,
+		InspectExists: true,
+		InspectStatus: StatusPass,
+		PlanExists:    true,
+		TasksExists:   true,
+		TasksTotal:    1,
+		TasksCompleted: 1,
+		TasksOpen:     0,
+		VerifyExists:  true,
+		VerifyStatus:  StatusPass,
+		BranchMismatch: true,
+		Archived:      false,
+	}
+	inferLifecycle(&state)
+	if !state.Blocked {
+		t.Fatalf("expected Blocked=true when BranchMismatch=true, got Blocked=%v", state)
+	}
+}
+
+func TestInferLifecycleBranchMismatchDoesNotBlockArchived(t *testing.T) {
+	// Archived features must not be blocked even if BranchMismatch is set.
+	state := FeatureState{
+		Slug:           "demo",
+		Archived:       true,
+		BranchMismatch: true,
+	}
+	inferLifecycle(&state)
+	if state.Blocked {
+		t.Fatalf("expected Blocked=false for archived feature, got Blocked=%v", state)
 	}
 }
 

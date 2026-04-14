@@ -17,6 +17,7 @@ type FeatureState struct {
 	Slug           string `json:"slug"`
 	Phase          string `json:"phase"`
 	SpecExists     bool   `json:"spec_exists"`
+	HotfixExists   bool   `json:"hotfix_exists"`
 	InspectExists  bool   `json:"inspect_exists"`
 	PlanExists     bool   `json:"plan_exists"`
 	TasksExists    bool   `json:"tasks_exists"`
@@ -36,7 +37,7 @@ type FeatureState struct {
 	BranchMismatch bool   `json:"branch_mismatch,omitempty"`
 }
 
-var checkboxPattern = regexp.MustCompile(`^- \[([ x])\]`)
+var checkboxPattern = regexp.MustCompile(`^\s*- \[([ x])\]`)
 
 func State(root, slug string) (FeatureState, error) {
 	if slug == "" {
@@ -58,6 +59,7 @@ func State(root, slug string) (FeatureState, error) {
 	}
 
 	specPath, _ := featurepaths.ResolveSpec(specsDir, slug)
+	hotfixPath, _ := featurepaths.ResolveHotfix(specsDir, slug)
 	inspectPath, inspectLegacyFlat := featurepaths.ResolveInspect(specsDir, slug)
 	legacyInspectPath := featurepaths.Inspect(specsDir, slug)
 	planPath := featurepaths.Plan(specsDir, slug)
@@ -68,6 +70,7 @@ func State(root, slug string) (FeatureState, error) {
 	state := FeatureState{
 		Slug:        slug,
 		SpecExists:  fileExists(specPath),
+		HotfixExists: fileExists(hotfixPath),
 		PlanExists:  fileExists(planPath),
 		TasksExists: fileExists(tasksPath),
 		VerifyPath:  verifyPath,
@@ -94,10 +97,12 @@ func State(root, slug string) (FeatureState, error) {
 
 	if branch, err := gitutil.CurrentBranch(root); err == nil {
 		state.CurrentBranch = branch
-		if !state.Archived && state.SpecExists {
-			// Expected branch is feature/<slug>
+		if !state.Archived && (state.SpecExists || state.HotfixExists) {
 			expected := "feature/" + slug
-			if branch != expected && branch != "main" && branch != "master" && !strings.HasPrefix(branch, "hotfix/") {
+			if !state.SpecExists && state.HotfixExists {
+				expected = "hotfix/" + slug
+			}
+			if branch != expected && branch != "main" && branch != "master" {
 				state.BranchMismatch = true
 			}
 		}
@@ -146,14 +151,28 @@ func States(root string) ([]FeatureState, error) {
 }
 
 func inferLifecycle(state *FeatureState) {
+	hasValidInspect := state.InspectExists && ValidStatus(state.InspectStatus)
+	hasValidVerify := state.VerifyExists && ValidStatus(state.VerifyStatus)
+
 	switch {
 	case state.Archived:
 		state.Phase = "archive"
+	case !state.SpecExists && state.HotfixExists:
+		state.Phase = "hotfix"
+		switch {
+		case !hasValidVerify:
+			state.ReadyFor = "hotfix"
+		case state.VerifyStatus == StatusBlocked:
+			state.ReadyFor = "hotfix"
+			state.Blocked = true
+		default:
+			state.ReadyFor = "archive"
+		}
 	case !state.SpecExists:
 		state.Phase = "constitution"
 		state.ReadyFor = "spec"
 		state.Blocked = true
-	case !state.InspectExists:
+	case !hasValidInspect:
 		state.Phase = "spec"
 		state.ReadyFor = "inspect"
 	case state.InspectStatus == StatusBlocked:
@@ -166,10 +185,14 @@ func inferLifecycle(state *FeatureState) {
 	case !state.TasksExists:
 		state.Phase = "plan"
 		state.ReadyFor = "tasks"
+	case state.TasksTotal == 0:
+		// tasks.md exists but contains no checkboxes — treat as empty/incomplete
+		state.Phase = "plan"
+		state.ReadyFor = "tasks"
 	case state.TasksOpen > 0:
 		state.Phase = "implement"
 		state.ReadyFor = "implement"
-	case !state.VerifyExists:
+	case !hasValidVerify:
 		state.Phase = "verify"
 		state.ReadyFor = "verify"
 	case state.VerifyStatus == StatusBlocked:
@@ -179,6 +202,10 @@ func inferLifecycle(state *FeatureState) {
 	default:
 		state.Phase = "verify"
 		state.ReadyFor = "archive"
+	}
+
+	if state.BranchMismatch && !state.Archived {
+		state.Blocked = true
 	}
 }
 

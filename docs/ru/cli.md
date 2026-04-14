@@ -64,12 +64,12 @@ speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --she
 - project-local agent command files
 - managed SpecKeep block внутри `AGENTS.md`
 
-Эта команда не обновляет:
+	Эта команда не обновляет:
 
-- `.speckeep/constitution.md`
-- `.speckeep/specs/**`
-- `.speckeep/specs/<slug>/plan/**`
-- `.speckeep/archive/**`
+	- `.speckeep/constitution.md`
+	- содержимое `specs_dir/**` (но может безопасно перенести директорию при `--specs-dir`)
+	- содержимое `specs_dir/<slug>/plan/**`
+	- содержимое `archive_dir/**` (но может безопасно перенести директорию при `--archive-dir`)
 
 Примеры:
 
@@ -79,14 +79,16 @@ speckeep refresh my-project --shell powershell --agents claude --dry-run
 speckeep refresh my-project --agent-lang ru --json
 ```
 
-Важные флаги:
+	Важные флаги:
 
-- `--lang`, `--docs-lang`, `--agent-lang`, `--comments-lang` переопределяют существующие language settings из config
-- `--shell` переопределяет семейство генерируемых workflow scripts
-- `--constitution-file` переопределяет путь к конституции в config (и безопасно переносит существующий файл, когда это возможно)
-- `--agents` переопределяет набор включенных project-local agent targets
-- `--dry-run` показывает pending changes без записи на диск
-- `--json` выводит результат refresh в JSON
+	- `--lang`, `--docs-lang`, `--agent-lang`, `--comments-lang` переопределяют существующие language settings из config
+	- `--shell` переопределяет семейство генерируемых workflow scripts
+	- `--constitution-file` переопределяет путь к конституции в config (и безопасно переносит существующий файл, когда это возможно)
+	- `--specs-dir` переопределяет `paths.specs_dir` (и безопасно переносит существующую директорию спецификаций, когда это возможно)
+	- `--archive-dir` переопределяет `paths.archive_dir` (и безопасно переносит существующую директорию архива, когда это возможно)
+	- `--agents` переопределяет набор включенных project-local agent targets
+	- `--dry-run` показывает pending changes без записи на диск
+	- `--json` выводит результат refresh в JSON
 
 ### `speckeep add-agent [path]`
 

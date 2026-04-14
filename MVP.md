@@ -34,6 +34,7 @@ Managed generated artifacts should remain refreshable without touching authored 
 .speckeep/
   speckeep.yaml
   constitution.md
+  constitution.summary.md  (generated, optional)
   specs/
     <slug>/
       spec.md
@@ -291,8 +292,9 @@ Generated workspaces include launcher script under `.speckeep/scripts/`:
 
 Resolution order:
 
-1. `DRAFTSPEC_BIN`
-2. `speckeep` from `PATH`
+1. `SPECKEEP_BIN`
+2. `DRAFTSPEC_BIN` (legacy, deprecated)
+3. `speckeep` from `PATH`
 
 ## Spec workflow
 

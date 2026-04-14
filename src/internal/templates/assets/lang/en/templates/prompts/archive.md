@@ -58,4 +58,6 @@ Examples (Windows):
 
 ### Restore mode
 
-- After execution: confirm restored files, suggest `/speckeep.inspect <slug>`
+- After execution: confirm restored files and list their paths
+- Note that the restored spec is unverified — any existing `inspect.md` may be stale relative to the current codebase
+- End with: `Ready for: /speckeep.inspect <slug>` (re-inspect is required before planning resumes)

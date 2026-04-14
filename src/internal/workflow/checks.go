@@ -545,8 +545,9 @@ func CheckArchiveReady(root, slug, status, reason string) (CheckResult, error) {
 	}
 
 	specDisplay, specAbs := resolveSpecDisplayPath(root, cfg.Paths.SpecsDir, slug)
-	if !fileExists(specAbs) {
-		result.AddError(fmt.Sprintf("missing required file: %s", specDisplay))
+	hotfixDisplay, hotfixAbs := resolveHotfixDisplayPath(root, cfg.Paths.SpecsDir, slug)
+	if !fileExists(specAbs) && !fileExists(hotfixAbs) {
+		result.AddError(fmt.Sprintf("missing required file: %s (or %s)", specDisplay, hotfixDisplay))
 		return result, nil
 	}
 
@@ -803,6 +804,21 @@ func resolveSpecDisplayPath(root, specsDir, slug string) (string, string) {
 	}
 
 	legacyDisplay := joinDisplay(specsDir, slug+".md")
+	legacyAbs := absFromRoot(root, legacyDisplay)
+	if fileExists(legacyAbs) {
+		return legacyDisplay, legacyAbs
+	}
+	return display, abs
+}
+
+func resolveHotfixDisplayPath(root, specsDir, slug string) (string, string) {
+	display := joinDisplay(specsDir, slug, "hotfix.md")
+	abs := absFromRoot(root, display)
+	if fileExists(abs) {
+		return display, abs
+	}
+
+	legacyDisplay := joinDisplay(specsDir, slug+".hotfix.md")
 	legacyAbs := absFromRoot(root, legacyDisplay)
 	if fileExists(legacyAbs) {
 		return legacyDisplay, legacyAbs

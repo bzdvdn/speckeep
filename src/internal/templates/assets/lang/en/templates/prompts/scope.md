@@ -8,6 +8,8 @@ Answer one question: does the current plan, task list, or set of decisions stay 
 
 This command is optional, produces no persistent artifact, and can be called at any point in the workflow.
 
+For a deeper adversarial review that stress-tests spec assumptions and plan decisions beyond boundary checks, use `/speckeep.challenge <slug>`.
+
 ## Path Resolution
 
 Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `project.constitution_file` or `paths.specs_dir`, always follow the configured paths instead of the defaults shown here. Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.

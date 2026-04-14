@@ -128,8 +128,8 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 		return result, fmt.Errorf("get feature state: %w", err)
 	}
 
-	if !state.SpecExists {
-		return result, fmt.Errorf("no spec found for %s", slug)
+	if !state.SpecExists && !state.HotfixExists {
+		return result, fmt.Errorf("no spec or hotfix found for %s", slug)
 	}
 
 	if !state.VerifyExists {

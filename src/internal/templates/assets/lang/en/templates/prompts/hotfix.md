@@ -49,7 +49,7 @@ Always read these before writing any code:
 
 Stop and switch to the standard workflow if:
 
-- root cause is unclear
+- root cause is unclear — use `/speckeep.spec <slug>` to document the investigation, then `/speckeep.plan <slug>` to design the fix properly
 - fix requires changing more than 3 files
 - fix touches an API contract, data migration, or auth boundary without a clear rollback
 - constitutional conflict is present

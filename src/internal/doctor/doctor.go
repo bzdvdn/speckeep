@@ -127,6 +127,13 @@ func Check(root string) (Result, error) {
 				Message: "constitution.md contains unfilled placeholder content — run /speckeep.constitution to complete setup",
 			})
 		}
+		summaryPath := strings.TrimSuffix(constitutionPath, ".md") + ".summary.md"
+		if _, err := os.Stat(summaryPath); os.IsNotExist(err) {
+			findings = append(findings, Finding{
+				Level:   "warning",
+				Message: "constitution.summary.md not found — run /speckeep.constitution to generate the compact summary used by implement, verify, tasks, and hotfix phases",
+			})
+		}
 	}
 
 	if cfg.Language.Default != "en" && cfg.Language.Default != "ru" {

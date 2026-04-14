@@ -42,7 +42,7 @@ Use `speckeep refresh [path]`.
 
 `refresh` updates only SpecKeep-managed generated artifacts such as `.speckeep/templates/`, `.speckeep/scripts/`, `.speckeep/speckeep.yaml`, project-local agent files, and the managed SpecKeep block in `AGENTS.md`.
 
-It does not modify authored feature state such as `constitution.md`, `specs/`, or `archive/`.
+It does not modify authored feature state contents such as `constitution.md`, `specs/`, or `archive/`, but it can safely move the specs/archive directories via `--specs-dir` / `--archive-dir`.
 
 ## Why does SpecKeep keep `Given / When / Then` in English even in Russian docs?
 

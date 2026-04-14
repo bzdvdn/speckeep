@@ -39,7 +39,7 @@ func TestArchiveCommandAllowsCompletedWithoutReason(t *testing.T) {
 	if strings.Contains(stderr, "archive reason is required") {
 		t.Fatalf("did not expect a reason validation error, got: %s", stderr)
 	}
-	if !strings.Contains(stderr, "no spec found for demo") {
+	if !strings.Contains(stderr, "no spec or hotfix found for demo") {
 		t.Fatalf("unexpected stderr: %s", stderr)
 	}
 }

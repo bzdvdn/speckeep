@@ -361,6 +361,36 @@ func TestCheckArchiveReadyAllowsCompletedWithoutReason(t *testing.T) {
 	}
 }
 
+func TestCheckArchiveReadyAllowsHotfixWithoutSpec(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
+	}
+	hotfixPath := filepath.Join(specDir, "hotfix.md")
+	if err := os.WriteFile(hotfixPath, []byte("# Hotfix\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(hotfix) returned error: %v", err)
+	}
+
+	result, err := CheckArchiveReady(root, "demo", "completed", "")
+	if err != nil {
+		t.Fatalf("CheckArchiveReady returned error: %v", err)
+	}
+	if result.Failed {
+		t.Fatalf("expected archive readiness to pass for hotfix, got %+v", result)
+	}
+}
+
 func TestCheckArchiveReadyRequiresReasonForDeferred(t *testing.T) {
 	root := t.TempDir()
 

@@ -53,15 +53,20 @@ func newCheckCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "check <slug> [path]",
 		Short: "Check feature readiness and show next action",
+		// The check command is often used for scripting/agents. When it exits non-zero
+		// (blocked), it must not append usage text to stdout/stderr, especially in --json mode.
+		SilenceUsage: true,
 		Args: func(cmd *cobra.Command, args []string) error {
 			all, _ := cmd.Flags().GetBool("all")
 			if all {
 				if len(args) > 1 {
+					_ = cmd.Usage()
 					return fmt.Errorf("accepts at most 1 arg (path) when --all is set, received %d", len(args))
 				}
 				return nil
 			}
 			if len(args) < 1 || len(args) > 2 {
+				_ = cmd.Usage()
 				return fmt.Errorf("accepts 1 or 2 args (slug [path]), received %d", len(args))
 			}
 			return nil
@@ -92,23 +97,23 @@ func newCheckCmd() *cobra.Command {
 
 			if jsonOutput {
 				payload, err := json.MarshalIndent(result, "", "  ")
-				if err != nil {
-					return err
+					if err != nil {
+						return err
+					}
+					fmt.Fprintln(cmd.OutOrStdout(), string(payload))
+					if result.Blocked {
+						return newExitError(1, "")
+					}
+					return nil
 				}
-				fmt.Fprintln(cmd.OutOrStdout(), string(payload))
+
+				printCheck(cmd, state, result)
 				if result.Blocked {
-					return fmt.Errorf("blocked")
+					return newExitError(1, "")
 				}
 				return nil
-			}
-
-			printCheck(cmd, state, result)
-			if result.Blocked {
-				return fmt.Errorf("blocked")
-			}
-			return nil
-		},
-	}
+			},
+		}
 
 	cmd.Flags().BoolVar(&jsonOutput, "json", false, "output as JSON; exits with code 1 when blocked")
 	cmd.Flags().BoolVar(&allFeatures, "all", false, "check all features; exits with code 1 if any are blocked")
@@ -134,24 +139,24 @@ func runCheckAll(cmd *cobra.Command, root string, jsonOutput bool) error {
 		}
 	}
 
-	if jsonOutput {
-		payload, err := json.MarshalIndent(checkAllResult{Blocked: anyBlocked, Features: results}, "", "  ")
-		if err != nil {
-			return err
+		if jsonOutput {
+			payload, err := json.MarshalIndent(checkAllResult{Blocked: anyBlocked, Features: results}, "", "  ")
+			if err != nil {
+				return err
+			}
+			fmt.Fprintln(cmd.OutOrStdout(), string(payload))
+			if anyBlocked {
+				return newExitError(1, "")
+			}
+			return nil
 		}
-		fmt.Fprintln(cmd.OutOrStdout(), string(payload))
+
+		printCheckAll(cmd, states, results)
 		if anyBlocked {
-			return fmt.Errorf("blocked")
+			return newExitError(1, "")
 		}
 		return nil
 	}
-
-	printCheckAll(cmd, states, results)
-	if anyBlocked {
-		return fmt.Errorf("blocked")
-	}
-	return nil
-}
 
 func buildCheckResult(root string, state workflow.FeatureState) (checkResult, error) {
 	result := checkResult{
@@ -179,17 +184,20 @@ func buildCheckResult(root string, state workflow.FeatureState) (checkResult, er
 		result.Artifacts.Verify.Detail = state.VerifyStatus
 	}
 
-	if state.Blocked {
-		result.Verdict = "blocked"
-	} else {
-		result.Verdict = "ready"
-	}
-
 	result.NextCommand = nextCommand(state)
 
 	phaseResult, err := phaseCheckResult(root, state)
 	if err != nil {
 		return checkResult{}, err
+	}
+	if phaseResult.Failed {
+		result.Blocked = true
+	}
+
+	if result.Blocked {
+		result.Verdict = "blocked"
+	} else {
+		result.Verdict = "ready"
 	}
 	if len(phaseResult.Findings) > 0 {
 		result.CheckFindings = phaseResult.Findings
@@ -230,7 +238,7 @@ func printCheck(cmd *cobra.Command, state workflow.FeatureState, result checkRes
 		nextLine = styleCmd(w, result.NextCommand)
 	}
 	verdictLine := styleOK(w, "ready")
-	if state.Blocked {
+	if result.Blocked {
 		verdictLine = styleError(w, "blocked")
 	}
 

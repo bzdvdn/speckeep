@@ -398,3 +398,116 @@ func TestRefreshDryRunAfterInitializeDoesNotReportAgentsDrift(t *testing.T) {
 		}
 	}
 }
+
+func TestRefreshCanMoveSpecsAndArchiveDirsAndUpdateConfig(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specPath := filepath.Join(root, ".speckeep", "specs", "demo", "spec.md")
+	if err := os.MkdirAll(filepath.Dir(specPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(specPath, []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+
+	archiveMarker := filepath.Join(root, ".speckeep", "archive", ".keep")
+	if err := os.MkdirAll(filepath.Dir(archiveMarker), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(archiveMarker, []byte("keep"), 0o644); err != nil {
+		t.Fatalf("WriteFile(archive marker) returned error: %v", err)
+	}
+
+	_, err = Refresh(root, RefreshOptions{
+		SpecsDir:   "specs",
+		ArchiveDir: "archive",
+	})
+	if err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	if got, want := cfg.Paths.SpecsDir, "specs"; got != want {
+		t.Fatalf("specs_dir=%q, want %q", got, want)
+	}
+	if got, want := cfg.Paths.ArchiveDir, "archive"; got != want {
+		t.Fatalf("archive_dir=%q, want %q", got, want)
+	}
+
+	if _, err := os.Stat(filepath.Join(root, ".speckeep", "specs")); !os.IsNotExist(err) {
+		t.Fatalf("expected old specs dir to be moved away, got err=%v", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, ".speckeep", "archive")); !os.IsNotExist(err) {
+		t.Fatalf("expected old archive dir to be moved away, got err=%v", err)
+	}
+
+	movedSpec := filepath.Join(root, "specs", "demo", "spec.md")
+	if _, err := os.Stat(movedSpec); err != nil {
+		t.Fatalf("expected moved spec to exist, got err=%v", err)
+	}
+
+	movedArchiveMarker := filepath.Join(root, "archive", ".keep")
+	if _, err := os.Stat(movedArchiveMarker); err != nil {
+		t.Fatalf("expected moved archive marker to exist, got err=%v", err)
+	}
+}
+
+func TestRefreshDryRunDoesNotMoveSpecsOrArchiveDirsOrUpdateConfig(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specPath := filepath.Join(root, ".speckeep", "specs", "demo", "spec.md")
+	if err := os.MkdirAll(filepath.Dir(specPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(specPath, []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+
+	_, err = Refresh(root, RefreshOptions{
+		DryRun:     true,
+		SpecsDir:   "specs",
+		ArchiveDir: "archive",
+	})
+	if err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	if got, want := cfg.Paths.SpecsDir, ".speckeep/specs"; got != want {
+		t.Fatalf("specs_dir=%q after dry-run, want %q", got, want)
+	}
+	if got, want := cfg.Paths.ArchiveDir, ".speckeep/archive"; got != want {
+		t.Fatalf("archive_dir=%q after dry-run, want %q", got, want)
+	}
+
+	if _, err := os.Stat(filepath.Join(root, ".speckeep", "specs", "demo", "spec.md")); err != nil {
+		t.Fatalf("expected spec to remain in old location, got err=%v", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "specs")); !os.IsNotExist(err) {
+		t.Fatalf("did not expect new specs dir to be created on dry-run, got err=%v", err)
+	}
+}

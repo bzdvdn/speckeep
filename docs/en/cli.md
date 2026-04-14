@@ -67,9 +67,9 @@ This command updates:
 This command does not update:
 
 - `.speckeep/constitution.md`
-- `.speckeep/specs/**`
-- `.speckeep/specs/<slug>/plan/**`
-- `.speckeep/archive/**`
+- contents under `specs_dir/**` (but it can safely move the directory with `--specs-dir`)
+- contents under `specs_dir/<slug>/plan/**`
+- contents under `archive_dir/**` (but it can safely move the directory with `--archive-dir`)
 
 Examples:
 
@@ -84,6 +84,8 @@ Important flags:
 - `--lang`, `--docs-lang`, `--agent-lang`, `--comments-lang` override the existing configured languages
 - `--shell` overrides the generated workflow script family
 - `--constitution-file` overrides the configured constitution file path (and safely moves the existing file when possible)
+- `--specs-dir` overrides `paths.specs_dir` (and safely moves the existing specs directory when possible)
+- `--archive-dir` overrides `paths.archive_dir` (and safely moves the existing archive directory when possible)
 - `--agents` overrides enabled project-local agent targets
 - `--dry-run` reports pending managed changes without writing them
 - `--json` outputs the refresh result as JSON

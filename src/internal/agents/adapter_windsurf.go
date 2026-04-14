@@ -40,7 +40,7 @@ func renderWindsurf(spec CommandDefinition, lang string) string {
 trigger: manual
 ---
 
-Следуйте файлу %q.
+Сначала откройте и прочитайте файл %q (обязательно). Затем строго следуйте его разделу "Output expectations", включая финальную строку `+"`Готово к: ...`"+` (без замены на «Следующий шаг», без альтернативных фаз, без выдуманных флагов).
 
 %s
 
@@ -63,7 +63,7 @@ trigger: manual
 trigger: manual
 ---
 
-Follow %q.
+First, open and read %q (mandatory). Then follow its "Output expectations" section strictly, including the final `+"`Ready for: ...`"+` line (do not replace it with "Next step", do not jump phases, do not invent flags).
 
 %s
 

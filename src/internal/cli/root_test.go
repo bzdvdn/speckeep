@@ -777,6 +777,47 @@ func TestCheckCommandJSONIncludesStructuredFindings(t *testing.T) {
 	}
 }
 
+func TestCheckCommandBlocksWhenReadinessErrorsPresent(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	specPath := filepath.Join(ensureSpecDir(t, root, "demo"), "spec.md")
+	// Missing required sections (Goal/Acceptance Criteria) → readiness errors.
+	specContent := "# Demo\n\n## Requirements\n- RQ-001 x\n"
+	if err := os.WriteFile(specPath, []byte(specContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+
+	stdout, _, err := executeRoot(t, "check", "demo", root, "--json")
+	if err == nil {
+		t.Fatalf("expected check --json to return an error when blocked")
+	}
+
+	var payload struct {
+		Verdict     string `json:"verdict"`
+		Blocked     bool   `json:"blocked"`
+		NextCommand string `json:"next_command"`
+		CheckSummary struct {
+			Errors int `json:"errors"`
+		} `json:"check_summary"`
+	}
+	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
+		t.Fatalf("failed to parse check json output %q: %v", stdout, err)
+	}
+	if !payload.Blocked || payload.Verdict != "blocked" {
+		t.Fatalf("expected blocked verdict in json output, got %q", stdout)
+	}
+	if payload.NextCommand != "/speckeep.inspect demo" {
+		t.Fatalf("expected next_command inspect, got %q", payload.NextCommand)
+	}
+	if payload.CheckSummary.Errors == 0 {
+		t.Fatalf("expected errors > 0, got %q", stdout)
+	}
+}
+
 func TestDoctorCommandPrefixesWorkspaceAndFeatureFindings(t *testing.T) {
 	root := t.TempDir()
 
@@ -1020,6 +1061,59 @@ func TestRefreshCommandJSONDryRunOutput(t *testing.T) {
 	}
 	if len(payload.Updated) == 0 && len(payload.Created) == 0 {
 		t.Fatalf("expected refresh json to report pending changes, got %q", stdout)
+	}
+}
+
+func TestRefreshCommandCanMoveSpecsAndArchiveDirs(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	specPath := filepath.Join(root, ".speckeep", "specs", "demo", "spec.md")
+	if err := os.MkdirAll(filepath.Dir(specPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(specPath, []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+
+	archiveMarker := filepath.Join(root, ".speckeep", "archive", ".keep")
+	if err := os.MkdirAll(filepath.Dir(archiveMarker), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(archiveMarker, []byte("keep"), 0o644); err != nil {
+		t.Fatalf("WriteFile(archive marker) returned error: %v", err)
+	}
+
+	if _, _, err := executeRoot(t, "refresh", root, "--specs-dir", "specs", "--archive-dir", "archive"); err != nil {
+		t.Fatalf("refresh command returned error: %v", err)
+	}
+
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("Load config returned error: %v", err)
+	}
+	if got, want := cfg.Paths.SpecsDir, "specs"; got != want {
+		t.Fatalf("expected specs_dir=%q, got %q", want, got)
+	}
+	if got, want := cfg.Paths.ArchiveDir, "archive"; got != want {
+		t.Fatalf("expected archive_dir=%q, got %q", want, got)
+	}
+
+	if _, err := os.Stat(filepath.Join(root, ".speckeep", "specs")); !os.IsNotExist(err) {
+		t.Fatalf("expected old specs dir to be moved away, got err=%v", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, ".speckeep", "archive")); !os.IsNotExist(err) {
+		t.Fatalf("expected old archive dir to be moved away, got err=%v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(root, "specs", "demo", "spec.md")); err != nil {
+		t.Fatalf("expected moved spec to exist, got err=%v", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "archive", ".keep")); err != nil {
+		t.Fatalf("expected moved archive marker to exist, got err=%v", err)
 	}
 }
 
