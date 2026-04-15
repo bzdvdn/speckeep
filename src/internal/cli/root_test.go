@@ -797,9 +797,9 @@ func TestCheckCommandBlocksWhenReadinessErrorsPresent(t *testing.T) {
 	}
 
 	var payload struct {
-		Verdict     string `json:"verdict"`
-		Blocked     bool   `json:"blocked"`
-		NextCommand string `json:"next_command"`
+		Verdict      string `json:"verdict"`
+		Blocked      bool   `json:"blocked"`
+		NextCommand  string `json:"next_command"`
 		CheckSummary struct {
 			Errors int `json:"errors"`
 		} `json:"check_summary"`

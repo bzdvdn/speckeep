@@ -117,23 +117,23 @@ func TestFilesBuildForSupportedLanguages(t *testing.T) {
 			if tc.settings.Shell == "powershell" {
 				ext = ".ps1"
 			}
-				requiredFiles = append(requiredFiles,
-					"scripts/run-speckeep"+ext,
-					"scripts/check-inspect-ready"+ext,
-					"scripts/check-archive-ready"+ext,
-					"scripts/check-verify-ready"+ext,
-					"scripts/verify-task-state"+ext,
-					"scripts/inspect-spec"+ext,
-					"scripts/trace"+ext,
-				)
-				for _, required := range requiredFiles {
-					if _, ok := targets[required]; !ok {
-						t.Fatalf("expected generated file set to include %s", required)
-					}
+			requiredFiles = append(requiredFiles,
+				"scripts/run-speckeep"+ext,
+				"scripts/check-inspect-ready"+ext,
+				"scripts/check-archive-ready"+ext,
+				"scripts/check-verify-ready"+ext,
+				"scripts/verify-task-state"+ext,
+				"scripts/inspect-spec"+ext,
+				"scripts/trace"+ext,
+			)
+			for _, required := range requiredFiles {
+				if _, ok := targets[required]; !ok {
+					t.Fatalf("expected generated file set to include %s", required)
 				}
-			})
-		}
+			}
+		})
 	}
+}
 
 func TestInspectSpecScriptResolvesSlugViaConfig(t *testing.T) {
 	files, err := Files(LanguageSettings{
@@ -768,17 +768,17 @@ func TestPromptsEnforcePhaseBoundaries(t *testing.T) {
 }
 
 func TestInspectHelperScriptsDelegateToInternalCLI(t *testing.T) {
-		testCases := []struct {
-			name   string
-			shell  string
-			target string
-			want   []string
-		}{
-			{name: "sh", shell: "sh", target: "scripts/inspect-spec.sh", want: []string{"run-speckeep.sh", "__internal inspect-spec --root \"$ROOT_DIR\""}},
-			{name: "powershell", shell: "powershell", target: "scripts/inspect-spec.ps1", want: []string{"run-speckeep.ps1", "__internal inspect-spec --root $RootDir"}},
-			{name: "sh-archive", shell: "sh", target: "scripts/archive-feature.sh", want: []string{"run-speckeep.sh", "archive \"$slug\" \"$ROOT_DIR\""}},
-			{name: "powershell-archive", shell: "powershell", target: "scripts/archive-feature.ps1", want: []string{"run-speckeep.ps1", "archive $slug $RootDir"}},
-		}
+	testCases := []struct {
+		name   string
+		shell  string
+		target string
+		want   []string
+	}{
+		{name: "sh", shell: "sh", target: "scripts/inspect-spec.sh", want: []string{"run-speckeep.sh", "__internal inspect-spec --root \"$ROOT_DIR\""}},
+		{name: "powershell", shell: "powershell", target: "scripts/inspect-spec.ps1", want: []string{"run-speckeep.ps1", "__internal inspect-spec --root $RootDir"}},
+		{name: "sh-archive", shell: "sh", target: "scripts/archive-feature.sh", want: []string{"run-speckeep.sh", "archive \"$slug\" \"$ROOT_DIR\""}},
+		{name: "powershell-archive", shell: "powershell", target: "scripts/archive-feature.ps1", want: []string{"run-speckeep.ps1", "archive $slug $RootDir"}},
+	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

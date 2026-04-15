@@ -54,19 +54,19 @@ Synchronizes:
 				})
 			}
 
-				result, err := project.Refresh(root, project.RefreshOptions{
-					DefaultLang:      defaultLang,
-					DocsLang:         docsLang,
-					AgentLang:        agentLang,
-					CommentsLang:     commentsLang,
-					Shell:            shell,
-					ConstitutionFile: constitutionFile,
-					SpecsDir:         specsDir,
-					ArchiveDir:       archiveDir,
-					AgentTargets:     append(agentTargets, legacyAgentTargets...),
-					DryRun:           dryRun,
-					RewriteTrace:     rewriteTrace,
-				})
+			result, err := project.Refresh(root, project.RefreshOptions{
+				DefaultLang:      defaultLang,
+				DocsLang:         docsLang,
+				AgentLang:        agentLang,
+				CommentsLang:     commentsLang,
+				Shell:            shell,
+				ConstitutionFile: constitutionFile,
+				SpecsDir:         specsDir,
+				ArchiveDir:       archiveDir,
+				AgentTargets:     append(agentTargets, legacyAgentTargets...),
+				DryRun:           dryRun,
+				RewriteTrace:     rewriteTrace,
+			})
 			if err != nil {
 				return err
 			}
@@ -100,13 +100,13 @@ Synchronizes:
 	cmd.Flags().StringVar(&docsLang, "docs-lang", "", "override the generated documentation language: en or ru")
 	cmd.Flags().StringVar(&agentLang, "agent-lang", "", "override the generated prompt and AGENTS guidance language: en or ru")
 	cmd.Flags().StringVar(&commentsLang, "comments-lang", "", "override the preferred code comment language: en or ru")
-		cmd.Flags().StringVar(&shell, "shell", "", "override the generated workflow script family: sh or powershell")
-		cmd.Flags().StringVar(&constitutionFile, "constitution-file", "", "override the constitution file path and (safely) move the existing file when possible")
-		cmd.Flags().StringVar(&specsDir, "specs-dir", "", "override paths.specs_dir and (safely) move the existing specs directory when possible")
-		cmd.Flags().StringVar(&archiveDir, "archive-dir", "", "override paths.archive_dir and (safely) move the existing archive directory when possible")
-		cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "override enabled project-local agent targets: claude, codex, copilot, cursor, kilocode, trae, all")
-		cmd.Flags().StringSliceVar(&legacyAgentTargets, "agent", nil, "deprecated alias for --agents")
-		cmd.Flags().MarkHidden("agent")
+	cmd.Flags().StringVar(&shell, "shell", "", "override the generated workflow script family: sh or powershell")
+	cmd.Flags().StringVar(&constitutionFile, "constitution-file", "", "override the constitution file path and (safely) move the existing file when possible")
+	cmd.Flags().StringVar(&specsDir, "specs-dir", "", "override paths.specs_dir and (safely) move the existing specs directory when possible")
+	cmd.Flags().StringVar(&archiveDir, "archive-dir", "", "override paths.archive_dir and (safely) move the existing archive directory when possible")
+	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "override enabled project-local agent targets: claude, codex, copilot, cursor, kilocode, trae, all")
+	cmd.Flags().StringSliceVar(&legacyAgentTargets, "agent", nil, "deprecated alias for --agents")
+	cmd.Flags().MarkHidden("agent")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show which managed files would change without writing them")
 	cmd.Flags().BoolVar(&rewriteTrace, "rewrite-trace", false, "Rewrite legacy trace annotations in code: @ds-task/@ds-test → @sk-task/@sk-test")
 	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output refresh results as JSON")

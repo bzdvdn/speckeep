@@ -68,12 +68,12 @@ func State(root, slug string) (FeatureState, error) {
 	archiveSlugDir := filepath.Join(archiveDir, slug)
 
 	state := FeatureState{
-		Slug:        slug,
-		SpecExists:  fileExists(specPath),
+		Slug:         slug,
+		SpecExists:   fileExists(specPath),
 		HotfixExists: fileExists(hotfixPath),
-		PlanExists:  fileExists(planPath),
-		TasksExists: fileExists(tasksPath),
-		VerifyPath:  verifyPath,
+		PlanExists:   fileExists(planPath),
+		TasksExists:  fileExists(tasksPath),
+		VerifyPath:   verifyPath,
 	}
 	state.InspectExists, state.InspectPath, state.InspectLegacy = existingInspectReportPath(inspectPath, legacyInspectPath)
 	if state.InspectExists && inspectLegacyFlat && state.InspectPath == inspectPath {

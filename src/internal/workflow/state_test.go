@@ -231,19 +231,19 @@ func TestInferLifecycleSubTaskCheckboxes(t *testing.T) {
 func TestInferLifecycleBranchMismatchBlocks(t *testing.T) {
 	// Test inferLifecycle directly: BranchMismatch must set Blocked=true.
 	state := FeatureState{
-		Slug:          "demo",
-		SpecExists:    true,
-		InspectExists: true,
-		InspectStatus: StatusPass,
-		PlanExists:    true,
-		TasksExists:   true,
-		TasksTotal:    1,
+		Slug:           "demo",
+		SpecExists:     true,
+		InspectExists:  true,
+		InspectStatus:  StatusPass,
+		PlanExists:     true,
+		TasksExists:    true,
+		TasksTotal:     1,
 		TasksCompleted: 1,
-		TasksOpen:     0,
-		VerifyExists:  true,
-		VerifyStatus:  StatusPass,
+		TasksOpen:      0,
+		VerifyExists:   true,
+		VerifyStatus:   StatusPass,
 		BranchMismatch: true,
-		Archived:      false,
+		Archived:       false,
 	}
 	inferLifecycle(&state)
 	if !state.Blocked {
