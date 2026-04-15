@@ -26,6 +26,22 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Verify gofmt
+        shell: bash
+        run: |
+          set -euo pipefail
+          files="$(git ls-files '*.go')"
+          test -n "${files}"
+          unformatted="$(gofmt -l ${files})"
+          if [[ -n "${unformatted}" ]]; then
+            echo "gofmt required for:"
+            echo "${unformatted}"
+            exit 1
+          fi
+
       - name: Run test suite
         run: go test ./...
 
@@ -43,6 +59,14 @@ jobs:
             archive_ext: tar.gz
             binary_ext: ""
           - goos: linux
+            goarch: arm64
+            archive_ext: tar.gz
+            binary_ext: ""
+          - goos: darwin
+            goarch: amd64
+            archive_ext: tar.gz
+            binary_ext: ""
+          - goos: darwin
             goarch: arm64
             archive_ext: tar.gz
             binary_ext: ""
@@ -76,8 +100,8 @@ jobs:
           output="dist/speckeep${{ matrix.binary_ext }}"
           go build -trimpath -ldflags "-X speckeep/src/internal/cli.Version=${{ inputs.tag }}" -o "${output}" ./src/cmd/speckeep
 
-      - name: Package Linux archive
-        if: matrix.goos == 'linux'
+      - name: Package tar archive
+        if: matrix.goos != 'windows'
         run: |
           asset="speckeep_${{ inputs.tag }}_${{ matrix.goos }}_${{ matrix.goarch }}.tar.gz"
           tar -C dist -czf "dist/${asset}" "speckeep"

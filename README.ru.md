@@ -266,7 +266,7 @@ speckeep check eksport-otchetov-v-csv
 
 SpecKeep распространяется как один бинарник через GitHub Releases.
 
-Linux:
+Linux / macOS:
 
 ```bash
 VERSION=v0.1.0

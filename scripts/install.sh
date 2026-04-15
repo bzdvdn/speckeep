@@ -6,7 +6,7 @@ REPO_NAME="speckeep"
 
 usage() {
   cat <<'EOF'
-Install speckeep from GitHub Releases (Linux only).
+Install speckeep from GitHub Releases (Linux/macOS).
 
 Usage:
   install.sh [--version vX.Y.Z] [--bin-dir DIR] [--add-to-path]
@@ -148,7 +148,13 @@ main() {
     esac
   done
 
-  [[ "$(uname -s)" == "Linux" ]] || fail "this installer supports Linux only (use scripts/install.ps1 on Windows)"
+  local os_name
+  os_name="$(uname -s)"
+  case "$os_name" in
+    Linux) os_name="linux" ;;
+    Darwin) os_name="darwin" ;;
+    *) fail "unsupported OS: ${os_name} (supported: Linux, macOS; use scripts/install.ps1 on Windows)" ;;
+  esac
 
   need_cmd tar
   need_cmd uname
@@ -173,7 +179,7 @@ main() {
     [[ -n "$version" ]] || fail "failed to resolve latest release tag (try --version vX.Y.Z)"
   fi
 
-  local asset="speckeep_${version}_linux_${arch}.tar.gz"
+  local asset="speckeep_${version}_${os_name}_${arch}.tar.gz"
   local url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${version}/${asset}"
 
   local tmpdir

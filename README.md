@@ -283,7 +283,7 @@ The quick tape produces `demo/speckeep-demo.gif` and demonstrates `init`, genera
 
 SpecKeep is distributed as a single binary via GitHub Releases.
 
-Linux:
+Linux / macOS:
 
 ```bash
 VERSION=v0.1.0
