@@ -14,4 +14,19 @@ case " $* " in
     ;;
 esac
 
-exec "$SCRIPT_DIR/run-speckeep.sh" archive --root "$ROOT_DIR" "$@"
+if [ $# -lt 1 ]; then
+  echo "Usage: archive-feature.sh <slug> [path] [--status <status>] [--reason \"...\"] [--copy] [--restore]" >&2
+  exit 2
+fi
+
+# The speckeep `archive` command does not accept `--root`. Instead, pass the project
+# root as the optional [path] argument so this wrapper can run from any cwd.
+slug="$1"
+shift
+
+if [ $# -ge 1 ] && [ "${1#-}" = "$1" ]; then
+  # path explicitly provided by caller
+  exec "$SCRIPT_DIR/run-speckeep.sh" archive "$slug" "$@"
+fi
+
+exec "$SCRIPT_DIR/run-speckeep.sh" archive "$slug" "$ROOT_DIR" "$@"
