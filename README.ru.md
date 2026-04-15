@@ -1,5 +1,8 @@
 # speckeep
 
+[![ci](https://github.com/bzdvdn/speckeep/actions/workflows/ci.yml/badge.svg)](https://github.com/bzdvdn/speckeep/actions/workflows/ci.yml)
+[![release-build](https://github.com/bzdvdn/speckeep/actions/workflows/release-build.yml/badge.svg)](https://github.com/bzdvdn/speckeep/actions/workflows/release-build.yml)
+
 Русская версия: [English README](README.md)
 
 `speckeep` — это легкий файловый каркас проектного контекста для людей и агентов разработки.
