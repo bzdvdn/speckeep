@@ -502,3 +502,126 @@ func TestValidateFeatureReturnsOnlyFindingsForRequestedSlug(t *testing.T) {
 		}
 	}
 }
+
+func TestValidateProjectFindsVerifyChecksSectionProblems(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize: %v", err)
+	}
+
+	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	specContent := "# Demo\n\n## Goal\nx\n\n## Requirements\n- RQ-001 x\n\n## Acceptance Criteria\n### AC-001 Demo\n- Given x\n- When y\n- Then z\n"
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte(specContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec): %v", err)
+	}
+
+	inspectContent := "---\nreport_type: inspect\nslug: demo\nstatus: pass\ndocs_language: en\ngenerated_at: 2026-03-31\n---\n# Inspect Report: demo\n\n## Verdict\n\n- status: pass\n\n## Errors\n\n- none\n"
+	if err := os.WriteFile(filepath.Join(specDir, "inspect.md"), []byte(inspectContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(inspect): %v", err)
+	}
+
+	planDir := filepath.Join(root, ".speckeep", "specs", "demo", "plan")
+	if err := os.MkdirAll(planDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	tasksContent := "# Tasks\n\n## Phase 1\n- [x] T1.1 done\n\n## Acceptance Coverage\n- AC-001 -> T1.1\n"
+	if err := os.WriteFile(filepath.Join(planDir, "tasks.md"), []byte(tasksContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks): %v", err)
+	}
+
+	// Verify report with no ## Checks section at all
+	verifyNoChecks := "---\nreport_type: verify\nslug: demo\nstatus: pass\ndocs_language: en\ngenerated_at: 2026-03-31\n---\n# Verify Report: demo\n\n## Verdict\n\n- status: pass\n- archive_readiness: safe\n\n## Errors\n\n- none\n\n## Not Verified\n\n- none\n\n## Next Step\n\n- safe to archive\n"
+	if err := os.WriteFile(filepath.Join(planDir, "verify.md"), []byte(verifyNoChecks), 0o644); err != nil {
+		t.Fatalf("WriteFile(verify): %v", err)
+	}
+
+	findings, err := ValidateProject(root)
+	if err != nil {
+		t.Fatalf("ValidateProject: %v", err)
+	}
+
+	found := false
+	for _, f := range findings {
+		if strings.Contains(f.Message, "verify report is missing Checks section") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected 'verify report is missing Checks section' finding, got %+v", findings)
+	}
+}
+
+func TestValidateProjectFindsVerifyPerACEvidenceProblems(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize: %v", err)
+	}
+
+	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	// Spec with two ACs
+	specContent := "# Demo\n\n## Goal\nx\n\n## Requirements\n- RQ-001 x\n\n## Acceptance Criteria\n### AC-001 First\n- Given x\n- When y\n- Then z\n\n### AC-002 Second\n- Given a\n- When b\n- Then c\n"
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte(specContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec): %v", err)
+	}
+
+	inspectContent := "---\nreport_type: inspect\nslug: demo\nstatus: pass\ndocs_language: en\ngenerated_at: 2026-03-31\n---\n# Inspect Report: demo\n\n## Verdict\n\n- status: pass\n\n## Errors\n\n- none\n"
+	if err := os.WriteFile(filepath.Join(specDir, "inspect.md"), []byte(inspectContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(inspect): %v", err)
+	}
+
+	planDir := filepath.Join(root, ".speckeep", "specs", "demo", "plan")
+	if err := os.MkdirAll(planDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	tasksContent := "# Tasks\n\n## Phase 1\n- [x] T1.1 done\n- [x] T1.2 done\n\n## Acceptance Coverage\n- AC-001 -> T1.1\n- AC-002 -> T1.2\n"
+	if err := os.WriteFile(filepath.Join(planDir, "tasks.md"), []byte(tasksContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks): %v", err)
+	}
+
+	// Verify report with ## Checks present, AC-001 referenced but AC-002 missing evidence
+	verifyContent := "---\nreport_type: verify\nslug: demo\nstatus: pass\ndocs_language: en\ngenerated_at: 2026-03-31\n---\n# Verify Report: demo\n\n## Verdict\n\n- status: pass\n- archive_readiness: safe\n\n## Checks\n\n- task_state: completed=2, open=0\n- acceptance_evidence:\n  - AC-001 -> confirmed via T1.1\n- implementation_alignment:\n  - handler.go matches task description\n\n## Errors\n\n- none\n\n## Not Verified\n\n- none\n\n## Next Step\n\n- safe to archive\n"
+	if err := os.WriteFile(filepath.Join(planDir, "verify.md"), []byte(verifyContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(verify): %v", err)
+	}
+
+	findings, err := ValidateProject(root)
+	if err != nil {
+		t.Fatalf("ValidateProject: %v", err)
+	}
+
+	found := false
+	for _, f := range findings {
+		if strings.Contains(f.Message, "no evidence line for AC-002") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected evidence finding for AC-002, got %+v", findings)
+	}
+	// AC-001 should NOT trigger a warning since it has evidence
+	for _, f := range findings {
+		if strings.Contains(f.Message, "no evidence line for AC-001") {
+			t.Fatalf("unexpected evidence warning for AC-001 (it should be covered), got %+v", findings)
+		}
+	}
+}

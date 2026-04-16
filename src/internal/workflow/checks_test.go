@@ -432,3 +432,246 @@ func containsFinding(findings []CheckFinding, code string) bool {
 	}
 	return false
 }
+
+func TestInspectSpecDetectsNeedsClarificationMarker(t *testing.T) {
+	root := t.TempDir()
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
+	if err != nil {
+		t.Fatalf("Initialize: %v", err)
+	}
+
+	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	specContent := "# Demo\n\n## Goal\nx\n\n## Requirements\n- RQ-001 [NEEDS CLARIFICATION: define scope]\n\n## Acceptance Criteria\n### AC-001 First\n- Given x\n- When y\n- Then z\n"
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte(specContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec): %v", err)
+	}
+
+	result, err := InspectSpec(root, ".speckeep/specs/demo/spec.md", "")
+	if err != nil {
+		t.Fatalf("InspectSpec: %v", err)
+	}
+	if !containsFinding(result.Findings, "needs_clarification_marker") {
+		t.Fatalf("expected needs_clarification_marker finding, got %+v", result.Findings)
+	}
+	if !result.Failed {
+		t.Fatalf("expected result to fail due to needs_clarification_marker")
+	}
+}
+
+func TestInspectSpecWarnsOnMissingAssumptions(t *testing.T) {
+	root := t.TempDir()
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
+	if err != nil {
+		t.Fatalf("Initialize: %v", err)
+	}
+
+	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	// Spec with no Assumptions section
+	specContent := "# Demo\n\n## Goal\nx\n\n## Requirements\n- RQ-001 x\n\n## Acceptance Criteria\n### AC-001 First\n- Given x\n- When y\n- Then z\n"
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte(specContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec): %v", err)
+	}
+
+	result, err := InspectSpec(root, ".speckeep/specs/demo/spec.md", "")
+	if err != nil {
+		t.Fatalf("InspectSpec: %v", err)
+	}
+	if !containsFinding(result.Findings, "optional_section_missing") {
+		t.Fatalf("expected optional_section_missing warning for Assumptions, got %+v", result.Findings)
+	}
+	found := false
+	for _, f := range result.Findings {
+		if f.Code == "optional_section_missing" && strings.Contains(strings.Join(f.Refs, ","), "Assumptions") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected optional_section_missing finding referencing Assumptions, got %+v", result.Findings)
+	}
+}
+
+func TestInspectSpecWarnsOnMissingRQIDs(t *testing.T) {
+	root := t.TempDir()
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
+	if err != nil {
+		t.Fatalf("Initialize: %v", err)
+	}
+
+	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	// Requirements section present but no RQ-* IDs
+	specContent := "# Demo\n\n## Goal\nx\n\n## Requirements\n- The system must do X.\n\n## Acceptance Criteria\n### AC-001 First\n- Given x\n- When y\n- Then z\n"
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte(specContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec): %v", err)
+	}
+
+	result, err := InspectSpec(root, ".speckeep/specs/demo/spec.md", "")
+	if err != nil {
+		t.Fatalf("InspectSpec: %v", err)
+	}
+	if !containsFinding(result.Findings, "requirement_ids_missing") {
+		t.Fatalf("expected requirement_ids_missing finding, got %+v", result.Findings)
+	}
+}
+
+func TestInspectSpecDetectsRQIDs(t *testing.T) {
+	root := t.TempDir()
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
+	if err != nil {
+		t.Fatalf("Initialize: %v", err)
+	}
+
+	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	specContent := "# Demo\n\n## Goal\nx\n\n## Requirements\n- RQ-001 The system must do X.\n- RQ-002 The system must do Y.\n\n## Acceptance Criteria\n### AC-001 First\n- Given x\n- When y\n- Then z\n"
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte(specContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec): %v", err)
+	}
+
+	result, err := InspectSpec(root, ".speckeep/specs/demo/spec.md", "")
+	if err != nil {
+		t.Fatalf("InspectSpec: %v", err)
+	}
+	if !containsFinding(result.Findings, "requirement_ids_present") {
+		t.Fatalf("expected requirement_ids_present finding, got %+v", result.Findings)
+	}
+}
+
+func TestCheckConstitutionLanguagePolicyMismatch(t *testing.T) {
+	var result CheckResult
+	// Constitution says docs: en, but project configured for ru
+	constitutionContent := "# Constitution\n\n## Language Policy\n\n- docs: en\n- code: en\n"
+	checkConstitutionLanguagePolicy(&result, constitutionContent, "ru")
+	if !containsFinding(result.Findings, "constitution_language_mismatch") {
+		t.Fatalf("expected constitution_language_mismatch finding, got %+v", result.Findings)
+	}
+	if result.Warnings != 1 {
+		t.Fatalf("expected 1 warning, got %d", result.Warnings)
+	}
+}
+
+func TestCheckConstitutionLanguagePolicyMatch(t *testing.T) {
+	var result CheckResult
+	constitutionContent := "# Constitution\n\n## Language Policy\n\n- docs: ru\n- code: en\n"
+	checkConstitutionLanguagePolicy(&result, constitutionContent, "ru")
+	if !containsFinding(result.Findings, "constitution_language_consistent") {
+		t.Fatalf("expected constitution_language_consistent finding, got %+v", result.Findings)
+	}
+	if result.Warnings != 0 {
+		t.Fatalf("expected 0 warnings, got %d", result.Warnings)
+	}
+}
+
+func TestCheckTouchesFilesExistWarnsOnMissingFile(t *testing.T) {
+	root := t.TempDir()
+	var result CheckResult
+	tasksContent := "- [x] T1.1 done. Touches: src/handler.go\n- [x] T1.2 done. Touches: src/missing.go\n"
+	// Create only src/handler.go
+	if err := os.MkdirAll(filepath.Join(root, "src"), 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "src", "handler.go"), []byte("package main"), 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	checkTouchesFilesExist(&result, root, "tasks.md", tasksContent)
+
+	if !containsFinding(result.Findings, "touches_file_missing") {
+		t.Fatalf("expected touches_file_missing finding, got %+v", result.Findings)
+	}
+	if result.Warnings != 1 {
+		t.Fatalf("expected exactly 1 warning (only missing.go), got %d", result.Warnings)
+	}
+}
+
+func TestCheckTouchesFilesExistPassesWhenAllPresent(t *testing.T) {
+	root := t.TempDir()
+	var result CheckResult
+	tasksContent := "- [x] T1.1 done. Touches: src/handler.go\n"
+	if err := os.MkdirAll(filepath.Join(root, "src"), 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "src", "handler.go"), []byte("package main"), 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	checkTouchesFilesExist(&result, root, "tasks.md", tasksContent)
+
+	if containsFinding(result.Findings, "touches_file_missing") {
+		t.Fatalf("expected no touches_file_missing finding, got %+v", result.Findings)
+	}
+}
+
+func TestCheckPlanContentDetectsMissingDecisionIDs(t *testing.T) {
+	root := t.TempDir()
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
+	if err != nil {
+		t.Fatalf("Initialize: %v", err)
+	}
+
+	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	specContent := "# Demo\n\n## Goal\nx\n\n## Acceptance Criteria\n### AC-001 First\n- Given x\n- When y\n- Then z\n"
+	specPath := filepath.Join(specDir, "spec.md")
+	if err := os.WriteFile(specPath, []byte(specContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec): %v", err)
+	}
+
+	var result CheckResult
+	// Plan with no DEC-* IDs and no Acceptance Approach or Constitution Compliance
+	planContent := "# Plan\n\n## Overview\nSome plan without required sections.\n"
+	checkPlanContent(&result, "demo", specPath, "plan.md", planContent)
+
+	if !containsFinding(result.Findings, "plan_no_decision_ids") {
+		t.Fatalf("expected plan_no_decision_ids finding, got %+v", result.Findings)
+	}
+	if !containsFinding(result.Findings, "plan_missing_acceptance_approach") {
+		t.Fatalf("expected plan_missing_acceptance_approach finding, got %+v", result.Findings)
+	}
+	if !containsFinding(result.Findings, "plan_missing_constitution_compliance") {
+		t.Fatalf("expected plan_missing_constitution_compliance finding, got %+v", result.Findings)
+	}
+}
+
+func TestCheckPlanContentDetectsACMismatch(t *testing.T) {
+	root := t.TempDir()
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
+	if err != nil {
+		t.Fatalf("Initialize: %v", err)
+	}
+
+	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	specContent := "# Demo\n\n## Goal\nx\n\n## Acceptance Criteria\n### AC-001 First\n- Given x\n- When y\n- Then z\n\n### AC-002 Second\n- Given a\n- When b\n- Then c\n"
+	specPath := filepath.Join(specDir, "spec.md")
+	if err := os.WriteFile(specPath, []byte(specContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec): %v", err)
+	}
+
+	var result CheckResult
+	// Plan references AC-001 in Acceptance Approach but misses AC-002; also references unknown AC-999
+	planContent := "# Plan\n\n## DEC-001 Decision\nSome decision.\n\n## Acceptance Approach\n- AC-001 covered by handler layer\n- AC-999 unknown criterion\n\n## Constitution Compliance\n- compliant\n"
+	checkPlanContent(&result, "demo", specPath, "plan.md", planContent)
+
+	if !containsFinding(result.Findings, "plan_missing_ac_reference") {
+		t.Fatalf("expected plan_missing_ac_reference for AC-002, got %+v", result.Findings)
+	}
+	if !containsFinding(result.Findings, "plan_unknown_ac_reference") {
+		t.Fatalf("expected plan_unknown_ac_reference for AC-999, got %+v", result.Findings)
+	}
+}

@@ -61,6 +61,7 @@ type docSections struct {
 	Acceptance   string
 	Questions    string
 	Coverage     string
+	Assumptions  string
 }
 
 var (
@@ -70,7 +71,9 @@ var (
 	acceptanceIDPattern  = regexp.MustCompile(`AC-[0-9][0-9][0-9]`)
 	requirementIDPattern = regexp.MustCompile(`RQ-[0-9][0-9][0-9]`)
 	decisionIDPattern    = regexp.MustCompile(`DEC-[0-9][0-9][0-9]`)
-	ambiguityPhrases     = []string{
+	needsClarificationPattern = regexp.MustCompile(`\[NEEDS CLARIFICATION`)
+
+	ambiguityPhrases = []string{
 		"should",
 		"appropriate",
 		"fast",
@@ -377,12 +380,16 @@ func CheckTasksReady(root, slug string) (CheckResult, error) {
 	promptDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.TasksPrompt)
 	contractsDisplay := joinDisplay(featurepaths.ContractsDir(cfg.Paths.SpecsDir, slug))
 
+	summaryDisplay := joinDisplay(featurepaths.SpecDir(cfg.Paths.SpecsDir, slug), "summary.md")
+
 	checkFile(&result, cfg.Project.ConstitutionFile, absFromRoot(root, cfg.Project.ConstitutionFile))
 	checkFile(&result, specDisplay, specAbs)
 	checkFile(&result, planDisplay, absFromRoot(root, planDisplay))
 	checkFile(&result, dataModelDisplay, absFromRoot(root, dataModelDisplay))
 	checkFile(&result, tasksTemplateDisplay, absFromRoot(root, tasksTemplateDisplay))
 	checkFile(&result, promptDisplay, absFromRoot(root, promptDisplay))
+	checkOptionalFile(&result, summaryDisplay, absFromRoot(root, summaryDisplay),
+		fmt.Sprintf("summary.md not found: %s (agents will fall back to full spec for context)", summaryDisplay))
 
 	if isDir(absFromRoot(root, contractsDisplay)) {
 		result.AddOK(contractsDisplay)
@@ -429,6 +436,7 @@ func CheckImplementReady(root, slug string) (CheckResult, error) {
 	dataModelDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "data-model.md")
 	promptDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.ImplementPrompt)
 	contractsDisplay := joinDisplay(featurepaths.ContractsDir(cfg.Paths.SpecsDir, slug))
+	summaryDisplay := joinDisplay(featurepaths.SpecDir(cfg.Paths.SpecsDir, slug), "summary.md")
 
 	checkFile(&result, cfg.Project.ConstitutionFile, absFromRoot(root, cfg.Project.ConstitutionFile))
 	checkFile(&result, specDisplay, specAbs)
@@ -436,6 +444,8 @@ func CheckImplementReady(root, slug string) (CheckResult, error) {
 	checkFile(&result, tasksDisplay, absFromRoot(root, tasksDisplay))
 	checkFile(&result, dataModelDisplay, absFromRoot(root, dataModelDisplay))
 	checkFile(&result, promptDisplay, absFromRoot(root, promptDisplay))
+	checkOptionalFile(&result, summaryDisplay, absFromRoot(root, summaryDisplay),
+		fmt.Sprintf("summary.md not found: %s (agents will fall back to full spec for context)", summaryDisplay))
 
 	if isDir(absFromRoot(root, contractsDisplay)) {
 		result.AddOK(contractsDisplay)
@@ -475,6 +485,15 @@ func CheckImplementReady(root, slug string) (CheckResult, error) {
 		checkPlanTaskSurfaceConsistency(&result, planDisplay, string(planContent), tasksDisplay, string(tasksContent))
 	}
 
+	// Item 7: plan structural validation
+	if fileExists(planAbs) {
+		planContent, err := os.ReadFile(planAbs)
+		if err != nil {
+			return CheckResult{}, fmt.Errorf("read plan for content check %s: %w", planDisplay, err)
+		}
+		checkPlanContent(&result, slug, specAbs, planDisplay, string(planContent))
+	}
+
 	constitutionResult, err := CheckConstitution(root, cfg.Project.ConstitutionFile)
 	if err != nil {
 		return CheckResult{}, err
@@ -496,12 +515,15 @@ func CheckVerifyReady(root, slug string) (CheckResult, error) {
 	tasksDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "tasks.md")
 	reportTemplateDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.VerifyReport)
 	promptDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.VerifyPrompt)
+	summaryDisplay := joinDisplay(featurepaths.SpecDir(cfg.Paths.SpecsDir, slug), "summary.md")
 
 	checkFile(&result, cfg.Project.ConstitutionFile, absFromRoot(root, cfg.Project.ConstitutionFile))
 	checkFile(&result, specDisplay, specAbs)
 	checkFile(&result, tasksDisplay, absFromRoot(root, tasksDisplay))
 	checkFile(&result, reportTemplateDisplay, absFromRoot(root, reportTemplateDisplay))
 	checkFile(&result, promptDisplay, absFromRoot(root, promptDisplay))
+	checkOptionalFile(&result, summaryDisplay, absFromRoot(root, summaryDisplay),
+		fmt.Sprintf("summary.md not found: %s (agents will fall back to full spec for context)", summaryDisplay))
 
 	tasksAbs := absFromRoot(root, tasksDisplay)
 	if fileExists(specAbs) && fileExists(tasksAbs) {
@@ -517,6 +539,20 @@ func CheckVerifyReady(root, slug string) (CheckResult, error) {
 			return CheckResult{}, err
 		}
 		result.Merge(taskStateResult)
+
+		// Item 4: Touches: file existence check
+		if tasksContent, readErr := os.ReadFile(tasksAbs); readErr == nil {
+			checkTouchesFilesExist(&result, root, tasksDisplay, string(tasksContent))
+		}
+	}
+
+	// Item 7: plan structural validation
+	planDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "plan.md")
+	planAbs := absFromRoot(root, planDisplay)
+	if fileExists(planAbs) {
+		if planContent, readErr := os.ReadFile(planAbs); readErr == nil {
+			checkPlanContent(&result, slug, specAbs, planDisplay, string(planContent))
+		}
 	}
 
 	return result, nil
@@ -632,6 +668,14 @@ func InspectSpec(root, specPath, tasksPath string) (CheckResult, error) {
 		return result, nil
 	}
 
+	// Item 6: constitution language policy cross-check
+	constitutionAbs := absFromRoot(root, cfg.Project.ConstitutionFile)
+	if fileExists(constitutionAbs) {
+		if constitutionContent, readErr := os.ReadFile(constitutionAbs); readErr == nil {
+			checkConstitutionLanguagePolicy(&result, string(constitutionContent), cfg.Language.Docs)
+		}
+	}
+
 	content, err := os.ReadFile(specAbs)
 	if err != nil {
 		return CheckResult{}, fmt.Errorf("read spec %s: %w", specDisplay, err)
@@ -644,6 +688,13 @@ func InspectSpec(root, specPath, tasksPath string) (CheckResult, error) {
 	checkRequiredHeading(&result, text, sections.Requirements)
 	checkRequiredHeading(&result, text, sections.Acceptance)
 	checkOptionalHeading(&result, text, sections.Questions)
+	// Item 2: Assumptions section
+	checkOptionalHeading(&result, text, sections.Assumptions)
+
+	// Item 1: unresolved [NEEDS CLARIFICATION] markers
+	if needsClarificationPattern.MatchString(text) {
+		result.AddStructuredError("needs_clarification_marker", CategoryReadiness, "spec", "spec contains unresolved [NEEDS CLARIFICATION] markers")
+	}
 
 	acceptanceBody := markdownSection(text, sections.Acceptance)
 	if strings.TrimSpace(acceptanceBody) == "" {
@@ -680,7 +731,18 @@ func InspectSpec(root, specPath, tasksPath string) (CheckResult, error) {
 		result.AddWarn("no stable acceptance IDs found in acceptance criteria")
 	}
 
-	checkAmbiguousLanguage(&result, specDisplay, sections.Requirements, markdownSection(text, sections.Requirements))
+	// Item 3: RQ-* IDs in requirements section
+	requirementsBody := markdownSection(text, sections.Requirements)
+	if strings.TrimSpace(requirementsBody) != "" {
+		rqIDCount := len(requirementIDPattern.FindAllString(requirementsBody, -1))
+		if rqIDCount > 0 {
+			result.AddStructuredOK("requirement_ids_present", CategoryTraceability, "spec", fmt.Sprintf("requirement IDs found: %d", rqIDCount))
+		} else {
+			result.AddStructuredWarn("requirement_ids_missing", CategoryTraceability, "spec", "no stable requirement IDs (RQ-*) found in requirements section")
+		}
+	}
+
+	checkAmbiguousLanguage(&result, specDisplay, sections.Requirements, requirementsBody)
 	checkAmbiguousLanguage(&result, specDisplay, sections.Acceptance, acceptanceBody)
 
 	if strings.TrimSpace(tasksPath) != "" {
@@ -742,6 +804,7 @@ func docsSections(language string) docSections {
 			Acceptance:   "Критерии приемки",
 			Questions:    "Открытые вопросы",
 			Coverage:     "Покрытие критериев приемки",
+			Assumptions:  "Допущения",
 		}
 	}
 	return docSections{
@@ -751,6 +814,7 @@ func docsSections(language string) docSections {
 		Acceptance:   "Acceptance Criteria",
 		Questions:    "Open Questions",
 		Coverage:     "Acceptance Coverage",
+		Assumptions:  "Assumptions",
 	}
 }
 
@@ -847,6 +911,14 @@ func checkFile(result *CheckResult, displayPath, absolutePath string) {
 		return
 	}
 	result.AddStructuredError("file_missing", CategoryReadiness, displayPath, fmt.Sprintf("missing %s", displayPath))
+}
+
+func checkOptionalFile(result *CheckResult, displayPath, absolutePath, missingMsg string) {
+	if fileExists(absolutePath) {
+		result.AddStructuredOK("file_present", CategoryReadiness, displayPath, displayPath)
+		return
+	}
+	result.AddStructuredWarn("optional_file_missing", CategoryReadiness, displayPath, missingMsg)
 }
 
 func checkPattern(result *CheckResult, content, pattern, label string) {
@@ -1081,6 +1153,104 @@ func extractTouchesRefs(tasksContent string) []string {
 		}
 	}
 	return uniqueStrings(refs)
+}
+
+// checkConstitutionLanguagePolicy reads the Language Policy section of the constitution
+// and verifies it matches the project's configured documentation language.
+func checkConstitutionLanguagePolicy(result *CheckResult, constitutionContent, configuredLanguage string) {
+	section := markdownSection(constitutionContent, "Language Policy")
+	if section == "" {
+		section = markdownSection(constitutionContent, "Языковая политика")
+	}
+	if section == "" {
+		return
+	}
+	re := regexp.MustCompile(`(?i)docs:\s*(en|ru)\b`)
+	match := re.FindStringSubmatch(section)
+	if len(match) != 2 {
+		return
+	}
+	constitutionLang := strings.ToLower(match[1])
+	configuredLang := strings.ToLower(strings.TrimSpace(configuredLanguage))
+	if constitutionLang != configuredLang {
+		result.AddStructuredWarn("constitution_language_mismatch", CategoryConsistency, "constitution",
+			fmt.Sprintf("constitution Language Policy specifies docs: %s but project is configured for %s", constitutionLang, configuredLang))
+	} else {
+		result.AddStructuredOK("constitution_language_consistent", CategoryConsistency, "constitution",
+			fmt.Sprintf("constitution Language Policy matches configured language: %s", configuredLang))
+	}
+}
+
+// checkTouchesFilesExist warns when a Touches: entry in tasks.md points to a path
+// that does not exist in the repository. Called during the verify phase when all
+// tasks should already be implemented.
+func checkTouchesFilesExist(result *CheckResult, root, tasksDisplay, tasksContent string) {
+	for _, line := range strings.Split(tasksContent, "\n") {
+		idx := strings.Index(line, "Touches:")
+		if idx < 0 {
+			continue
+		}
+		part := strings.TrimSpace(line[idx+len("Touches:"):])
+		for _, piece := range strings.Split(part, ",") {
+			value := strings.TrimSpace(strings.Trim(strings.TrimSpace(piece), "`"))
+			if value == "" || strings.ContainsAny(value, " \t") {
+				continue
+			}
+			absPath := absFromRoot(root, value)
+			if !fileExists(absPath) && !isDir(absPath) {
+				result.AddStructuredWarn("touches_file_missing", CategoryTraceability, tasksDisplay,
+					fmt.Sprintf("Touches: references non-existent path: %s", value), value)
+			}
+		}
+	}
+}
+
+// checkPlanContent validates the structural and traceability requirements of a
+// plan.md document. It is called from CheckImplementReady and CheckVerifyReady
+// where the plan is guaranteed to exist.
+func checkPlanContent(result *CheckResult, slug, specAbs, planDisplay, planContent string) {
+	if len(decisionIDPattern.FindAllString(planContent, -1)) == 0 {
+		result.AddStructuredWarn("plan_no_decision_ids", CategoryTraceability, planDisplay,
+			fmt.Sprintf("plan has no stable decision IDs (DEC-*) for slug %s", slug))
+	}
+	if !ContainsAny(planContent, "## Acceptance Approach") {
+		result.AddStructuredWarn("plan_missing_acceptance_approach", CategoryStructure, planDisplay,
+			fmt.Sprintf("plan is missing Acceptance Approach section for slug %s", slug))
+	}
+	if !ContainsAny(planContent, "## Constitution Compliance", "## Соответствие конституции") {
+		result.AddStructuredWarn("plan_missing_constitution_compliance", CategoryStructure, planDisplay,
+			fmt.Sprintf("plan is missing Constitution Compliance section for slug %s", slug))
+	}
+	if !ContainsAny(planContent, "## Acceptance Approach") || !fileExists(specAbs) {
+		return
+	}
+	specContent, err := os.ReadFile(specAbs)
+	if err != nil {
+		return
+	}
+	specIDs := ExtractUniqueMatches(string(specContent), `AC-[0-9][0-9][0-9]`)
+	if len(specIDs) == 0 {
+		return
+	}
+	approachSection := markdownSection(planContent, "Acceptance Approach")
+	planACSet := make(map[string]struct{})
+	for _, id := range ExtractUniqueMatches(approachSection, `AC-[0-9][0-9][0-9]`) {
+		planACSet[id] = struct{}{}
+	}
+	specIDSet := make(map[string]struct{}, len(specIDs))
+	for _, id := range specIDs {
+		specIDSet[id] = struct{}{}
+		if _, ok := planACSet[id]; !ok {
+			result.AddStructuredWarn("plan_missing_ac_reference", CategoryConsistency, planDisplay,
+				fmt.Sprintf("plan Acceptance Approach does not reference %s for slug %s", id, slug), id)
+		}
+	}
+	for id := range planACSet {
+		if _, ok := specIDSet[id]; !ok {
+			result.AddStructuredWarn("plan_unknown_ac_reference", CategoryConsistency, planDisplay,
+				fmt.Sprintf("plan Acceptance Approach references unknown criterion %s for slug %s", id, slug), id)
+		}
+	}
 }
 
 func uniqueStrings(values []string) []string {

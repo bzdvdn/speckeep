@@ -648,10 +648,10 @@ func TestFeatureCommandShowsStructuredCheckDetails(t *testing.T) {
 	if err != nil {
 		t.Fatalf("feature command returned error: %v", err)
 	}
-	if !strings.Contains(stdout, "check_issues: warnings=4") {
+	if !strings.Contains(stdout, "check_issues: warnings=5") {
 		t.Fatalf("expected structured check summary in feature output, got %s", stdout)
 	}
-	if !strings.Contains(stdout, `check_detail: warning [ambiguity] ambiguous wording detected in Requirements: "should"`) {
+	if !strings.Contains(stdout, "check_detail: warning [structure] missing section:") {
 		t.Fatalf("expected structured check detail in feature output, got %s", stdout)
 	}
 }
@@ -685,7 +685,7 @@ func TestFeatureCommandJSONIncludesStructuredCheckDetails(t *testing.T) {
 	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
 		t.Fatalf("failed to parse feature json output %q: %v", stdout, err)
 	}
-	if payload.CheckSummary.Warnings != 4 {
+	if payload.CheckSummary.Warnings != 5 {
 		t.Fatalf("expected structured warnings in feature json, got %q", stdout)
 	}
 	found := false
@@ -717,13 +717,13 @@ func TestCheckCommandShowsStructuredCheckSummary(t *testing.T) {
 	if err != nil {
 		t.Fatalf("check command returned error: %v", err)
 	}
-	if !strings.Contains(stdout, "checks:   warnings=4") {
+	if !strings.Contains(stdout, "checks:   warnings=5") {
 		t.Fatalf("expected check summary in output, got %s", stdout)
 	}
-	if !strings.Contains(stdout, "warning_categories=structure=2,ambiguity=2") {
+	if !strings.Contains(stdout, "warning_categories=structure=3,ambiguity=2") {
 		t.Fatalf("expected categorized warning summary, got %s", stdout)
 	}
-	if !strings.Contains(stdout, `detail:   warning [ambiguity] ambiguous wording detected in Requirements: "should"`) {
+	if !strings.Contains(stdout, "detail:   warning [structure] missing section:") {
 		t.Fatalf("expected finding detail in output, got %s", stdout)
 	}
 }
@@ -759,7 +759,7 @@ func TestCheckCommandJSONIncludesStructuredFindings(t *testing.T) {
 	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
 		t.Fatalf("failed to parse check json output %q: %v", stdout, err)
 	}
-	if payload.CheckSummary.Warnings != 4 {
+	if payload.CheckSummary.Warnings != 5 {
 		t.Fatalf("expected warnings in check summary, got %q", stdout)
 	}
 	if payload.CheckSummary.WarningCategories["ambiguity"] == 0 {

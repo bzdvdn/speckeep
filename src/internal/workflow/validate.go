@@ -244,6 +244,20 @@ func validateVerifyReportTraceability(slug, specPath, tasksPath, verifyPath stri
 		findings = append(findings, Finding{Level: "warning", Message: fmt.Sprintf("verify report is missing Not Verified section for slug %s", slug)})
 	}
 
+	// Item 8: Checks section sub-bullets
+	checksSection := markdownSection(body, "Checks")
+	hasChecksSection := ContainsAny(body, "## Checks")
+	if !hasChecksSection {
+		findings = append(findings, Finding{Level: "warning", Message: fmt.Sprintf("verify report is missing Checks section for slug %s", slug)})
+	} else {
+		if !strings.Contains(checksSection, "task_state") {
+			findings = append(findings, Finding{Level: "warning", Message: fmt.Sprintf("verify report Checks section is missing task_state entry for slug %s", slug)})
+		}
+		if !strings.Contains(checksSection, "acceptance_evidence") {
+			findings = append(findings, Finding{Level: "warning", Message: fmt.Sprintf("verify report Checks section is missing acceptance_evidence entry for slug %s", slug)})
+		}
+	}
+
 	if fileExists(tasksPath) {
 		tasksContent, err := os.ReadFile(tasksPath)
 		if err != nil {
@@ -259,8 +273,18 @@ func validateVerifyReportTraceability(slug, specPath, tasksPath, verifyPath stri
 		if err != nil {
 			return []Finding{{Level: "error", Message: fmt.Sprintf("read spec for verify check, slug %s: %v", slug, err)}}
 		}
-		if len(ExtractUniqueMatches(string(specContent), `AC-[0-9][0-9][0-9]`)) > 0 && len(ExtractUniqueMatches(body, `AC-[0-9][0-9][0-9]`)) == 0 {
-			findings = append(findings, Finding{Level: "warning", Message: fmt.Sprintf("verify report does not reference any acceptance criteria for slug %s", slug)})
+		specACIDs := ExtractUniqueMatches(string(specContent), `AC-[0-9][0-9][0-9]`)
+		if len(specACIDs) > 0 {
+			if len(ExtractUniqueMatches(body, `AC-[0-9][0-9][0-9]`)) == 0 {
+				findings = append(findings, Finding{Level: "warning", Message: fmt.Sprintf("verify report does not reference any acceptance criteria for slug %s", slug)})
+			} else if hasChecksSection {
+				// Item 5: per-AC evidence line in Checks section
+				for _, acID := range specACIDs {
+					if !strings.Contains(checksSection, acID+" ->") && !strings.Contains(checksSection, acID+" →") {
+						findings = append(findings, Finding{Level: "warning", Message: fmt.Sprintf("verify report Checks section has no evidence line for %s for slug %s", acID, slug)})
+					}
+				}
+			}
 		}
 	}
 
