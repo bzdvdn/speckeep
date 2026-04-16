@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v0.1.0] - 2026-04-11
+## [v0.1.0] - 2026-04-16
 
 ### Added
 
@@ -23,5 +23,10 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Phase readiness scripts and internal CLI plumbing (`__internal`) to keep wrappers cheap and deterministic
 - Stable IDs for traceability: `RQ-*`, `AC-*`, `DEC-*`, `T*` + acceptance coverage mapping (`AC-* -> T*`)
 - Migration support from legacy `.draftspec/` workspace into `.speckeep/` (safe move/copy + path canonicalization)
+- Extended `CheckInspectReady`: detects `[NEEDS CLARIFICATION]` markers, counts `RQ-*` IDs, warns on missing `## Assumptions` section, checks constitution language policy consistency
+- Extended `CheckVerifyReady`, `CheckImplementReady`, `CheckTasksReady`: optional `summary.md` presence warning, `Touches:` file existence check, plan content validation (`DEC-*` IDs, `## Acceptance Approach`, `## Constitution Compliance`, AC alignment)
+- Stricter verify report traceability: requires `## Checks` section with `task_state` and per-AC `acceptance_evidence` entries
+- Package-level tests for `featurepaths` (17 tests) and `gitutil` (7 tests)
+- Full workflow integration test (`TestFullWorkflowCycle`) covering the complete lifecycle from `init` through archive-readiness in a temporary directory
 
 [0.1.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.1.0
