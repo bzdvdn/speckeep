@@ -65,12 +65,12 @@ type docSections struct {
 }
 
 var (
-	taskIDPattern        = regexp.MustCompile(`T[0-9]+\.[0-9]+`)
-	coverageLinePattern  = regexp.MustCompile(`AC-[0-9][0-9][0-9].*(?:->|→).*T[0-9]+\.[0-9]+`)
-	placeholderPattern   = regexp.MustCompile(`\[[A-Z0-9_][A-Z0-9_ -]*\]`)
-	acceptanceIDPattern  = regexp.MustCompile(`AC-[0-9][0-9][0-9]`)
-	requirementIDPattern = regexp.MustCompile(`RQ-[0-9][0-9][0-9]`)
-	decisionIDPattern    = regexp.MustCompile(`DEC-[0-9][0-9][0-9]`)
+	taskIDPattern             = regexp.MustCompile(`T[0-9]+\.[0-9]+`)
+	coverageLinePattern       = regexp.MustCompile(`AC-[0-9][0-9][0-9].*(?:->|→).*T[0-9]+\.[0-9]+`)
+	placeholderPattern        = regexp.MustCompile(`\[[A-Z0-9_][A-Z0-9_ -]*\]`)
+	acceptanceIDPattern       = regexp.MustCompile(`AC-[0-9][0-9][0-9]`)
+	requirementIDPattern      = regexp.MustCompile(`RQ-[0-9][0-9][0-9]`)
+	decisionIDPattern         = regexp.MustCompile(`DEC-[0-9][0-9][0-9]`)
 	needsClarificationPattern = regexp.MustCompile(`\[NEEDS CLARIFICATION`)
 
 	ambiguityPhrases = []string{
