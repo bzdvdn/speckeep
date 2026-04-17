@@ -17,6 +17,7 @@ Optional (any point): `/speckeep.challenge` (adversarial review; `--spec`/`--pla
 ## Base Rules (apply to every slash command unless a prompt overrides)
 
 - **Paths**: use `.speckeep/` defaults unless `.speckeep/speckeep.yaml` overrides `paths.specs_dir`, `paths.archive_dir`, or `project.constitution_file`. Read the config at most once per session.
+- `constitution.summary.md` is a fixed technical artifact at `.speckeep/constitution.summary.md`; it does not move with `project.constitution_file`.
 - **Git**: only `/speckeep.spec` creates/switches branches (to `feature/<slug>` or the explicit `--branch`). Other phases must already be on the correct branch — stop and report if not; do not create branches. Never run `git commit`/`push`/`tag` or open PRs unless the user explicitly asks. For CLI use `./.speckeep/scripts/run-speckeep.sh`.
 - **Load discipline**: load only the current feature slug by default. Never read unrelated specs/plans, broad repo scans, `/.speckeep/scripts/*` source, or files already read this session (unless you edited them). Prefer readiness-script output over reading deeper artifacts or script sources.
 - **Readiness scripts**: when `/.speckeep/scripts/check-<phase>-ready.*` exists, run it with the slug as the first argument (e.g. `bash ./.speckeep/scripts/check-plan-ready.sh <slug>` or `.\.speckeep\scripts\check-plan-ready.ps1 <slug>`). Use its findings as the primary structural evidence layer; do not re-derive them.

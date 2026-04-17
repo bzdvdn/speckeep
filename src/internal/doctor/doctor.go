@@ -127,12 +127,17 @@ func Check(root string) (Result, error) {
 				Message: "constitution.md contains unfilled placeholder content — run /speckeep.constitution to complete setup",
 			})
 		}
-		summaryPath := strings.TrimSuffix(constitutionPath, ".md") + ".summary.md"
-		if _, err := os.Stat(summaryPath); os.IsNotExist(err) {
-			findings = append(findings, Finding{
-				Level:   "warning",
-				Message: "constitution.summary.md not found — run /speckeep.constitution to generate the compact summary used by implement, verify, tasks, and hotfix phases",
-			})
+		summaryPath := filepath.Join(draftspecDir, "constitution.summary.md")
+		hasActiveSpecs, err := hasActiveSpecs(specsDir)
+		if err != nil {
+			findings = append(findings, Finding{Level: "error", Message: fmt.Sprintf("read specs directory: %v", err)})
+		} else if hasActiveSpecs {
+			if _, err := os.Stat(summaryPath); os.IsNotExist(err) {
+				findings = append(findings, Finding{
+					Level:   "warning",
+					Message: "constitution.summary.md not found — run /speckeep.constitution to generate the compact summary used by implement, verify, tasks, and hotfix phases",
+				})
+			}
 		}
 	}
 
@@ -230,6 +235,24 @@ func Check(root string) (Result, error) {
 		return findings[i].Level < findings[j].Level
 	})
 	return Result{Findings: findings}, nil
+}
+
+func hasActiveSpecs(specsDir string) (bool, error) {
+	info, err := os.Stat(specsDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	if !info.IsDir() {
+		return false, nil
+	}
+	slugs, err := featurepaths.ListSpecSlugs(specsDir)
+	if err != nil {
+		return false, err
+	}
+	return len(slugs) > 0, nil
 }
 
 func checkPath(findings *[]Finding, path string, expectDir bool) {

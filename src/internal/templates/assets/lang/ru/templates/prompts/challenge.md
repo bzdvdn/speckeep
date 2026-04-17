@@ -27,7 +27,8 @@ Stop if: slug неоднозначен или спек для slug не суще
 
 ## Load First
 
-- `.speckeep/constitution.summary.md` если присутствует; иначе `.speckeep/constitution.md`
+- `.speckeep/constitution.summary.md` если присутствует; он всегда живет по фиксированному technical path в `.speckeep/`
+- Иначе `.speckeep/constitution.md`
 - `.speckeep/specs/<slug>/spec.md`
 
 ## Load If Present

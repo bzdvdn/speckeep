@@ -101,6 +101,8 @@
 
 После записи/patch `constitution.md` запишите/обновите `.speckeep/constitution.summary.md` только с:
 
+- Этот summary всегда живет по фиксированному technical path `.speckeep/constitution.summary.md`, даже если `project.constitution_file` указывает в другое место.
+
 - `## Purpose` — 1-2 предложения
 - `## Key Constraints` — 3-5 bullets, только жёсткие неотменяемые ограничения
 - `## Language Policy` — 3 строки: docs, agent, comments
@@ -120,7 +122,7 @@
 
 ## Output
 
-- Запишите обновлённый `.speckeep/constitution.md` и `.speckeep/constitution.summary.md`.
+- Запишите обновлённую конституцию по пути из `project.constitution_file`, а `.speckeep/constitution.summary.md` — по его фиксированному technical path.
 - Кратко — что изменилось и что осталось неразрешённым; что выведено из репо vs добавлено как новое обязательное правило.
 - Неразрешённые вопросы → **BLOCKER** для downstream.
 - Готово: `Готово к: /speckeep.spec`.

@@ -358,3 +358,75 @@ func TestCheckWarnsWhenSpecgateEntrypointCannotBeResolved(t *testing.T) {
 		t.Fatalf("expected missing entrypoint warning, got %+v", result.Findings)
 	}
 }
+
+func TestCheckDoesNotWarnMissingConstitutionSummaryWhenNoActiveSpecsAndCustomPaths(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:          false,
+		DefaultLang:      "en",
+		Shell:            "sh",
+		SpecsDir:         ".speckeep/specifications",
+		ArchiveDir:       ".speckeep/artifacts/archive",
+		ConstitutionFile: "docs/project-constitution.md",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	result, err := Check(root)
+	if err != nil {
+		t.Fatalf("Check returned error: %v", err)
+	}
+
+	for _, finding := range result.Findings {
+		if finding.Level == "warning" && strings.Contains(finding.Message, "constitution.summary.md not found") {
+			t.Fatalf("unexpected constitution summary warning with no active specs: %+v", result.Findings)
+		}
+	}
+}
+
+func TestCheckUsesWorkspaceConstitutionSummaryPathForCustomConstitutionFile(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:          false,
+		DefaultLang:      "en",
+		Shell:            "sh",
+		SpecsDir:         ".speckeep/specifications",
+		ArchiveDir:       ".speckeep/artifacts/archive",
+		ConstitutionFile: "docs/project-constitution.md",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	customSpecsDir, err := cfg.SpecsDir(root)
+	if err != nil {
+		t.Fatalf("cfg.SpecsDir returned error: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(customSpecsDir, "demo"), 0o755); err != nil {
+		t.Fatalf("MkdirAll(spec dir) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(customSpecsDir, "demo", "spec.md"), []byte("# Demo\n\n## Goal\nx\n\n## Requirements\n- RQ-001 x\n\n## Acceptance Criteria\n### AC-001 Demo\n- **Given** x\n- **When** y\n- **Then** z\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".speckeep", "constitution.summary.md"), []byte("## Purpose\n- x\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(summary) returned error: %v", err)
+	}
+
+	result, err := Check(root)
+	if err != nil {
+		t.Fatalf("Check returned error: %v", err)
+	}
+
+	for _, finding := range result.Findings {
+		if finding.Level == "warning" && strings.Contains(finding.Message, "constitution.summary.md not found") {
+			t.Fatalf("unexpected constitution summary warning when workspace summary exists: %+v", result.Findings)
+		}
+	}
+}

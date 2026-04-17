@@ -24,7 +24,8 @@ Stop if: slug неоднозначен, `tasks.md` нет, или verdict пот
 
 Всегда сначала:
 
-- `.speckeep/constitution.summary.md` если есть; иначе `.speckeep/constitution.md`
+- `.speckeep/constitution.summary.md` если есть; он всегда живет по фиксированному technical path в `.speckeep/`
+- Иначе `.speckeep/constitution.md`
 - `.speckeep/specs/<slug>/plan/tasks.md`
 
 ## Load If Present

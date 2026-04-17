@@ -22,7 +22,8 @@ Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.ya
 
 Always read these first:
 
-- `.speckeep/constitution.summary.md` if present; otherwise the configured constitution file (`project.constitution_file`; default: `.speckeep/constitution.md`)
+- `.speckeep/constitution.summary.md` if present; this summary always lives at the fixed technical path in `.speckeep/` and does not follow `project.constitution_file`
+- Otherwise the configured constitution file (`project.constitution_file`; default: `.speckeep/constitution.md`)
 
 ## Load If Present
 

@@ -41,7 +41,8 @@ Do not accept `--phase` and `--tasks` together in the same run.
 
 Always read before any implementation work:
 
-- `.speckeep/constitution.summary.md` if present; otherwise `.speckeep/constitution.md`
+- `.speckeep/constitution.summary.md` if present; it always lives at the fixed technical path in `.speckeep/`
+- Otherwise `.speckeep/constitution.md`
 - `.speckeep/specs/<slug>/plan/tasks.md`
 
 ## Load If Present

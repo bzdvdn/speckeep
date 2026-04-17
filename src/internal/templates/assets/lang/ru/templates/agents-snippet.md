@@ -17,6 +17,7 @@
 ## Базовые правила (применяются к каждой slash-команде, если prompt не переопределяет)
 
 - **Пути**: используйте дефолты `.speckeep/`, если `.speckeep/speckeep.yaml` не переопределяет `paths.specs_dir`, `paths.archive_dir` или `project.constitution_file`. Читайте конфиг ≤ 1 раза за сессию.
+- `constitution.summary.md` — фиксированный technical artifact по пути `.speckeep/constitution.summary.md`; он не переезжает вместе с `project.constitution_file`.
 - **Git**: ветки создаёт/переключает только `/speckeep.spec` (в `feature/<slug>` или явный `--branch`). Остальные фазы должны уже быть на нужной ветке — иначе остановитесь и сообщите; не создавайте ветки. Не запускайте `git commit`/`push`/`tag`, не открывайте PR без явного запроса пользователя. Для CLI используйте `./.speckeep/scripts/run-speckeep.sh` (PowerShell: `./.speckeep/scripts/run-speckeep.ps1`).
 - **Load discipline**: по умолчанию грузите только текущий feature slug. Не читайте нерелевантные specs/plans, широкие репо-сканы, исходники `/.speckeep/scripts/*`, файлы, уже прочитанные в этой сессии (если сами не редактировали). Предпочитайте вывод readiness-скрипта чтению исходников или более глубоких артефактов.
 - **Readiness scripts**: если `/.speckeep/scripts/check-<phase>-ready.*` существует, запускайте со slug как первый аргумент (например `bash ./.speckeep/scripts/check-plan-ready.sh <slug>` или `.\.speckeep\scripts\check-plan-ready.ps1 <slug>`). Используйте его вывод как основной слой структурных свидетельств; не перевыводите их самостоятельно.

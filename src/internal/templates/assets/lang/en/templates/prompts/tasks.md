@@ -25,7 +25,8 @@ Stop if: `plan.md` missing, plan underspecified, or any AC cannot be mapped to e
 
 Always read before decomposing:
 
-- `.speckeep/constitution.summary.md` if present; otherwise `.speckeep/constitution.md`
+- `.speckeep/constitution.summary.md` if present; it always lives at the fixed technical path in `.speckeep/`
+- Otherwise `.speckeep/constitution.md`
 - `.speckeep/specs/<slug>/plan/plan.md`
 
 ## Load If Present

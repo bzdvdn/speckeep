@@ -41,7 +41,8 @@ Stop if: `tasks.md` нет, следующая задача неконкретн
 
 Всегда до реализации:
 
-- `.speckeep/constitution.summary.md` если есть; иначе `.speckeep/constitution.md`
+- `.speckeep/constitution.summary.md` если есть; он всегда живет по фиксированному technical path в `.speckeep/`
+- Иначе `.speckeep/constitution.md`
 - `.speckeep/specs/<slug>/plan/tasks.md`
 
 ## Load If Present

@@ -22,7 +22,7 @@ If scope is unclear, root cause unknown, or fix is cross-cutting — stop and us
 
 ## Phase Contract
 
-Inputs: `.speckeep/constitution.summary.md` (or `.speckeep/constitution.md`), user description of the fix.
+Inputs: `.speckeep/constitution.summary.md` (fixed technical path in `.speckeep/`) or `.speckeep/constitution.md`, user description of the fix.
 Outputs: `.speckeep/specs/<slug>/hotfix.md`, implementation code.
 Stop if: root cause unclear, fix exceeds 3 files, or constitutional conflict detected.
 
@@ -36,7 +36,8 @@ Before writing any file, create or switch to a `hotfix/<slug>` branch. If the re
 
 Always read these before writing any code:
 
-- `.speckeep/constitution.summary.md` if present; otherwise `.speckeep/constitution.md`
+- `.speckeep/constitution.summary.md` if present; it always lives at the fixed technical path in `.speckeep/`
+- Otherwise `.speckeep/constitution.md`
 - only the files directly involved in the fix
 
 ## Do Not Read By Default

@@ -101,6 +101,8 @@ If the constitution is already current and does not conflict with the request, s
 
 After writing/patching `constitution.md`, also write/update `.speckeep/constitution.summary.md` with only:
 
+- This summary lives at the fixed technical path `.speckeep/constitution.summary.md` even when `project.constitution_file` points somewhere else.
+
 - `## Purpose` — 1–2 sentences
 - `## Key Constraints` — 3–5 bullets, hard non-negotiable limits only
 - `## Language Policy` — 3 lines: docs, agent, comments
@@ -120,7 +122,7 @@ After writing/patching `constitution.md`, check whether active specs may now con
 
 ## Output
 
-- Write updated `.speckeep/constitution.md` and `.speckeep/constitution.summary.md`.
+- Write the updated constitution at the configured `project.constitution_file` path and write `.speckeep/constitution.summary.md` at its fixed technical path.
 - Summarize changes and unresolved questions; note what was inferred from the codebase vs. added as new law.
 - Mark unresolved constitutional questions as **BLOCKER** for downstream phases.
 - When ready: `Ready for: /speckeep.spec`.

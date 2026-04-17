@@ -27,7 +27,8 @@ Default (no flag): challenge whatever is present — spec, inspect report, and p
 
 ## Load First
 
-- `.speckeep/constitution.summary.md` if present; otherwise `.speckeep/constitution.md`
+- `.speckeep/constitution.summary.md` if present; it always lives at the fixed technical path in `.speckeep/`
+- Otherwise `.speckeep/constitution.md`
 - `.speckeep/specs/<slug>/spec.md`
 
 ## Load If Present

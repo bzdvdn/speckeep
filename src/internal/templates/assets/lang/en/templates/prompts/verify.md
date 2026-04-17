@@ -24,7 +24,8 @@ Stop if: slug ambiguous, `tasks.md` missing, or verdict would require inventing 
 
 Always read first:
 
-- `.speckeep/constitution.summary.md` if present; otherwise `.speckeep/constitution.md`
+- `.speckeep/constitution.summary.md` if present; it always lives at the fixed technical path in `.speckeep/`
+- Otherwise `.speckeep/constitution.md`
 - `.speckeep/specs/<slug>/plan/tasks.md`
 
 ## Load If Present
