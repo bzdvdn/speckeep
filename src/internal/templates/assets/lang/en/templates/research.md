@@ -1,5 +1,7 @@
 # <Spec Title> Research
 
+> **Create this file only when** the plan depends on a concrete unknown: external system/API/dependency with unclear behavior, multiple realistic implementation options with meaningful trade-offs, non-obvious performance/security/reliability/integration risk, or a repo constraint that must be investigated. List 1–5 specific unknowns tied to a decision or boundary. Do not research a subsystem in general.
+
 ## Goal
 
 Identify and resolve technical unknowns, architecture trade-offs, or integration constraints before finalizing the implementation plan.
@@ -11,10 +13,7 @@ Identify and resolve technical unknowns, architecture trade-offs, or integration
   Findings: summary of the discovery or benchmark
   Conclusion: decision or constraint derived from the finding
 
-- **RQ-002** Question title
-  Context: why this unknown is a blocker for planning
-  Findings: summary of the discovery or benchmark
-  Conclusion: decision or constraint derived from the finding
+- **RQ-002** Question title — same structure (Context / Findings / Conclusion)
 
 ## Exploration Area 1
 

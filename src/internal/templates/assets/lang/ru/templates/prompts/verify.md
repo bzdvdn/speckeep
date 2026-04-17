@@ -1,132 +1,124 @@
 # Prompt проверки реализации SpecKeep
 
-Вы проверяете один feature package после выполнения задач.
+Проверяете один feature package после выполнения задач.
 
-## Goal
+Следуйте базовым правилам в `AGENTS.md` (пути, git, load discipline, readiness scripts, язык, phase discipline).
 
-Подтвердите, что реализованная работа достаточно согласована с задачами и правилами проекта, чтобы безопасно двигаться дальше.
+## Цель
 
-## Примечание о путях
-
-Пути в этом промпте показаны для layout по умолчанию. Если в `.speckeep/speckeep.yaml` переопределены `paths.specs_dir`, `paths.archive_dir` или `project.constitution_file`, всегда следуйте путям из конфигурации, а не примерам по умолчанию.
-Читайте `.speckeep/speckeep.yaml` максимум один раз за сессию для резолва путей; не перечитывайте его без необходимости (только если конфиг изменился или путь неоднозначен).
+Подтвердить, что реализация достаточно согласована с задачами и правилами проекта для безопасного перехода.
 
 ## Flags
 
-`--deep`: режим полной валидации реализации — читает все plan artifacts и проверяет реальный код для каждой завершённой задачи и acceptance criterion, а не только структурные проверки. Выдаёт comprehensive отчёт с per-AC evidence. Без этого флага verification остаётся структурным и cheap по умолчанию.
+`--deep`: полная валидация — читает все plan artifacts и реальный код для каждой завершённой задачи и AC. Per-AC evidence. Без — структурная и cheap.
 
-`--persist`: оставлен для обратной совместимости. По умолчанию вы ОБЯЗАНЫ сохранять отчёт верификации в `.speckeep/specs/<slug>/plan/verify.md` (в дополнение к выводу в чат). При сохранении используйте `.speckeep/templates/verify-report.md` как канонический шаблон и включайте machine-readable metadata block. Не создавайте файл только если пользователь явно просит вывод «только в чат».
+`--persist`: для обратной совместимости. По умолчанию ОБЯЗАНЫ сохранять отчёт в `.speckeep/specs/<slug>/plan/verify.md` (в дополнение к чату) по шаблону `.speckeep/templates/verify.md` с machine-readable metadata block. Не пишите файл только если пользователь явно просит «только в чат».
 
 ## Phase Contract
 
-Inputs: `.speckeep/constitution.md`, `.speckeep/specs/<slug>/plan/tasks.md`; spec, plan, код — только для подтверждения конкретных выводов (или все артефакты в режиме `--deep`).
-Outputs: отчет с verdict (`pass`, `concerns` или `blocked`) в чате И сохранённый в `.speckeep/specs/<slug>/plan/verify.md` по умолчанию.
-Stop if: slug неоднозначен, tasks.md отсутствует, или verdict потребовал бы выдумывать факты о реализации.
+Inputs: `.speckeep/constitution.md`, `.speckeep/specs/<slug>/plan/tasks.md`; spec/plan/код — только для подтверждения конкретных выводов (все артефакты в `--deep`).
+Outputs: отчёт с verdict (`pass`, `concerns` или `blocked`) в чате И сохранённый в `plan/verify.md` по умолчанию.
+Stop if: slug неоднозначен, `tasks.md` нет, или verdict потребовал бы выдумывать факты о реализации.
 
 ## Load First
 
-Всегда сначала прочитайте:
+Всегда сначала:
 
-- `.speckeep/constitution.summary.md` если присутствует; иначе `.speckeep/constitution.md`
+- `.speckeep/constitution.summary.md` если есть; иначе `.speckeep/constitution.md`
 - `.speckeep/specs/<slug>/plan/tasks.md`
 
 ## Load If Present
 
-Читайте когда конкретная проверка ссылается на содержимое этих файлов (например, задача заявляет выполнение `AC-*`, или `DEC-*` ограничивает форму реализации):
+Только когда конкретная проверка ссылается на содержимое:
 
-- `.speckeep/specs/<slug>/summary.md` (или `spec.md`) — при проверке acceptance coverage или выравнивания task↔AC
-- `.speckeep/specs/<slug>/plan/plan.md` — когда задача ссылается на `DEC-*` или архитектурное решение, требующее подтверждения
-- `.speckeep/specs/<slug>/plan/data-model.md` — когда задача затрагивает persisted state или форму сущности
-- `.speckeep/specs/<slug>/plan/contracts/` — когда задача затрагивает API или event boundaries
-- `.speckeep/specs/<slug>/plan/research.md` — только если проверка зависит от зафиксированного trade-off или finding по внешней зависимости
-- code files — только конкретные файлы из `Touches:` задачи, нужные для подтверждения реализации
+- `summary.md` (или `spec.md`) — acceptance coverage или task↔AC alignment
+- `plan/plan.md` — задача ссылается на `DEC-*` или архитектурное решение, требующее подтверждения
+- `plan/data-model.md` — задача трогает persisted state или форму сущности
+- `plan/contracts/` — задача трогает API или event boundaries
+- `plan/research.md` — только если проверка зависит от зафиксированного trade-off или внешней зависимости
+- code files — только файлы из `Touches:` активной задачи, нужные для подтверждения
 
 ## Do Not Read By Default
 
 - нерелевантные области кода
-- широкую историю репозитория
-- архивы, если текущая проверка явно от них не зависит
+- широкая история репо
+- архивы, если проверка от них явно не зависит
 
 ## Stop Conditions
 
-Остановитесь и задайте уточняющий вопрос только если:
+Остановитесь и уточните только если:
 
 - slug неоднозначен
-- файл задач отсутствует
-- без этого пришлось бы выдумывать факты о реализации
-- запрошенный вывод потребовал бы широкого обхода репозитория вместо сфокусированных evidence по этой feature package
-- implementation claim нельзя подтвердить по текущим tasks, planning artifacts и точечной проверке кода
+- `tasks.md` отсутствует
+- проверка пришлось бы выдумывать факты о реализации
+- вывод требует broad repository sweep instead of focused evidence
+- the implementation claim cannot be confirmed from the current tasks, plan artifacts, and targeted code inspection
 
 ## Rules
 
-- Начинайте с `tasks.md` как verification entrypoint.
-- Если доступен `/.speckeep/scripts/check-verify-ready.*`, предпочитайте его как cheap first pass перед чтением более глубоких артефактов.
-- Важно: readiness wrapper запускается со slug как первым аргументом. Пример: `bash ./.speckeep/scripts/check-verify-ready.sh <slug>` (или PowerShell: `.\.speckeep\scripts\check-verify-ready.ps1 <slug>`).
-- Используйте `/.speckeep/scripts/verify-task-state.*` только как fallback, когда phase readiness wrapper недоступен.
-- Предпочитайте вывод helper scripts чтению их исходников.
-- Не читайте `/.speckeep/scripts/*` по умолчанию, если только не отлаживаете сам script, не работаете над самим SpecKeep или пользователь явно не просит проанализировать script logic.
-- Предпочитайте подтверждение конкретных implementation claims вместо широкого субъективного review.
-- Относитесь к verify как к журналу evidence, а не к ритуалу успокоения.
-- Проверяйте, что завершенные задачи согласованы с текущим состоянием feature package.
-- **Traceability Evidence**: Используйте команду `/.speckeep/scripts/trace.* <slug>` для поиска аннотаций `@sk-task` и `@sk-test` в коде. Включайте эти находки в секцию `## Checks` как конкретные доказательства реализации (implementation evidence).
-- **Legacy Fallback (Обратная совместимость)**: Если `trace` не возвращает находок (например, для старых фич без аннотаций), перейдите к ручной проверке: для каждой завершённой задачи прочитайте файлы из её поля `Touches:` и убедитесь, что конкретное изменение, описанное в outcome задачи, присутствует. Проверьте, что наблюдаемое поведение, указанное в каждом `AC-*`, достижимо из этих файлов. Не изобретайте доказательства — если утверждение не может быть подтверждено из файлов `Touches:`, запишите его как непроверенное в `## Not Verified`. Добавьте запись в `## Warnings`: «Аннотации `@sk-task` / `@sk-test` не найдены; трассируемость проверена только через поле `Touches:`.»
-- Не выполняйте git commit/git push/git tag и не создавайте PR без явной просьбы пользователя.
-- Проверяйте, что незавершенные задачи не противоречат заявлению о полной готовности фичи.
-- Проверяйте согласованность acceptance-to-task coverage, если в `tasks.md` есть секция `Acceptance Coverage`.
-- Если `tasks.md` использует task IDs вроде `T1.1`, ссылайтесь на них напрямую в checks, findings и выводах.
-- Если evidence частичны, но явного противоречия нет, предпочитайте `concerns`, а не `pass`.
-- Держите verification структурным и cheap-by-default.
-- Когда `--deep` присутствует в аргументах пользователя, переключитесь в режим полной валидации:
+- Начинайте с `tasks.md` как entrypoint.
+- Если `/.speckeep/scripts/check-verify-ready.*` доступен — запускайте как cheap first pass (slug первый аргумент: `bash ./.speckeep/scripts/check-verify-ready.sh <slug>` или PowerShell `.\.speckeep\scripts\check-verify-ready.ps1 <slug>`). Fallback: `/.speckeep/scripts/verify-task-state.*`. Предпочитайте вывод helper scripts исходникам.
+- Treat verify as an evidence log, not a reassurance ritual.
+- Проверяйте, что завершённые задачи согласованы с текущим состоянием feature package.
+- Проверяйте, что незавершённые задачи не противоречат заявлению о полной готовности.
+- Verify acceptance-to-task coverage consistency если в `tasks.md` есть `## Покрытие критериев приемки`.
+- Ссылайтесь на task IDs (`T1.1`) напрямую в checks, findings, выводах.
+- Предпочитайте подтверждение конкретных claims широкому субъективному review.
+- Prefer `concerns` over `pass` when the evidence is partial but no contradiction has been found.
+
+### Traceability
+
+- Запускайте `/.speckeep/scripts/trace.* <slug>` для поиска `@sk-task` и `@sk-test` в коде. Включайте findings в `## Checks`.
+- **Legacy fallback**: `trace` ничего не нашёл (старые фичи без аннотаций) — ручная проверка: для каждой завершённой задачи читайте файлы из `Touches:`, подтверждайте описанное изменение; подтверждайте достижимость observable behavior из `AC-*`. Не изобретайте evidence — неподтверждённое идёт в `## Not Verified`. В `## Warnings`: «No `@sk-task` / `@sk-test` annotations found; traceability verified through `Touches:` inspection only.»
+
+### Режимы
+
+- Держите default verification структурным и cheap.
+- `--deep` режим:
   - Читайте все plan artifacts (`plan.md`, `data-model.md`, `contracts/`, `research.md`).
-  - Для каждой завершённой задачи читайте реальные файлы реализации из `Touches:` и подтверждайте, что работа соответствует описанию задачи. Не расширяйте scope за пределы `Touches:`, если конкретное противоречие этого не требует.
-  - Для каждого `AC-*` подтверждайте выполнение по code evidence из файлов `Touches:` привязанных задач — минимум одно конкретное доказательство на AC. Не требуйте исчерпывающего code archaeology за пределами этих границ.
-  - Секция `## Scope` должна указывать `mode: deep` и перечислять все проверенные surfaces.
-  - Секция `## Not Verified` должна быть минимальной или `none` — deep режим предполагает тщательность в пределах границ `Touches:`.
-- Без `--deep` углубляйтесь в более широкий implementation review только если конкретное противоречие нельзя разрешить по `tasks`, plan artifacts и сфокусированным evidence.
-- Используйте простой verdict: `pass`, `concerns` или `blocked`.
-- Используйте `pass`, если блокирующих проблем нет и остаются только незначительные предупреждения или их нет совсем.
-- Используйте `concerns`, если по workflow можно двигаться дальше, но warnings или открытые вопросы желательно закрыть в ближайшее время.
-- Используйте `blocked`, если отсутствие завершенных задач или противоречивое состояние реализации делают архивирование или заявление о завершенности небезопасным.
-- Не используйте `pass`, если состояние завершенных задач не подтверждено, если остается blocking contradiction или если acceptance / implementation claims не подкреплены реально проверенными evidence.
-- Если записываете результат в файл, держите его на настроенном языке документации проекта.
-- Используйте `.speckeep/templates/verify-report.md` как канонический шаблон, если отчет записывается в файл.
-- Если отчет сохраняется в файл, добавляйте сверху machine-readable metadata block с полями `report_type`, `slug`, `status`, `docs_language` и `generated_at`.
-- Используйте такую структуру отчета:
-  - YAML-подобный metadata block в начале
-  - `# Verify Report: <slug>`
-  - `## Scope`
-  - `## Verdict`
-  - `## Checks`
-  - `## Errors`
-  - `## Warnings`
-  - `## Questions`
-  - `## Not Verified`
-  - `## Next Step`
-- В `## Scope` фиксируйте реальный verification mode и те surfaces, которые реально проверяли.
-- В `## Verdict` добавляйте `archive_readiness` и однострочное summary, объясняющее, почему verdict обоснован.
-- В `## Checks` явно отражайте:
+  - Для каждой завершённой задачи читайте `Touches:` и подтверждайте соответствие. Не расширяйте scope за пределы `Touches:`, если противоречие этого не требует.
+  - Для каждого `AC-*` — ≥ 1 конкретное доказательство по code evidence из `Touches:` привязанных задач. Без исчерпывающей archaeology.
+  - `## Scope` должна указывать `mode: deep` и перечислять проверенные surfaces.
+  - `## Not Verified` — минимальна или `none`.
+- Без `--deep` углубляйтесь только если противоречие нельзя разрешить по tasks + plan + focused evidence.
+
+### Verdict
+
+- Verdicts: `pass`, `concerns`, `blocked`.
+  - `pass`: нет блокирующих проблем; только минорные warnings или нет.
+  - `concerns`: можно двигаться, но warnings / open questions закрыть в ближайшее время.
+  - `blocked`: отсутствие завершения задач или противоречие состояния делают archive/claim небезопасными.
+- Do not use `pass` unless the completed task state is confirmed, нет blocking contradiction, и каждый упомянутый claim подкреплён проверенными evidence.
+
+### Отчёт
+
+- Пишите на настроенном языке документации. Используйте `.speckeep/templates/verify.md` как канонический шаблон. Сверху machine-readable metadata block с `report_type`, `slug`, `status`, `docs_language`, `generated_at`.
+- Структура: YAML metadata → `# Verify Report: <slug>` → `## Scope` → `## Verdict` → `## Checks` → `## Errors` → `## Warnings` → `## Questions` → `## Not Verified` → `## Next Step`.
+- `## Scope`: реальный verification mode и surfaces.
+- `## Verdict`: `archive_readiness` и однострочное обоснование.
+- `## Checks` явно отражает:
   - `task_state` с completed/open counts
-  - `acceptance_evidence` для тех `AC-*`, которые действительно подтвердили
-  - `implementation_alignment` с указанием конкретной проверенной surface
-- В `## Not Verified` перечисляйте material claims или surfaces, которые сознательно не проверяли. Используйте `none` только если в выбранном verification scope не осталось материальных gaps.
-- Держите claims ограниченными реальным scope. Если вы проверили только task state и один endpoint или file path, так и напишите, а не намекайте на полный feature validation.
-- Если verification обнаруживает workflow-gap, возвращайте фичу на самую узкую предыдущую фазу, которая честно может это исправить:
-  - `implement` для отсутствующей или противоречивой реализации
-  - `tasks` для неполной, вводящей в заблуждение или отсутствующей декомпозиции
-  - `plan`, когда intent реализации нельзя честно оценить из-за недостаточно конкретного дизайна
-- Для `pass` указывайте точную archive-команду.
-- Для `concerns` явно говорите, можно ли двигаться дальше; если нельзя, используйте явную return-команду для более ранней фазы.
-- Для `blocked` не подсказывайте archive; завершайте сводку строкой `Return to: /speckeep.<phase> <slug>` для самой узкой честной recovery-фазы.
+  - `acceptance_evidence` for the `AC-*` items you actually confirmed
+  - `implementation_alignment` с конкретной проверенной surface
+- `## Not Verified`: material claims/surfaces, которые сознательно не проверяли. `none` только если material gaps нет.
+- Keep claims scoped. Проверили только task state + один endpoint/file — так и напишите.
 
-## Output expectations
+### Recovery
 
-- Выведите отчёт в чат И сохраните в `.speckeep/specs/<slug>/plan/verify.md` по умолчанию (не сохраняйте только если пользователь явно просит вывод «только в чат»)
-- Кратко суммируйте verdict, выполненные проверки, оставшиеся concerns и можно ли безопасно архивировать фичу
-- Завершайте разговор summary block: `Slug`, `Status`, `Artifacts`, `Blockers` и `Готово к` / `Return to`
-- Если фичу можно архивировать: `Готово к: /speckeep.archive <slug>`; при возврате на раннюю фазу — называйте её явно со slash-командой
+Verify нашёл workflow-gap → верните фичу на самую узкую раннюю фазу:
+- `implement` — отсутствующая/противоречивая реализация
+- `tasks` — неполная/вводящая в заблуждение/отсутствующая декомпозиция
+- `plan` — intent реализации нельзя оценить из-за недостаточно конкретного дизайна
 
-## Self-Check
+### Next Step
 
-- Каждый вывод verdict подкреплен реально проверенными evidence, а не только состоянием чекбоксов?
-- Секция `Not Verified` честно отражает всё, что я не проверял?
-- Следующая команда или return-фаза соответствует verdict?
+- `pass`: точная archive-команда.
+- `concerns`: можно ли дальше; если нет — явная return-команда.
+- `blocked`: не предлагайте archive; `Return to: /speckeep.<phase> <slug>` для самой узкой честной recovery-фазы.
+
+## Output
+
+- Отчёт в чат И в `plan/verify.md` по умолчанию (skip только если пользователь просит «только в чат»).
+- Суммируйте verdict, проверки, concerns, archive safety.
+- Завершайте summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Готово к` / `Return to`.
+- Archive-safe: `Готово к: /speckeep.archive <slug>`; возврат — name it explicitly with its slash command.

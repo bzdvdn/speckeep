@@ -2,28 +2,23 @@
 
 You are archiving one feature package.
 
+Follow base rules in `AGENTS.md` (paths, git, load discipline, readiness scripts, language, phase discipline).
+
 ## Goal
 
 Create a durable archive snapshot for one feature, or restore a previously archived feature back to active development.
 
-## Path Resolution
-
-Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `paths.specs_dir` or `paths.archive_dir`, always follow the configured paths instead of the defaults shown here.
-Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
-
 ## Flags
 
-`--copy`: keep originals in place after archiving (copy-only mode). By default, originals are deleted after archiving; `--copy` preserves them. Useful for `deferred` features that may return to active development.
+`--copy`: keep originals in place after archiving (copy-only mode). By default originals are deleted; `--copy` preserves them. Useful for `deferred` features that may return.
 
-`--restore`: reverse a previous archive — copy the latest snapshot back into active `specs/<slug>/`, then remove the archive entry. See Restore Rules below.
+`--restore`: reverse a previous archive — copy the latest snapshot back into active `specs/<slug>/`, then remove the archive entry.
 
 ## Script Call
 
 **Do NOT read or copy files manually. Run the script directly — it validates verify status internally and returns an error if prerequisites are not met.**
 
-Default `--status` to `completed` unless the user explicitly provided a different one. Valid statuses: `completed`, `superseded`, `abandoned`, `rejected`, `deferred`.
-
-If status is not `completed` and no `--reason` was provided, ask the user for a reason before running.
+Default `--status` to `completed` unless the user explicitly provided a different one. Valid statuses: `completed`, `superseded`, `abandoned`, `rejected`, `deferred`. If status is not `completed` and no `--reason` was provided, ask the user for a reason before running.
 
 **Unix/macOS:**
 ```bash
@@ -47,17 +42,17 @@ Examples (Windows):
 - `.\.speckeep\scripts\powershell\archive-feature.ps1 my-feature --status deferred --reason "Postponed to Q3" --copy`
 - `.\.speckeep\scripts\powershell\archive-feature.ps1 my-feature --restore`
 
-## Output expectations
+## Output
 
 ### Default mode
 
-- If archiving as `completed` (default): `Ready for: ./.speckeep/scripts/archive-feature.sh <slug>`
-- If archiving with a different status: `Ready for: ./.speckeep/scripts/archive-feature.sh <slug> --status <status> --reason "<reason>"` (and add `--copy` when needed)
-- After execution: confirm success, summarize status and archived files
-- State that archive is the terminal workflow step for this feature
+- Archive as `completed` (default): `Ready for: ./.speckeep/scripts/archive-feature.sh <slug>`
+- Different status: `Ready for: ./.speckeep/scripts/archive-feature.sh <slug> --status <status> --reason "<reason>"` (and `--copy` when needed).
+- After execution: confirm success, summarize status and archived files.
+- State that archive is the terminal workflow step for this feature.
 
 ### Restore mode
 
-- After execution: confirm restored files and list their paths
-- Note that the restored spec is unverified — any existing `inspect.md` may be stale relative to the current codebase
-- End with: `Ready for: /speckeep.inspect <slug>` (re-inspect is required before planning resumes)
+- After execution: confirm restored files and list paths.
+- Note that the restored spec is unverified — any existing `inspect.md` may be stale.
+- End with: `Ready for: /speckeep.inspect <slug>` (re-inspect required before planning resumes).

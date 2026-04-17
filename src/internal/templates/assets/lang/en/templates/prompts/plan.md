@@ -4,73 +4,55 @@ You are creating or updating the implementation plan package for one feature.
 
 ## Goal
 
-Produce the technical planning artifacts for a spec under `<specs_dir>/<slug>/plan/` (default: `.speckeep/specs/<slug>/plan/`).
-
-## Path Resolution
-
-Paths in this prompt use the default workspace layout. If `.speckeep/speckeep.yaml` overrides `paths.specs_dir` or `project.constitution_file`, always follow the configured paths instead of the defaults shown here.
-Read `.speckeep/speckeep.yaml` at most once per session to resolve these paths; do not re-read it unless it changed or a path is ambiguous.
+Produce plan artifacts under `<specs_dir>/<slug>/plan/` (default: `.speckeep/specs/<slug>/plan/`).
 
 ## Phase Contract
 
 Inputs: `.speckeep/constitution.md`, `.speckeep/specs/<slug>/spec.md`, `.speckeep/specs/<slug>/inspect.md`, narrow repo code.
-Outputs: `.speckeep/specs/<slug>/plan/plan.md`, `.speckeep/specs/<slug>/plan/data-model.md`; optional `.speckeep/specs/<slug>/plan/contracts/`, `.speckeep/specs/<slug>/plan/research.md`.
+Outputs: `.speckeep/specs/<slug>/plan/plan.md`, `.speckeep/specs/<slug>/plan/data-model.md`; optional `contracts/`, `research.md`.
 Stop if: spec or inspect missing, spec too vague for architecture decisions, or constitutional conflict.
 
-## Operating Mode
-
-- Plan one feature only.
-- Prefer patching existing artifacts over broad rewrites.
-- Keep context narrow and repository-grounded.
-- Produce only the artifacts justified by the feature.
-- **Do not create or switch branches.** The feature branch must already exist from the spec phase. If you are not on the expected feature branch, stop and report — do not create it.
-- **Do not create `tasks.md`.** Task decomposition is a separate phase triggered by `/speckeep.tasks`. Stop after writing plan artifacts and output the next-command line.
+If `.speckeep/speckeep.yaml` overrides `paths.specs_dir` or `project.constitution_file`, follow the configured paths. Read it at most once per session.
 
 ## Flags
 
-`--update`: targeted edit mode — update a specific section, decision (`DEC-*`), implementation surface, or add a contract without rewriting the entire plan package. Similar to `spec --amend`.
+`--update`: targeted edit mode — change one section, one `DEC-*`, one surface, or add one contract without rewriting the plan package.
 
-When `--update` is present in the user arguments:
-- Read the existing plan artifacts first.
-- Apply only the change described in the remaining arguments.
-- Do not restructure or rewrite sections that are not being changed.
-- If the update changes a `DEC-*`, update its `Affects` and `Validation` fields if they become stale.
-- If the update changes `data-model.md` or `contracts/`, ensure consistency with `plan.md` references.
-- Do not invalidate downstream `tasks.md` unless the change materially affects task decomposition or acceptance coverage.
+- Read existing plan artifacts first; change only what was requested.
+- If a `DEC-*` changes, refresh `Affects` and `Validation` if they go stale.
+- Keep `plan.md`, `data-model.md`, and `contracts/` internally consistent.
+- Do not invalidate `tasks.md` unless the change materially affects task decomposition or acceptance coverage.
 
-`--research`: enter research-first mode before producing the plan.
+`--research`: research-first mode.
 
-When `--research` is present in the user arguments:
-- Read the spec and inspect report, then identify the 1–5 concrete unknowns that currently block planning.
-- Write them to `.speckeep/specs/<slug>/plan/research.md`.
-- Stop after writing `research.md` and ask: "Research complete — proceed to full plan?"
-- Wait for an explicit confirmation before producing `plan.md`, `data-model.md`, or any other planning artifact.
-- If the user confirms, continue with the normal planning flow using the research findings as grounding.
-- If the user says to stop, end the session with `research.md` as the only new artifact.
+- Identify the 1–5 concrete unknowns that block planning, write them to `.speckeep/specs/<slug>/plan/research.md`.
+- Stop after `research.md` and ask: "Research complete — proceed to full plan?"
+- Produce `plan.md` / `data-model.md` only after explicit confirmation. If the user declines, end the session with `research.md` as the only new artifact.
 
-Do not produce `plan.md` in the same pass as `--research` unless the user explicitly confirms.
+Do not accept `--update` and `--research` together in the same run. If both are present, stop and ask which mode to use.
 
-Do not accept `--update` and `--research` together in the same run. If both are present, stop and ask the user which mode to use.
+`--greenfield`: greenfield-first planning mode.
 
-## Load First
+- Prefer this when the repository does not yet provide meaningful implementation surfaces for the feature.
+- In this mode, keep the plan anchored around the first deployable slice, bootstrapping surfaces, and the shortest validation path to MVP.
 
-- `.speckeep/constitution.md`
-- `.speckeep/specs/<slug>/spec.md`
-- `.speckeep/specs/<slug>/inspect.md`
-- only the repository code and docs needed to plan this one feature
-- when code must be read, prefer the smallest file set needed to identify concrete implementation surfaces, boundaries, and constraints
+## Load and Scope
 
-## Do Not Read By Default
+Load: `.speckeep/constitution.md`, `.speckeep/specs/<slug>/spec.md`, `.speckeep/specs/<slug>/inspect.md`, and only the repo code needed to identify concrete implementation surfaces, boundaries, and constraints.
+Do not load by default: large unrelated repository areas, other features' artifacts, or optional `research.md` unless uncertainty already exists.
+Do not read `/.speckeep/scripts/*` by default — use the readiness wrapper unless you are debugging scripts, working on SpecKeep itself, or the user asked.
 
-- large repository areas with no impact on this feature
-- optional `research.md` unless uncertainty already exists
+When `/.speckeep/scripts/check-plan-ready.*` is available, prefer running it as the phase readiness check instead of reading script source. The readiness wrapper runs with the slug as the first argument. Example: `bash ./.speckeep/scripts/check-plan-ready.sh <slug>` (or PowerShell: `.\.speckeep\scripts\check-plan-ready.ps1 <slug>`).
+
+Do not create or switch branches. The feature branch must already exist from the spec phase. If you are not on the expected feature branch, stop and report — do not create it.
+
+Do not create `tasks.md`. Task decomposition is a separate phase triggered by `/speckeep.tasks`. Stop after writing plan artifacts and output the next-command line.
 
 ## Stop Conditions
 
 Stop and ask for clarification or refinement if:
 
-- `.speckeep/specs/<slug>/spec.md` does not exist
-- `.speckeep/specs/<slug>/inspect.md` does not exist
+- `.speckeep/specs/<slug>/spec.md` or `.speckeep/specs/<slug>/inspect.md` is missing — do not attempt to create them during `plan`; instead instruct the user to run `/speckeep.spec <slug>`, then `/speckeep.inspect <slug>`, then re-run `/speckeep.plan <slug>`
 - the spec is too vague to produce architecture, contracts, or data model decisions
 - constitutional constraints conflict with the intended plan
 - the plan would need to cross an unclear integration or architectural boundary that is not justified by the spec or focused repository evidence
@@ -78,23 +60,18 @@ Stop and ask for clarification or refinement if:
 
 Do not compensate by reading broad unrelated repository context.
 
-If `spec.md` or `inspect.md` is missing, do not attempt to create them during `plan`. Stop and instruct the user to run:
-
-- `Ready for: /speckeep.spec <slug>`
-- then `Ready for: /speckeep.inspect <slug>`
-- then re-run `Ready for: /speckeep.plan <slug>`
-
-## Required outputs
+## Required Outputs
 
 Always create or update:
 
 - `.speckeep/specs/<slug>/plan/plan.md`
-- `.speckeep/specs/<slug>/plan/data-model.md` — create when the feature introduces or modifies persisted state, entity shape, or state transitions; otherwise write the file with a single line: "No entities introduced by this feature."
+- `.speckeep/specs/<slug>/plan/data-model.md` — always. When the feature does not introduce or modify persisted state, entity shape, lifecycle, or contract-relevant payload shape, write a compact no-change stub instead of omitting the file.
 
-Create only when the feature actually requires it:
+Create only when justified:
 
-- `.speckeep/specs/<slug>/plan/contracts/api.md` — only if the feature touches API boundaries
-- `.speckeep/specs/<slug>/plan/contracts/events.md` — only if the feature produces or consumes events
+- `.speckeep/specs/<slug>/plan/contracts/api.md` — feature touches an API boundary
+- `.speckeep/specs/<slug>/plan/contracts/events.md` — feature produces or consumes events
+- `.speckeep/specs/<slug>/plan/quickstart.md` — `--greenfield` mode or early-feature planning benefits from a short MVP validation flow
 
 Create `.speckeep/specs/<slug>/plan/research.md` only when at least one of these is true:
 
@@ -105,84 +82,62 @@ Create `.speckeep/specs/<slug>/plan/research.md` only when at least one of these
 
 Before creating `research.md`, write down the concrete unknowns first:
 
-- list only the 1-5 specific unknowns that block planning
+- list only the 1–5 specific unknowns that block planning
 - tie each unknown to a decision, risk, or boundary in this feature
 - do not research a technology or subsystem in general; research only the narrow question that changes the plan
 - if no concrete unknown remains, do not create `research.md`
+
+Do not create `research.md` for generic brainstorming or obvious implementation work that can already be planned from the spec and repository evidence.
 
 ## Invariants
 
 - The plan MUST comply with the constitution.
 - Inspect is a mandatory prerequisite for planning. Do not plan from a spec that has not been inspected and persisted.
-- Keep planning tied to the current spec, not idealized architecture.
-- Never read unrelated feature artifacts to compensate for missing clarity.
-- Read code narrowly: only enough to ground implementation surfaces, integration boundaries, and repository constraints for this feature.
-- When `/.speckeep/scripts/check-plan-ready.*` is available, prefer running it as the phase readiness check instead of reading script source.
-- Important: the readiness wrapper runs with the slug as the first argument. Example: `bash ./.speckeep/scripts/check-plan-ready.sh <slug>` (or PowerShell: `.\.speckeep\scripts\check-plan-ready.ps1 <slug>`).
-- Do not read `/.speckeep/scripts/*` by default unless you are debugging the scripts, working on SpecKeep itself, or the user explicitly asks to inspect script logic.
-- Prefer concrete implementation decisions over generic advice.
+- Plan the current spec, not an idealized architecture; use repository reality.
+- Read code narrowly — enough to ground implementation surfaces, integration boundaries, and repository constraints. Broad repository exploration is not encouraged.
+- Follow `.speckeep/templates/plan.md`, `.speckeep/templates/data-model.md`, and `.speckeep/templates/quickstart.md` when creating new files.
+- The plan MUST name the concrete implementation surfaces expected to change.
+- The plan MUST map each acceptance criterion to an implementation approach before `tasks` are written.
+- Significant implementation choices become `DEC-*` entries. Each significant `DEC-*` should capture `Why`, `Tradeoff`, `Affects`, and `Validation`.
+- Data model and contracts MUST be consistent with the spec and its acceptance criteria. Reference stable `AC-*` IDs when discussing acceptance-critical behavior; each entity or contract entry SHOULD reference the `AC-*` that justifies it.
+- `data-model.md` MUST always exist by the end of plan. If there are no meaningful model changes, it MUST say so explicitly with: status, reason, and revisit triggers. Absence of the file forces downstream guessing and is a planning defect.
+- Do not leave entity shape, boundary IO, or event payload details only in prose inside `plan.md`.
+- If `data-model.md` contains real entities (not just the placeholder line), `plan.md` MUST include a one-line justification naming the specific entities, invariants, or lifecycle concerns that require it. If `contracts/` is created, `plan.md` MUST include a one-line justification naming the specific API or event boundary that requires it; otherwise state "No API or event boundaries introduced".
 - Record technologies, libraries, framework choices, or version constraints only when they materially affect implementation shape, integration boundaries, validation, or risk.
 - If a version or dependency is named, explain why it matters for this feature: compatibility, repository constraint, external contract, rollout risk, or validation.
 - Do not enumerate stack details for completeness; capture only technical constraints that reduce downstream guesswork.
 - Optional artifacts stay optional; do not create them by habit.
-- Do not create `research.md` for generic brainstorming or obvious implementation work that can already be planned from the spec and repository evidence.
-- The plan is only complete when downstream task decomposition can proceed without guessing.
-- The plan MUST name the concrete implementation surfaces expected to change.
-- The plan MUST map each acceptance criterion to an implementation approach before `tasks` are written.
 - Do not write the task checklist, edit implementation code, or emit verify/archive conclusions during planning.
+- Treat generic wording such as `update backend accordingly`, `adjust logic as needed`, or `wire this through the system` as a refinement signal rather than a complete plan.
 - If a downstream task writer would need to guess the method, boundary, or validation path for an `AC-*`, the plan is underspecified.
 - The plan should be specific enough that both an agent and a human reviewer can see the intended implementation shape, tradeoffs, and rollout implications without rereading the whole repository.
-- Targeted code reading during planning is encouraged when it reduces downstream guesswork; broad repository exploration is not.
-
-## Language Rules
-
-- Use the project's configured documentation language for all new or updated planning artifacts.
-- Keep the language of `plan.md`, `data-model.md`, `contracts/`, and optional `research.md` internally consistent.
-- Respect an established local document convention only when preserving an existing artifact would otherwise become inconsistent.
-
-## Traceability Rules
-
-- Follow the structure of `.speckeep/templates/plan.md` and `.speckeep/templates/data-model.md` when creating new files.
-- Data model and contracts MUST be consistent with the spec and its acceptance criteria.
-- Reference stable acceptance IDs from the spec when discussing acceptance-critical behavior.
-- When the plan makes a significant implementation choice, record it as a stable decision ID such as `DEC-001`.
-- Each significant `DEC-*` SHOULD state `Why`, `Affects`, and `Validation`.
-- If the feature introduces or changes persisted state, state transitions, or lifecycle rules, capture them in `data-model.md`.
-- If the feature crosses an API boundary, capture request, response, and error behavior in `contracts/api.md`.
-- If the feature produces or consumes events, capture producer, consumer, payload, and delivery assumptions in `contracts/events.md`.
-- Do not leave entity shape, boundary IO, or event payload details only in prose inside `plan.md`.
-- Each entity or contract entry SHOULD reference the `AC-*` that justifies it.
-- If `data-model.md` contains real entities (not just the placeholder line), the plan MUST include a one-line justification statement in `plan.md` naming the specific entities, invariants, or lifecycle concerns that require it.
-- If `contracts/` is created, the plan MUST include a one-line justification statement in `plan.md` naming the specific API or event boundary that requires it. Omit `contracts/` and state "No API or event boundaries introduced" when none apply.
-- If neither richer artifact is needed, prefer not creating it.
-- Use repository reality, not idealized architecture.
-- If critical information is missing, ask only the minimum necessary follow-up questions.
-- Treat generic wording such as `update backend accordingly`, `adjust logic as needed`, or `wire this through the system` as a refinement signal rather than a complete plan.
+- Use the project's configured documentation language; keep `plan.md`, `data-model.md`, `contracts/`, and optional `research.md` internally consistent.
 
 ## Content Quality Rules
 
-- `## Goal` should describe implementation shape, not restate user-facing spec text.
-- `## Implementation Surfaces` should explain why each surface changes and whether it is new or existing.
-- `## Acceptance Approach` should map every `AC-*` to touched surfaces and proof of observability.
-- `## Data and Contracts` should say what changes, what stays unchanged, and why.
-- Each significant `DEC-*` should capture `Why`, `Tradeoff`, `Affects`, and `Validation`.
-- `## Sequencing Notes` should separate must-happen-first work from work that can be parallelized.
-- `## Risks` should include a mitigation, not just the risk label.
+- `## Goal` describes implementation shape, not a spec restatement.
+- `--greenfield`: `## MVP Slice` must name the smallest independently demonstrable increment and its `AC-*` coverage.
+- `--greenfield`: `## First Validation Path` should explain how a human or agent proves the MVP works without reading the whole repository.
+- `--greenfield`: `## Bootstrapping Surfaces` should list the first directories, files, or boundaries that must exist before feature behavior can land.
+- `## Implementation Surfaces` explains why each surface changes and whether it is new or existing.
+- `## Acceptance Approach` maps every `AC-*` to touched surfaces and proof of observability.
+- `## Data and Contracts` states what changes, what stays unchanged, and why.
+- `## Sequencing Notes` separates must-happen-first work from parallelizable work.
+- `## Risks` includes a mitigation, not just a label.
 - `## Rollout and Compatibility` should be explicit when migration, flags, compatibility, or operational follow-up matter, and should say so plainly when they do not.
-- `## Validation` should tie checks back to `AC-*` or `DEC-*`, not just list generic test ideas.
+- `## Validation` ties checks back to `AC-*` or `DEC-*`, not a generic list of test ideas.
+- `## Constitution Compliance` MUST be present and MUST list the specific constitutional constraints that apply to this feature (e.g., "Must use PostgreSQL per [CONST-DB]"), then confirm each one is satisfied or explain how the conflict is resolved or deferred. A bare "no conflicts" without listing the checked constraints is not sufficient — it makes the compliance check unverifiable by inspect.
 - Add a short `Unknowns First` pass before finalizing the plan: if a decision, surface, or validation path is still unclear, record the unknown explicitly or stop for refinement.
 - Prefer concrete implementation guidance over architecture essay prose. If a paragraph does not reduce downstream guesswork, tighten it.
-- `## Constitution Compliance` MUST be present and MUST list the specific constitutional constraints that apply to this feature (e.g., "Must use PostgreSQL per [CONST-DB]"), then confirm each one is satisfied or explain how the conflict is resolved or deferred. A bare "no conflicts" without listing the checked constraints is not sufficient — it makes the compliance check unverifiable by inspect.
 
-## Output expectations
+## Output
 
-- Write or patch the plan artifacts; state which optional artifacts were created and why
-- Summarize key technical decisions and call out risks blocking downstream phases
-- End with a summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`
-- When ready: `Ready for: /speckeep.tasks <slug>`
+- Write or patch the plan artifacts; state which optional artifacts were created and why.
+- If `quickstart.md` was created, state that it exists to validate the MVP path without rereading the full plan.
+- Summarize key technical decisions and call out risks blocking downstream phases.
+- End with a summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`.
+- When ready: `Ready for: /speckeep.tasks <slug>`.
 
 ## Self-Check
 
-- Did I keep optional artifacts justified?
-- Can `tasks` be written from this package without guesswork?
-- Would a human reviewer understand the main implementation shape, risks, and rollout story quickly?
+- Can `tasks` be written from this package without guesswork, and are optional artifacts justified?

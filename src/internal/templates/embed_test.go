@@ -102,8 +102,8 @@ func TestFilesBuildForSupportedLanguages(t *testing.T) {
 				"templates/research.md",
 				"templates/tasks.md",
 				"templates/data-model.md",
-				"templates/inspect-report.md",
-				"templates/verify-report.md",
+				"templates/inspect.md",
+				"templates/verify.md",
 				"templates/archive/summary.md",
 				"templates/prompts/spec.md",
 				"templates/prompts/inspect.md",
@@ -224,7 +224,7 @@ func TestReportTemplatesIncludeMetadataFrontmatter(t *testing.T) {
 		want   []string
 	}{
 		{
-			target: "templates/inspect-report.md",
+			target: "templates/inspect.md",
 			want: []string{
 				"report_type: inspect",
 				"slug: <slug>",
@@ -233,7 +233,7 @@ func TestReportTemplatesIncludeMetadataFrontmatter(t *testing.T) {
 			},
 		},
 		{
-			target: "templates/verify-report.md",
+			target: "templates/verify.md",
 			want: []string{
 				"report_type: verify",
 				"slug: <slug>",
@@ -601,7 +601,7 @@ func TestVerifyTemplateAndPromptPreferEvidenceScopedVerification(t *testing.T) {
 		t.Fatalf("Files() returned error: %v", err)
 	}
 
-	templateContent := fileContentByTarget(t, files, "templates/verify-report.md")
+	templateContent := fileContentByTarget(t, files, "templates/verify.md")
 	for _, snippet := range []string{
 		"verification_mode: default | deep",
 		"archive_readiness: safe",

@@ -21,24 +21,31 @@ Stop if: задачи получаются расплывчатыми или cov
 - [ ] T1.1 Создать или выровнять базовый каркас фичи — implementation entrypoint существует и соответствует запланированной поверхности. Touches: src/models/feature.ts
 - [ ] T1.2 Добавить базовые model, contract, migration или flag-изменения, если без них зависят последующие фазы. Touches: src/models/feature.ts, src/db/migrations/
 
-## Фаза 2: Основная реализация
+## Фаза 2: MVP Slice
+
+Цель: поставить минимальную независимо демонстрируемую продуктовую ценность до расширения scope.
+
+- [ ] T2.1 Реализовать MVP acceptance path — первое полезное поведение работает end to end. Touches: src/handlers/feature.ts, src/models/feature.ts
+- [ ] T2.2 Подтвердить MVP path — точечные tests или checks делают срез reviewable. Touches: src/tests/feature.test.ts
+
+## Фаза 3: Основная реализация
 
 Цель: реализовать основное поведение фичи и важные edge или failure paths.
 
-- [ ] T2.1 Реализовать основной acceptance path — ключевое поведение работает end to end на нужной поверхности. Touches: src/handlers/feature.ts, src/models/feature.ts
-- [ ] T2.2 Реализовать edge, failure, permission или conflicting-state поведение, если оно меняет наблюдаемый результат. Touches: src/handlers/feature.ts
+- [ ] T3.1 Реализовать основной acceptance path сверх MVP — оставшееся ключевое поведение работает на нужной поверхности. Touches: src/handlers/feature.ts, src/models/feature.ts
+- [ ] T3.2 Реализовать edge, failure, permission или conflicting-state поведение, если оно меняет наблюдаемый результат. Touches: src/handlers/feature.ts
 
-## Фаза 3: Проверка
+## Фаза 4: Проверка
 
 Цель: доказать, что фича работает, и оставить пакет в reviewable состоянии.
 
-- [ ] T3.1 Добавить или обновить automated coverage — tests или checks подтверждают поведение и страхуют от регрессий. Touches: src/tests/feature.test.ts
-- [ ] T3.2 Выполнить verify, cleanup или documentation updates, нужные для review или verify
+- [ ] T4.1 Добавить или обновить automated coverage — tests или checks подтверждают поведение и страхуют от регрессий. Touches: src/tests/feature.test.ts
+- [ ] T4.2 Выполнить verify, cleanup или documentation updates, нужные для review или verify
 
 ## Покрытие критериев приемки
 
-- AC-001 -> T1.2, T2.1, T3.1
-- AC-002 -> T2.2, T3.1, T3.2
+- AC-001 -> T1.2, T2.1, T4.1
+- AC-002 -> T3.2, T4.1, T4.2
 
 ## Заметки
 
@@ -46,6 +53,7 @@ Stop if: задачи получаются расплывчатыми или cov
 - Используйте phase-scoped task IDs в формате `T<phase>.<index>`
 - Делайте каждую задачу конкретной, измеримой и исполнимой как один связный кусок работы
 - Предпочитайте action verbs, связанные с наблюдаемым результатом: implement, add, migrate, validate, remove, backfill
+- Для greenfield или первой фичи предпочитайте MVP-first sequencing, а не широкую техническую полноту с самого начала
 - По возможности ссылайтесь в тексте задач на 1-2 стабильных ID (`AC-*`, `RQ-*`, `DEC-*`)
 - Не прячьте proof внутри большой implementation-задачи, а выносите validation отдельно
 - Отмечайте задачи выполненными по мере реализации и не оставляйте критерии приемки без покрытия задачами
