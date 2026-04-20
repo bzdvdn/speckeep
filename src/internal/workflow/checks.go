@@ -1130,6 +1130,14 @@ func extractSurfaceRefs(content string) []string {
 		if value == "" {
 			continue
 		}
+		// Filter out IDs that frequently appear in tables (Surface Map / coverage)
+		// but are not repository surfaces.
+		if taskIDPattern.MatchString(value) {
+			continue
+		}
+		if acceptanceIDPattern.MatchString(value) || decisionIDPattern.MatchString(value) || requirementIDPattern.MatchString(value) {
+			continue
+		}
 		refs = append(refs, value)
 	}
 	return uniqueStrings(refs)

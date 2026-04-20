@@ -1,58 +1,25 @@
-# Prompt архивации SpecKeep
+# Prompt архивации SpecKeep (compact)
 
-Архивируете один feature package.
+Вы архивируете один feature package в `.speckeep/archive/`.
 
-Следуйте базовым правилам в `AGENTS.md` (пути, git, load discipline, readiness scripts, язык, phase discipline).
+## Разрешение путей
 
-## Goal
+- Определите `<specs_dir>` из `.speckeep/speckeep.yaml` (читать ≤ 1 раза за сессию). Если конфиг отсутствует — используйте `.speckeep/specs`.
 
-Устойчивый архивный снимок одной фичи или восстановление ранее архивированной фичи обратно в активную разработку.
+## Phase Contract
 
-## Flags
+Inputs: `<specs_dir>/<slug>/` (spec/inspect/plan/tasks/verify по наличию).
+Outputs: snapshot в `.speckeep/archive/<slug>/...` (move-based по умолчанию).
+Stop if: не завершён verify или статус архивации не может быть обоснован.
 
-`--copy`: оригиналы остаются на месте (copy-only). По умолчанию оригиналы удаляются; `--copy` сохраняет. Полезно для `deferred`-фич.
+## Правила
 
-`--restore`: копирует последний снимок обратно в активную `specs/<slug>/`, затем удаляет запись из архива.
+- Перед архивом предпочтительно запустить `/.speckeep/scripts/check-archive-ready.*` (slug первым аргументом).
+- Default status: `completed`. Нестандартные статусы требуют явного `--reason`.
+- Архив — это фиксация состояния, не место для новых правок реализации.
 
-## Вызов скрипта
+## Output expectations
 
-**НЕ читайте и НЕ копируйте файлы вручную. Запустите скрипт напрямую — он сам валидирует verify-статус и вернёт ошибку если предусловия не выполнены.**
-
-`--status` по умолчанию `completed`. Валидные: `completed`, `superseded`, `abandoned`, `rejected`, `deferred`. Если статус не `completed` и `--reason` не передан — запросите причину у пользователя.
-
-**Unix/macOS:**
-```bash
-./.speckeep/scripts/archive-feature.sh <slug> --status <status> [--reason "<причина>"]
-```
-
-**Windows (PowerShell):**
-```powershell
-.\.speckeep\scripts\powershell\archive-feature.ps1 <slug> --status <status> [--reason "<причина>"]
-```
-
-Примеры (Unix):
-- `./.speckeep/scripts/archive-feature.sh my-feature`
-- `./.speckeep/scripts/archive-feature.sh my-feature --status completed`
-- `./.speckeep/scripts/archive-feature.sh my-feature --status deferred --reason "Перенесено на Q3" --copy`
-- `./.speckeep/scripts/archive-feature.sh my-feature --restore`
-
-Примеры (Windows):
-- `.\.speckeep\scripts\powershell\archive-feature.ps1 my-feature`
-- `.\.speckeep\scripts\powershell\archive-feature.ps1 my-feature --status completed`
-- `.\.speckeep\scripts\powershell\archive-feature.ps1 my-feature --status deferred --reason "Перенесено на Q3" --copy`
-- `.\.speckeep\scripts\powershell\archive-feature.ps1 my-feature --restore`
-
-## Output
-
-### Default mode
-
-- `completed` (по умолчанию): `Готово к: ./.speckeep/scripts/archive-feature.sh <slug>`
-- Другой статус: `Готово к: ./.speckeep/scripts/archive-feature.sh <slug> --status <status> --reason "<причина>"` (+ `--copy` при необходимости).
-- После выполнения: подтвердите успех, суммируйте статус и архивированные файлы.
-- Укажите, что archive — terminal workflow step for this feature.
-
-### Restore mode
-
-- После выполнения: подтвердите восстановление, перечислите пути.
-- Отметьте, что восстановленный спек не верифицирован — `inspect.md` может быть устаревшим.
-- Готово: `Готово к: /speckeep.inspect <slug>` (повторный inspect обязателен перед планированием).
+- Создайте snapshot; кратко перечислите перемещённые артефакты и итоговый статус.
+- Это терминальный шаг workflow для этой фичи (после verify).
+- Финальная строка: `Готово к: /speckeep.recap`

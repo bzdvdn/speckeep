@@ -87,31 +87,31 @@ func TestRenderEmphasizesRunningScriptsFirst(t *testing.T) {
 			name:   "claude en",
 			target: "claude",
 			lang:   "en",
-			want:   "execute them as shell commands",
+			want:   "run it as a shell command",
 		},
 		{
 			name:   "codex ru",
 			target: "codex",
 			lang:   "ru",
-			want:   "выполняйте их как shell-команды",
+			want:   "выполните его как shell-команду",
 		},
 		{
 			name:   "copilot en",
 			target: "copilot",
 			lang:   "en",
-			want:   "Do not read, inspect, or modify the script source",
+			want:   "Do not read `/.speckeep/scripts/*` source",
 		},
 		{
 			name:   "cursor ru",
 			target: "cursor",
 			lang:   "ru",
-			want:   "Доверяйте stdout и exit-коду скрипта",
+			want:   "доверяйте stdout/exit code",
 		},
 		{
 			name:   "kilocode en",
 			target: "kilocode",
 			lang:   "en",
-			want:   "Trust the script stdout and exit code as-is",
+			want:   "trust stdout/exit code",
 		},
 	}
 
@@ -169,12 +169,12 @@ func TestRenderTraeEmphasizesRunningScriptsFirst(t *testing.T) {
 		{
 			name: "en",
 			lang: "en",
-			want: "execute them as shell commands",
+			want: "run it as a shell command",
 		},
 		{
 			name: "ru",
 			lang: "ru",
-			want: "выполняйте их как shell-команды",
+			want: "выполните его как shell-команду",
 		},
 	}
 
@@ -224,8 +224,8 @@ func TestRenderTraeIncludesCommandHints(t *testing.T) {
 		lang string
 		want string
 	}{
-		{name: "en", lang: "en", want: "- Command: `/speckeep.verify [request]`"},
-		{name: "ru", lang: "ru", want: "- Команда: `/speckeep.verify [request]`"},
+		{name: "en", lang: "en", want: "- `/speckeep.verify` → .speckeep/templates/prompts/verify.md"},
+		{name: "ru", lang: "ru", want: "- `/speckeep.verify` → .speckeep/templates/prompts/verify.md"},
 	}
 
 	for _, tt := range tests {

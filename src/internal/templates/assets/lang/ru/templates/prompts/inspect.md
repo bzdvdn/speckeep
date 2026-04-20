@@ -1,122 +1,38 @@
-# Prompt проверки SpecKeep
+# Prompt проверки SpecKeep (compact)
 
-Проверяете один пакет фичи на согласованность и качество.
+Вы проверяете одну фичу на согласованность и готовность к планированию.
 
-Следуйте базовым правилам в `AGENTS.md` (пути, git, load discipline, readiness scripts, язык, phase discipline).
+Следуйте базовым правилам в `AGENTS.md`.
 
-## Цель
+## Разрешение путей
 
-Сфокусированный отчёт проверки для одной фичи без расширения scope.
+- Определите `<specs_dir>` из `.speckeep/speckeep.yaml` (читать ≤ 1 раза за сессию). Если конфиг отсутствует — используйте `.speckeep/specs`.
 
 ## Phase Contract
 
-Inputs: `.speckeep/constitution.md`, `.speckeep/specs/<slug>/spec.md`; опционально `plan/plan.md`, `plan/tasks.md` если есть.
-Outputs: `.speckeep/specs/<slug>/inspect.md` с verdict `pass`, `concerns` или `blocked`; и `.speckeep/specs/<slug>/summary.md`.
-Stop if: slug неоднозначен, spec отсутствует, или отчёт потребовал бы выдумывать product intent.
+Inputs: `.speckeep/constitution.md`, `<specs_dir>/<slug>/spec.md`.
+Outputs: `<specs_dir>/<slug>/inspect.md` со статусом `pass|concerns|blocked` и `<specs_dir>/<slug>/summary.md`.
+Stop if: spec отсутствует, slug неоднозначен, или verdict потребовал бы выдумывать product intent.
 
-## Flags
+## Проверки (строго, но дёшево)
 
-`--delta`: инкрементальная перепроверка — только секции, изменившиеся с последнего inspect report.
+- Всегда начинайте с самого дешёвого scope: constitution + spec, затем plan, затем tasks. В код — только если конкретный claim нельзя подтвердить из артефактов.
+- Constitution ↔ spec: нет конфликтов с конституцией, workflow-правилами и language policy.
+- `AC-*`: каждый AC в Given/When/Then; нет placeholder; нет незакрытых `[NEEDS CLARIFICATION: ...]`.
+- Scope: строго одна фича; явные `Вне scope`, `Допущения`, `Открытые вопросы` (или `none`).
+- Упоминания технологий: technology names/frameworks/library lists/version pins в spec — это Warning, если это не требование пользователя, не repo-constraint и не внешний contract.
+- Неоднозначность: расплывчатые прилагательные (быстро, масштабируемо, безопасно, “удобно”, “надёжно”) без измеримых критериев — Warning; если это блокирует планирование — blocked.
+- Плейсхолдеры: `TODO`, `TKTK`, `???`, `<placeholder>` и любые незакрытые маркеры — Error.
+- Если есть `<specs_dir>/<slug>/plan/plan.md`: проверьте `spec <-> plan` (цель/scope сохранены; нет новых крупных workstreams).
+- Если есть `<specs_dir>/<slug>/plan/tasks.md`: проверьте `plan <-> tasks` и покрытие AC (каждый `AC-*` покрыт ≥ 1 задачей).
+- Если есть `<specs_dir>/<slug>/plan/tasks.md`: отсутствие `Touches:` — Warning (дефект token-discipline, который провоцирует широкие чтения на implement).
 
-- Прочитайте существующий `inspect.md` как baseline; сравните текущий `spec.md` для выявления изменённых секций (AC, scope, assumptions).
-- Перепроверьте изменённые секции и их cross-artifact implications. Сохраните валидные findings; не пере-derive.
-- Verdict меняйте, только если delta его меняет. Разрешённый `blocked` без новых ошибок → upgrade.
-- Обновите `generated_at`; добавьте `delta_from: <previous_generated_at>` в metadata block.
-- Delta затронула `## Goal`, `## Scope` или > 50% `AC-*` → откат к полной проверке с пометкой: «Delta mode откатился к полной проверке из-за масштаба изменений.»
-- Изменился любой `AC-*` → регенерируйте `summary.md`. Иначе — оставьте.
+Если есть `/.speckeep/scripts/check-inspect-ready.*` — запустите (slug первым аргументом) и используйте вывод как baseline. Исходники `/.speckeep/scripts/*` не читать.
 
-## Load First
+## Output expectations
 
-Всегда сначала прочитайте:
-
-- `.speckeep/constitution.md`
-- `.speckeep/specs/<slug>/spec.md`
-
-## Load If Present
-
-Читайте только если файл существует и inspect требует cross-artifact consistency checks (spec↔plan alignment, acceptance↔tasks coverage):
-
-- `plan/plan.md` — для goal alignment, scope, plan-level acceptance coverage
-- `plan/tasks.md` — чтобы проверить покрытие каждого `AC-*` ≥ 1 задачей
-
-## Do Not Read By Default
-
-- `plan/data-model.md`, `plan/contracts/`, `plan/research.md`
-- широкая история репо
-- implementation-файлы — кроме случая, когда finding называет конкретный файл, и claim нельзя подтвердить из spec/plan/tasks
-
-## Stop Conditions
-
-Минимальный уточняющий вопрос только если: slug неоднозначен, spec отсутствует, или inspect пришлось бы выдумывать product intent.
-
-## Rules
-
-- Сначала проверяйте соответствие конституции.
-- Если `/.speckeep/scripts/check-inspect-ready.*` доступен — запускайте как cheap first pass (slug первый аргумент: `bash ./.speckeep/scripts/check-inspect-ready.sh <slug>` или PowerShell `.\.speckeep\scripts\check-inspect-ready.ps1 <slug>`). Fallback: `/.speckeep/scripts/inspect-spec.*`. Нет ни того, ни другого — делайте ручную проверку по `constitution.md` + `spec.md`.
-- Предпочитайте вывод helper scripts чтению исходников. Используйте `ERROR`/`WARN` findings как основной структурный слой; не переизобретайте. Сохраняйте категории finding'ов (structure, traceability, ambiguity, consistency, readiness).
-- Не игнорируйте конкретный helper finding из-за общего оптимизма — либо закрывайте, либо объясняйте.
-- Собственное reasoning — для того, что cheap checks не доказывают: конфликты с конституцией, выдуманный product intent, необоснованный scope expansion, противоречивые assumptions, тонкий spec↔plan drift.
-
-### Проверки spec
-
-- Проверяйте полноту и ясность спецификации.
-- Verify `constitution <-> spec`: spec не должна противоречить constitutional constraints, workflow-правилам или language policy.
-- Treat technology names, framework choices, library lists, or version pins in the spec as a `Warning` unless they clearly represent a user requirement, repository constraint, or external compatibility contract.
-- Каждый AC ДОЛЖЕН использовать Given/When/Then (маркеры канонические). Отсутствие G/W/T — `Error`.
-- Оставшийся `[NEEDS CLARIFICATION: ...]` — `Error` (закрыть до plan).
-- Нет `## Допущения` → `Warning`. Допущение, противоречащее реальности репо, — `Error`.
-- `## Критерии успеха` присутствует → каждый `SC-*` с метрикой + методом. Размытый SC — `Warning`.
-
-### Cross-artifact проверки
-
-- Самый дешёвый scope сначала: constitution + spec, затем plan, затем tasks, затем глубокие plan-артефакты — только если конкретный claim их требует.
-- Нет `plan.md` → не расширяйте на optional plan artifacts или код.
-- Есть `plan.md` → сначала Verify `spec <-> plan`; `data-model.md` / `contracts/` — только если `plan.md` на них опирается или claim их требует. План сохраняет goal, отражает major acceptance-critical behavior, не добавляет необоснованных новых workstreams. Проверяйте:
-  - `Goal Alignment` — цель фичи не изменилась
-  - `Scope Expansion` — нет новых крупных workstreams/компонентов/surfaces вне spec
-  - `Acceptance Coverage at Plan Level` — major acceptance-critical behavior отражено в намерении плана
-  - `Constitution Consistency` — план не нарушает конституции
-  - `Artifact Justification` — `data-model.md`/`contracts/` оправданы spec'ом
-- `plan.md` без `## Соответствие конституции` / `## Constitution Compliance` — `Warning`.
-- `plan.md` есть, но `data-model.md` отсутствует → `Error`. Фаза plan обязана либо описать model changes, либо сохранить явный no-change stub.
-- `data-model.md` есть, но лишь расплывчато намекает на отсутствие изменений → `Warning`; предпочитайте явный stub со status/reason/revisit triggers, чтобы downstream phases не гадали.
-- `tasks.md` существует → verify `plan <-> tasks`: фазы/ID отражают план без явных пропусков по acceptance-critical behavior.
-- `tasks.md` существует → каждый AC покрыт ≥ 1 задачей; непокрытый AC — `Error`. Нет `## Surface Map` — `Warning`. Строка с task ID без `Touches:` — `Warning`. Traceability со ссылкой на task ID (`T1.1`) напрямую.
-- Не превращайте в широкий design review.
-
-## Отчёт
-
-- Пишите отчёт на настроенном языке документации.
-- Предпочитайте конкретные findings общим советам. Порядок: (1) структурные из helper output, (2) cross-artifact consistency из загруженных артефактов, (3) узкие judgment calls.
-- Default to a compact report in conversation output: всегда `Verdict`; `Errors`/`Warnings`/`Next Step` — если не пусты; `Questions`/`Suggestions`/`Traceability` — только когда дают сигнал.
-- Produce the full sectioned report only when the user explicitly asks for a full report или при сохранении в файл.
-- При записи в файл добавляйте сверху machine-readable metadata block с `report_type`, `slug`, `status`, `docs_language`, `generated_at`.
-- Структура: YAML metadata → `# Inspect Report: <slug>` → `## Scope` → `## Verdict` → `## Errors` → `## Warnings` → `## Questions` → `## Suggestions` → `## Traceability` → `## Next Step`.
-- The `## Verdict` section MUST use one of: `pass`, `concerns`, `blocked`.
-  - `pass`: ошибок нет, только минорные warnings или их нет.
-  - `concerns`: можно двигаться, но warnings / traceability gaps / open questions закрыть в ближайшее время.
-  - `blocked`: constitutional conflicts, отсутствующий spec intent, отсутствующий Given/When/Then, непокрытые AC или major `spec <-> plan` contradictions блокируют безопасный переход.
-- `## Traceability` суммирует AC → tasks когда `tasks.md` есть. Предпочитайте ID вроде `AC-001 -> T1.1, T2.1`.
-- `## Next Step`:
-  - `pass` — точная следующая slash-команда.
-  - `concerns` — можно ли продолжать; если да — точная slash-команда.
-  - `blocked` — не предлагайте следующую фазу; укажите, какой refinement нужен.
-- Не дублируйте findings между секциями.
-
-## Артефакт summary.md
-
-После inspect-отчёта также запишите `.speckeep/specs/<slug>/summary.md`:
-
-- YAML frontmatter: `slug`, `generated_at`
-- `## Goal` — одно предложение
-- `## Acceptance Criteria` — таблица `ID | Summary | Proof Signal`; summary ≤ 8 слов; proof signal = наблюдаемая проверка из `Then`
-- `## Out of Scope` — 3–5 bullets
-
-Не длиннее 25 строк. Загружается `tasks`/`implement`/`verify` для снижения context. Не заменяет полный spec на фазах с полной AC-проверкой (inspect, plan).
-
-## Output
-
-- Пишите `inspect.md` и `summary.md`.
-- Суммируйте verdict в разговоре (compact report, только непустые секции).
-- Завершайте summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Готово к`.
-- Готово: `Готово к: /speckeep.plan <slug>` (или `/speckeep.tasks <slug>` если план уже есть; после archive `/speckeep.recap` — опционально, не обязательно).
+- Запишите `inspect.md` и `summary.md` (summary ≤ ~25 строк: Goal, AC table, Out of Scope).
+- В `inspect.md` обязательно: verdict, Errors, Warnings и Next step (если не blocked).
+- Для `blocked` не предлагайте следующую фазу; явно укажите, какой refinement нужен.
+- В разговоре дайте компактный verdict + непустые Errors/Warnings + Next step.
+- Финальная строка: `Готово к: /speckeep.plan <slug>`

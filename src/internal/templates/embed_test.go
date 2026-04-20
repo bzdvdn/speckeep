@@ -186,19 +186,11 @@ func TestInspectPromptDefinesCheapScopeAndVerdictRules(t *testing.T) {
 
 	content := fileContentByTarget(t, files, "templates/prompts/inspect.md")
 	requiredSnippets := []string{
-		"Always read these first:",
-		"Read these only when they exist and the inspection requires cross-artifact consistency checks",
-		"Do Not Read By Default",
-		"Prefer the cheapest inspection scope first",
-		"Default to a compact report in conversation output",
-		"Produce the full sectioned report only when the user explicitly asks for a full report",
-		"Verify `constitution <-> spec`",
-		"Treat technology names, framework choices, library lists, or version pins in the spec as a `Warning` unless they clearly represent a user requirement, repository constraint, or external compatibility contract.",
-		"Verify `spec <-> plan`",
-		"verify `plan <-> tasks`",
-		"The `## Verdict` section MUST use one of: `pass`, `concerns`, `blocked`.",
-		"machine-readable metadata block",
-		"major `spec <-> plan` contradictions",
+		"## Phase Contract",
+		"pass|concerns|blocked",
+		"check-inspect-ready",
+		"summary.md",
+		"Ready for: /speckeep.plan <slug>",
 	}
 	for _, snippet := range requiredSnippets {
 		if !strings.Contains(content, snippet) {
@@ -350,20 +342,15 @@ func TestImplementPromptSupportsFullRunAndScopedExecution(t *testing.T) {
 
 	content := fileContentByTarget(t, files, "templates/prompts/implement.md")
 	requiredSnippets := []string{
-		"Default behavior: if the user does not restrict scope, execute only the first unfinished phase.",
-		"`--phase <number>`: execute only the specified phase.",
-		"`--tasks <task-id-list>`: execute only the specified task IDs.",
-		"Do not accept `--phase` and `--tasks` together in the same run.",
-		"`--continue`: resume mode",
-		"the selected work would force changes across another feature package or slug",
-		"the next safe step would require inventing new tasks or acceptance coverage",
-		"Leave the feature in a state that the next verify pass can inspect without guessing",
-		"Before marking a task done, confirm that the observable outcome named in the task text is actually present.",
-		"[T1.1] started",
-		"[T1.1] done",
-		"[T1.1] blocked: <reason>",
-		"[Phase 1] done: T1.1, T1.2",
-		"do not claim coverage that was not implemented",
+		"Default scope: only the **first unfinished phase**",
+		"`--continue`",
+		"`--phase <N>`",
+		"`--tasks <list>`",
+		"Do not use `--phase` and `--tasks` together.",
+		"`Touches:`",
+		"Do not assume `research.md` should exist;",
+		"Ready for: /speckeep.verify <slug>",
+		"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",
 	}
 	for _, snippet := range requiredSnippets {
 		if !strings.Contains(content, snippet) {
@@ -386,14 +373,11 @@ func TestSpecPromptDefinesDeterministicStagedMode(t *testing.T) {
 
 	content := fileContentByTarget(t, files, "templates/prompts/spec.md")
 	requiredSnippets := []string{
-		"keep staged mode active for the next non-command user message",
-		"If the next user message begins with `/speckeep.`, staged mode is canceled",
-		"If the next user message does not begin with `/speckeep.`, treat it as the continuation of the staged spec request.",
-		"The spec should be detailed enough that both an agent and a human reviewer can understand the user flow",
-		"`## Primary User Flow` should describe the main path in 3-5 concrete steps",
-		"prefer a tiny structured clarify pass instead of a broad open-ended interview",
-		"`## Change Delta` should make it obvious what becomes newly possible, what changes, and what stays unchanged.",
-		"Prefer density over length",
+		"treat the next non-command user message as the continuation",
+		"staged mode is canceled",
+		"Do not pin technologies/versions unless required",
+		"Ready for: /speckeep.inspect <slug>",
+		"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",
 	}
 	for _, snippet := range requiredSnippets {
 		if !strings.Contains(content, snippet) {
@@ -416,11 +400,10 @@ func TestPlanPromptDefinesConcreteResearchTriggers(t *testing.T) {
 
 	content := fileContentByTarget(t, files, "templates/prompts/plan.md")
 	requiredSnippets := []string{
-		"Create `.speckeep/specs/<slug>/plan/research.md` only when at least one of these is true:",
-		"external system, API, or dependency",
-		"multiple realistic implementation options",
-		"Before creating `research.md`, write down the concrete unknowns first:",
+		"Create `plan/research.md` only when needed",
 		"Do not create `research.md` for generic brainstorming",
+		"Ready for: /speckeep.tasks <slug>",
+		"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",
 	}
 	for _, snippet := range requiredSnippets {
 		if !strings.Contains(content, snippet) {
@@ -471,20 +454,17 @@ func TestPlanAndTasksPromptsReinforceDetailedButTightArtifacts(t *testing.T) {
 		{
 			target: "templates/prompts/plan.md",
 			want: []string{
-				"The plan should be specific enough that both an agent and a human reviewer can see the intended implementation shape",
-				"Each significant `DEC-*` should capture `Why`, `Tradeoff`, `Affects`, and `Validation`.",
-				"Add a short `Unknowns First` pass before finalizing the plan",
-				"`## Rollout and Compatibility` should be explicit",
-				"Record technologies, libraries, framework choices, or version constraints only when they materially affect",
+				"preserve spec intent",
+				"DEC-*",
+				"Minimum context",
 			},
 		},
 		{
 			target: "templates/prompts/tasks.md",
 			want: []string{
-				"The task list should be readable to both an implementation agent and a human reviewer",
-				"Each phase should have a short goal",
-				"Touches:`",
-				"Could another developer execute these tasks in order without guessing what `done` means",
+				"Touches:",
+				"Surface Map",
+				"Acceptance Coverage",
 			},
 		},
 	}
@@ -513,9 +493,7 @@ func TestSpecAndPlanSeparateProductIntentFromTechChoices(t *testing.T) {
 
 	specContent := fileContentByTarget(t, files, "templates/prompts/spec.md")
 	for _, snippet := range []string{
-		"Do not lock in technologies, libraries, framework choices, or version details by default.",
-		"If a technology choice matters only as an implementation preference, record it in `plan`, not in `spec`.",
-		"do not add library lists, framework choices, SDK names, or version pins to the spec unless they are product or repository constraints",
+		"Do not pin technologies/versions unless required",
 	} {
 		if !strings.Contains(specContent, snippet) {
 			t.Fatalf("expected spec prompt to contain %q", snippet)
@@ -524,9 +502,7 @@ func TestSpecAndPlanSeparateProductIntentFromTechChoices(t *testing.T) {
 
 	planContent := fileContentByTarget(t, files, "templates/prompts/plan.md")
 	for _, snippet := range []string{
-		"Record technologies, libraries, framework choices, or version constraints only when they materially affect implementation shape, integration boundaries, validation, or risk.",
-		"If a version or dependency is named, explain why it matters for this feature",
-		"Do not enumerate stack details for completeness; capture only technical constraints that reduce downstream guesswork.",
+		"trade-offs",
 	} {
 		if !strings.Contains(planContent, snippet) {
 			t.Fatalf("expected plan prompt to contain %q", snippet)
@@ -553,28 +529,25 @@ func TestPromptsDefineScopeTripwiresForRefinement(t *testing.T) {
 		{
 			target: "templates/prompts/spec.md",
 			want: []string{
-				"multiple feature slugs or multiple independent specs",
+				"Stop if",
 			},
 		},
 		{
 			target: "templates/prompts/plan.md",
 			want: []string{
-				"cross an unclear integration or architectural boundary",
-				"multiple feature packages were planned together",
+				"Stop if",
 			},
 		},
 		{
 			target: "templates/prompts/tasks.md",
 			want: []string{
-				"span multiple feature slugs or unrelated change sets",
 				"cannot be mapped to executable work without guessing",
 			},
 		},
 		{
 			target: "templates/prompts/verify.md",
 			want: []string{
-				"broad repository sweep instead of focused evidence",
-				"cannot be confirmed from the current tasks, plan artifacts, and targeted code inspection",
+				"Deep code reads only",
 			},
 		},
 	}
@@ -616,13 +589,10 @@ func TestVerifyTemplateAndPromptPreferEvidenceScopedVerification(t *testing.T) {
 
 	promptContent := fileContentByTarget(t, files, "templates/prompts/verify.md")
 	for _, snippet := range []string{
-		"Treat verify as an evidence log, not a reassurance ritual.",
-		"Prefer `concerns` over `pass` when the evidence is partial but no contradiction has been found.",
-		"`acceptance_evidence` for the `AC-*` items you actually confirmed",
-		"`## Not Verified`",
-		"Keep claims scoped.",
-		"send the feature back to the narrowest earlier phase that can honestly fix it",
-		"Do not use `pass` unless the completed task state is confirmed",
+		"evidence log",
+		"verify-task-state",
+		"Return to: /speckeep.<phase> <slug>",
+		"Ready for: /speckeep.archive <slug>",
 	} {
 		if !strings.Contains(promptContent, snippet) {
 			t.Fatalf("expected verify prompt to contain %q", snippet)
@@ -670,10 +640,9 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 		{
 			target: "templates/prompts/implement.md",
 			want: []string{
-				"execute only the first unfinished phase",
+				"Default scope: only the **first unfinished phase**",
 				"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",
 				"Ready for: /speckeep.verify <slug>",
-				"do not claim coverage that was not implemented",
 			},
 		},
 		{
@@ -682,7 +651,6 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 				"`Slug`, `Status`, `Artifacts`, `Blockers`, and either `Ready for` or `Return to`",
 				"Return to: /speckeep.<phase> <slug>",
 				"Ready for: /speckeep.archive <slug>",
-				"name it explicitly with its slash command",
 			},
 		},
 		{
@@ -722,37 +690,37 @@ func TestPromptsEnforcePhaseBoundaries(t *testing.T) {
 		{
 			target: "templates/prompts/spec.md",
 			want: []string{
-				"Do not write planning decisions, task decomposition, or implementation steps in the spec itself.",
+				"Spec captures intent, not plan/tasks.",
 			},
 		},
 		{
 			target: "templates/prompts/plan.md",
 			want: []string{
-				"Do not write the task checklist, edit implementation code, or emit verify/archive conclusions during planning.",
+				"Plan must preserve spec intent",
 			},
 		},
 		{
 			target: "templates/prompts/tasks.md",
 			want: []string{
-				"Do not start implementation work, edit source code, or claim tasks are already done during the tasks phase.",
+				"Do not implement or edit source code in the tasks phase.",
 			},
 		},
 		{
 			target: "templates/prompts/implement.md",
 			want: []string{
-				"Do not re-plan the feature, emit a verify verdict, or silently complete neighboring tasks",
+				"No redesign / re-planning.",
 			},
 		},
 		{
 			target: "templates/prompts/inspect.md",
 			want: []string{
-				"For `blocked`, do not suggest the next phase command; state which refinement is required first.",
+				"pass|concerns|blocked",
 			},
 		},
 		{
 			target: "templates/prompts/verify.md",
 			want: []string{
-				"For `blocked`, do not suggest archive; end with `Return to: /speckeep.<phase> <slug>`",
+				"If `blocked`, end with `Return to: /speckeep.<phase> <slug>`.",
 			},
 		},
 	}

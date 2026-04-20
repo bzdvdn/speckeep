@@ -27,25 +27,23 @@ func renderAiderCommands(commands []CommandDefinition, language string) string {
 		var sections []string
 		sections = append(sections, "# SpecKeep Conventions")
 		sections = append(sections, "")
-		sections = append(sections, "Используйте `.speckeep/` как основной источник проектного контекста. Следуйте соответствующим prompt-файлам в `.speckeep/templates/prompts/`.")
+		sections = append(sections, "Используйте `.speckeep/` как основной источник контекста. Для каждой фазы открывайте prompt в `.speckeep/templates/prompts/<phase>.md` и следуйте ему.")
 		sections = append(sections, "")
 		sections = append(sections, "Загружайте этот файл через `--read .aider/CONVENTIONS.md` или добавьте `read: .aider/CONVENTIONS.md` в `.aider.conf.yml`.")
 		sections = append(sections, "")
 		sections = append(sections, workflowChainHint(lang))
+		sections = append(sections, "")
+		sections = append(sections, "Команды:")
 		for _, cmd := range commands {
-			sections = append(sections, "")
-			sections = append(sections, fmt.Sprintf("## /speckeep.%s", cmd.Name))
-			sections = append(sections, fmt.Sprintf("- Основной prompt: %s", cmd.PromptPath))
-			sections = append(sections, fmt.Sprintf("- %s", commandHint(cmd.Name, lang)))
-			sections = append(sections, "- Используйте только минимально нужный контекст репозитория")
-			if hint := specBranchFirstBullet(cmd.Name, lang); hint != "" {
-				sections = append(sections, hint)
-			}
-			sections = append(sections, fmt.Sprintf("- %s", scriptExecutionHint(lang)))
-			sections = append(sections, fmt.Sprintf("- %s", helpDiscoveryHint(lang)))
-			if len(cmd.Extras) > 0 {
-				sections = append(sections, scriptListBlock(cmd.Extras, lang))
-			}
+			sections = append(sections, fmt.Sprintf("- `/speckeep.%s` → %s", cmd.Name, cmd.PromptPath))
+		}
+		sections = append(sections, "")
+		sections = append(sections, "Правила:")
+		sections = append(sections, "- Минимальный контекст: текущий slug и surfaces из `Touches:`.")
+		sections = append(sections, "- "+scriptExecutionHint(lang))
+		sections = append(sections, "- "+helpDiscoveryHint(lang))
+		if hint := specBranchFirstBullet("spec", lang); hint != "" {
+			sections = append(sections, hint)
 		}
 		sections = append(sections, "")
 		sections = append(sections, antiPatternHint(lang))
@@ -55,25 +53,23 @@ func renderAiderCommands(commands []CommandDefinition, language string) string {
 	var sections []string
 	sections = append(sections, "# SpecKeep Conventions")
 	sections = append(sections, "")
-	sections = append(sections, "Use `.speckeep/` as the primary source of project context. Follow the matching prompt files under `.speckeep/templates/prompts/`.")
+	sections = append(sections, "Use `.speckeep/` as the primary context. For each phase, open the prompt in `.speckeep/templates/prompts/<phase>.md` and follow it.")
 	sections = append(sections, "")
 	sections = append(sections, "Load this file via `--read .aider/CONVENTIONS.md` or add `read: .aider/CONVENTIONS.md` to `.aider.conf.yml`.")
 	sections = append(sections, "")
 	sections = append(sections, workflowChainHint(lang))
+	sections = append(sections, "")
+	sections = append(sections, "Commands:")
 	for _, cmd := range commands {
-		sections = append(sections, "")
-		sections = append(sections, fmt.Sprintf("## /speckeep.%s", cmd.Name))
-		sections = append(sections, fmt.Sprintf("- Primary prompt: %s", cmd.PromptPath))
-		sections = append(sections, fmt.Sprintf("- %s", commandHint(cmd.Name, lang)))
-		sections = append(sections, "- Use only the minimum repository context required")
-		if hint := specBranchFirstBullet(cmd.Name, lang); hint != "" {
-			sections = append(sections, hint)
-		}
-		sections = append(sections, fmt.Sprintf("- %s", scriptExecutionHint(lang)))
-		sections = append(sections, fmt.Sprintf("- %s", helpDiscoveryHint(lang)))
-		if len(cmd.Extras) > 0 {
-			sections = append(sections, scriptListBlock(cmd.Extras, lang))
-		}
+		sections = append(sections, fmt.Sprintf("- `/speckeep.%s` → %s", cmd.Name, cmd.PromptPath))
+	}
+	sections = append(sections, "")
+	sections = append(sections, "Rules:")
+	sections = append(sections, "- Minimum context: current slug and surfaces from `Touches:`.")
+	sections = append(sections, "- "+scriptExecutionHint(lang))
+	sections = append(sections, "- "+helpDiscoveryHint(lang))
+	if hint := specBranchFirstBullet("spec", lang); hint != "" {
+		sections = append(sections, hint)
 	}
 	sections = append(sections, "")
 	sections = append(sections, antiPatternHint(lang))

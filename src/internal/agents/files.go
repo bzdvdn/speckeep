@@ -199,27 +199,27 @@ func workflowChainHint(lang string) string {
 func antiPatternHint(lang string) string {
 	if lang == "ru" {
 		return `Запрещено:
-- пропускать readiness scripts и переходить к фазе напрямую
-- читать или анализировать исходный код scripts
-- перепланировать или редизайнить во время implement
-- отмечать таск завершённым без observable proof
-- выполнять git commit/git push/git tag или создавать PR без явной просьбы пользователя (коммиты — ответственность разработчика)
-- читать весь репозиторий, когда промпт говорит "минимальный контекст"`
+- пропускать readiness scripts
+- читать/анализировать исходники ` + "`" + `/.speckeep/scripts/*` + "`" + `
+- расширять scope / перепланировать во время implement
+- отмечать done без observable proof
+- делать ` + "`" + `git commit/push/tag` + "`" + ` или PR без явной просьбы
+- читать весь репозиторий вместо минимального среза`
 	}
 	return `Do not:
-- skip readiness scripts and proceed to the phase directly
-- read or inspect script source code
-- re-plan or re-design during implement
-- mark a task as done without observable proof
-- run git commit/git push/git tag or open a PR unless the user explicitly asks (commits are the developer's responsibility)
-- read the full repository when the prompt says "minimum context"`
+- skip readiness scripts
+- read/inspect ` + "`" + `/.speckeep/scripts/*` + "`" + `
+- expand scope / re-plan during implement
+- mark done without observable proof
+- run ` + "`" + `git commit/push/tag` + "`" + ` or open a PR unless explicitly asked
+- read the full repo instead of the minimum slice`
 }
 
 func scriptExecutionHint(lang string) string {
 	if lang == "ru" {
-		return "Когда для фазы есть связанные scripts — выполняйте их как shell-команды (например `bash ./path/to/script.sh`). Доверяйте stdout и exit-коду скрипта. Не читайте, не анализируйте и не модифицируйте исходный код скриптов. Если скрипт завершился с ошибкой (exit code ≠ 0), сообщите пользователю вывод ошибки и остановитесь."
+		return "Если для фазы указан readiness script — выполните его как shell-команду (доверяйте stdout/exit code). Исходники `/.speckeep/scripts/*` не читать. Ошибка скрипта → сообщить вывод и остановиться."
 	}
-	return "When related scripts are listed for a phase, execute them as shell commands (e.g. `bash ./path/to/script.sh`). Trust the script stdout and exit code as-is. Do not read, inspect, or modify the script source. If a script exits with a non-zero code, report the error output to the user and stop."
+	return "If a readiness script is listed, run it as a shell command (trust stdout/exit code). Do not read `/.speckeep/scripts/*` source. Script failure → report output and stop."
 }
 
 func windsurfWorkspaceHint(lang string) string {
