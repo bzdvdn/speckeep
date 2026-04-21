@@ -14,4 +14,6 @@ fi
 if [ -e "$1" ]; then
   exec "$SCRIPT_DIR/run-speckeep.sh" trace "$@"
 fi
-exec "$SCRIPT_DIR/run-speckeep.sh" trace "$1" "$ROOT_DIR"
+SLUG="$1"
+shift
+exec "$SCRIPT_DIR/run-speckeep.sh" trace "$SLUG" "$ROOT_DIR" "$@"

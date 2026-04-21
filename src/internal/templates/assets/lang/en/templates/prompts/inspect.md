@@ -17,6 +17,7 @@ Stop if: spec missing, slug ambiguous, or the verdict would require inventing pr
 ## Checks (strict but cheap)
 
 - Always start with the cheapest scope: constitution + spec, then plan, then tasks. Do not jump to code unless a concrete claim cannot be confirmed from artifacts.
+- Avoid repetitive full-file reads “for reassurance”: keep brief notes and re-open only targeted sections when needed.
 - Constitution ↔ spec: no conflicts with constraints, workflow rules, and language policy.
 - `AC-*`: every AC uses Given/When/Then; no placeholders; no open `[NEEDS CLARIFICATION: ...]`.
 - Scope: exactly one feature; explicit Out of Scope + Assumptions + Open Questions (or `none`).

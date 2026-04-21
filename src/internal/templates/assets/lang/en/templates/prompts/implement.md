@@ -19,6 +19,8 @@ Stop if: `tasks.md` is missing, the next task is not concrete, or execution requ
 - Entrypoint: `tasks.md`. Execute **only** unfinished tasks (`[ ]`) in list order.
 - Default scope: only the **first unfinished phase** (unless the user restricts otherwise).
 - Read discipline: at session start, batch-read surfaces from `Touches:` for in-scope tasks; read each file ≤ 1 time per session.
+- Do not re-read already opened files end-to-end “for reassurance”: keep short notes and use targeted slices (`rg`, `sed -n`) and `git diff` to verify changes.
+- If `tasks.md` lists “Inputs” at the top (e.g., `plan.md`/`spec.md`/`data-model.md`), do not treat them as mandatory re-reads during implement: open them only when a concrete active task explicitly requires it, or when `tasks.md` is missing critical context.
 - Editing a file outside the active task `Touches:` is a **scope violation** → stop and explain.
 - If `/.speckeep/scripts/check-implement-ready.*` exists, run it (slug first) and trust stdout/exit code. Do not read `/.speckeep/scripts/*` source.
 - Do not assume `research.md` should exist; only read it if a task explicitly depends on it.

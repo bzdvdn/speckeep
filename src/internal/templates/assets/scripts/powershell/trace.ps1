@@ -11,5 +11,10 @@ if (Test-Path -LiteralPath $args[0]) {
   & "$ScriptDir/run-speckeep.ps1" trace @args
   exit $LASTEXITCODE
 }
-& "$ScriptDir/run-speckeep.ps1" trace $args[0] $RootDir
+$Slug = $args[0]
+$Rest = @()
+if ($args.Count -gt 1) {
+  $Rest = $args[1..($args.Count - 1)]
+}
+& "$ScriptDir/run-speckeep.ps1" trace $Slug $RootDir @Rest
 exit $LASTEXITCODE

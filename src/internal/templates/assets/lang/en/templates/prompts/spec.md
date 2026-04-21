@@ -15,6 +15,7 @@ Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 ## Mandatory Rules
 
 - **Branch-first**: before writing any file, switch/create `feature/<slug>` (or `--branch`). If not possible → stop and report why.
+- Do not try to “generate the spec via CLI”: as the agent, you must write/update `<specs_dir>/<slug>/spec.md` directly. `/.speckeep/scripts/check-*.{sh,ps1}` are validation gates only, not artifact generators.
 - Spec captures intent, not plan/tasks. No implementation steps or decomposition.
 - Every `AC-*` is Given/When/Then with observable proof in Then.
 - Required sections: Out of Scope, Assumptions, Open Questions (or `none`).
