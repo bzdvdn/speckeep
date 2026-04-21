@@ -25,9 +25,10 @@ type TraceResult struct {
 //
 //	// @sk-task T1.1: Description (AC-001)
 //	// @sk-test T1.1: TestName (AC-001)
+//	// @sk-task my-spec#T1.1: Description (AC-001)
 //
 // Legacy annotations (@ds-task/@ds-test) are also accepted.
-var tracePattern = regexp.MustCompile(`@(?:ds|sk)-(task|test)\s+([A-Z0-9.]+)(?::\s*([^(]*))?(?:\s*\((AC-[0-9]+)\))?`)
+var tracePattern = regexp.MustCompile(`@(?:ds|sk)-(task|test)\s+([A-Za-z0-9._-]+(?:#[A-Za-z0-9._-]+)?)(?::\s*([^(]*))?(?:\s*\((AC-[0-9]+)\))?`)
 
 func Scan(root string) (TraceResult, error) {
 	var result TraceResult

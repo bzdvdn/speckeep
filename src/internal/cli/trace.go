@@ -120,6 +120,7 @@ func getTaskIDsForSlug(root, slug string) (map[string]struct{}, error) {
 	matches := re.FindAllString(string(content), -1)
 	for _, m := range matches {
 		taskIDs[m] = struct{}{}
+		taskIDs[slug+"#"+m] = struct{}{}
 	}
 
 	return taskIDs, nil

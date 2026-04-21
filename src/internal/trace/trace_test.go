@@ -71,6 +71,14 @@ func TestTracePattern(t *testing.T) {
 			wantAC:   "AC-006",
 			wantDesc: "Legacy annotation",
 		},
+		{
+			name:     "namespaced task id accepted",
+			line:     "// @sk-task my-spec#T7.1: Namespaced (AC-007)",
+			wantType: "task",
+			wantTask: "my-spec#T7.1",
+			wantAC:   "AC-007",
+			wantDesc: "Namespaced",
+		},
 	}
 
 	for _, tt := range tests {

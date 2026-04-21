@@ -24,8 +24,9 @@ Stop if: `tasks.md` is missing, the next task is not concrete, or execution requ
 - Do not assume `research.md` should exist; only read it if a task explicitly depends on it.
 - No redesign / re-planning. If the task cannot be implemented safely from current artifacts → stop and request refinement.
 - Annotate every non-trivial change:
-  - `// @sk-task <TASK_ID>: <short> (<AC_ID>)`
-  - tests: `// @sk-test <TASK_ID>: <TestName> (<AC_ID>)`
+  - always (avoid cross-spec collisions): `// @sk-task <slug>#<TASK_ID>: <short> (<AC_ID>)`
+  - tests: `// @sk-test <slug>#<TASK_ID>: <TestName> (<AC_ID>)`
+  - legacy is allowed only if `<slug>` is unknown (not in args/context) or if you're intentionally preserving the existing code style: `// @sk-task <TASK_ID> ...` / `// @sk-test <TASK_ID> ...`
 
 ## Modes
 
