@@ -311,6 +311,14 @@ func TestCheckArchiveReadyBlocksCompletedArchiveWhenTasksRemainOpen(t *testing.T
 	if err := os.WriteFile(specPath, []byte("# Demo\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
+	verifyPath := filepath.Join(root, ".speckeep", "specs", "demo", "plan", "verify.md")
+	if err := os.MkdirAll(filepath.Dir(verifyPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll(verifyDir) returned error: %v", err)
+	}
+	verifyContent := "---\nreport_type: verify\nslug: demo\nstatus: pass\ndocs_language: en\ngenerated_at: 2026-01-01\n---\n"
+	if err := os.WriteFile(verifyPath, []byte(verifyContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(verify) returned error: %v", err)
+	}
 	tasksPath := filepath.Join(root, ".speckeep", "specs", "demo", "plan", "tasks.md")
 	if err := os.MkdirAll(filepath.Dir(tasksPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
@@ -326,7 +334,7 @@ func TestCheckArchiveReadyBlocksCompletedArchiveWhenTasksRemainOpen(t *testing.T
 	if !result.Failed {
 		t.Fatalf("expected archive readiness to fail, got %+v", result)
 	}
-	if !strings.Contains(strings.Join(result.Lines, "\n"), "completed archive requested while open tasks remain") {
+	if !strings.Contains(strings.Join(result.Lines, "\n"), "open tasks remain - complete before archiving") {
 		t.Fatalf("unexpected archive output: %+v", result.Lines)
 	}
 }
@@ -350,6 +358,14 @@ func TestCheckArchiveReadyAllowsCompletedWithoutReason(t *testing.T) {
 	specPath := filepath.Join(specDir, "spec.md")
 	if err := os.WriteFile(specPath, []byte("# Demo\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+	verifyPath := filepath.Join(root, ".speckeep", "specs", "demo", "plan", "verify.md")
+	if err := os.MkdirAll(filepath.Dir(verifyPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll(verifyDir) returned error: %v", err)
+	}
+	verifyContent := "---\nreport_type: verify\nslug: demo\nstatus: pass\ndocs_language: en\ngenerated_at: 2026-01-01\n---\n"
+	if err := os.WriteFile(verifyPath, []byte(verifyContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(verify) returned error: %v", err)
 	}
 
 	result, err := CheckArchiveReady(root, "demo", "completed", "")
@@ -380,6 +396,14 @@ func TestCheckArchiveReadyAllowsHotfixWithoutSpec(t *testing.T) {
 	hotfixPath := filepath.Join(specDir, "hotfix.md")
 	if err := os.WriteFile(hotfixPath, []byte("# Hotfix\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile(hotfix) returned error: %v", err)
+	}
+	verifyPath := filepath.Join(root, ".speckeep", "specs", "demo", "plan", "verify.md")
+	if err := os.MkdirAll(filepath.Dir(verifyPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll(verifyDir) returned error: %v", err)
+	}
+	verifyContent := "---\nreport_type: verify\nslug: demo\nstatus: pass\ndocs_language: en\ngenerated_at: 2026-01-01\n---\n"
+	if err := os.WriteFile(verifyPath, []byte(verifyContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(verify) returned error: %v", err)
 	}
 
 	result, err := CheckArchiveReady(root, "demo", "completed", "")

@@ -11,7 +11,7 @@
 ## Phase Contract
 
 Inputs: `<specs_dir>/<slug>/plan/tasks.md` (entrypoint), опционально `summary.md`/`spec.md`/`plan.md` при необходимости.
-Outputs: `<specs_dir>/<slug>/verify.md` (или verify report в разговоре) + обновления в `tasks.md`, если выявлены ошибки статуса.
+Outputs: `<specs_dir>/<slug>/plan/verify.md` (или verify report в разговоре) + обновления в `tasks.md`, если выявлены ошибки статуса.
 Stop if: `tasks.md` отсутствует или slug неоднозначен.
 
 ## Правила
@@ -19,6 +19,7 @@ Stop if: `tasks.md` отсутствует или slug неоднозначен.
 - Treat verify как evidence log (task/AC → proof), не как «ритуал успокоения».
 - Начинайте с `tasks.md`: каждая `[x]` задача должна иметь observable proof в репо (файл/тест/выход команды).
 - Если доступен `/.speckeep/scripts/verify-task-state.*` — запустите (slug первым аргументом) как cheap first pass.
+- Если сохраняете отчёт в файл, используйте `.speckeep/templates/verify.md` как формат и пишите в `<specs_dir>/<slug>/plan/verify.md`. Не ищите «примеры» verify-отчётов в других slug ради формы.
 - Соберите traceability как дешёвую проверку целостности: используйте `/.speckeep/scripts/trace.* <slug>` (и при необходимости `/.speckeep/scripts/trace.* <slug> --tests`). Это не заменяет proof, но помогает быстро найти пробелы/осиротевшие метки.
 - Глубокое чтение кода — только когда нужно подтвердить конкретный claim по конкретному AC/task.
 - Не перечитывайте одни и те же файлы многократно «для уверенности»: ведите краткие evidence-заметки и используйте точечные выборки + `git diff` для проверки изменений.

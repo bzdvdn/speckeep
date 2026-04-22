@@ -255,6 +255,8 @@ func scriptListBlock(items []string, lang string) string {
 			display = item + " <slug>"
 		case strings.Contains(item, "check-archive-ready"):
 			display = item + " <slug> completed"
+		case strings.Contains(item, "archive-feature"):
+			display = item + " <slug> . --status completed"
 		case strings.Contains(item, "verify-task-state"):
 			display = item + " <slug>"
 		case strings.Contains(item, "list-open-tasks"):

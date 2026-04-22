@@ -18,6 +18,7 @@ Stop if: inspect is not `pass`, the goal is ambiguous, or planning would require
 
 - Plan must preserve spec intent: no new major workstreams outside `spec.md`.
 - Record only implementation-critical decisions: surfaces, sequencing, risks, trade-offs (`DEC-*`).
+- Always use `.speckeep/templates/plan.md` as the skeleton and output format (and `.speckeep/templates/data-model.md` when needed). Do not look for “examples” in neighboring plan packages from other slugs: reading other plans for shape is wasted tokens and scope drift.
 - If the data model does not change, still create `plan/data-model.md` with an explicit `status: no-change` + rationale.
 - Create `plan/research.md` only when needed (e.g., external dependency/integration boundary, multiple realistic implementation options, or a high-risk unknown). Do not create `research.md` for generic brainstorming.
 - Minimum context: current slug only; narrow repo reads (no full-repo scans).

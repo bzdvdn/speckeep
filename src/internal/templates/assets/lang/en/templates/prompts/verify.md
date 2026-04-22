@@ -11,7 +11,7 @@ Follow base rules in `AGENTS.md`.
 ## Phase Contract
 
 Inputs: `<specs_dir>/<slug>/plan/tasks.md` (entrypoint), optionally `summary.md`/`spec.md`/`plan.md` when needed.
-Outputs: `<specs_dir>/<slug>/verify.md` (or a chat report) + `tasks.md` status fixes when a checkbox is wrong.
+Outputs: `<specs_dir>/<slug>/plan/verify.md` (or a chat report) + `tasks.md` status fixes when a checkbox is wrong.
 Stop if: `tasks.md` missing or slug ambiguous.
 
 ## Rules
@@ -19,6 +19,7 @@ Stop if: `tasks.md` missing or slug ambiguous.
 - Treat verify as an evidence log (task/AC → proof), not a reassurance ritual.
 - Start from `tasks.md`: every `[x]` task must have observable proof in the repo (file/test/command output).
 - If `/.speckeep/scripts/verify-task-state.*` exists, run it (slug first) as a cheap first pass.
+- If you persist the report to a file, use `.speckeep/templates/verify.md` as the format and write to `<specs_dir>/<slug>/plan/verify.md`. Do not look for “examples” in other slugs’ verify reports for shape.
 - Collect traceability as a cheap integrity check: use `/.speckeep/scripts/trace.* <slug>` (and `/.speckeep/scripts/trace.* <slug> --tests` when needed). This does not replace proof, but quickly highlights gaps/orphaned annotations.
 - Deep code reads only to confirm a specific claim for a specific task/AC.
 - Avoid re-reading the same files repeatedly: keep focused evidence notes and use targeted slices + `git diff` when you need to confirm what changed.

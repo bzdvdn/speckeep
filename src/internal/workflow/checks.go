@@ -589,14 +589,24 @@ func CheckArchiveReady(root, slug, status, reason string) (CheckResult, error) {
 
 	tasksDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "tasks.md")
 	tasksAbs := absFromRoot(root, tasksDisplay)
-	if status == "completed" && fileExists(tasksAbs) {
+	state, err := State(root, slug)
+	if err != nil {
+		return CheckResult{}, err
+	}
+	if !state.VerifyExists {
+		result.AddError("verify.md not found - run verify before archiving")
+	}
+	if state.VerifyStatus != StatusPass && state.VerifyStatus != StatusConcerns {
+		result.AddError(fmt.Sprintf("verify status is %s - fix before archiving", state.VerifyStatus))
+	}
+	if fileExists(tasksAbs) {
 		taskStateResult, summary, err := VerifyTaskState(root, slug)
 		if err != nil {
 			return CheckResult{}, err
 		}
 		result.Merge(taskStateResult)
 		if summary.Open > 0 {
-			result.AddError("completed archive requested while open tasks remain")
+			result.AddError("open tasks remain - complete before archiving")
 		}
 	}
 
