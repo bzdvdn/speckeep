@@ -156,6 +156,7 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 		featurepaths.Spec(specsDir, slug),
 		featurepaths.Inspect(specsDir, slug),
 		featurepaths.Summary(specsDir, slug),
+		featurepaths.SpecDigest(specsDir, slug),
 		featurepaths.Hotfix(specsDir, slug),
 	}
 
@@ -177,6 +178,7 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 	// Copy plan artifacts
 	planFiles := []string{
 		"plan.md",
+		"plan.digest.md",
 		"tasks.md",
 		"data-model.md",
 		"research.md",

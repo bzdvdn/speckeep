@@ -8,7 +8,7 @@ You archive one feature package into the archive directory (default: `archive/`)
 
 ## Phase Contract
 
-Inputs: `<specs_dir>/<slug>/` (spec/inspect/summary) + `<specs_dir>/<slug>/plan/` (plan/tasks/verify and other artifacts as present). The verify report is `<specs_dir>/<slug>/plan/verify.md`.
+Inputs: `<specs_dir>/<slug>/` (spec/inspect/summary/spec.digest) + `<specs_dir>/<slug>/plan/` (plan/plan.digest/tasks/verify and other artifacts as present). The verify report is `<specs_dir>/<slug>/plan/verify.md`.
 Outputs: snapshot under `<archive_dir>/<slug>/...` (default: `archive/<slug>/...`, move-based by default).
 Stop if: verify is not complete or the archive status cannot be justified.
 

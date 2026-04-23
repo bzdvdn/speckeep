@@ -135,7 +135,7 @@ func Check(root string) (Result, error) {
 			if _, err := os.Stat(summaryPath); os.IsNotExist(err) {
 				findings = append(findings, Finding{
 					Level:   "warning",
-					Message: "constitution.summary.md not found — run /speckeep.constitution to generate the compact summary used by implement, verify, tasks, and hotfix phases",
+					Message: "constitution.summary.md not found — run /speckeep.constitution to generate the compact summary used by spec, inspect, plan, tasks, implement, verify, and hotfix phases",
 				})
 			}
 		}

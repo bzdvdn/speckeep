@@ -8,7 +8,7 @@
 
 ## Phase Contract
 
-Inputs: `<specs_dir>/<slug>/` (spec/inspect/summary) + `<specs_dir>/<slug>/plan/` (plan/tasks/verify и прочие артефакты по наличию). Отчёт verify — это `<specs_dir>/<slug>/plan/verify.md`.
+Inputs: `<specs_dir>/<slug>/` (spec/inspect/summary/spec.digest) + `<specs_dir>/<slug>/plan/` (plan/plan.digest/tasks/verify и прочие артефакты по наличию). Отчёт verify — это `<specs_dir>/<slug>/plan/verify.md`.
 Outputs: snapshot в `<archive_dir>/<slug>/...` (по умолчанию `archive/<slug>/...`, move-based).
 Stop if: не завершён verify или статус архивации не может быть обоснован.
 

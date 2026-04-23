@@ -10,7 +10,7 @@ Follow base rules in `AGENTS.md`.
 
 ## Phase Contract
 
-Inputs: `<specs_dir>/<slug>/plan/tasks.md` (entrypoint), optionally `summary.md`/`spec.md`/`plan.md` when needed.
+Inputs: `<specs_dir>/<slug>/plan/tasks.md` (entrypoint), optionally `spec.digest.md` (preferred) or `summary.md`/`spec.md` when AC context is needed, `plan.md` when design surfaces must be confirmed.
 Outputs: `<specs_dir>/<slug>/plan/verify.md` (or a chat report) + `tasks.md` status fixes when a checkbox is wrong.
 Stop if: `tasks.md` missing or slug ambiguous.
 

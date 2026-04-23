@@ -10,7 +10,7 @@
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`.
+Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`, или `.speckeep/constitution.summary.md` если есть), `<specs_dir>/<slug>/spec.md`.
 Outputs: `<specs_dir>/<slug>/inspect.md` со статусом `pass|concerns|blocked` и `<specs_dir>/<slug>/summary.md`.
 Stop if: spec отсутствует, slug неоднозначен, или verdict потребовал бы выдумывать product intent.
 

@@ -8,8 +8,8 @@
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`), запрос пользователя, минимально нужный контекст репозитория.
-Outputs: `<specs_dir>/<slug>/spec.md`.
+Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`, или `.speckeep/constitution.summary.md` если есть), запрос пользователя, минимально нужный контекст репозитория.
+Outputs: `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/spec.digest.md`.
 Stop if: запрос неоднозначен/мульти-фича или пришлось бы выдумывать `AC-*`.
 
 ## Обязательные правила
@@ -31,6 +31,7 @@ Stop if: запрос неоднозначен/мульти-фича или пр
 ## Output expectations
 
 - Запишите/patch `spec.md` (patch > переписывание).
+- Запишите `<specs_dir>/<slug>/spec.digest.md`: одна строка на каждый `AC-*`, формат `AC-NNN: <краткое описание ≤10 слов>`. Никакой детализации.
 - Коротко суммируйте цель, scope, список AC, открытые вопросы/блокеры.
 - Добавьте короткий summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Готово к`.
 - Финальная строка: `Готово к: /speckeep.inspect <slug>`

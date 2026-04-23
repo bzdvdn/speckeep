@@ -10,7 +10,7 @@
 
 ## Phase Contract
 
-Inputs: `<specs_dir>/<slug>/plan/tasks.md` (entrypoint), опционально `summary.md`/`spec.md`/`plan.md` при необходимости.
+Inputs: `<specs_dir>/<slug>/plan/tasks.md` (entrypoint), опционально `spec.digest.md` (предпочтительно) или `summary.md`/`spec.md` если нужен AC-контекст, `plan.md` если нужно подтвердить design surfaces.
 Outputs: `<specs_dir>/<slug>/plan/verify.md` (или verify report в разговоре) + обновления в `tasks.md`, если выявлены ошибки статуса.
 Stop if: `tasks.md` отсутствует или slug неоднозначен.
 

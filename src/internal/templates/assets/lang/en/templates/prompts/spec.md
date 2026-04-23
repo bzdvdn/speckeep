@@ -8,8 +8,8 @@ You create or update one feature spec: `<specs_dir>/<slug>/spec.md`.
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), user request, minimum required repo context.
-Outputs: `<specs_dir>/<slug>/spec.md`.
+Inputs: `project.constitution_file` (default: `CONSTITUTION.md`, or `.speckeep/constitution.summary.md` if present), user request, minimum required repo context.
+Outputs: `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/spec.digest.md`.
 Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 
 ## Mandatory Rules
@@ -31,6 +31,7 @@ Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 ## Output expectations
 
 - Write/patch `spec.md` (patch > rewrite).
+- Write `<specs_dir>/<slug>/spec.digest.md`: one line per `AC-*`, format `AC-NNN: <≤10-word summary>`. No elaboration.
 - Summarize: goal, scope, AC list, open questions/blockers.
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`.
 - Final line: `Ready for: /speckeep.inspect <slug>`

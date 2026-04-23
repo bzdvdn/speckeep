@@ -11,7 +11,7 @@ Follow base rules in `AGENTS.md`.
 ## Phase Contract
 
 Inputs: `project.constitution_file` (default: `CONSTITUTION.md`, or `.speckeep/constitution.summary.md` if present), `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/inspect.md` (must be `pass`).
-Outputs: `<specs_dir>/<slug>/plan/plan.md` and, when required, `<specs_dir>/<slug>/plan/data-model.md`, `<specs_dir>/<slug>/plan/contracts/*`, `<specs_dir>/<slug>/plan/research.md`.
+Outputs: `<specs_dir>/<slug>/plan/plan.md`, `<specs_dir>/<slug>/plan/plan.digest.md`, and when required `<specs_dir>/<slug>/plan/data-model.md`, `<specs_dir>/<slug>/plan/contracts/*`, `<specs_dir>/<slug>/plan/research.md`.
 Stop if: inspect is not `pass`, the goal is ambiguous, or planning would require inventing requirements/AC.
 
 ## Rules
@@ -27,6 +27,7 @@ Stop if: inspect is not `pass`, the goal is ambiguous, or planning would require
 ## Output expectations
 
 - Write/patch `<specs_dir>/<slug>/plan/plan.md` (create additional artifacts only when justified).
+- Write `<specs_dir>/<slug>/plan/plan.digest.md`: one line per `DEC-*` (format `DEC-NNN: <≤10-word summary>`), then a `Surfaces:` list (surface name + main files, one line each). No elaboration.
 - Summarize key `DEC-*`, surfaces, sequencing constraints, and risks.
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`.
 - Final line: `Ready for: /speckeep.tasks <slug>`

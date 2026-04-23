@@ -18,5 +18,6 @@ Stop if: правила остаются `TBD`/placeholder или конфлик
 ## Output expectations
 
 - Запишите/patch конституцию.
+- Сгенерируйте `.speckeep/constitution.summary.md`: ≤200 слов, краткий текст или bullets, покрывающий Purpose, ключевые ограничения, tech stack, архитектуру, language policy и workflow rules. Никакой детализации — только правила.
 - Коротко перечислите ключевые правила и что изменилось.
 - Финальная строка: `Готово к: /speckeep.spec <slug>`

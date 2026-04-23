@@ -10,7 +10,7 @@ Follow base rules in `AGENTS.md`.
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`.
+Inputs: `project.constitution_file` (default: `CONSTITUTION.md`, or `.speckeep/constitution.summary.md` if present), `<specs_dir>/<slug>/spec.md`.
 Outputs: `<specs_dir>/<slug>/inspect.md` with `pass|concerns|blocked` and `<specs_dir>/<slug>/summary.md`.
 Stop if: spec missing, slug ambiguous, or the verdict would require inventing product intent.
 

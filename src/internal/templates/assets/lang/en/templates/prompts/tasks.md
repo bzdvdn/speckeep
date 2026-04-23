@@ -10,7 +10,7 @@ Follow base rules in `AGENTS.md`.
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`, or `.speckeep/constitution.summary.md` if present), `<specs_dir>/<slug>/plan/plan.md`, optionally `summary.md`/`spec.md` to resolve `AC-*` boundaries.
+Inputs: `project.constitution_file` (default: `CONSTITUTION.md`, or `.speckeep/constitution.summary.md` if present), `<specs_dir>/<slug>/plan/plan.digest.md` (preferred) or `plan.md`, optionally `spec.digest.md` (preferred) or `summary.md`/`spec.md` to resolve `AC-*` boundaries.
 Outputs: `tasks.md` with phases, `Touches:` on every task, a `## Surface Map`, and `## Acceptance Coverage` (AC → tasks).
 Stop if: `plan.md` is missing/vague or any `AC-*` cannot be mapped to executable work without guessing.
 

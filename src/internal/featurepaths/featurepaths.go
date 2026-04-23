@@ -34,6 +34,10 @@ func Hotfix(specsDir, slug string) string {
 	return filepath.Join(SpecDir(specsDir, slug), "hotfix.md")
 }
 
+func SpecDigest(specsDir, slug string) string {
+	return filepath.Join(SpecDir(specsDir, slug), "spec.digest.md")
+}
+
 func PlanDir(specsDir, slug string) string {
 	return filepath.Join(specsDir, slug, "plan")
 }
