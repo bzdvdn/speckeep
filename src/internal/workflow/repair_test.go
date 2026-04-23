@@ -21,7 +21,10 @@ func TestRepairFeatureMigratesLegacyFlatSpec(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specsDir := filepath.Join(root, ".speckeep", "specs")
+	specsDir := filepath.Join(root, "specs")
+	if err := os.MkdirAll(specsDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(specsDir) returned error: %v", err)
+	}
 	legacyPath := filepath.Join(specsDir, "demo.md")
 	content := "# Demo Spec\n"
 	if err := os.WriteFile(legacyPath, []byte(content), 0o644); err != nil {
@@ -57,7 +60,7 @@ func TestRepairFeatureRemovesDuplicateLegacyFlatSpec(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specsDir := filepath.Join(root, ".speckeep", "specs")
+	specsDir := filepath.Join(root, "specs")
 	content := "# Demo Spec\n"
 	canonicalPath := filepath.Join(specsDir, "demo", "spec.md")
 	if err := os.MkdirAll(filepath.Dir(canonicalPath), 0o755); err != nil {
@@ -95,7 +98,7 @@ func TestRepairFeatureWarnsWhenCanonicalAndLegacyDiffer(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specsDir := filepath.Join(root, ".speckeep", "specs")
+	specsDir := filepath.Join(root, "specs")
 	canonicalPath := filepath.Join(specsDir, "demo", "spec.md")
 	if err := os.MkdirAll(filepath.Dir(canonicalPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll(canonical) returned error: %v", err)

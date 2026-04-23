@@ -74,7 +74,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 This lets SpecKeep:
 
-- derive a safe spec path such as `.speckeep/specs/add-dark-mode/spec.md`
+- derive a safe spec path such as `specs/add-dark-mode/spec.md`
 - create or switch to `feature/add-dark-mode`
 - avoid ambiguous slugs from generic filenames
 
@@ -124,7 +124,7 @@ Expected agent behavior:
 
 - read the constitution prompt in `.speckeep/templates/prompts/constitution.md`
 - inspect only the minimum repository evidence needed
-- create or patch `.speckeep/constitution.md`
+- create or patch `CONSTITUTION.md`
 - run `check-constitution.sh` when appropriate
 
 Expected outcome:
@@ -144,7 +144,7 @@ User request:
 Expected agent behavior:
 
 - read constitution first
-- create `.speckeep/specs/partner-scheduling/spec.md`
+- create `specs/partner-scheduling/spec.md`
 - write acceptance criteria using canonical `Given / When / Then`
 - keep surrounding text in the configured documentation language
 
@@ -177,12 +177,12 @@ User request:
 
 Expected agent behavior:
 
-- read constitution and `.speckeep/specs/partner-scheduling/spec.md`
-- keep the default inspect scope cheap: prefer `constitution.md` and `spec.md`, then pull `plan.md` or `tasks.md` only when they exist and materially affect the finding
+- read constitution and `specs/partner-scheduling/spec.md`
+- keep the default inspect scope cheap: prefer `CONSTITUTION.md` and `spec.md`, then pull `plan.md` or `tasks.md` only when they exist and materially affect the finding
 - check completeness, constitutional consistency, and scenario quality
 - create a focused inspection report
 - use `.speckeep/scripts/inspect-spec.sh` or `.speckeep/scripts/inspect-spec.ps1` as a cheap first-pass helper when structural spec or coverage issues need quick confirmation
-- persist the inspect report at `.speckeep/specs/partner-scheduling/inspect.md`
+- persist the inspect report at `specs/partner-scheduling/inspect.md`
 - use `.speckeep/templates/inspect-report.md` as the canonical report template
 
 Typical findings:
@@ -202,9 +202,9 @@ User request:
 Expected agent behavior:
 
 - read constitution and the spec
-- create `.speckeep/specs/partner-scheduling/plan/plan.md`
-- create `.speckeep/specs/partner-scheduling/plan/data-model.md`
-- create `.speckeep/specs/partner-scheduling/plan/contracts/`
+- create `specs/partner-scheduling/plan/plan.md`
+- create `specs/partner-scheduling/plan/data-model.md`
+- create `specs/partner-scheduling/plan/contracts/`
 - create `research.md` only if uncertainty is real
 
 Typical outputs:
@@ -225,7 +225,7 @@ Expected agent behavior:
 
 - use `plan.md` as the decomposition entrypoint
 - pull in spec, contracts, or data model only when needed
-- produce `.speckeep/specs/partner-scheduling/plan/tasks.md`
+- produce `specs/partner-scheduling/plan/tasks.md`
 - include acceptance-to-task coverage
 
 Example task structure:
@@ -276,7 +276,7 @@ User request:
 
 Expected agent behavior:
 
-- use `/.speckeep/scripts/trace.sh partner-scheduling` to collect implementation evidence
+- use `.speckeep/scripts/trace.sh partner-scheduling` to collect implementation evidence
 - look for `// @sk-task` and `// @sk-test` annotations in the code
 - confirm that implementation matches task descriptions and acceptance criteria
 - provide a clear verdict (`pass`, `concerns`, or `blocked`)
@@ -338,7 +338,7 @@ Expected agent behavior:
 - produce a lightweight verification report
 - start with `.speckeep/scripts/verify-task-state.sh partner-scheduling` when task-state confirmation is enough
 - use `.speckeep/templates/verify-report.md` when the report should be persisted
-- default to `.speckeep/specs/partner-scheduling/plan/verify.md` when no explicit path is provided
+- default to `specs/partner-scheduling/plan/verify.md` when no explicit path is provided
 
 ## 8. Archive the Feature
 
@@ -351,13 +351,13 @@ User request:
 Expected agent behavior:
 
 - for `completed` status, start with `.speckeep/scripts/verify-task-state.sh partner-scheduling` and stop if open tasks remain
-- copy the feature package into `.speckeep/archive/partner-scheduling/<YYYY-MM-DD>/`
+- copy the feature package into `archive/partner-scheduling/<YYYY-MM-DD>/`
 - write `summary.md`
 
 Expected archive result:
 
 ```text
-.speckeep/archive/
+archive/
   partner-scheduling/
     2026-03-28/
       summary.md

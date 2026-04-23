@@ -39,7 +39,7 @@ func TestCheckErrorsWhenPlanSkipsMandatoryInspect(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	specDir := filepath.Join(root, "specs", "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
 	}
@@ -48,7 +48,7 @@ func TestCheckErrorsWhenPlanSkipsMandatoryInspect(t *testing.T) {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
 
-	planDir := filepath.Join(root, ".speckeep", "specs", "demo", "plan")
+	planDir := filepath.Join(root, "specs", "demo", "plan")
 	if err := os.MkdirAll(planDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(planDir) returned error: %v", err)
 	}
@@ -118,7 +118,7 @@ func TestCheckErrorsWhenRequiredFileIsMissing(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	missingPath := filepath.Join(root, ".speckeep", "constitution.md")
+	missingPath := filepath.Join(root, "CONSTITUTION.md")
 	if err := os.Remove(missingPath); err != nil {
 		t.Fatalf("Remove returned error: %v", err)
 	}
@@ -134,7 +134,7 @@ func TestCheckErrorsWhenRequiredFileIsMissing(t *testing.T) {
 
 	var foundMissing bool
 	for _, finding := range result.Findings {
-		if finding.Level == "error" && strings.Contains(finding.Message, "missing") && strings.Contains(finding.Message, "constitution.md") {
+		if finding.Level == "error" && strings.Contains(finding.Message, "missing") && strings.Contains(finding.Message, "CONSTITUTION.md") {
 			foundMissing = true
 			break
 		}
@@ -228,7 +228,7 @@ func TestCheckNoPlaceholderWarnWhenConstitutionIsFilled(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	constitutionPath := filepath.Join(root, ".speckeep", "constitution.md")
+	constitutionPath := filepath.Join(root, "CONSTITUTION.md")
 	filled := "# My Project Constitution\n\n## Purpose\nBuild a great product.\n\n## Core Principles\n\n### Simplicity\nKeep it simple.\n\n## Constraints\nNo magic.\n\n## Decision Priorities\n- Correctness first\n\n## Key Quality Dimensions\n- Tested\n\n## Language Policy\n- Documentation language: English\n- Agent interaction language: English\n- Code comment language: English\n\n## Development Workflow\nUse feature branches.\n\n## Governance\nConstitution is authoritative.\n\n## Exceptions Protocol\nRecord deviations explicitly.\n\n## Last Updated\n2026-04-03\n"
 	if err := os.WriteFile(constitutionPath, []byte(filled), 0o644); err != nil {
 		t.Fatalf("WriteFile returned error: %v", err)
@@ -254,7 +254,7 @@ func TestCheckWarnsDuplicateStableIDsAcrossSpecs(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specsDir := filepath.Join(root, ".speckeep", "specs")
+	specsDir := filepath.Join(root, "specs")
 	specA := "# Feature A\n\n## Goal\nDo A.\n\n## Requirements\n- RQ-001 x\n\n## Acceptance Criteria\n### AC-001 A\n- **Given** x\n- **When** y\n- **Then** z\n"
 	specB := "# Feature B\n\n## Goal\nDo B.\n\n## Requirements\n- RQ-001 y\n\n## Acceptance Criteria\n### AC-001 B\n- **Given** a\n- **When** b\n- **Then** c\n"
 
@@ -311,7 +311,7 @@ func TestCheckDoesNotWarnOrphanedTraceabilityWhenTaskIsInArchive(t *testing.T) {
 	}
 
 	// Archive snapshot containing the task ID.
-	archiveTasks := filepath.Join(root, ".speckeep", "archive", "demo", "2026-01-01", "plan", "tasks.md")
+	archiveTasks := filepath.Join(root, "archive", "demo", "2026-01-01", "plan", "tasks.md")
 	if err := os.MkdirAll(filepath.Dir(archiveTasks), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}

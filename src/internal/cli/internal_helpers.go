@@ -54,7 +54,7 @@ func newInternalListSpecsCmd() *cobra.Command {
 		SilenceErrors: true,
 		Args:          cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			specsDirDisplay := ".speckeep/specs"
+			specsDirDisplay := "specs"
 			if cfg, err := config.Load(root); err == nil {
 				if strings.TrimSpace(cfg.Paths.SpecsDir) != "" {
 					specsDirDisplay = strings.TrimSpace(cfg.Paths.SpecsDir)
@@ -97,7 +97,7 @@ func newInternalShowSpecCmd() *cobra.Command {
 		SilenceErrors: true,
 		Args:          cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			specsDirDisplay := ".speckeep/specs"
+			specsDirDisplay := "specs"
 			if cfg, err := config.Load(root); err == nil {
 				if strings.TrimSpace(cfg.Paths.SpecsDir) != "" {
 					specsDirDisplay = strings.TrimSpace(cfg.Paths.SpecsDir)

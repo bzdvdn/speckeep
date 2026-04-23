@@ -5,7 +5,7 @@ You create or update the project constitution.
 ## Phase Contract
 
 Inputs: user request + minimum repo context needed to define constraints/architecture.
-Outputs: `.speckeep/constitution.md` (or `project.constitution_file` path).
+Outputs: `project.constitution_file` (default: `CONSTITUTION.md`).
 Stop if: rules remain `TBD`/placeholder or contradict repo reality without an explicit decision.
 
 ## Rules
@@ -13,7 +13,7 @@ Stop if: rules remain `TBD`/placeholder or contradict repo reality without an ex
 - Constitution is authoritative: short, concrete, testable rules (no philosophy).
 - Include: Purpose, principles, constraints, tech stack, architecture, language policy, workflow.
 - Always use `.speckeep/templates/constitution.md` as the skeleton and output format. Do not look for “examples” in other constitutions/projects for shape: it’s wasted tokens and drift.
-- If `/.speckeep/scripts/check-constitution.*` exists, run it before finishing.
+- If `./.speckeep/scripts/check-constitution.*` exists, run it before finishing.
 
 ## Output expectations
 

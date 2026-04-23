@@ -200,7 +200,7 @@ func antiPatternHint(lang string) string {
 	if lang == "ru" {
 		return `Запрещено:
 - пропускать readiness scripts
-- читать/анализировать исходники ` + "`" + `/.speckeep/scripts/*` + "`" + `
+- читать/анализировать исходники ` + "`" + `.speckeep/scripts/*` + "`" + `
 - расширять scope / перепланировать во время implement
 - отмечать done без observable proof
 - делать ` + "`" + `git commit/push/tag` + "`" + ` или PR без явной просьбы
@@ -208,7 +208,7 @@ func antiPatternHint(lang string) string {
 	}
 	return `Do not:
 - skip readiness scripts
-- read/inspect ` + "`" + `/.speckeep/scripts/*` + "`" + `
+- read/inspect ` + "`" + `.speckeep/scripts/*` + "`" + `
 - expand scope / re-plan during implement
 - mark done without observable proof
 - run ` + "`" + `git commit/push/tag` + "`" + ` or open a PR unless explicitly asked
@@ -217,9 +217,9 @@ func antiPatternHint(lang string) string {
 
 func scriptExecutionHint(lang string) string {
 	if lang == "ru" {
-		return "Если для фазы указан readiness script — выполните его как shell-команду (доверяйте stdout/exit code). Исходники `/.speckeep/scripts/*` не читать. Ошибка скрипта → сообщить вывод и остановиться."
+		return "Если для фазы указан readiness script — выполните его как shell-команду (доверяйте stdout/exit code). Исходники `.speckeep/scripts/*` не читать. Ошибка скрипта → сообщить вывод и остановиться."
 	}
-	return "If a readiness script is listed, run it as a shell command (trust stdout/exit code). Do not read `/.speckeep/scripts/*` source. Script failure → report output and stop."
+	return "If a readiness script is listed, run it as a shell command (trust stdout/exit code). Do not read `.speckeep/scripts/*` source. Script failure → report output and stop."
 }
 
 func windsurfWorkspaceHint(lang string) string {

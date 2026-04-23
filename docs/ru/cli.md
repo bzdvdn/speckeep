@@ -66,7 +66,7 @@ speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --she
 
 	Эта команда не обновляет:
 
-	- `.speckeep/constitution.md`
+	- файл конституции (`project.constitution_file`, по умолчанию `CONSTITUTION.md`)
 	- содержимое `specs_dir/**` (но может безопасно перенести директорию при `--specs-dir`)
 	- содержимое `specs_dir/<slug>/plan/**`
 	- содержимое `archive_dir/**` (но может безопасно перенести директорию при `--archive-dir`)
@@ -186,7 +186,7 @@ speckeep dashboard
 
 ### `speckeep list-specs [path]`
 
-Показывает список spec slug'ов из `.speckeep/specs/`.
+Показывает список spec slug'ов из `specs_dir/` (по умолчанию: `specs/`).
 
 ### `speckeep show-spec <name> [path]`
 
@@ -255,7 +255,7 @@ speckeep export export-report my-project --output export-report-bundle.md
 
 ### `speckeep list-archive [path]`
 
-Выводит архивированные фичи из `.speckeep/archive/`.
+Выводит архивированные фичи из `archive_dir/` (по умолчанию: `archive/`).
 
 Показывает одну запись на slug (последний снимок) со статусом, датой архивации и причиной. Записи отсортированы по дате по убыванию. Статусы выделены цветом: `completed` — зелёный, `deferred` — жёлтый, `abandoned` и `rejected` — красный.
 

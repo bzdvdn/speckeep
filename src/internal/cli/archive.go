@@ -38,10 +38,10 @@ func newArchiveCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "archive <slug> [path]",
 		Short: "Archive or restore a feature package",
-		Long: `Archive a completed feature to .speckeep/archive/ or restore from archive.
+		Long: `Archive a completed feature to the configured archive directory or restore from archive.
 
 Archive mode (default):
-  - Copies all feature artifacts to .speckeep/archive/<slug>/<YYYY-MM-DD>/
+  - Copies all feature artifacts to <archive_dir>/<slug>/<YYYY-MM-DD>/
   - Generates summary.md from verify.md
   - Removes active files (unless --copy)
 

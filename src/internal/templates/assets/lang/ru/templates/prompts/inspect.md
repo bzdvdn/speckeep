@@ -6,11 +6,11 @@
 
 ## Разрешение путей
 
-- Определите `<specs_dir>` из `.speckeep/speckeep.yaml` (читать ≤ 1 раза за сессию). Если конфиг отсутствует — используйте `.speckeep/specs`.
+- Определите `<specs_dir>` из `.speckeep/speckeep.yaml` (читать ≤ 1 раза за сессию). Если конфиг отсутствует — используйте `specs`.
 
 ## Phase Contract
 
-Inputs: `.speckeep/constitution.md`, `<specs_dir>/<slug>/spec.md`.
+Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`.
 Outputs: `<specs_dir>/<slug>/inspect.md` со статусом `pass|concerns|blocked` и `<specs_dir>/<slug>/summary.md`.
 Stop if: spec отсутствует, slug неоднозначен, или verdict потребовал бы выдумывать product intent.
 
@@ -29,7 +29,7 @@ Stop if: spec отсутствует, slug неоднозначен, или verd
 - Если есть `<specs_dir>/<slug>/plan/tasks.md`: проверьте `plan <-> tasks` и покрытие AC (каждый `AC-*` покрыт ≥ 1 задачей).
 - Если есть `<specs_dir>/<slug>/plan/tasks.md`: отсутствие `Touches:` — Warning (дефект token-discipline, который провоцирует широкие чтения на implement).
 
-Если есть `/.speckeep/scripts/check-inspect-ready.*` — запустите (slug первым аргументом) и используйте вывод как baseline. Исходники `/.speckeep/scripts/*` не читать.
+Если есть `./.speckeep/scripts/check-inspect-ready.*` — запустите (slug первым аргументом) и используйте вывод как baseline. Исходники `./.speckeep/scripts/*` не читать.
 
 ## Output expectations
 

@@ -40,7 +40,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 
 	assertState(t, root, slug, "spec", "constitution")
 
-	specDir := filepath.Join(root, ".speckeep", "specs", slug)
+	specDir := filepath.Join(root, "specs", slug)
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir): %v", err)
 	}
@@ -212,8 +212,8 @@ generated_at: 2026-04-16
 ## Scope
 - snapshot: spec verified for completeness and constitutional consistency
 - artifacts:
-  - .speckeep/constitution.md
-  - .speckeep/specs/demo/spec.md
+  - CONSTITUTION.md
+  - specs/demo/spec.md
 
 ## Verdict
 - status: pass
@@ -307,8 +307,8 @@ generated_at: 2026-04-16
 - snapshot: all tasks verified against implementation
 - verification_mode: default
 - artifacts:
-  - .speckeep/constitution.md
-  - .speckeep/specs/demo/plan/tasks.md
+  - CONSTITUTION.md
+  - specs/demo/plan/tasks.md
 - inspected_surfaces:
   - src/handlers/export.go
   - src/middleware/auth.go

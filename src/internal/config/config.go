@@ -15,14 +15,14 @@ var defaultConfig = Config{
 	Version: 1,
 	Project: Project{
 		Name:             "my-project",
-		ConstitutionFile: ".speckeep/constitution.md",
+		ConstitutionFile: "CONSTITUTION.md",
 	},
 	Runtime: Runtime{
 		Shell: "sh",
 	},
 	Paths: Paths{
-		SpecsDir:     ".speckeep/specs",
-		ArchiveDir:   ".speckeep/archive",
+		SpecsDir:     "specs",
+		ArchiveDir:   "archive",
 		TemplatesDir: ".speckeep/templates",
 		ScriptsDir:   ".speckeep/scripts",
 	},

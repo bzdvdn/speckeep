@@ -5,4 +5,4 @@
 ## Output expectations
 
 - Таблица: `Slug | Phase | Status (blockers?) | Next`
-- Если доступен `/.speckeep/scripts/list-specs.*` — используйте его вывод.
+- Если доступен `./.speckeep/scripts/list-specs.*` — используйте его вывод.

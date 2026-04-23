@@ -39,7 +39,7 @@ func TestCheckInfersPhaseAcrossFeatureLifecycle(t *testing.T) {
 
 	check("constitution", "spec", true)
 
-	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	specDir := filepath.Join(root, "specs", "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
 	}
@@ -56,7 +56,7 @@ func TestCheckInfersPhaseAcrossFeatureLifecycle(t *testing.T) {
 	}
 	check("inspect", "plan", false)
 
-	planDir := filepath.Join(root, ".speckeep", "specs", "demo", "plan")
+	planDir := filepath.Join(root, "specs", "demo", "plan")
 	if err := os.MkdirAll(planDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(planDir) returned error: %v", err)
 	}
@@ -92,7 +92,7 @@ func TestCheckInfersPhaseAcrossFeatureLifecycle(t *testing.T) {
 	}
 	check("verify", "archive", false)
 
-	archiveDir := filepath.Join(root, ".speckeep", "archive", "demo", "2026-03-30")
+	archiveDir := filepath.Join(root, "archive", "demo", "2026-03-30")
 	if err := os.MkdirAll(archiveDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(archiveDir) returned error: %v", err)
 	}

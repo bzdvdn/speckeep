@@ -74,7 +74,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 Это позволяет SpecKeep:
 
-- вывести безопасный путь спецификации вроде `.speckeep/specs/add-dark-mode/spec.md`
+- вывести безопасный путь спецификации вроде `specs/add-dark-mode/spec.md`
 - создать или переключить `feature/add-dark-mode`
 - избежать неоднозначных slug из generic filename
 
@@ -124,7 +124,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 - прочитать prompt `.speckeep/templates/prompts/constitution.md`
 - собрать только минимально нужные evidence из репозитория
-- создать или обновить `.speckeep/constitution.md`
+- создать или обновить `CONSTITUTION.md`
 - при необходимости запустить `check-constitution.sh`
 
 Ожидаемый результат:
@@ -144,7 +144,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Ожидаемое поведение агента:
 
 - сначала прочитать constitution
-- создать `.speckeep/specs/partner-scheduling/spec.md`
+- создать `specs/partner-scheduling/spec.md`
 - записать acceptance criteria в каноническом формате `Given / When / Then`
 - остальной текст держать на configured documentation language
 
@@ -177,12 +177,12 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 Ожидаемое поведение агента:
 
-- прочитать constitution и `.speckeep/specs/partner-scheduling/spec.md`
-- держать default inspect scope дешевым: сначала `constitution.md` и `spec.md`, а `plan.md` или `tasks.md` подтягивать только если они существуют и реально влияют на вывод
+- прочитать constitution и `specs/partner-scheduling/spec.md`
+- держать default inspect scope дешевым: сначала `CONSTITUTION.md` и `spec.md`, а `plan.md` или `tasks.md` подтягивать только если они существуют и реально влияют на вывод
 - проверить полноту, соответствие конституции и качество сценариев
 - выпустить focused inspection report
 - использовать `.speckeep/scripts/inspect-spec.sh` или `.speckeep/scripts/inspect-spec.ps1` как дешевый helper первого прохода, когда нужно быстро подтвердить структурные проблемы spec или coverage
-- сохранять inspect report в `.speckeep/specs/partner-scheduling/inspect.md`
+- сохранять inspect report в `specs/partner-scheduling/inspect.md`
 - использовать `.speckeep/templates/inspect-report.md` как канонический шаблон отчета
 
 Типовые находки:
@@ -202,9 +202,9 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Ожидаемое поведение агента:
 
 - прочитать constitution и spec
-- создать `.speckeep/specs/partner-scheduling/plan/plan.md`
-- создать `.speckeep/specs/partner-scheduling/plan/data-model.md`
-- создать `.speckeep/specs/partner-scheduling/plan/contracts/`
+- создать `specs/partner-scheduling/plan/plan.md`
+- создать `specs/partner-scheduling/plan/data-model.md`
+- создать `specs/partner-scheduling/plan/contracts/`
 - создавать `research.md` только если действительно есть неопределенность
 
 Типовые выходы:
@@ -225,7 +225,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 - использовать `plan.md` как decomposition entrypoint
 - подтягивать spec, contracts или data model только при необходимости
-- создать `.speckeep/specs/partner-scheduling/plan/tasks.md`
+- создать `specs/partner-scheduling/plan/tasks.md`
 - включить acceptance-to-task coverage
 
 Пример структуры задач:
@@ -276,7 +276,7 @@ func SavePartnerSchedule(p Partner) {
 
 Ожидаемое поведение агента:
 
-- использовать `/.speckeep/scripts/trace.sh partner-scheduling` для сбора доказательств реализации
+- использовать `.speckeep/scripts/trace.sh partner-scheduling` для сбора доказательств реализации
 - искать аннотации `// @sk-task` и `// @sk-test` в коде
 - подтверждать соответствие реализации описанию задач и критериям приемки
 - предоставить четкий вердикт (`pass`, `concerns` или `blocked`)
@@ -338,7 +338,7 @@ func TestSavePartnerSchedule(t *testing.T) {
 - выпустить легкий verification report
 - начинать с `.speckeep/scripts/verify-task-state.sh partner-scheduling`, если сначала нужно только подтвердить состояние задач
 - использовать `.speckeep/templates/verify-report.md`, если отчет нужно сохранить в файл
-- по умолчанию использовать `.speckeep/specs/partner-scheduling/plan/verify.md`, если путь явно не указан
+- по умолчанию использовать `specs/partner-scheduling/plan/verify.md`, если путь явно не указан
 
 ## 8. Архивация Фичи
 
@@ -351,13 +351,13 @@ func TestSavePartnerSchedule(t *testing.T) {
 Ожидаемое поведение агента:
 
 - для статуса `completed` сначала запустить `.speckeep/scripts/verify-task-state.sh partner-scheduling` и остановиться, если открытые задачи еще остались
-- скопировать feature package в `.speckeep/archive/partner-scheduling/<YYYY-MM-DD>/`
+- скопировать feature package в `archive/partner-scheduling/<YYYY-MM-DD>/`
 - записать `summary.md`
 
 Ожидаемый результат архива:
 
 ```text
-.speckeep/archive/
+archive/
   partner-scheduling/
     2026-03-28/
       summary.md

@@ -34,7 +34,7 @@ if ($args.Count -lt 1) {
 
 $configPath = Join-Path $RootDir ".speckeep\\speckeep.yaml"
 $specsDir = (Get-YamlFirstValue -Path $configPath -Key "specs_dir")
-if ([string]::IsNullOrWhiteSpace($specsDir)) { $specsDir = ".speckeep/specs" }
+if ([string]::IsNullOrWhiteSpace($specsDir)) { $specsDir = "specs" }
 $specFile = (Get-YamlFirstValue -Path $configPath -Key "spec")
 if ([string]::IsNullOrWhiteSpace($specFile)) { $specFile = "spec.md" }
 $tasksFile = (Get-YamlFirstValue -Path $configPath -Key "tasks")

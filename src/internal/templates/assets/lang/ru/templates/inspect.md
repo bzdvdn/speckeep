@@ -12,8 +12,8 @@ generated_at: <YYYY-MM-DD>
 
 - snapshot: однострочное резюме того, что проверили
 - artifacts:
-  - .speckeep/constitution.md
-  - .speckeep/specs/<slug>/spec.md
+  - CONSTITUTION.md
+  - specs/<slug>/spec.md
 
 ## Verdict
 

@@ -13,8 +13,8 @@ generated_at: <YYYY-MM-DD>
 - snapshot: one-line summary of what was verified
 - verification_mode: default | deep
 - artifacts:
-  - .speckeep/constitution.md
-  - .speckeep/specs/<slug>/plan/tasks.md
+  - CONSTITUTION.md
+  - specs/<slug>/plan/tasks.md
 - inspected_surfaces:
   - list only the code paths, endpoints, jobs, docs, or migrations you actually checked
 

@@ -17,8 +17,8 @@ func TestDefaultAppliesExpectedDefaults(t *testing.T) {
 	if cfg.Language.Default != "en" || cfg.Language.Docs != "en" || cfg.Language.Agent != "en" || cfg.Language.Comments != "en" {
 		t.Fatalf("unexpected default languages: %+v", cfg.Language)
 	}
-	if cfg.Paths.SpecsDir != ".speckeep/specs" {
-		t.Fatalf("SpecsDir = %q, want %q", cfg.Paths.SpecsDir, ".speckeep/specs")
+	if cfg.Paths.SpecsDir != "specs" {
+		t.Fatalf("SpecsDir = %q, want %q", cfg.Paths.SpecsDir, "specs")
 	}
 	if cfg.Templates.SpecPrompt != "prompts/spec.md" {
 		t.Fatalf("SpecPrompt = %q, want %q", cfg.Templates.SpecPrompt, "prompts/spec.md")
@@ -45,7 +45,7 @@ func TestLoadReturnsDefaultsWhenConfigDoesNotExist(t *testing.T) {
 	if cfg.Language.Docs != "en" {
 		t.Fatalf("Docs language = %q, want en", cfg.Language.Docs)
 	}
-	if cfg.Project.ConstitutionFile != ".speckeep/constitution.md" {
+	if cfg.Project.ConstitutionFile != "CONSTITUTION.md" {
 		t.Fatalf("ConstitutionFile = %q", cfg.Project.ConstitutionFile)
 	}
 }

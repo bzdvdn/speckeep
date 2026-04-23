@@ -18,7 +18,7 @@ A technical design phase that translates one spec into implementation-oriented a
 
 ## Plan Package
 
-The group of files stored under `.speckeep/specs/<slug>/plan/`, typically including `plan.md`, `tasks.md`, `data-model.md`, `contracts/`, and optional `research.md`.
+The group of files stored under `specs/<slug>/plan/`, typically including `plan.md`, `tasks.md`, `data-model.md`, `contracts/`, and optional `research.md`.
 
 ## Tasks
 

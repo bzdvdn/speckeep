@@ -4,7 +4,7 @@ Create a short handoff for one feature.
 
 ## Path Resolution
 
-- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `.speckeep/specs`.
+- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `specs`.
 
 ## Inputs
 

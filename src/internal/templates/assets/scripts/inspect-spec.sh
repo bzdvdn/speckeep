@@ -33,7 +33,7 @@ tasks_input="${2:-}"
 
 specs_dir="$(yaml_first_value specs_dir 2>/dev/null || true)"
 if [ "$specs_dir" = "" ]; then
-  specs_dir=".speckeep/specs"
+  specs_dir="specs"
 fi
 
 spec_file="$(yaml_first_value spec 2>/dev/null || true)"

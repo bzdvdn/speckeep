@@ -186,7 +186,7 @@ Recommended stable ID scheme:
 
 ## Plan package
 
-Each feature plan lives under `.speckeep/specs/<slug>/plan/`.
+Each feature plan lives under `specs/<slug>/plan/`.
 
 Required artifacts:
 
@@ -222,14 +222,14 @@ The constitution is authoritative over specs, plans, tasks, and implementation.
 
 Inputs:
 
-- `.speckeep/constitution.md`
-- `.speckeep/specs/<slug>/spec.md`
+- `CONSTITUTION.md`
+- `specs/<slug>/spec.md`
 - optional plan artifacts when they exist (cheapest scope first)
 
 Outputs:
 
 - focused inspection report for one feature
-- persisted inspect report at `.speckeep/specs/<slug>/inspect.md`
+- persisted inspect report at `specs/<slug>/inspect.md`
 - explicit Given/When/Then acceptance criteria
 - cheap checks for constitution↔spec, spec↔plan, plan↔tasks
 
@@ -239,8 +239,8 @@ Outputs:
 
 Inputs:
 
-- `.speckeep/constitution.md`
-- `.speckeep/specs/<slug>/plan/tasks.md`
+- `CONSTITUTION.md`
+- `specs/<slug>/plan/tasks.md`
 - optional spec, plan, data-model, contracts, targeted code
 
 Outputs:
@@ -262,12 +262,12 @@ The verify phase must:
 
 Inputs:
 
-- `.speckeep/specs/<slug>/spec.md`
+- `specs/<slug>/spec.md`
 - optional plan artifacts
 
 Outputs:
 
-- `.speckeep/archive/<slug>/<YYYY-MM-DD>/summary.md`
+- `archive/<slug>/<YYYY-MM-DD>/summary.md`
 - archived copies of spec and plan artifacts
 - move-based by default (deletes originals after copy)
 - supports `--restore` to reverse archive
@@ -302,7 +302,7 @@ Resolution order:
 
 Inputs:
 
-- `.speckeep/constitution.md`
+- `CONSTITUTION.md`
 - user request
 - minimal repository context when needed
 
@@ -315,7 +315,7 @@ Supports:
 
 Output:
 
-- `.speckeep/specs/<slug>/spec.md`
+- `specs/<slug>/spec.md`
 - work from `feature/<slug>` branch
 
 Spec includes:
@@ -332,14 +332,14 @@ Spec includes:
 
 Inputs:
 
-- `.speckeep/constitution.md`
-- `.speckeep/specs/<slug>/spec.md`
-- `.speckeep/specs/<slug>/inspect.md` (required)
+- `CONSTITUTION.md`
+- `specs/<slug>/spec.md`
+- `specs/<slug>/inspect.md` (required)
 
 Outputs:
 
-- `.speckeep/specs/<slug>/plan/plan.md`
-- `.speckeep/specs/<slug>/plan/data-model.md`
+- `specs/<slug>/plan/plan.md`
+- `specs/<slug>/plan/data-model.md`
 - optional contracts and research
 
 Plan includes:
@@ -355,8 +355,8 @@ Supports `--update` for targeted edits without rewriting entire plan.
 
 `tasks` reads:
 
-- `.speckeep/constitution.md`
-- `.speckeep/specs/<slug>/plan/plan.md`
+- `CONSTITUTION.md`
+- `specs/<slug>/plan/plan.md`
 - reads spec/data-model/contracts only as needed
 
 Must:
@@ -372,8 +372,8 @@ Must:
 
 `implement` reads:
 
-- `.speckeep/constitution.md`
-- `.speckeep/specs/<slug>/plan/tasks.md`
+- `CONSTITUTION.md`
+- `specs/<slug>/plan/tasks.md`
 - reads spec/plan/data-model/contracts only as needed
 
 Must:
@@ -405,8 +405,8 @@ Must:
 
 Safe repair scope:
 
-- migrate legacy flat spec artifacts to `.speckeep/specs/<slug>/`
-- migrate legacy inspect reports to `.speckeep/specs/<slug>/inspect.md`
+- migrate legacy flat spec artifacts to `specs/<slug>/`
+- migrate legacy inspect reports to `specs/<slug>/inspect.md`
 - remove duplicate legacy copies when byte-identical
 - stop with warning when canonical and legacy copies differ
 
@@ -429,13 +429,14 @@ version: 1
 
 project:
   name: my-project
-  constitution_file: .speckeep/constitution.md
+  constitution_file: CONSTITUTION.md
 
 runtime:
   shell: sh
 
 paths:
-  specs_dir: .speckeep/specs
+  specs_dir: specs
+  archive_dir: archive
   templates_dir: .speckeep/templates
   scripts_dir: .speckeep/scripts
 
@@ -458,8 +459,8 @@ templates:
   contracts_api: contracts/api.md
   contracts_events: contracts/events.md
   archive_summary: archive/summary.md
-  inspect_report: inspect-report.md
-  verify_report: verify-report.md
+  inspect_report: inspect.md
+  verify_report: verify.md
   constitution: constitution.md
   agents_snippet: agents-snippet.md
   constitution_prompt: prompts/constitution.md

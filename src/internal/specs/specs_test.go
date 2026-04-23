@@ -19,15 +19,15 @@ func TestListReturnsSortedMarkdownSpecsOnly(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specsDir := filepath.Join(root, ".speckeep", "specs")
-	if err := os.Mkdir(filepath.Join(specsDir, "zeta"), 0o755); err != nil {
-		t.Fatalf("Mkdir returned error: %v", err)
+	specsDir := filepath.Join(root, "specs")
+	if err := os.MkdirAll(filepath.Join(specsDir, "zeta"), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
 	}
 	if err := os.WriteFile(filepath.Join(specsDir, "zeta", "spec.md"), []byte("# Zeta"), 0o644); err != nil {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
-	if err := os.Mkdir(filepath.Join(specsDir, "alpha"), 0o755); err != nil {
-		t.Fatalf("Mkdir returned error: %v", err)
+	if err := os.MkdirAll(filepath.Join(specsDir, "alpha"), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
 	}
 	if err := os.WriteFile(filepath.Join(specsDir, "alpha", "spec.md"), []byte("# Alpha"), 0o644); err != nil {
 		t.Fatalf("WriteFile returned error: %v", err)
@@ -35,8 +35,8 @@ func TestListReturnsSortedMarkdownSpecsOnly(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(specsDir, "notes.txt"), []byte("ignore"), 0o644); err != nil {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
-	if err := os.Mkdir(filepath.Join(specsDir, "nested"), 0o755); err != nil {
-		t.Fatalf("Mkdir returned error: %v", err)
+	if err := os.MkdirAll(filepath.Join(specsDir, "nested"), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
 	}
 
 	got, err := List(root)
@@ -58,7 +58,7 @@ func TestShowReturnsSpecContent(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specDir := filepath.Join(root, ".speckeep", "specs", "demo")
+	specDir := filepath.Join(root, "specs", "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -93,8 +93,8 @@ func TestCreateGeneratesSpecAndTasksFromTemplates(t *testing.T) {
 		t.Fatalf("unexpected messages: %v", result.Messages)
 	}
 
-	specPath := filepath.Join(root, ".speckeep", "specs", "partner-scheduling", "spec.md")
-	tasksPath := filepath.Join(root, ".speckeep", "specs", "partner-scheduling", "plan", "tasks.md")
+	specPath := filepath.Join(root, "specs", "partner-scheduling", "spec.md")
+	tasksPath := filepath.Join(root, "specs", "partner-scheduling", "plan", "tasks.md")
 
 	specContent, err := os.ReadFile(specPath)
 	if err != nil {

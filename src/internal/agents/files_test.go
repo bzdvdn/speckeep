@@ -99,7 +99,7 @@ func TestRenderEmphasizesRunningScriptsFirst(t *testing.T) {
 			name:   "copilot en",
 			target: "copilot",
 			lang:   "en",
-			want:   "Do not read `/.speckeep/scripts/*` source",
+			want:   "Do not read `.speckeep/scripts/*` source",
 		},
 		{
 			name:   "cursor ru",

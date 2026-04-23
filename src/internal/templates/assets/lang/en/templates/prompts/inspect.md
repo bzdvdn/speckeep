@@ -6,11 +6,11 @@ Follow base rules in `AGENTS.md`.
 
 ## Path Resolution
 
-- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `.speckeep/specs`.
+- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `specs`.
 
 ## Phase Contract
 
-Inputs: `.speckeep/constitution.md`, `<specs_dir>/<slug>/spec.md`.
+Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`.
 Outputs: `<specs_dir>/<slug>/inspect.md` with `pass|concerns|blocked` and `<specs_dir>/<slug>/summary.md`.
 Stop if: spec missing, slug ambiguous, or the verdict would require inventing product intent.
 
@@ -29,7 +29,7 @@ Stop if: spec missing, slug ambiguous, or the verdict would require inventing pr
 - If `<specs_dir>/<slug>/plan/tasks.md` exists: verify `plan <-> tasks` and AC coverage (each `AC-*` covered by ≥ 1 task).
 - If `<specs_dir>/<slug>/plan/tasks.md` exists: treat missing `Touches:` as a Warning (token-discipline defect) because it forces broad reads during implement.
 
-If `/.speckeep/scripts/check-inspect-ready.*` exists, run it (slug first) and use its output as a baseline. Do not read `/.speckeep/scripts/*` source.
+If `./.speckeep/scripts/check-inspect-ready.*` exists, run it (slug first) and use its output as a baseline. Do not read `./.speckeep/scripts/*` source.
 
 ## Output expectations
 

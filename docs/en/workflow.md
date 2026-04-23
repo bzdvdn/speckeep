@@ -116,7 +116,7 @@ Suggested semantics:
 
 When an inspection report is persisted to disk, SpecKeep should use this canonical path:
 
-- `.speckeep/specs/<slug>/inspect.md`
+- `specs/<slug>/inspect.md`
 
 Use `.speckeep/templates/inspect-report.md` as the canonical template when the report is written to disk.
 Persisted inspect and verify reports should start with a machine-readable metadata block containing `report_type`, `slug`, `status`, `docs_language`, and `generated_at`.
@@ -132,7 +132,7 @@ SpecKeep should prefer cheap helper findings as the first evidence layer for ins
 
 For cheap `spec <-> plan` consistency checks, SpecKeep should prefer this scope:
 
-- always load: `constitution.md`, `spec.md`
+- always load: `CONSTITUTION.md`, `spec.md`
 - load if needed: `plan.md`, `tasks.md`
 - conditional deeper reads only when a concrete claim requires them: `data-model.md`, `contracts/`, `research.md`
 - do not read implementation code by default
@@ -159,7 +159,7 @@ Produces technical design artifacts for one feature package:
 
 ### `tasks`
 
-Turns the plan package into executable tasks. `tasks.md` lives next to other plan artifacts inside `.speckeep/specs/<slug>/plan/`.
+Turns the plan package into executable tasks. `tasks.md` lives next to other plan artifacts inside `specs/<slug>/plan/`.
 
 SpecKeep uses **Lazy Decomposition** to keep context narrow:
 
@@ -210,7 +210,7 @@ Those phase-status updates should follow the project's configured agent language
 
 Runs a lightweight post-implementation check to confirm that completed work is aligned enough with tasks and project rules to move forward safely.
 
-Verification uses **traceability data** collected via `/.speckeep/scripts/trace.* <slug>` to confirm that implementation matches task claims and acceptance criteria (including `@sk-test` annotations).
+Verification uses **traceability data** collected via `./.speckeep/scripts/trace.* <slug>` to confirm that implementation matches task claims and acceptance criteria (including `@sk-test` annotations).
 
 **Legacy Fallback**: For features without annotations, the agent falls back to manual inspection of the files listed in `Touches:` and running relevant tests. This ensures SpecKeep remains compatible with older features while encouraging token-efficient verification for new ones.
 
@@ -251,7 +251,7 @@ Suggested semantics:
 
 Use `concerns` rather than `pass` when the evidence is partial but no concrete contradiction has been found.
 
-`--persist`: write the report to `.speckeep/specs/<slug>/plan/verify.md` in addition to conversation output. Without this flag, the report stays in the conversation only.
+`--persist`: write the report to `specs/<slug>/plan/verify.md` in addition to conversation output. Without this flag, the report stays in the conversation only.
 
 Use `.speckeep/templates/verify-report.md` as the canonical template when the report is written to disk.
 
@@ -265,7 +265,7 @@ Note: generated `.speckeep/scripts/*` wrappers compute the project root from the
 
 ### `archive`
 
-Copies a completed, superseded, rejected, abandoned, or deferred feature package into `.speckeep/archive/<slug>/<YYYY-MM-DD>/`.
+Copies a completed, superseded, rejected, abandoned, or deferred feature package into `archive/<slug>/<YYYY-MM-DD>/`.
 
 The archive script validates verify status and open tasks internally — it returns a clear error if prerequisites are not met. Default archive status is `completed`; other statuses (`superseded`, `abandoned`, `rejected`, `deferred`) require an explicit `--reason`.
 

@@ -4,11 +4,11 @@
 
 ## Разрешение путей
 
-- Определите `<specs_dir>` из `.speckeep/speckeep.yaml` (читать ≤ 1 раза за сессию). Если конфиг отсутствует — используйте `.speckeep/specs`.
+- Определите `<specs_dir>` из `.speckeep/speckeep.yaml` (читать ≤ 1 раза за сессию). Если конфиг отсутствует — используйте `specs`.
 
 ## Phase Contract
 
-Inputs: `.speckeep/constitution.md` + `<specs_dir>/<slug>/spec.md` или `<specs_dir>/<slug>/plan/plan.md` (что указано пользователем).
+Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`) + `<specs_dir>/<slug>/spec.md` или `<specs_dir>/<slug>/plan/plan.md` (что указано пользователем).
 Outputs: список конкретных risks/findings + что нужно изменить (где и почему).
 Stop if: артефакт отсутствует.
 

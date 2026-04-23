@@ -66,7 +66,7 @@ This command updates:
 
 This command does not update:
 
-- `.speckeep/constitution.md`
+- the constitution file (`project.constitution_file`, default: `CONSTITUTION.md`)
 - contents under `specs_dir/**` (but it can safely move the directory with `--specs-dir`)
 - contents under `specs_dir/<slug>/plan/**`
 - contents under `archive_dir/**` (but it can safely move the directory with `--archive-dir`)
@@ -186,7 +186,7 @@ Current migration scope focuses on canonicalizing legacy inspect report paths ac
 
 ### `speckeep list-specs [path]`
 
-Lists spec slugs from `.speckeep/specs/`.
+Lists spec slugs from `specs_dir/` (default: `specs/`).
 
 ### `speckeep show-spec <name> [path]`
 
@@ -255,7 +255,7 @@ speckeep export export-report my-project --output export-report-bundle.md
 
 ### `speckeep list-archive [path]`
 
-Lists archived features from `.speckeep/archive/`.
+Lists archived features from `archive_dir/` (default: `archive/`).
 
 Shows one entry per slug (most recent snapshot) with status, archived date, and reason. Entries are sorted by date descending. Status values are color-coded: `completed` in green, `deferred` in yellow, `abandoned` and `rejected` in red.
 

@@ -39,7 +39,7 @@ func TestInitializeCreatesWorkspaceAndAgentTargets(t *testing.T) {
 
 	required := []string{
 		filepath.Join(root, ".speckeep", "speckeep.yaml"),
-		filepath.Join(root, ".speckeep", "constitution.md"),
+		filepath.Join(root, "CONSTITUTION.md"),
 		filepath.Join(root, ".speckeep", "scripts", "run-speckeep.sh"),
 		filepath.Join(root, "AGENTS.md"),
 		filepath.Join(root, ".claude", "commands", "speckeep.inspect.md"),
@@ -250,7 +250,7 @@ func TestRefreshUpdatesManagedFilesWithoutTouchingAuthoredArtifacts(t *testing.T
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	constitutionPath := filepath.Join(root, ".speckeep", "constitution.md")
+	constitutionPath := filepath.Join(root, "CONSTITUTION.md")
 	customConstitution := "# custom constitution\n"
 	if err := os.WriteFile(constitutionPath, []byte(customConstitution), 0o644); err != nil {
 		t.Fatalf("WriteFile returned error: %v", err)
@@ -406,6 +406,8 @@ func TestRefreshCanMoveSpecsAndArchiveDirsAndUpdateConfig(t *testing.T) {
 		InitGit:     false,
 		DefaultLang: "en",
 		Shell:       "sh",
+		SpecsDir:    ".speckeep/specs",
+		ArchiveDir:  ".speckeep/archive",
 	})
 	if err != nil {
 		t.Fatalf("Initialize returned error: %v", err)
@@ -471,6 +473,8 @@ func TestRefreshDryRunDoesNotMoveSpecsOrArchiveDirsOrUpdateConfig(t *testing.T) 
 		InitGit:     false,
 		DefaultLang: "en",
 		Shell:       "sh",
+		SpecsDir:    ".speckeep/specs",
+		ArchiveDir:  ".speckeep/archive",
 	})
 	if err != nil {
 		t.Fatalf("Initialize returned error: %v", err)

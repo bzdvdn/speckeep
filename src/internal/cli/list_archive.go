@@ -41,7 +41,7 @@ func newListArchiveCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list-archive [path]",
 		Short: "List archived features",
-		Long: `List archived features from .speckeep/archive/.
+		Long: `List archived features from the configured archive directory.
 
 Shows one entry per slug (most recent snapshot). Use --status to filter
 by archive status, and --since to filter by date.`,

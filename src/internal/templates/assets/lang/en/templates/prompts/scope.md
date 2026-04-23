@@ -4,7 +4,7 @@ Quick boundary check: what is in/out, where scope creep risk exists.
 
 ## Path Resolution
 
-- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `.speckeep/specs`.
+- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `specs`.
 
 ## Inputs
 

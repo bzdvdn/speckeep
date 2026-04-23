@@ -352,7 +352,7 @@ func removeEmptyDir(path string) error {
 }
 
 // migrateLegacyPlanDir moves plan artifacts from the old workspace plans/<slug>/
-// directory layout to the new .speckeep/specs/<slug>/plan/ layout.
+// directory layout to the new specs_dir/<slug>/plan/ layout.
 func migrateLegacyPlanDir(root, workspaceDir, specsDir, slug string, dryRun bool, actions *[]string) (bool, []string, error) {
 	oldPlanDir := filepath.Join(workspaceDir, "plans", slug)
 	newPlanDir := featurepaths.PlanDir(specsDir, slug)

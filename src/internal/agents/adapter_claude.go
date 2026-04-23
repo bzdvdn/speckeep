@@ -51,7 +51,7 @@ argument-hint: [request]
 {{arguments}}
 
 Требования:
-- сначала прочитайте .speckeep/constitution.md, если это требуется prompt-файлом
+- сначала прочитайте project.constitution_file (по умолчанию CONSTITUTION.md), если это требуется prompt-файлом
 - используйте только минимально нужный контекст репозитория
 - %s
 %s
@@ -78,7 +78,7 @@ User arguments:
 {{arguments}}
 
 Requirements:
-- read .speckeep/constitution.md first when the prompt requires it
+- read project.constitution_file (default: CONSTITUTION.md) first when the prompt requires it
 - use only the minimum repository context needed
 - %s
 %s

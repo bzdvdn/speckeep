@@ -5,7 +5,7 @@
 ## Phase Contract
 
 Inputs: запрос пользователя, минимальный контекст репозитория (только то, что нужно для ограничений/архитектуры).
-Outputs: `.speckeep/constitution.md` (или путь из `project.constitution_file`).
+Outputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`).
 Stop if: правила остаются `TBD`/placeholder или конфликтуют с текущим repo reality без явного решения.
 
 ## Правила
@@ -13,7 +13,7 @@ Stop if: правила остаются `TBD`/placeholder или конфлик
 - Конституция — верхний приоритет: короткие, проверяемые правила; без «философии».
 - Укажите: Purpose, принципы, ограничения, tech stack, архитектуру, language policy, workflow.
 - Всегда используйте шаблон `.speckeep/templates/constitution.md` как каркас и формат результата. Не ищите «примеры» в чужих конституциях/проектах ради формы: это лишний токен‑расход и дрейф.
-- Если есть `/.speckeep/scripts/check-constitution.*` — запустите перед завершением.
+- Если есть `./.speckeep/scripts/check-constitution.*` — запустите перед завершением.
 
 ## Output expectations
 
