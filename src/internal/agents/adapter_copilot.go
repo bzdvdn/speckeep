@@ -43,18 +43,8 @@ func renderCopilot(spec CommandDefinition, lang string) string {
 %s
 
 %s
-
-Что нужно сделать:
-- обработать запрос пользователя для одной фазы %q
-- применять только минимально нужный контекст репозитория
-- %s
 %s
-%s
-- %s
-- кратко сообщить о результатах и блокерах
-
-%s
-`, spec.Name, spec.PromptPath, commandHint(spec.Name, lang), workflowChainHint(lang), spec.Name, scriptExecutionHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang), helpDiscoveryHint(lang), antiPatternHint(lang))
+`, spec.Name, spec.PromptPath, commandHint(spec.Name, lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`# SpecKeep %s
@@ -64,16 +54,6 @@ Use %q as the primary workflow prompt.
 %s
 
 %s
-
-What to do:
-- handle the user request for the %q phase
-- use only the minimum repository context required
-- %s
 %s
-%s
-- %s
-- report outcomes and blockers briefly
-
-%s
-`, spec.Name, spec.PromptPath, commandHint(spec.Name, lang), workflowChainHint(lang), spec.Name, scriptExecutionHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang), helpDiscoveryHint(lang), antiPatternHint(lang))
+`, spec.Name, spec.PromptPath, commandHint(spec.Name, lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

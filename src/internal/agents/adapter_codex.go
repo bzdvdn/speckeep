@@ -43,19 +43,13 @@ func renderCodex(spec CommandDefinition, lang string) string {
 
 %s
 
-%s
-
 Вход пользователя: {{arguments}}
 
 Дополнительно:
 - %s
-- %s
-- %s
 %s
 %s
-
-%s
-`, title, spec.PromptPath, commandHint(spec.Name, lang), workflowChainHint(lang), scriptExecutionHint(lang), toolInvocationHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang), antiPatternHint(lang))
+`, title, spec.PromptPath, commandHint(spec.Name, lang), toolInvocationHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`# SpecKeep %s
@@ -64,17 +58,11 @@ First, open and read %q (mandatory). Then follow its "Output expectations" secti
 
 %s
 
-%s
-
 User input: {{arguments}}
 
 Additional context:
 - %s
-- %s
-- %s
 %s
 %s
-
-%s
-`, title, spec.PromptPath, commandHint(spec.Name, lang), workflowChainHint(lang), scriptExecutionHint(lang), toolInvocationHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang), antiPatternHint(lang))
+`, title, spec.PromptPath, commandHint(spec.Name, lang), toolInvocationHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

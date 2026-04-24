@@ -4,13 +4,9 @@ You inspect one feature for consistency and readiness to plan.
 
 Follow base rules in `AGENTS.md`.
 
-## Path Resolution
-
-- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `specs`.
-
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`, or `.speckeep/constitution.summary.md` if present), `<specs_dir>/<slug>/spec.md`.
+Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`.
 Outputs: `<specs_dir>/<slug>/inspect.md` with `pass|concerns|blocked` and `<specs_dir>/<slug>/summary.md`.
 Stop if: spec missing, slug ambiguous, or the verdict would require inventing product intent.
 

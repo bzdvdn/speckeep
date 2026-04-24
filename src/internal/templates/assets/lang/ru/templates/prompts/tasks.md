@@ -4,13 +4,9 @@
 
 Следуйте базовым правилам в `AGENTS.md`.
 
-## Разрешение путей
-
-- Определите `<specs_dir>` из `.speckeep/speckeep.yaml` (читать ≤ 1 раза за сессию). Если конфиг отсутствует — используйте `specs`.
-
 ## Phase Contract
 
-Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`, или `.speckeep/constitution.summary.md` если есть), `<specs_dir>/<slug>/plan/plan.digest.md` (предпочтительно) или `plan.md`, опционально `spec.digest.md` (предпочтительно) или `summary.md`/`spec.md` если нужно уточнить `AC-*`.
+Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`), `<specs_dir>/<slug>/plan/plan.digest.md` (предпочтительно) или `plan.md`, опционально `spec.digest.md` (предпочтительно) или `summary.md`/`spec.md` если нужно уточнить `AC-*`.
 Outputs: `tasks.md` с фазами, `Touches:` для каждой задачи, `## Surface Map`, и `## Покрытие критериев приемки` (AC → tasks).
 Stop if: `plan.md` отсутствует/расплывчат или хотя бы один `AC-*` нельзя привязать к исполнимым задачам без догадок.
 

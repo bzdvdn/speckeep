@@ -75,51 +75,22 @@ func TestFiles(t *testing.T) {
 }
 
 func TestRenderEmphasizesRunningScriptsFirst(t *testing.T) {
-	spec := commandSpecs("sh")[3] // plan
-
+	// trae and aider are standalone agents that do not load AGENTS.md,
+	// so script execution rules must appear in their generated files.
 	tests := []struct {
-		name   string
-		target string
-		lang   string
-		want   string
+		name string
+		lang string
+		want string
 	}{
-		{
-			name:   "claude en",
-			target: "claude",
-			lang:   "en",
-			want:   "run it as a shell command",
-		},
-		{
-			name:   "codex ru",
-			target: "codex",
-			lang:   "ru",
-			want:   "выполните его как shell-команду",
-		},
-		{
-			name:   "copilot en",
-			target: "copilot",
-			lang:   "en",
-			want:   "Do not read `.speckeep/scripts/*` source",
-		},
-		{
-			name:   "cursor ru",
-			target: "cursor",
-			lang:   "ru",
-			want:   "доверяйте stdout/exit code",
-		},
-		{
-			name:   "kilocode en",
-			target: "kilocode",
-			lang:   "en",
-			want:   "trust stdout/exit code",
-		},
+		{name: "en", lang: "en", want: "run it as a shell command"},
+		{name: "ru", lang: "ru", want: "выполните его как shell-команду"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, content, _ := render(tt.target, tt.lang, spec)
+			content := renderTrae(tt.lang, "sh")
 			if !strings.Contains(content, tt.want) {
-				t.Fatalf("expected rendered content for %s/%s to contain %q\ncontent:\n%s", tt.target, tt.lang, tt.want, content)
+				t.Fatalf("expected trae rules for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
 			}
 		})
 	}
@@ -145,18 +116,11 @@ func TestRenderWindsurfMentionsHiddenDirsAndRepoRoot(t *testing.T) {
 }
 
 func TestRenderIncludesNoCommitRule(t *testing.T) {
-	spec := commandSpecs("sh")[3] // plan
-
-	for _, target := range []string{"claude", "codex", "cursor", "kilocode", "windsurf"} {
-		t.Run(target, func(t *testing.T) {
-			_, content, err := render(target, "en", spec)
-			if err != nil {
-				t.Fatalf("render returned error: %v", err)
-			}
-			if !strings.Contains(content, "git commit") {
-				t.Fatalf("expected %s output to contain no-commit rule\ncontent:\n%s", target, content)
-			}
-		})
+	// trae and aider are standalone agents that do not load AGENTS.md,
+	// so the no-commit rule must appear in their generated files.
+	content := renderTrae("en", "sh")
+	if !strings.Contains(content, "git commit") {
+		t.Fatalf("expected trae rules to contain no-commit rule\ncontent:\n%s", content)
 	}
 }
 

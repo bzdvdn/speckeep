@@ -47,13 +47,8 @@ func renderKilo(spec CommandDefinition, lang string) string {
 Используйте этот workflow, когда запрос относится к фазе %q.
 
 %s
-
-- %s
 %s
-%s
-
-%s
-`, spec.Name, spec.PromptPath, "/speckeep."+spec.Name+".md", workflowChainHint(lang), spec.Name, scriptExecutionHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang), antiPatternHint(lang))
+`, spec.Name, spec.PromptPath, "/speckeep."+spec.Name+".md", commandHint(spec.Name, lang), spec.Name, specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`# SpecKeep %s
@@ -67,11 +62,6 @@ Trigger (Kilo workflow): %q
 Use this workflow when the request maps to the %q phase.
 
 %s
-
-- %s
 %s
-%s
-
-%s
-`, spec.Name, spec.PromptPath, "/speckeep."+spec.Name+".md", workflowChainHint(lang), spec.Name, scriptExecutionHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang), antiPatternHint(lang))
+`, spec.Name, spec.PromptPath, "/speckeep."+spec.Name+".md", commandHint(spec.Name, lang), spec.Name, specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

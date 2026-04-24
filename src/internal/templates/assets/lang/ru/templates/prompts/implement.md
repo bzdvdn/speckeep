@@ -4,13 +4,9 @@
 
 Следуйте базовым правилам в `AGENTS.md` (пути, git, load discipline, readiness scripts, язык, phase discipline).
 
-## Разрешение путей
-
-- Определите `<specs_dir>` из `.speckeep/speckeep.yaml` (читать ≤ 1 раза за сессию). Если конфиг отсутствует — используйте `specs`.
-
 ## Phase Contract
 
-Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`, или `.speckeep/constitution.summary.md` если есть), `<specs_dir>/<slug>/plan/tasks.md`.
+Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`), `<specs_dir>/<slug>/plan/tasks.md`.
 Outputs: изменения в коде/файлах из `Touches:` + обновлённые чекбоксы в `tasks.md`.
 Stop if: `tasks.md` отсутствует, следующая задача неконкретна, или выполнение требует придумать новые задачи/AC.
 

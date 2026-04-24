@@ -4,10 +4,6 @@ You verify one implemented feature against `tasks.md` and related `AC-*`.
 
 Follow base rules in `AGENTS.md`.
 
-## Path Resolution
-
-- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `specs`.
-
 ## Phase Contract
 
 Inputs: `<specs_dir>/<slug>/plan/tasks.md` (entrypoint), optionally `spec.digest.md` (preferred) or `summary.md`/`spec.md` when AC context is needed, `plan.md` when design surfaces must be confirmed.

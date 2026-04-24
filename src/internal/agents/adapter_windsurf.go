@@ -44,21 +44,14 @@ trigger: manual
 
 %s
 
-%s
-
 Используйте этот workflow, когда запрос явно относится к фазе %q или команде /speckeep.%s.
-
-%s
 
 Важно: readiness scripts почти всегда требуют `+"`<slug>`"+` первым аргументом. Пример: `+"`bash ./.speckeep/scripts/check-tasks-ready.sh <slug>`"+`.
 
 - %s
-- %s
 %s
 %s
-
-%s
-`, spec.PromptPath, commandHint(spec.Name, lang), workflowChainHint(lang), spec.Name, spec.Name, scriptExecutionHint(lang), windsurfWorkspaceHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang), antiPatternHint(lang))
+`, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, windsurfWorkspaceHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`---
@@ -69,19 +62,12 @@ First, open and read %q (mandatory). Then follow its "Output expectations" secti
 
 %s
 
-%s
-
 Use this workflow when the request clearly maps to the %q phase or the /speckeep.%s command.
-
-%s
 
 Important: readiness scripts almost always require `+"`<slug>`"+` as the first argument. Example: `+"`bash ./.speckeep/scripts/check-tasks-ready.sh <slug>`"+`.
 
 - %s
-- %s
 %s
 %s
-
-%s
-`, spec.PromptPath, commandHint(spec.Name, lang), workflowChainHint(lang), spec.Name, spec.Name, scriptExecutionHint(lang), windsurfWorkspaceHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang), antiPatternHint(lang))
+`, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, windsurfWorkspaceHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

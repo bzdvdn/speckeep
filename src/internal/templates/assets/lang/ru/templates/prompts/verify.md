@@ -4,10 +4,6 @@
 
 Следуйте базовым правилам в `AGENTS.md`.
 
-## Разрешение путей
-
-- Определите `<specs_dir>` из `.speckeep/speckeep.yaml` (читать ≤ 1 раза за сессию). Если конфиг отсутствует — используйте `specs`.
-
 ## Phase Contract
 
 Inputs: `<specs_dir>/<slug>/plan/tasks.md` (entrypoint), опционально `spec.digest.md` (предпочтительно) или `summary.md`/`spec.md` если нужен AC-контекст, `plan.md` если нужно подтвердить design surfaces.

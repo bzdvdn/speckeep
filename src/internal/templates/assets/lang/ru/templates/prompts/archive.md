@@ -1,30 +1,30 @@
 # Prompt архивации SpecKeep (compact)
 
-Вы архивируете один feature package в директорию архива (по умолчанию `archive/`).
-
-## Разрешение путей
-
-- Определите `<specs_dir>` из `.speckeep/speckeep.yaml` (читать ≤ 1 раза за сессию). Если конфиг отсутствует — используйте `specs`.
+Вы архивируете фичу запуском двух скриптов. Не читайте файлы фичи, не смотрите diff, не валидируйте артефакты вручную — скрипты делают всё это сами.
 
 ## Phase Contract
 
-Inputs: `<specs_dir>/<slug>/` (spec/inspect/summary/spec.digest) + `<specs_dir>/<slug>/plan/` (plan/plan.digest/tasks/verify и прочие артефакты по наличию). Отчёт verify — это `<specs_dir>/<slug>/plan/verify.md`.
-Outputs: snapshot в `<archive_dir>/<slug>/...` (по умолчанию `archive/<slug>/...`, move-based).
-Stop if: не завершён verify или статус архивации не может быть обоснован.
+Inputs: аргументы пользователя (`<slug>`, опционально `--status`, опционально `--reason`).
+Outputs: archive snapshot, созданный скриптом `archive-feature`.
+Stop if: `check-archive-ready` завершился с ненулевым кодом — сообщите stdout и остановитесь.
 
 ## Правила
 
-- Перед архивом предпочтительно запустить `./.speckeep/scripts/check-archive-ready.*` (slug первым аргументом).
-- Default status: `completed`. Нестандартные статусы требуют явного `--reason`.
-- Архив — это фиксация состояния, не место для новых правок реализации.
-- Не ищите «примеры» архивов/снапшотов в других slug ради формата. Достаточно следовать этому prompt и проверкам readiness; summary форматируется/генерируется автоматически командой архивации.
-- Скрипты для запуска (ориентир, можно копировать как есть):
-  - `./.speckeep/scripts/check-archive-ready.sh <slug> completed`
-  - `./.speckeep/scripts/archive-feature.sh <slug> . --status completed`
-  - нестандартный статус: `./.speckeep/scripts/archive-feature.sh <slug> . --status deferred --reason "..."` (и соответствующий `check-archive-ready` с тем же статусом/причиной)
+- Не читайте файлы фичи (`spec.md`, `plan.md`, `tasks.md`, `verify.md` и др.). Скрипты сами обрабатывают валидацию.
+- Не запускайте `--help` ни у каких команд для обнаружения синтаксиса. Используйте пути скриптов ниже точно как указано.
+- Default status — `completed`. `--status deferred --reason "..."` — только если пользователь явно просит.
+- Доверяйте выводу скриптов полностью: если `check-archive-ready` прошёл — продолжайте; если упал — сообщите и остановитесь.
+
+## Шаги (всегда в этом порядке)
+
+1. Запустите readiness check:
+   - `completed`: `./.speckeep/scripts/check-archive-ready.sh <slug> completed`
+   - другой статус: `./.speckeep/scripts/check-archive-ready.sh <slug> <status> --reason "<reason>"`
+2. Если exit code 0 — запустите архивацию:
+   - `completed`: `./.speckeep/scripts/archive-feature.sh <slug> . --status completed`
+   - другой статус: `./.speckeep/scripts/archive-feature.sh <slug> . --status <status> --reason "<reason>"`
 
 ## Output expectations
 
-- Создайте snapshot; кратко перечислите перемещённые артефакты и итоговый статус.
-- Это терминальный шаг workflow для этой фичи (после verify).
+- Сообщите вывод скрипта (stdout) и итоговый статус.
 - Финальная строка: `Готово к: /speckeep.recap`

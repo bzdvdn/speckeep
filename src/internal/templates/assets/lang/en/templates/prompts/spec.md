@@ -2,13 +2,9 @@
 
 You create or update one feature spec: `<specs_dir>/<slug>/spec.md`.
 
-## Path Resolution
-
-- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `specs`.
-
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`, or `.speckeep/constitution.summary.md` if present), user request, minimum required repo context.
+Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), user request, minimum required repo context.
 Outputs: `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/spec.digest.md`.
 Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 
@@ -18,7 +14,7 @@ Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 - Do not try to “generate the spec via CLI”: as the agent, you must write/update `<specs_dir>/<slug>/spec.md` directly.
   - There is no `speckeep spec` subcommand. Do not run `./.speckeep/scripts/run-speckeep.* spec <slug>`.
   - `./.speckeep/scripts/check-*.{sh,ps1}` are validation gates only, not artifact generators.
-- Do not look for “examples” in neighboring specs from other slugs: take structure from `.speckeep/templates/spec.md` and the user’s requirements. Reading other specs for style is wasted tokens and scope drift.
+- Do not read any `<specs_dir>/*/spec.md` from other slugs for any reason — not for style, not for format, not for examples. Do not list or scan `<specs_dir>/` to survey existing slugs. The template `.speckeep/templates/spec.md` is the sole structure reference; reading it once is sufficient.
 - Spec captures intent, not plan/tasks. No implementation steps or decomposition.
 - Every `AC-*` is Given/When/Then with observable proof in Then.
 - Required sections: Out of Scope, Assumptions, Open Questions (or `none`).
@@ -30,8 +26,12 @@ Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 
 ## Output expectations
 
+- **Write `<specs_dir>/<slug>/spec.digest.md` first** (mandatory, always, even on patch). One line per `AC-*`, format `AC-NNN: <≤10-word summary>`. Example:
+  ```
+  AC-001: user submits login form with valid credentials
+  AC-002: invalid password shows inline error message
+  ```
 - Write/patch `spec.md` (patch > rewrite).
-- Write `<specs_dir>/<slug>/spec.digest.md`: one line per `AC-*`, format `AC-NNN: <≤10-word summary>`. No elaboration.
 - Summarize: goal, scope, AC list, open questions/blockers.
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`.
 - Final line: `Ready for: /speckeep.inspect <slug>`
