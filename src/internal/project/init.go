@@ -182,6 +182,7 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 	result.ConstitutionFile = rel(root, constitutionAbs)
 	subdirs := []string{
 		draftspecDir,
+		filepath.Join(draftspecDir, "skills"),
 		specsDir,
 		archiveDir,
 		templatesDir,
@@ -230,7 +231,7 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 	messages = append(messages, fmt.Sprintf("configured shell: %s", cfg.Runtime.Shell))
 	agentsPath := filepath.Join(root, "AGENTS.md")
 	snippetPath := filepath.Join(templatesDir, "agents-snippet.md")
-	changed, err := ensureAgentsSnippet(agentsPath, snippetPath)
+	changed, err := ensureAgentsSnippet(root, agentsPath, snippetPath)
 	if err != nil {
 		return InitResult{}, err
 	}
@@ -389,12 +390,15 @@ func writeIfMissing(path, content string, mode os.FileMode) (bool, error) {
 	return true, os.WriteFile(path, []byte(content), mode)
 }
 
-func ensureAgentsSnippet(path, snippetPath string) (bool, error) {
+func ensureAgentsSnippet(root, path, snippetPath string) (bool, error) {
 	snippetBytes, err := os.ReadFile(snippetPath)
 	if err != nil {
 		return false, err
 	}
-	block := renderManagedAgentsBlock(string(snippetBytes))
+	block, err := renderManagedAgentsBlockForRoot(root, string(snippetBytes))
+	if err != nil {
+		return false, err
+	}
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 		return true, os.WriteFile(path, []byte(block), 0o644)
 	} else if err != nil {

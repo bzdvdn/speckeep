@@ -30,6 +30,7 @@ func newRefreshCmd() *cobra.Command {
 
 Synchronizes:
   - .speckeep/speckeep.yaml (config)
+  - .speckeep/skills/manifest.yaml (skills manifest)
   - managed templates/prompts/scripts inside .speckeep/
   - the managed SpecKeep block in AGENTS.md
   - agent-target artifacts (.claude/, .cursor/, etc.)

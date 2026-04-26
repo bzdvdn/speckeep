@@ -12,6 +12,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"speckeep/src/internal/agents"
 	"speckeep/src/internal/config"
+	"speckeep/src/internal/skills"
 	"speckeep/src/internal/templates"
 )
 
@@ -105,6 +106,9 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 	}
 
 	if err := syncConfig(root, cfg, options.DryRun, &result); err != nil {
+		return RefreshResult{}, err
+	}
+	if err := syncSkillsManifest(root, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
 	}
 
@@ -327,6 +331,18 @@ func syncConfig(root string, cfg config.Config, dryRun bool, result *RefreshResu
 	return syncManagedFile(root, path, string(content), 0o644, dryRun, result)
 }
 
+func syncSkillsManifest(root string, dryRun bool, result *RefreshResult) error {
+	manifest, err := skills.Load(root)
+	if err != nil {
+		return err
+	}
+	content, err := yaml.Marshal(manifest)
+	if err != nil {
+		return fmt.Errorf("marshal skills manifest: %w", err)
+	}
+	return syncManagedFile(root, skills.ManifestPath(root), string(content), 0o644, dryRun, result)
+}
+
 func syncManagedFile(root, path, content string, mode os.FileMode, dryRun bool, result *RefreshResult) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
@@ -361,7 +377,10 @@ func syncAgentsSnippet(root, path, snippetPath string, dryRun bool, result *Refr
 	if err != nil {
 		return err
 	}
-	block := renderManagedAgentsBlock(string(snippetBytes))
+	block, err := renderManagedAgentsBlockForRoot(root, string(snippetBytes))
+	if err != nil {
+		return err
+	}
 
 	current, err := os.ReadFile(path)
 	switch {

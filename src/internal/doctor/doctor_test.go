@@ -293,6 +293,68 @@ func TestCheckWarnsDuplicateStableIDsAcrossSpecs(t *testing.T) {
 	}
 }
 
+func TestCheckErrorsOnInvalidSkillsManifestEntry(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	manifestPath := filepath.Join(root, ".speckeep", "skills", "manifest.yaml")
+	manifest := "version: 1\nskills:\n  - id: invalid-skill\n    enabled: true\n    source: git\n    location: https://example.com/skills.git\n    ref: main\n"
+	if err := os.WriteFile(manifestPath, []byte(manifest), 0o644); err != nil {
+		t.Fatalf("WriteFile(manifest) returned error: %v", err)
+	}
+
+	result, err := Check(root)
+	if err != nil {
+		t.Fatalf("Check returned error: %v", err)
+	}
+
+	var found bool
+	for _, finding := range result.Findings {
+		if finding.Level == "error" && strings.Contains(finding.Message, "floating git ref") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected floating git ref error, got %+v", result.Findings)
+	}
+}
+
+func TestCheckWarnsWhenSkillMissingResolvedCommit(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	manifestPath := filepath.Join(root, ".speckeep", "skills", "manifest.yaml")
+	manifest := "version: 1\nskills:\n  - id: git-skill\n    enabled: true\n    source: git\n    location: https://example.com/skills.git\n    ref: v1.0.0\n"
+	if err := os.WriteFile(manifestPath, []byte(manifest), 0o644); err != nil {
+		t.Fatalf("WriteFile(manifest) returned error: %v", err)
+	}
+
+	result, err := Check(root)
+	if err != nil {
+		t.Fatalf("Check returned error: %v", err)
+	}
+
+	var found bool
+	for _, finding := range result.Findings {
+		if finding.Level == "warning" && strings.Contains(finding.Message, "no resolved_commit") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected resolved_commit warning, got %+v", result.Findings)
+	}
+}
+
 func TestCheckDoesNotWarnOrphanedTraceabilityWhenTaskIsInArchive(t *testing.T) {
 	root := t.TempDir()
 

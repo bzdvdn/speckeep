@@ -57,6 +57,27 @@ SpecKeep — это строгий и легкий SDD-kit для реальны
 2.  **Establishment**: Опишите стек, архитектуру и правила в `/speckeep.constitution --foundation`. Это создаст единый документ правил и технического фундамента проекта.
 3.  **First Feature**: После того как база зафиксирована, переходите к первой функциональной спецификации через `/speckeep.spec`.
 
+## Быстрый старт Skills
+
+Для git-источников `--ref` обязателен: это фиксирует версию skill и предотвращает drift на плавающих ветках.
+
+```bash
+# добавить локальный skill
+speckeep add-skill my-project --id architecture --from-local skills/architecture
+
+# добавить skill из git (пин через --ref)
+speckeep add-skill my-project --id openai-docs --from-git https://example.com/skills.git --ref v1.2.3 --path skills/openai-docs
+
+# посмотреть настроенные skills
+speckeep list-skills my-project
+
+# установить skills в агентские папки
+speckeep install-skills my-project
+
+# синхронизировать только skills-managed артефакты
+speckeep sync-skills my-project
+```
+
 ## Пример использования (Brownfield)
 
 - `inspect` — это полноценный quality gate, а не необязательная рекомендация перед planning.
@@ -88,6 +109,13 @@ speckeep add-agent [path]
 speckeep list-agents [path]
 speckeep remove-agent [path]
 speckeep cleanup-agents [path]
+speckeep add-skill [path]
+speckeep list-skills [path]
+speckeep remove-skill [path]
+speckeep install-skills [path]
+speckeep sync-skills [path]
+speckeep skills install [path]
+speckeep skills sync [path]
 speckeep doctor [path]
 speckeep doctor [path] --json
 speckeep dashboard [path]

@@ -14,6 +14,7 @@ import (
 	"speckeep/src/internal/config"
 	"speckeep/src/internal/featurepaths"
 	"speckeep/src/internal/gitutil"
+	"speckeep/src/internal/skills"
 	"speckeep/src/internal/trace"
 	"speckeep/src/internal/workflow"
 )
@@ -182,6 +183,19 @@ func Check(root string) (Result, error) {
 			if _, err := os.Stat(fullPath); err == nil {
 				findings = append(findings, Finding{Level: "warning", Message: fmt.Sprintf("orphaned agent artifact for disabled target %s: %s", target, fullPath)})
 			}
+		}
+	}
+
+	skillsManifest, err := skills.Load(root)
+	if err != nil {
+		findings = append(findings, Finding{Level: "error", Message: err.Error()})
+	} else {
+		skillErrors, skillWarnings := skills.ValidateManifest(root, skillsManifest)
+		for _, message := range skillErrors {
+			findings = append(findings, Finding{Level: "error", Message: message})
+		}
+		for _, message := range skillWarnings {
+			findings = append(findings, Finding{Level: "warning", Message: message})
 		}
 	}
 

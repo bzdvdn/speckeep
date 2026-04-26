@@ -59,6 +59,7 @@ speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --she
 Эта команда обновляет:
 
 - `.speckeep/speckeep.yaml`
+- `.speckeep/skills/manifest.yaml`
 - `.speckeep/templates/**`
 - `.speckeep/scripts/**`
 - project-local agent command files
@@ -109,6 +110,69 @@ speckeep add-agent my-project --agents claude --agents codex
 ### `speckeep cleanup-agents [path]`
 
 Удаляет осиротевшие agent artifacts, которые больше не соответствуют включенным targets в config.
+
+### `speckeep add-skill [path]`
+
+Добавляет или обновляет один skill в `.speckeep/skills/manifest.yaml`.
+
+Для git-источников `--ref` обязателен: это фиксирует версию и предотвращает drift на плавающих ветках.
+
+Используйте `--no-install`, чтобы обновить только manifest/AGENTS без немедленной установки в agent skill folders.
+
+Примеры:
+
+```bash
+speckeep add-skill my-project --id architecture --from-local skills/architecture
+speckeep add-skill my-project --id openai-docs --from-git https://example.com/skills.git --ref v1.2.3 --path skills/openai-docs
+```
+
+### `speckeep list-skills [path]`
+
+Показывает настроенные skills из `.speckeep/skills/manifest.yaml`.
+
+Для machine-readable output используйте `--json`.
+
+### `speckeep remove-skill [path]`
+
+Удаляет один skill из `.speckeep/skills/manifest.yaml`.
+
+Используйте `--no-install`, чтобы пропустить немедленную синхронизацию установленных skills в agent folders.
+
+### `speckeep install-skills [path]`
+
+Устанавливает включенные skills из `.speckeep/skills/manifest.yaml` в skill-папки выбранных агентов.
+
+По умолчанию используются targets из `.speckeep/speckeep.yaml`. Можно переопределить через `--targets codex,claude`.
+
+Важные флаги:
+
+- `--dry-run` показывает pending changes без записи на диск
+- `--json` выводит результат установки в JSON
+- `--include-disabled` ставит и disabled skills
+
+Эквивалентная subcommand:
+
+```bash
+speckeep skills install my-project
+```
+
+### `speckeep sync-skills [path]`
+
+Синхронизирует только skill-managed артефакты:
+
+- `.speckeep/skills/manifest.yaml`
+- managed SpecKeep block в `AGENTS.md` (включая секцию skills)
+
+Важные флаги:
+
+- `--dry-run` показывает pending changes без записи на диск
+- `--json` выводит результат синхронизации в JSON
+
+Эквивалентная subcommand:
+
+```bash
+speckeep skills sync my-project
+```
 
 ### `speckeep doctor [path]`
 

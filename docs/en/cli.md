@@ -59,6 +59,7 @@ Refreshes only SpecKeep-managed generated artifacts in an existing project.
 This command updates:
 
 - `.speckeep/speckeep.yaml`
+- `.speckeep/skills/manifest.yaml`
 - `.speckeep/templates/**`
 - `.speckeep/scripts/**`
 - project-local agent command files
@@ -109,6 +110,69 @@ Disables one or more agent targets and removes their generated files.
 ### `speckeep cleanup-agents [path]`
 
 Removes orphaned agent artifacts that no longer match enabled targets in config.
+
+### `speckeep add-skill [path]`
+
+Adds or updates one skill in `.speckeep/skills/manifest.yaml`.
+
+For git sources, `--ref` is required to keep installs reproducible and avoid floating branch drift.
+
+Use `--no-install` to update only manifest/AGENTS and skip immediate install into agent skill folders.
+
+Examples:
+
+```bash
+speckeep add-skill my-project --id architecture --from-local skills/architecture
+speckeep add-skill my-project --id openai-docs --from-git https://example.com/skills.git --ref v1.2.3 --path skills/openai-docs
+```
+
+### `speckeep list-skills [path]`
+
+Lists configured skills from `.speckeep/skills/manifest.yaml`.
+
+Use `--json` for machine-readable output.
+
+### `speckeep remove-skill [path]`
+
+Removes one skill from `.speckeep/skills/manifest.yaml`.
+
+Use `--no-install` to skip immediate reconciliation of installed skills in agent folders.
+
+### `speckeep install-skills [path]`
+
+Installs enabled skills from `.speckeep/skills/manifest.yaml` into target agent skill folders.
+
+By default, uses enabled targets from `.speckeep/speckeep.yaml`. Override with `--targets codex,claude`.
+
+Important flags:
+
+- `--dry-run` reports pending changes without writing them
+- `--json` outputs install results as JSON
+- `--include-disabled` installs disabled skills too
+
+Equivalent subcommand:
+
+```bash
+speckeep skills install my-project
+```
+
+### `speckeep sync-skills [path]`
+
+Synchronizes skill-managed artifacts only:
+
+- `.speckeep/skills/manifest.yaml`
+- managed SpecKeep block in `AGENTS.md` (including skills section)
+
+Important flags:
+
+- `--dry-run` reports pending changes without writing them
+- `--json` outputs sync results as JSON
+
+Equivalent subcommand:
+
+```bash
+speckeep skills sync my-project
+```
 
 ### `speckeep doctor [path]`
 

@@ -76,6 +76,13 @@ speckeep add-agent [path]
 speckeep list-agents [path]
 speckeep remove-agent [path]
 speckeep cleanup-agents [path]
+speckeep add-skill [path]
+speckeep list-skills [path]
+speckeep remove-skill [path]
+speckeep install-skills [path]
+speckeep sync-skills [path]
+speckeep skills install [path]
+speckeep skills sync [path]
 speckeep doctor [path]
 speckeep doctor [path] --json
 speckeep dashboard [path]
@@ -142,6 +149,27 @@ If you are starting a project from scratch:
 1.  **Init**: `speckeep init . --lang en --shell sh`
 2.  **Establishment**: Define the tech stack, architecture, and rules via `/speckeep.constitution --foundation`. This creates a unified document for project rules and technical foundation.
 3.  **First Feature**: Once the baseline is established, move to the first functional specification via `/speckeep.spec`.
+
+## Skills Quickstart
+
+`--ref` is required for git sources to keep skill installs reproducible and avoid floating branch drift.
+
+```bash
+# add a local skill
+speckeep add-skill my-project --id architecture --from-local skills/architecture
+
+# add a git-backed skill (pin with --ref)
+speckeep add-skill my-project --id openai-docs --from-git https://example.com/skills.git --ref v1.2.3 --path skills/openai-docs
+
+# list configured skills
+speckeep list-skills my-project
+
+# install skills into agent folders
+speckeep install-skills my-project
+
+# sync only skills-managed artifacts
+speckeep sync-skills my-project
+```
 
 ## Usage Example (Brownfield)
 

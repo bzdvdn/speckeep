@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -33,6 +34,35 @@ func ensureSpecDir(t *testing.T, root, slug string) string {
 		t.Fatalf("MkdirAll(%s) returned error: %v", dir, err)
 	}
 	return dir
+}
+
+func createGitSkillRepo(t *testing.T, root string) string {
+	t.Helper()
+
+	repoDir := filepath.Join(root, "git-skill-repo")
+	if err := os.MkdirAll(repoDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(repoDir, "SKILL.md"), []byte("# skill\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(SKILL.md) returned error: %v", err)
+	}
+	runGitTest(t, repoDir, "init")
+	runGitTest(t, repoDir, "config", "user.email", "test@example.com")
+	runGitTest(t, repoDir, "config", "user.name", "Test User")
+	runGitTest(t, repoDir, "add", "SKILL.md")
+	runGitTest(t, repoDir, "commit", "-m", "init skill")
+	runGitTest(t, repoDir, "tag", "v1.2.3")
+	return repoDir
+}
+
+func runGitTest(t *testing.T, dir string, args ...string) {
+	t.Helper()
+	command := exec.Command("git", args...)
+	command.Dir = dir
+	output, err := command.CombinedOutput()
+	if err != nil {
+		t.Fatalf("git %v failed: %v, output=%s", args, err, string(output))
+	}
 }
 
 func TestInitCommandCreatesWorkspace(t *testing.T) {
@@ -892,6 +922,353 @@ func TestDoctorCommandPrefixesWorkspaceAndFeatureFindings(t *testing.T) {
 	}
 	if !strings.Contains(stdout, "[workspace]") || !strings.Contains(stdout, "[demo]") {
 		t.Fatalf("expected doctor output to prefix workspace and feature findings, got %s", stdout)
+	}
+}
+
+func TestAddListRemoveSkillCommands(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	localSkillDir := filepath.Join(root, "skills", "architecture")
+	if err := os.MkdirAll(localSkillDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+
+	stdout, _, err := executeRoot(t, "add-skill", root, "--id", "architecture", "--from-local", "skills/architecture")
+	if err != nil {
+		t.Fatalf("add-skill command returned error: %v", err)
+	}
+	if !strings.Contains(stdout, "added skill") {
+		t.Fatalf("unexpected add-skill output: %s", stdout)
+	}
+	if !strings.Contains(stdout, "installed skills into agent folders") {
+		t.Fatalf("expected add-skill to install skills into agent folders, got %s", stdout)
+	}
+
+	stdout, _, err = executeRoot(t, "list-skills", root)
+	if err != nil {
+		t.Fatalf("list-skills command returned error: %v", err)
+	}
+	if !strings.Contains(stdout, "architecture\tenabled\tskills/architecture") {
+		t.Fatalf("unexpected list-skills output: %s", stdout)
+	}
+
+	stdout, _, err = executeRoot(t, "remove-skill", root, "--id", "architecture")
+	if err != nil {
+		t.Fatalf("remove-skill command returned error: %v", err)
+	}
+	if !strings.Contains(stdout, "removed skill \"architecture\"") {
+		t.Fatalf("unexpected remove-skill output: %s", stdout)
+	}
+	if !strings.Contains(stdout, "installed skills into agent folders") {
+		t.Fatalf("expected remove-skill to reconcile installed skills, got %s", stdout)
+	}
+}
+
+func TestAddRemoveSkillNoInstallFlag(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh", "--agents", "codex"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	localSkillDir := filepath.Join(root, "skills", "architecture")
+	if err := os.MkdirAll(localSkillDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(localSkillDir, "SKILL.md"), []byte("# Architecture\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(SKILL.md) returned error: %v", err)
+	}
+
+	stdout, _, err := executeRoot(t, "add-skill", root, "--id", "architecture", "--from-local", "skills/architecture", "--no-install")
+	if err != nil {
+		t.Fatalf("add-skill --no-install command returned error: %v", err)
+	}
+	if !strings.Contains(stdout, "skipped skill installation into agent folders (--no-install)") {
+		t.Fatalf("expected add-skill --no-install to report skipped install, got %s", stdout)
+	}
+	if _, err := os.Stat(filepath.Join(root, ".codex", "skills", "architecture")); !os.IsNotExist(err) {
+		t.Fatalf("expected add-skill --no-install to not create .codex/skills/architecture, got err=%v", err)
+	}
+
+	installedDir := filepath.Join(root, ".codex", "skills", "architecture")
+	if err := os.MkdirAll(installedDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(installedDir) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(installedDir, "SKILL.md"), []byte("# stale\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(stale SKILL.md) returned error: %v", err)
+	}
+
+	stdout, _, err = executeRoot(t, "remove-skill", root, "--id", "architecture", "--no-install")
+	if err != nil {
+		t.Fatalf("remove-skill --no-install command returned error: %v", err)
+	}
+	if !strings.Contains(stdout, "skipped skill installation into agent folders (--no-install)") {
+		t.Fatalf("expected remove-skill --no-install to report skipped install, got %s", stdout)
+	}
+	if _, err := os.Stat(installedDir); err != nil {
+		t.Fatalf("expected remove-skill --no-install to keep installed dir untouched, got err=%v", err)
+	}
+}
+
+func TestListSkillsCommandJSON(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	gitSkillRepo := createGitSkillRepo(t, root)
+	stdout, _, err := executeRoot(t, "add-skill", root, "--id", "openai-docs", "--from-git", gitSkillRepo, "--ref", "v1.2.3")
+	if err != nil {
+		t.Fatalf("add-skill command returned error: %v", err)
+	}
+	if !strings.Contains(stdout, "openai-docs") {
+		t.Fatalf("unexpected add-skill output: %s", stdout)
+	}
+
+	stdout, _, err = executeRoot(t, "list-skills", root, "--json")
+	if err != nil {
+		t.Fatalf("list-skills --json command returned error: %v", err)
+	}
+
+	var payload struct {
+		Skills []struct {
+			ID   string `json:"id"`
+			Ref  string `json:"ref"`
+			From string `json:"source"`
+		} `json:"skills"`
+	}
+	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
+		t.Fatalf("failed to parse list-skills json output %q: %v", stdout, err)
+	}
+	if len(payload.Skills) != 1 || payload.Skills[0].ID != "openai-docs" || payload.Skills[0].Ref != "v1.2.3" {
+		t.Fatalf("unexpected list-skills json payload: %s", stdout)
+	}
+}
+
+func TestSkillsSyncCommandUpdatesAgentsBlock(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	localSkillDir := filepath.Join(root, "skills", "architecture")
+	if err := os.MkdirAll(localSkillDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+
+	if _, _, err := executeRoot(t, "add-skill", root, "--id", "architecture", "--from-local", "skills/architecture"); err != nil {
+		t.Fatalf("add-skill command returned error: %v", err)
+	}
+
+	agentsPath := filepath.Join(root, "AGENTS.md")
+	if err := os.WriteFile(agentsPath, []byte("manual header\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(AGENTS.md) returned error: %v", err)
+	}
+
+	stdout, _, err := executeRoot(t, "skills", "sync", root)
+	if err != nil {
+		t.Fatalf("skills sync command returned error: %v", err)
+	}
+	if !strings.Contains(stdout, "update AGENTS.md") {
+		t.Fatalf("expected skills sync to update AGENTS.md, got %s", stdout)
+	}
+
+	content, err := os.ReadFile(agentsPath)
+	if err != nil {
+		t.Fatalf("ReadFile(AGENTS.md) returned error: %v", err)
+	}
+	if !strings.Contains(string(content), "architecture") {
+		t.Fatalf("expected AGENTS.md to contain skill listing, got %q", string(content))
+	}
+}
+
+func TestSkillsSyncCommandDryRunJSON(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	localSkillDir := filepath.Join(root, "skills", "architecture")
+	if err := os.MkdirAll(localSkillDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if _, _, err := executeRoot(t, "add-skill", root, "--id", "architecture", "--from-local", "skills/architecture"); err != nil {
+		t.Fatalf("add-skill command returned error: %v", err)
+	}
+
+	agentsPath := filepath.Join(root, "AGENTS.md")
+	original := "manual header\n"
+	if err := os.WriteFile(agentsPath, []byte(original), 0o644); err != nil {
+		t.Fatalf("WriteFile(AGENTS.md) returned error: %v", err)
+	}
+
+	stdout, _, err := executeRoot(t, "skills", "sync", root, "--dry-run", "--json")
+	if err != nil {
+		t.Fatalf("skills sync --dry-run --json command returned error: %v", err)
+	}
+
+	var payload struct {
+		DryRun  bool     `json:"dry_run"`
+		Updated []string `json:"updated"`
+	}
+	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
+		t.Fatalf("failed to parse skills sync json output %q: %v", stdout, err)
+	}
+	if !payload.DryRun {
+		t.Fatalf("expected dry_run=true, got %s", stdout)
+	}
+	foundAgents := false
+	for _, path := range payload.Updated {
+		if path == "AGENTS.md" {
+			foundAgents = true
+			break
+		}
+	}
+	if !foundAgents {
+		t.Fatalf("expected AGENTS.md in updated list, got %s", stdout)
+	}
+
+	content, err := os.ReadFile(agentsPath)
+	if err != nil {
+		t.Fatalf("ReadFile(AGENTS.md) returned error: %v", err)
+	}
+	if string(content) != original {
+		t.Fatalf("expected dry-run to keep AGENTS.md unchanged, got %q", string(content))
+	}
+}
+
+func TestSyncSkillsAliasCommand(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	localSkillDir := filepath.Join(root, "skills", "architecture")
+	if err := os.MkdirAll(localSkillDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if _, _, err := executeRoot(t, "add-skill", root, "--id", "architecture", "--from-local", "skills/architecture"); err != nil {
+		t.Fatalf("add-skill command returned error: %v", err)
+	}
+
+	agentsPath := filepath.Join(root, "AGENTS.md")
+	if err := os.WriteFile(agentsPath, []byte("manual header\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(AGENTS.md) returned error: %v", err)
+	}
+
+	stdout, _, err := executeRoot(t, "sync-skills", root)
+	if err != nil {
+		t.Fatalf("sync-skills command returned error: %v", err)
+	}
+	if !strings.Contains(stdout, "update AGENTS.md") {
+		t.Fatalf("expected sync-skills to update AGENTS.md, got %s", stdout)
+	}
+}
+
+func TestInstallSkillsCommandCopiesToAgentDirs(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh", "--agents", "codex,claude,windsurf,kilocode,trae"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	localSkillDir := filepath.Join(root, "skills", "architecture")
+	if err := os.MkdirAll(localSkillDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(localSkillDir, "SKILL.md"), []byte("# Architecture\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(SKILL.md) returned error: %v", err)
+	}
+
+	if _, _, err := executeRoot(t, "add-skill", root, "--id", "architecture", "--from-local", "skills/architecture"); err != nil {
+		t.Fatalf("add-skill command returned error: %v", err)
+	}
+
+	stdout, _, err := executeRoot(t, "install-skills", root)
+	if err != nil {
+		t.Fatalf("install-skills command returned error: %v", err)
+	}
+	if !strings.Contains(stdout, ".codex/skills/architecture") {
+		t.Fatalf("expected install output to mention codex skills dir, got %s", stdout)
+	}
+
+	for _, rel := range []string{
+		".codex/skills/architecture/SKILL.md",
+		".claude/skills/architecture/SKILL.md",
+		".windsurf/skills/architecture/SKILL.md",
+		".kilocode/skills/architecture/SKILL.md",
+		".trae/skills/architecture/SKILL.md",
+	} {
+		path := filepath.Join(root, filepath.FromSlash(rel))
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("expected installed skill file %s to exist: %v", rel, err)
+		}
+	}
+}
+
+func TestSkillsInstallSubcommandDryRunJSON(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh", "--agents", "codex"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	localSkillDir := filepath.Join(root, "skills", "architecture")
+	if err := os.MkdirAll(localSkillDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(localSkillDir, "SKILL.md"), []byte("# Architecture\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(SKILL.md) returned error: %v", err)
+	}
+
+	if _, _, err := executeRoot(t, "add-skill", root, "--id", "architecture", "--from-local", "skills/architecture"); err != nil {
+		t.Fatalf("add-skill command returned error: %v", err)
+	}
+
+	stdout, _, err := executeRoot(t, "skills", "install", root, "--dry-run", "--json")
+	if err != nil {
+		t.Fatalf("skills install --dry-run --json command returned error: %v", err)
+	}
+
+	var payload struct {
+		DryRun    bool     `json:"dry_run"`
+		Created   []string `json:"created"`
+		Unchanged []string `json:"unchanged"`
+	}
+	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
+		t.Fatalf("failed to parse skills install json output %q: %v", stdout, err)
+	}
+	if !payload.DryRun {
+		t.Fatalf("expected dry_run=true, got %s", stdout)
+	}
+	found := false
+	for _, path := range payload.Created {
+		if path == ".codex/skills/architecture" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		for _, path := range payload.Unchanged {
+			if path == ".codex/skills/architecture" {
+				found = true
+				break
+			}
+		}
+	}
+	if !found {
+		t.Fatalf("expected .codex/skills/architecture in created or unchanged list, got %s", stdout)
+	}
+	if _, err := os.Stat(filepath.Join(root, ".codex", "skills", "architecture")); err != nil {
+		t.Fatalf("expected add-skill to auto-install .codex/skills/architecture before dry-run, got err=%v", err)
 	}
 }
 
