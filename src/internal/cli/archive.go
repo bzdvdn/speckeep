@@ -452,7 +452,7 @@ func outputArchiveResult(cmd *cobra.Command, result ArchiveResult, jsonOutput bo
 		if len(result.Restored) > 0 {
 			printPanel(w, "Restored Files", result.Restored)
 		}
-		fmt.Fprintf(w, "\n%s Ready for: /speckeep.inspect %s\n", styleOK(w, "✓"), result.Slug)
+		fmt.Fprintf(w, "\n%s Ready for: /speckeep.plan %s (optionally run /speckeep.inspect first)\n", styleOK(w, "✓"), result.Slug)
 	} else {
 		printPanel(w, "speckeep archive", []string{
 			"slug: " + result.Slug,

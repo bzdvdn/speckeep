@@ -5,7 +5,7 @@
 ## Phase Contract
 
 Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`), запрос пользователя, минимально нужный контекст репозитория.
-Outputs: `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/spec.digest.md`.
+Outputs: `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/spec.digest.md`, `<specs_dir>/<slug>/summary.md`.
 Stop if: запрос неоднозначен/мульти-фича или пришлось бы выдумывать `AC-*`.
 
 ## Обязательные правила
@@ -32,6 +32,10 @@ Stop if: запрос неоднозначен/мульти-фича или пр
   AC-002: неверный пароль показывает inline-ошибку
   ```
 - Запишите/patch `spec.md` (patch > переписывание).
+- Запишите `summary.md` (≤25 строк): Goal (1–2 предложения), таблица AC (одна строка на `AC-*`), список Out of Scope.
+- Самопроверка перед завершением: в spec.md нет `TODO`/`???`/`<placeholder>`; каждый AC содержит Given/When/Then с observable proof; секции Out of Scope, Assumptions, Open Questions существуют.
 - Коротко суммируйте цель, scope, список AC, открытые вопросы/блокеры.
 - Добавьте короткий summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Готово к`.
-- Финальная строка: `Готово к: /speckeep.inspect <slug>`
+- Следующие шаги (предложите оба варианта):
+  - Глубокая проверка качества: `/speckeep.inspect <slug>` — проверяет соответствие конституции, полноту AC, неоднозначности
+  - Перейти к плану если спека выглядит хорошо: `/speckeep.plan <slug>`

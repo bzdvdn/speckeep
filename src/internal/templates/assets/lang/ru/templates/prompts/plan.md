@@ -6,9 +6,9 @@
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/inspect.md` (должен быть `pass`).
+Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/inspect.md` (опционален; если присутствует — должен быть `pass`).
 Outputs: `<specs_dir>/<slug>/plan/plan.md`, `<specs_dir>/<slug>/plan/plan.digest.md`, и при необходимости `<specs_dir>/<slug>/plan/data-model.md`, `<specs_dir>/<slug>/plan/contracts/*`, `<specs_dir>/<slug>/plan/research.md`.
-Stop if: inspect не `pass`, slug/цель неоднозначны, или план потребовал бы выдумывать требования/AC.
+Stop if: inspect.md присутствует и не `pass`, slug/цель неоднозначны, или план потребовал бы выдумывать требования/AC.
 
 ## Правила
 

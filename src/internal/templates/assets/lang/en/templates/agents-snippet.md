@@ -2,7 +2,7 @@
 
 Primary context: `.speckeep/`. Languages: docs=[DOCS_LANGUAGE], agent=[AGENT_LANGUAGE], comments=[COMMENTS_LANGUAGE]
 
-Workflow chain: `constitution → spec → inspect → plan → tasks → implement → verify → archive`
+Workflow chain: `constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive`
 
 Core rules:
 - Paths/config: read `.speckeep/speckeep.yaml` ≤ 1 time per session; if missing, defaults: `<specs_dir>=specs`, `<archive_dir>=archive`, constitution=`CONSTITUTION.md`.
@@ -20,7 +20,7 @@ Core rules:
 Commands:
 - `/speckeep.constitution` → update constitution
 - `/speckeep.spec` → write spec (branch-first)
-- `/speckeep.inspect` → inspect spec
+- `/speckeep.inspect` → optional deep quality review
 - `/speckeep.plan` → write plan package
 - `/speckeep.tasks` → write tasks
 - `/speckeep.implement` → implement tasks

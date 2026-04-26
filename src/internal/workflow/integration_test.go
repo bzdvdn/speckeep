@@ -8,7 +8,7 @@ package workflow
 //
 // Workflow path tested:
 //
-//	init → spec → inspect (pass) → plan → tasks (1 open) → tasks (all done)
+//	init → spec (ready for plan; inspect optional) → inspect (pass) → plan → tasks (1 open) → tasks (all done)
 //	→ verify (pass) → archive ready
 //
 // Each step:
@@ -63,7 +63,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 	// ── spec ──────────────────────────────────────────────────────────────
 	writeFile(t, filepath.Join(specDir, "spec.md"), specMD)
 
-	assertState(t, root, slug, "inspect", "spec")
+	assertState(t, root, slug, "plan", "spec")
 	assertCheckPasses(t, "CheckInspectReady", func() (CheckResult, error) {
 		return CheckInspectReady(root, slug)
 	})

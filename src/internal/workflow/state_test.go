@@ -42,7 +42,7 @@ func TestStateInfersLifecycleAndReportStatuses(t *testing.T) {
 	if err != nil {
 		t.Fatalf("State returned error: %v", err)
 	}
-	if state.Phase != "spec" || state.ReadyFor != "inspect" {
+	if state.Phase != "spec" || state.ReadyFor != "plan" {
 		t.Fatalf("unexpected state after creating spec: %+v", state)
 	}
 
@@ -56,8 +56,8 @@ func TestStateInfersLifecycleAndReportStatuses(t *testing.T) {
 	if err != nil {
 		t.Fatalf("State returned error: %v", err)
 	}
-	if state.Phase != "spec" || state.ReadyFor != "inspect" {
-		t.Fatalf("expected invalid inspect report to require inspect, got %+v", state)
+	if state.Phase != "inspect" || state.ReadyFor != "inspect" || !state.Blocked {
+		t.Fatalf("expected invalid inspect report to block inspect, got %+v", state)
 	}
 
 	inspectContent := "---\nreport_type: inspect\nslug: demo\nstatus: concerns\ndocs_language: en\ngenerated_at: 2026-03-31\n---\n# Inspect Report: demo\n\n## Verdict\n\n- status: concerns\n"

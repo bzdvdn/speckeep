@@ -334,7 +334,7 @@ func CheckPlanReady(root, slug string) (CheckResult, error) {
 			inspectDisplayPath = legacyInspectDisplay
 			inspectAbs = legacyAbs
 		} else {
-			result.AddError(fmt.Sprintf("missing inspect report %s", inspectDisplay))
+			result.AddWarn(fmt.Sprintf("no inspect report %s — inspect is optional; run /speckeep.inspect for a deep quality review", inspectDisplay))
 		}
 	}
 

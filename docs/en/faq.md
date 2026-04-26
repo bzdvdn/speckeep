@@ -4,7 +4,7 @@
 
 `spec` creates or updates the feature specification.
 
-`inspect` reviews that specification and related artifacts for completeness, consistency, and constitutional compliance. It is a quality gate, not an authoring phase.
+`inspect` reviews that specification and related artifacts for completeness, consistency, and constitutional compliance. It is an optional quality gate, not an authoring phase.
 
 ## When should I create `research.md`?
 
@@ -65,7 +65,7 @@ Typical minimal read order:
 No. The intended chain is strict:
 
 ```text
-constitution -> spec -> inspect -> plan -> tasks -> implement -> verify -> archive
+constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> verify -> archive
 ```
 
 `plan` depends on an existing spec.

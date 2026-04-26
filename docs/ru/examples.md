@@ -169,6 +169,9 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 ## 3. Проверка Spec через Inspect
 
+Используйте этот шаг, когда фича неоднозначная, рискованная или нужен формальный quality gate.  
+Если спецификация уже ясная и низкорисковая, можно сразу переходить к `/speckeep.plan <slug>`.
+
 Пример запроса:
 
 ```text
@@ -202,6 +205,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Ожидаемое поведение агента:
 
 - прочитать constitution и spec
+- если есть `specs/partner-scheduling/inspect.md`, проверить, что статус неблокирующий (`pass` или `concerns`)
 - создать `specs/partner-scheduling/plan/plan.md`
 - создать `specs/partner-scheduling/plan/data-model.md`
 - создать `specs/partner-scheduling/plan/contracts/`

@@ -366,7 +366,7 @@ func TestInitAndStatusCommandsFollowFeatureLifecycle(t *testing.T) {
 
 	checkStatus(statusPayload{
 		Phase:         "spec",
-		ReadyFor:      "inspect",
+		ReadyFor:      "plan",
 		Blocked:       false,
 		SpecExists:    true,
 		InspectExists: false,
@@ -648,7 +648,7 @@ func TestFeatureCommandShowsStructuredCheckDetails(t *testing.T) {
 	if err != nil {
 		t.Fatalf("feature command returned error: %v", err)
 	}
-	if !strings.Contains(stdout, "check_issues: warnings=5") {
+	if !strings.Contains(stdout, "check_issues: warnings=6") {
 		t.Fatalf("expected structured check summary in feature output, got %s", stdout)
 	}
 	if !strings.Contains(stdout, "check_detail: warning [structure] missing section:") {
@@ -685,7 +685,7 @@ func TestFeatureCommandJSONIncludesStructuredCheckDetails(t *testing.T) {
 	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
 		t.Fatalf("failed to parse feature json output %q: %v", stdout, err)
 	}
-	if payload.CheckSummary.Warnings != 5 {
+	if payload.CheckSummary.Warnings != 6 {
 		t.Fatalf("expected structured warnings in feature json, got %q", stdout)
 	}
 	found := false
@@ -717,7 +717,7 @@ func TestCheckCommandShowsStructuredCheckSummary(t *testing.T) {
 	if err != nil {
 		t.Fatalf("check command returned error: %v", err)
 	}
-	if !strings.Contains(stdout, "checks:   warnings=5") {
+	if !strings.Contains(stdout, "checks:   warnings=6") {
 		t.Fatalf("expected check summary in output, got %s", stdout)
 	}
 	if !strings.Contains(stdout, "warning_categories=structure=3,ambiguity=2") {
@@ -759,7 +759,7 @@ func TestCheckCommandJSONIncludesStructuredFindings(t *testing.T) {
 	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
 		t.Fatalf("failed to parse check json output %q: %v", stdout, err)
 	}
-	if payload.CheckSummary.Warnings != 5 {
+	if payload.CheckSummary.Warnings != 6 {
 		t.Fatalf("expected warnings in check summary, got %q", stdout)
 	}
 	if payload.CheckSummary.WarningCategories["ambiguity"] == 0 {
@@ -810,8 +810,8 @@ func TestCheckCommandBlocksWhenReadinessErrorsPresent(t *testing.T) {
 	if !payload.Blocked || payload.Verdict != "blocked" {
 		t.Fatalf("expected blocked verdict in json output, got %q", stdout)
 	}
-	if payload.NextCommand != "/speckeep.inspect demo" {
-		t.Fatalf("expected next_command inspect, got %q", payload.NextCommand)
+	if payload.NextCommand != "/speckeep.plan demo" {
+		t.Fatalf("expected next_command plan, got %q", payload.NextCommand)
 	}
 	if payload.CheckSummary.Errors == 0 {
 		t.Fatalf("expected errors > 0, got %q", stdout)
@@ -859,8 +859,8 @@ func TestCheckCommandResolvesCustomSpecsDir(t *testing.T) {
 	if payload.Artifacts.Inspect.Present {
 		t.Fatalf("expected inspect present=false in json output, got %q", stdout)
 	}
-	if payload.NextCommand != "/speckeep.inspect demo" {
-		t.Fatalf("expected next_command inspect, got %q", payload.NextCommand)
+	if payload.NextCommand != "/speckeep.plan demo" {
+		t.Fatalf("expected next_command plan, got %q", payload.NextCommand)
 	}
 }
 

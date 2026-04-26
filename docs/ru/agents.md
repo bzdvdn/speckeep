@@ -45,7 +45,7 @@ Agent-facing workflow в SpecKeep:
 
 Каждая сгенерированная обёртка для агента включает:
 
-- **Hint цепочки workflow**: `constitution → spec → inspect → plan → tasks → implement → verify → archive` — не позволяет агентам пропускать фазы или забегать вперёд
+- **Hint цепочки workflow**: `constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive` — не позволяет агентам пропускать обязательные фазы или забегать вперёд
 - **Дисциплина выполнения скриптов**: явная инструкция выполнять скрипты как shell-команды, доверять stdout/exit code и никогда не читать исходники скриптов
 - **Блок anti-patterns**: типичные ошибки, которых следует избегать — пропуск readiness scripts, перепланирование во время implement, отметка задач без observable proof, чтение всего репозитория когда нужен минимальный контекст
 

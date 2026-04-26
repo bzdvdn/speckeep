@@ -47,7 +47,7 @@ func TestCheckInfersPhaseAcrossFeatureLifecycle(t *testing.T) {
 	if err := os.WriteFile(specPath, []byte("# Demo\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
-	check("spec", "inspect", false)
+	check("spec", "plan", false)
 
 	inspectPath := filepath.Join(specDir, "inspect.md")
 	inspectContent := "---\nreport_type: inspect\nslug: demo\nstatus: pass\ndocs_language: en\ngenerated_at: 2026-03-30\n---\n# Inspect Report: demo\n\n## Verdict\n\n- status: pass\n"

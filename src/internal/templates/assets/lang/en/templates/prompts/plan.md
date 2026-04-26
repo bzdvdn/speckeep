@@ -6,9 +6,9 @@ Follow base rules in `AGENTS.md`.
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/inspect.md` (must be `pass`).
+Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/inspect.md` (optional; if present, must be `pass`).
 Outputs: `<specs_dir>/<slug>/plan/plan.md`, `<specs_dir>/<slug>/plan/plan.digest.md`, and when required `<specs_dir>/<slug>/plan/data-model.md`, `<specs_dir>/<slug>/plan/contracts/*`, `<specs_dir>/<slug>/plan/research.md`.
-Stop if: inspect is not `pass`, the goal is ambiguous, or planning would require inventing requirements/AC.
+Stop if: inspect.md is present and not `pass`, the goal is ambiguous, or planning would require inventing requirements/AC.
 
 ## Rules
 

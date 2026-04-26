@@ -172,15 +172,20 @@ func inferLifecycle(state *FeatureState) {
 		state.Phase = "constitution"
 		state.ReadyFor = "spec"
 		state.Blocked = true
-	case !hasValidInspect:
-		state.Phase = "spec"
+	case state.InspectExists && !hasValidInspect:
+		state.Phase = "inspect"
 		state.ReadyFor = "inspect"
+		state.Blocked = true
 	case state.InspectStatus == StatusBlocked:
 		state.Phase = "inspect"
 		state.ReadyFor = "inspect"
 		state.Blocked = true
 	case !state.PlanExists:
-		state.Phase = "inspect"
+		if hasValidInspect {
+			state.Phase = "inspect"
+		} else {
+			state.Phase = "spec"
+		}
 		state.ReadyFor = "plan"
 	case !state.TasksExists:
 		state.Phase = "plan"

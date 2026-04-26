@@ -48,8 +48,8 @@ Examples:
 			}
 
 			fmt.Fprintf(cmd.OutOrStdout(), "\nAvailable schemas:\n")
-			fmt.Fprintf(cmd.OutOrStdout(), "  default       - constitution -> spec -> inspect -> plan -> tasks -> implement -> verify -> archive\n")
-			fmt.Fprintf(cmd.OutOrStdout(), "  research-first - constitution -> spec -> inspect -> plan -> research -> tasks -> implement -> verify -> archive\n")
+			fmt.Fprintf(cmd.OutOrStdout(), "  default       - constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> verify -> archive\n")
+			fmt.Fprintf(cmd.OutOrStdout(), "  research-first - constitution -> spec -> [inspect, optional] -> plan -> research -> tasks -> implement -> verify -> archive\n")
 			fmt.Fprintf(cmd.OutOrStdout(), "  lite          - spec -> plan -> tasks -> implement (no inspect/verify)\n")
 
 			return nil

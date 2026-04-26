@@ -46,12 +46,12 @@ In short, SpecKeep aims to sit between OpenSpec and Spec Kit: stricter than Open
 
 - Narrow context by default. Each phase is designed to load the smallest useful scope.
 - Code reading should stay phase-local and targeted: enough to remove guesswork, not enough to recreate full-repository context.
-- Strict workflow chain. Constitution, spec, inspect, plan, tasks, and implementation stay aligned.
+- Strict workflow chain. Constitution, spec, optional inspect, plan, tasks, and implementation stay aligned.
 - `inspect` is a real quality gate, not a loose suggestion before planning.
 - Lightweight traceability. Stable IDs and cheap readiness checks reduce prompt bloat.
 - Brownfield-friendly workflow. SpecKeep works well in existing repositories without forcing a heavyweight process layer.
 - Branch-first collaboration. Active feature state stays local to the feature instead of spreading through shared mutable memory.
-- Inspect is mandatory before planning. Each feature should persist an inspect report that confirms the spec is ready for plan work.
+- `inspect` is optional before planning: run it when the spec is ambiguous, high-risk, or needs a formal quality gate. If an inspect report exists, it must be valid and non-blocking.
 - Optional workflow commands available at any phase: `/speckeep.challenge` (adversarial review — finds weak assumptions and untestable criteria), `/speckeep.handoff` (compact session handoff document so a new session can resume without re-reading all artifacts), `/speckeep.hotfix` (emergency fix outside the standard phase chain — for well-understood fixes touching ≤ 3 files), `/speckeep.scope` (quick scope boundary check, inline only, no file written).
 
 OpenSpec is more flexible by design and works well when teams want a looser artifact-guided workflow.
@@ -102,7 +102,7 @@ speckeep list-archive [path] --json
 ## Workflow
 
 ```text
-constitution -> spec -> inspect -> plan -> tasks -> implement -> verify -> archive
+constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> verify -> archive
 ```
 
 ## Key Points

@@ -169,6 +169,9 @@ In that case, the spec slug can still stay `partner-scheduling` while the workin
 
 ## 3. Inspect the Spec
 
+Use this step when the feature is ambiguous, high-risk, or you want a formal quality gate.  
+If the spec is already clear and low-risk, you may proceed directly to `/speckeep.plan <slug>`.
+
 User request:
 
 ```text
@@ -202,6 +205,7 @@ User request:
 Expected agent behavior:
 
 - read constitution and the spec
+- if `specs/partner-scheduling/inspect.md` exists, validate that status is non-blocking (`pass` or `concerns`)
 - create `specs/partner-scheduling/plan/plan.md`
 - create `specs/partner-scheduling/plan/data-model.md`
 - create `specs/partner-scheduling/plan/contracts/`

@@ -48,7 +48,7 @@ Lightweight guardrails для ближайших итераций:
 
 Усилить `inspect` как центральный слой качества.
 
-Статус: обязательный persisted inspect report, общий parser для reports и базовая semantic validation уже реализованы.
+Статус: опциональный persisted inspect report, общий parser для reports и базовая semantic validation уже реализованы.
 
 Release filter: усиливать `inspect` только так, чтобы он оставался дешевым по контексту и не превращался в обязательный тяжелый review engine.
 

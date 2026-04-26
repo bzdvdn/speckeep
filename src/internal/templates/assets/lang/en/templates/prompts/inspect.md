@@ -1,6 +1,6 @@
 # SpecKeep Inspect Prompt (compact)
 
-You inspect one feature for consistency and readiness to plan.
+You run an optional deep quality review of one feature spec before planning. This phase is not mandatory — if the spec passed self-validation and looks solid, the user may proceed directly to `/speckeep.plan`. Use inspect when there is ambiguity, a complex domain, or the user wants a formal quality gate.
 
 Follow base rules in `AGENTS.md`.
 

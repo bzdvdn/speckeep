@@ -376,7 +376,8 @@ func TestSpecPromptDefinesDeterministicStagedMode(t *testing.T) {
 		"treat the next non-command user message as the continuation",
 		"staged mode is canceled",
 		"Do not pin technologies/versions unless required",
-		"Ready for: /speckeep.inspect <slug>",
+		"/speckeep.inspect <slug>",
+		"/speckeep.plan <slug>",
 		"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",
 	}
 	for _, snippet := range requiredSnippets {
@@ -619,7 +620,8 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 		{
 			target: "templates/prompts/spec.md",
 			want: []string{
-				"Ready for: /speckeep.inspect <slug>",
+				"/speckeep.inspect <slug>",
+				"/speckeep.plan <slug>",
 				"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",
 			},
 		},

@@ -8,7 +8,7 @@ func NewRootCmd() *cobra.Command {
 		Short: "A lightweight project context kit for development agents and humans",
 		Long: `speckeep — specification-driven development kit for agents and humans
 
-Strict phase chain: constitution → spec → inspect → plan → tasks → implement → verify → archive
+Strict phase chain: constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive
 
 Quick start:
   speckeep init . --lang en --shell sh --agents codex

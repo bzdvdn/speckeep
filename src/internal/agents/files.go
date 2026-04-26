@@ -191,9 +191,9 @@ func titleCase(value string) string {
 
 func workflowChainHint(lang string) string {
 	if lang == "ru" {
-		return "Цепочка workflow: constitution → spec → inspect → plan → tasks → implement → verify → archive. Не пропускайте фазы и не забегайте вперёд."
+		return "Цепочка workflow: constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive. Не пропускайте обязательные фазы и не забегайте вперёд."
 	}
-	return "Workflow chain: constitution → spec → inspect → plan → tasks → implement → verify → archive. Do not skip phases or jump ahead."
+	return "Workflow chain: constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive. Do not skip required phases or jump ahead."
 }
 
 func antiPatternHint(lang string) string {

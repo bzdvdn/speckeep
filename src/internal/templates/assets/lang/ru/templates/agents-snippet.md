@@ -2,7 +2,7 @@
 
 Основной контекст: `.speckeep/`. Языки: docs=[DOCS_LANGUAGE], agent=[AGENT_LANGUAGE], comments=[COMMENTS_LANGUAGE]
 
-Цепочка workflow: `constitution → spec → inspect → plan → tasks → implement → verify → archive`
+Цепочка workflow: `constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive`
 
 Базовые правила:
 - Пути/конфиг: читайте `.speckeep/speckeep.yaml` ≤ 1 раза за сессию; если конфига нет, defaults: `<specs_dir>=specs`, `<archive_dir>=archive`, constitution=`CONSTITUTION.md`.
@@ -20,7 +20,7 @@
 Команды:
 - `/speckeep.constitution` → конституция
 - `/speckeep.spec` → spec (branch-first)
-- `/speckeep.inspect` → inspect
+- `/speckeep.inspect` → опциональная глубокая проверка качества
 - `/speckeep.plan` → plan package
 - `/speckeep.tasks` → tasks
 - `/speckeep.implement` → implement

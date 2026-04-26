@@ -4,7 +4,7 @@
 
 `spec` создает или обновляет спецификацию фичи.
 
-`inspect` проверяет эту спецификацию и связанные артефакты на полноту, согласованность и соответствие конституции. Это quality gate, а не authoring phase.
+`inspect` проверяет эту спецификацию и связанные артефакты на полноту, согласованность и соответствие конституции. Это опциональный quality gate, а не authoring phase.
 
 ## Когда нужно создавать `research.md`?
 
@@ -65,7 +65,7 @@
 Нет. Предполагаемая цепочка строгая:
 
 ```text
-constitution -> spec -> inspect -> plan -> tasks -> implement -> verify -> archive
+constitution -> spec -> [inspect, опционально] -> plan -> tasks -> implement -> verify -> archive
 ```
 
 `plan` зависит от уже существующей spec.

@@ -3,7 +3,7 @@
 ## Strict Phase Chain
 
 ```text
-constitution -> spec -> inspect -> plan -> tasks -> implement -> verify -> archive
+constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> verify -> archive
 ```
 
 For new projects (Greenfield), work begins with an extended **Constitution** phase (using the `--foundation` flag) that codifies both the process rules and the project's technical foundation.
@@ -86,7 +86,8 @@ If the request is ambiguous, combines multiple features, or asks to derive one s
 
 Checks consistency and quality for a single feature. It can flag missing scenarios, weak acceptance criteria, constitutional conflicts, plan drift, or missing task coverage.
 
-`inspect` is mandatory before `plan`. Planning should not proceed until the feature has a persisted inspect report at the canonical path.
+`inspect` is optional before `plan`. Planning may proceed without an inspect report when the spec is clear and low-risk.
+If an inspect report is present, it must have a valid non-blocking status (`pass` or `concerns`) to proceed.
 
 `--delta`: incremental re-check mode. After a `spec --amend`, re-checks only the changed sections instead of running a full inspection. Preserves valid findings from the previous report. Falls back to full inspection when changes are too broad (>50% rewritten).
 

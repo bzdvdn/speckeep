@@ -45,7 +45,7 @@ Each prompt is designed to:
 
 Each generated agent wrapper includes:
 
-- **Workflow chain hint**: `constitution → spec → inspect → plan → tasks → implement → verify → archive` — prevents agents from skipping phases or jumping ahead
+- **Workflow chain hint**: `constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive` — prevents agents from skipping required phases or jumping ahead
 - **Script execution discipline**: explicit instruction to execute scripts as shell commands, trust stdout/exit code, and never read or inspect script source
 - **Anti-pattern block**: common mistakes to avoid — skipping readiness scripts, re-planning during implement, marking tasks done without observable proof, reading the full repository when minimal context is required
 
