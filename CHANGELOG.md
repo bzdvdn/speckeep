@@ -9,7 +9,13 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- Skills manifest support under `.speckeep/skills/manifest.yaml` with CLI commands:
+- _No notable changes yet_
+
+## [v0.2.0] - 2026-04-28
+
+### Added
+
+- Skills subsystem under `.speckeep/skills/manifest.yaml` with CLI commands:
   - `speckeep add-skill`, `speckeep list-skills`, `speckeep remove-skill`
   - `speckeep install-skills`, `speckeep sync-skills`
   - grouped subcommands: `speckeep skills install`, `speckeep skills sync`
@@ -22,9 +28,20 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Skills validation in `doctor` (manifest consistency, refs, local paths, checkout state)
 - Skills section in managed SpecKeep block in `AGENTS.md`
 - Sync path for skill artifacts (`refresh` + dedicated `sync-skills`)
+- Skill installation/reconciliation into target agent folders:
+  - `.codex/skills/<id>`
+  - `.claude/skills/<id>`
+  - `.kilocode/skills/<id>`
+  - `.windsurf/skills/<id>`
+  - `.trae/skills/<id>`
 - Optional install skip flag for mutation commands:
   - `speckeep add-skill --no-install`
   - `speckeep remove-skill --no-install`
+- Digest artifacts support for feature lifecycle (archive/doctor/templates integration)
+- Traceability improvements:
+  - slug-defined trace handling
+  - updated trace scripts/templates and `trace` command behavior
+- Expanded agent wrapper generation updates across adapters (Claude, Codex, Copilot, Cursor, Kilocode, Roocode, Windsurf, Aider, Trae)
 
 ### Changed
 
@@ -32,7 +49,19 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   - `constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive`
   - if inspect report exists, it must remain valid and non-blocking
 - `add-skill`/`remove-skill` now auto-install/reconcile skills in target agent folders by default
+- Prompt/template system optimized and reworked for both `en` and `ru`:
+  - stricter output expectations and readiness behavior
+  - updated prompt packs for `constitution/spec/inspect/plan/tasks/implement/verify/archive` and optional commands
+  - updated agents snippets and embedded assets
+- Workflow guidance tightened to reduce overhead and scope drift during execution
 - Documentation updated (EN/RU): README and CLI docs for skills lifecycle, git pinning, install/sync commands, and optional inspect
+- CLI/help/schema text updated to reflect optional inspect and new skills commands
+
+### Fixed
+
+- `doctor`: fixed handling of inactive specs and improved workspace findings robustness
+- Workflow checks/state edge cases around inspect/implement/task readiness
+- Agent command/rendering issues in wrappers and scripts for cross-agent consistency
 
 ## [v0.1.0] - 2026-04-16
 
@@ -58,5 +87,6 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Package-level tests for `featurepaths` (17 tests) and `gitutil` (7 tests)
 - Full workflow integration test (`TestFullWorkflowCycle`) covering the complete lifecycle from `init` through archive-readiness in a temporary directory
 
+[0.2.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.2.0
 [0.1.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.1.0
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.2.0...HEAD
