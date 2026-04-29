@@ -30,6 +30,11 @@ Stop if: `tasks.md` is missing, the next task is not concrete, or execution requ
   - always (avoid cross-spec collisions): `// @sk-task <slug>#<TASK_ID>: <short> (<AC_ID>)`
   - tests: `// @sk-test <slug>#<TASK_ID>: <TestName> (<AC_ID>)`
   - legacy is allowed only if `<slug>` is unknown (not in args/context) or if you're intentionally preserving the existing code style: `// @sk-task <TASK_ID> ...` / `// @sk-test <TASK_ID> ...`
+- Traceability is mandatory for implementation work:
+  - do not mark a task complete if changed code lacks `@sk-task` or changed tests lack `@sk-test` for that task.
+  - before finalizing, run a quick self-check on changed files to confirm trace markers are present.
+  - never replace existing trace markers when adding coverage for a new task; append new markers.
+  - if one method/test covers multiple tasks, keep multiple annotations on that same method/test (for example both `@sk-task <slug>#T1.1 ...` and `@sk-task <slug>#T3.1 ...`).
 
 ## Modes
 
@@ -40,6 +45,11 @@ Stop if: `tasks.md` is missing, the next task is not concrete, or execution requ
 ## Output expectations
 
 - Update code/files and mark completed tasks `[x]` in `tasks.md`.
+- Before finalizing, make an explicit map decision line: `Map update: yes|no` + reason (based on `/speckeep.repo-map` trigger checklist in `AGENTS.md`).
+- If `Map update: yes`, run `/speckeep.repo-map` and include `REPOSITORY_MAP.md` in changed files.
+- If repository structure/navigation changed (new/moved modules, new entrypoints, major path reshaping), `Map update` must be `yes`.
+- If changes are local and do not affect structure/navigation, do not touch `REPOSITORY_MAP.md`.
 - Report: closed task IDs, changed files, and the observable proof.
+- Include a short traceability proof line (which files contain `@sk-task` / `@sk-test` for the closed tasks).
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`.
 - Final line (mandatory): `Ready for: /speckeep.verify <slug>`

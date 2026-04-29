@@ -27,5 +27,6 @@ Stop if: `check-archive-ready` exits non-zero — report its stdout and stop.
 ## Output expectations
 
 - Report the script output (stdout) and final status.
+- Do not update `REPOSITORY_MAP.md` during archive by default. Only update it if archive scripts or explicit user request changed repository structure/navigation.
 - This is the terminal workflow step for this feature (after verify).
 - Final line: `Ready for: /speckeep.recap`

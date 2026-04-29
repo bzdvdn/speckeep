@@ -120,6 +120,17 @@ func Check(root string) (Result, error) {
 		checkPath(&findings, path, false)
 	}
 
+	agentsPath := filepath.Join(root, cfg.Agents.AgentsFile)
+	if content, err := os.ReadFile(agentsPath); err == nil {
+		text := string(content)
+		if !strings.Contains(text, "/speckeep.repo-map") {
+			findings = append(findings, Finding{
+				Level:   "warning",
+				Message: "AGENTS.md is missing /speckeep.repo-map guidance — run `speckeep refresh .` to sync the managed SpecKeep block",
+			})
+		}
+	}
+
 	constitutionPath := filepath.Join(root, cfg.Project.ConstitutionFile)
 	if content, err := os.ReadFile(constitutionPath); err == nil {
 		if placeholderPattern.Match(content) {
