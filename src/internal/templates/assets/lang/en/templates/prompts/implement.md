@@ -30,9 +30,13 @@ Stop if: `tasks.md` is missing, the next task is not concrete, or execution requ
   - always (avoid cross-spec collisions): `// @sk-task <slug>#<TASK_ID>: <short> (<AC_ID>)`
   - tests: `// @sk-test <slug>#<TASK_ID>: <TestName> (<AC_ID>)`
   - legacy is allowed only if `<slug>` is unknown (not in args/context) or if you're intentionally preserving the existing code style: `// @sk-task <TASK_ID> ...` / `// @sk-test <TASK_ID> ...`
+- Annotation placement:
+  - place `@sk-test` directly above the target test function declaration (for example above `func Test...`), not on struct fields/local variables/assert blocks.
+  - place `@sk-task` near the owning behavior entrypoint (function/method/block header), not on unrelated field lines.
 - Traceability is mandatory for implementation work:
   - do not mark a task complete if changed code lacks `@sk-task` or changed tests lack `@sk-test` for that task.
   - before finalizing, run a quick self-check on changed files to confirm trace markers are present.
+  - minimum self-check command pattern before closing tasks: inspect changed files and confirm `@sk-task` / `@sk-test` presence via targeted search (for example with `git diff --name-only` + `rg`).
   - never replace existing trace markers when adding coverage for a new task; append new markers.
   - if one method/test covers multiple tasks, keep multiple annotations on that same method/test (for example both `@sk-task <slug>#T1.1 ...` and `@sk-task <slug>#T3.1 ...`).
 
@@ -51,5 +55,6 @@ Stop if: `tasks.md` is missing, the next task is not concrete, or execution requ
 - If changes are local and do not affect structure/navigation, do not touch `REPOSITORY_MAP.md`.
 - Report: closed task IDs, changed files, and the observable proof.
 - Include a short traceability proof line (which files contain `@sk-task` / `@sk-test` for the closed tasks).
+- Do not finish without explicit `Trace proof:` lines in the form: `<TASK_ID> -> <file>:<line> (@sk-task|@sk-test)`.
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`.
 - Final line (mandatory): `Ready for: /speckeep.verify <slug>`

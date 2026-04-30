@@ -321,7 +321,7 @@ func traceabilityChecks(root string) ([]Finding, error) {
 	}
 
 	if len(traceResult.Findings) == 0 {
-		return []Finding{{Level: "warning", Message: "no traceability annotations (@sk-task / @sk-test) found in codebase"}}, nil
+		return []Finding{{Level: "error", Message: "no traceability annotations (@sk-task / @sk-test) found in codebase"}}, nil
 	}
 
 	cfg, err := config.Load(root)

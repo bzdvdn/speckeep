@@ -18,6 +18,13 @@ Stop if: rules remain `TBD`/placeholder or contradict repo reality without an ex
 ## Output expectations
 
 - Write/patch the constitution.
-- Generate `.speckeep/constitution.summary.md`: ≤200 words, plain prose or bullets, covering Purpose, key constraints, tech stack, architecture, language policy, and workflow rules. No elaboration — rules only.
+- Generate `.speckeep/constitution.summary.md` using this strict compact format (rules only, no prose paragraphs):
+  - `Purpose:` one line
+  - `Non-negotiables:` 3-6 bullets (`MUST` / `MUST NOT`)
+  - `Stack/Architecture:` 2-5 bullets
+  - `Workflow/DoD:` 3-6 bullets (include traceability and proof requirements)
+  - `Repo Map Policy:` 2-4 bullets
+  - `Languages:` one line (`docs=...`, `agent=...`, `comments=...`)
+  - hard limit: ≤200 words total
 - Summarize the key rules and what changed.
 - Final line: `Ready for: /speckeep.spec <slug>`
