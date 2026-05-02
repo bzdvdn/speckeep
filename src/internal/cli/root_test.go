@@ -1418,6 +1418,35 @@ func TestRefreshCommandUpdatesManagedArtifacts(t *testing.T) {
 	}
 }
 
+func TestRefreshCommandRemovesLegacyArchiveArtifacts(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh", "--agents", "claude"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	legacyPrompt := filepath.Join(root, ".speckeep", "templates", "prompts", "archive.md")
+	if err := os.MkdirAll(filepath.Dir(legacyPrompt), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(legacyPrompt, []byte("legacy prompt"), 0o644); err != nil {
+		t.Fatalf("WriteFile returned error: %v", err)
+	}
+
+	legacyAgent := filepath.Join(root, ".claude", "commands", "speckeep.archive.md")
+	if err := os.WriteFile(legacyAgent, []byte("legacy agent"), 0o644); err != nil {
+		t.Fatalf("WriteFile returned error: %v", err)
+	}
+
+	stdout, _, err := executeRoot(t, "refresh", root)
+	if err != nil {
+		t.Fatalf("refresh command returned error: %v", err)
+	}
+	if !strings.Contains(stdout, "remove .speckeep/templates/prompts/archive.md") || !strings.Contains(stdout, "remove .claude/commands/speckeep.archive.md") {
+		t.Fatalf("unexpected refresh output: %s", stdout)
+	}
+}
+
 func TestRefreshCommandCanMoveConstitutionFile(t *testing.T) {
 	root := t.TempDir()
 

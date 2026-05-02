@@ -33,4 +33,4 @@ Stop if: `tasks.md` отсутствует или slug неоднозначен.
 - Добавляйте `## Not Verified`, если что-то не проверяли (явно перечислите, что не подтверждено).
 - Если `blocked` — завершите: `Вернуться к: /speckeep.<phase> <slug>`.
 - Добавьте короткий summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, и `Готово к` или `Вернуться к`.
-- Если `pass` — финальная строка: `Готово к: /speckeep.archive <slug>`
+- Если `pass` — финальная строка: `Готово к: speckeep archive <slug> .`

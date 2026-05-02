@@ -72,16 +72,6 @@ func DefaultCommands(shell string) []CommandDefinition {
 			Category: "workflow",
 		},
 		{
-			Name:        "archive",
-			Description: "Archive one feature package",
-			PromptPath:  ".speckeep/templates/prompts/archive.md",
-			Extras: []string{
-				scriptPath("check-archive-ready", normalizedShell),
-				scriptPath("archive-feature", normalizedShell),
-			},
-			Category: "workflow",
-		},
-		{
 			Name:        "handoff",
 			Description: "Generate a session handoff document for one feature",
 			PromptPath:  ".speckeep/templates/prompts/handoff.md",

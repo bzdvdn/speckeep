@@ -33,4 +33,4 @@ Stop if: `tasks.md` missing or slug ambiguous.
 - Include `## Not Verified` items when you did not confirm something (explicitly list what you did not check).
 - If `blocked`, end with `Return to: /speckeep.<phase> <slug>`.
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, and either `Ready for` or `Return to`.
-- If `pass`, final line: `Ready for: /speckeep.archive <slug>`
+- If `pass`, final line: `Ready for: speckeep archive <slug> .`

@@ -23,7 +23,6 @@ For agents (Kilocode/Claude/Cursor):
   /speckeep.tasks <slug>                        — decompose into tasks
   /speckeep.implement <slug>                    — implement tasks
   /speckeep.verify <slug> [--deep]              — verify AC coverage
-  /speckeep.archive <slug> [--restore]          — archive/restore
 
 Optional commands (any phase):
   /speckeep.challenge <slug> [--spec|--plan]    — adversarial review
@@ -38,6 +37,7 @@ CLI commands:
   speckeep check <slug> . [--json]       — feature status
   speckeep check . --all                 — all features table
   speckeep dashboard .                   — visual dashboard
+  speckeep archive <slug> .              — archive verified feature
   speckeep trace <slug> . [--tests]      — code traceability
   speckeep export <slug> . --output f.md — export artifacts
   speckeep list-archive [path]           — list archived features

@@ -34,7 +34,6 @@ The agent-facing workflows are:
 - `tasks`
 - `implement`
 - `verify`
-- `archive`
 
 Each prompt is designed to:
 
@@ -45,7 +44,7 @@ Each prompt is designed to:
 
 Each generated agent wrapper includes:
 
-- **Workflow chain hint**: `constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive` — prevents agents from skipping required phases or jumping ahead
+- **Workflow chain hint**: `constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive` — prevents agents from skipping required phases or jumping ahead, while making archive an explicit CLI follow-up after agent verification
 - **Script execution discipline**: explicit instruction to execute scripts as shell commands, trust stdout/exit code, and never read or inspect script source
 - **Anti-pattern block**: common mistakes to avoid — skipping readiness scripts, re-planning during implement, marking tasks done without observable proof, reading the full repository when minimal context is required
 
@@ -65,7 +64,7 @@ Each generated agent wrapper includes:
 - it reads deeper artifacts only when needed to confirm a concrete claim
 - it is meant to confirm readiness for archive or follow-up refinement, not to become a heavy review engine
 
-For `archive`, default archive status is `completed`; non-`completed` statuses require an explicit `--reason`. For `completed`, it is fine (and cheap) to reuse `verify-task-state.sh` before creating the snapshot.
+After `verify: pass`, prefer the explicit CLI follow-up `speckeep archive <slug> .` so archiving stays outside the agent reasoning loop. Default archive status is `completed`; non-`completed` statuses require an explicit `--reason`. For `completed`, it is fine (and cheap) to reuse `verify-task-state.sh` before creating the snapshot.
 
 ## Maintenance Commands
 

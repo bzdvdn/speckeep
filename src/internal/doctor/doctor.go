@@ -104,7 +104,6 @@ func Check(root string) (Result, error) {
 		filepath.Join(templatesDir, cfg.Templates.PlanPrompt),
 		filepath.Join(templatesDir, cfg.Templates.TasksPrompt),
 		filepath.Join(templatesDir, cfg.Templates.ImplementPrompt),
-		filepath.Join(templatesDir, cfg.Templates.ArchivePrompt),
 		filepath.Join(templatesDir, cfg.Templates.VerifyPrompt),
 		filepath.Join(scriptsDir, cfg.Scripts.RunSpeckeep),
 		filepath.Join(scriptsDir, cfg.Scripts.CheckConstitution),
@@ -129,6 +128,20 @@ func Check(root string) (Result, error) {
 				Message: "AGENTS.md is missing /speckeep.repo-map guidance — run `speckeep refresh .` to sync the managed SpecKeep block",
 			})
 		}
+		if strings.Contains(text, "/speckeep.archive") {
+			findings = append(findings, Finding{
+				Level:   "warning",
+				Message: "AGENTS.md still references deprecated /speckeep.archive guidance — archive is CLI-only now; run `speckeep refresh .`",
+			})
+		}
+	}
+
+	legacyArchivePrompt := filepath.Join(templatesDir, "prompts", "archive.md")
+	if _, err := os.Stat(legacyArchivePrompt); err == nil {
+		findings = append(findings, Finding{
+			Level:   "warning",
+			Message: fmt.Sprintf("legacy archive prompt is still present at %s — archive is CLI-only now; run `speckeep refresh .` to remove it", legacyArchivePrompt),
+		})
 	}
 
 	constitutionPath := filepath.Join(root, cfg.Project.ConstitutionFile)
@@ -194,6 +207,15 @@ func Check(root string) (Result, error) {
 			if _, err := os.Stat(fullPath); err == nil {
 				findings = append(findings, Finding{Level: "warning", Message: fmt.Sprintf("orphaned agent artifact for disabled target %s: %s", target, fullPath)})
 			}
+		}
+	}
+	for _, relPath := range agents.LegacyArchivePaths() {
+		fullPath := filepath.Join(root, filepath.FromSlash(relPath))
+		if _, err := os.Stat(fullPath); err == nil {
+			findings = append(findings, Finding{
+				Level:   "warning",
+				Message: fmt.Sprintf("legacy archive agent artifact is no longer needed: %s (run `speckeep refresh .`)", fullPath),
+			})
 		}
 	}
 

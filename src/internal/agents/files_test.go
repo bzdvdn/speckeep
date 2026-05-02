@@ -33,8 +33,8 @@ func TestFiles(t *testing.T) {
 		t.Fatalf("Files returned error: %v", err)
 	}
 
-	if len(files) != 93 {
-		t.Fatalf("expected 93 generated agent files, got %d", len(files))
+	if len(files) != 86 {
+		t.Fatalf("expected 86 generated agent files, got %d", len(files))
 	}
 
 	required := map[string]bool{
@@ -46,7 +46,6 @@ func TestFiles(t *testing.T) {
 		".github/prompts/speckeep-verify.prompt.md": false,
 		".cursor/rules/speckeep-implement.mdc":      false,
 		".cursor/rules/speckeep-verify.mdc":         false,
-		".kilocode/workflows/speckeep.archive.md":   false,
 		".kilocode/workflows/speckeep.verify.md":    false,
 		".roo/rules/speckeep-spec.md":               false,
 		".roo/rules/speckeep-plan.md":               false,
@@ -169,7 +168,6 @@ func TestRenderIncludesCommandHints(t *testing.T) {
 		{name: "codex tasks en", target: "codex", lang: "en", spec: "tasks", want: "Command: `/speckeep.tasks [request]`"},
 		{name: "copilot implement ru", target: "copilot", lang: "ru", spec: "implement", want: "Команда: `/speckeep.implement [request]`"},
 		{name: "cursor verify en", target: "cursor", lang: "en", spec: "verify", want: "Command: `/speckeep.verify [request]`"},
-		{name: "kilocode archive ru", target: "kilocode", lang: "ru", spec: "archive", want: "Запуск (Kilo workflow): \"/speckeep.archive.md\""},
 	}
 
 	for _, tt := range tests {

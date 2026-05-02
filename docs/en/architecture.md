@@ -58,7 +58,7 @@ These include:
 
 - `constitution.md`
 - spec, plan, tasks, and archive templates
-- prompts for `constitution`, `spec`, `inspect`, `plan`, `tasks`, `implement`, `verify`, and `archive`
+- prompts for `constitution`, `spec`, `inspect`, `plan`, `tasks`, `implement`, and `verify`
 - localized `agents-snippet.md`
 
 Shared shell scripts live in:

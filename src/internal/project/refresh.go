@@ -146,6 +146,9 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 	if err := removeDisabledAgentArtifacts(root, agentTargets, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
 	}
+	if err := removeLegacyManagedArtifacts(root, options.DryRun, &result); err != nil {
+		return RefreshResult{}, err
+	}
 
 	if options.RewriteTrace {
 		if err := rewriteTraceAnnotations(root, options.DryRun, &result); err != nil {
@@ -499,6 +502,30 @@ func removeDisabledAgentArtifacts(root string, enabled []string, dryRun bool, re
 			}
 		}
 	}
+	return nil
+}
+
+func removeLegacyManagedArtifacts(root string, dryRun bool, result *RefreshResult) error {
+	legacyPaths := append([]string{
+		filepath.ToSlash(filepath.Join(".speckeep", "templates", "prompts", "archive.md")),
+	}, agents.LegacyArchivePaths()...)
+
+	for _, relPath := range legacyPaths {
+		fullPath := filepath.Join(root, filepath.FromSlash(relPath))
+		if _, err := os.Stat(fullPath); errors.Is(err, os.ErrNotExist) {
+			continue
+		} else if err != nil {
+			return err
+		}
+		recordRefreshAction(result, "removed", rel(root, fullPath))
+		if dryRun {
+			continue
+		}
+		if err := os.Remove(fullPath); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

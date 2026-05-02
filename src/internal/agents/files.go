@@ -104,6 +104,18 @@ func PathsForTarget(target string) ([]string, error) {
 	return paths, nil
 }
 
+func LegacyArchivePaths() []string {
+	return []string{
+		".claude/commands/speckeep.archive.md",
+		".codex/prompts/speckeep.archive.md",
+		".github/prompts/speckeep-archive.prompt.md",
+		".cursor/rules/speckeep-archive.mdc",
+		".kilocode/workflows/speckeep.archive.md",
+		".roo/rules/speckeep-archive.md",
+		".windsurf/workflows/speckeep.archive.md",
+	}
+}
+
 // commandSpec and commandSpecs are kept as compatibility shims while tests and
 // callers continue to use the previous names.
 type commandSpec = CommandDefinition

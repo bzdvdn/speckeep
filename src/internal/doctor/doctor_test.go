@@ -110,6 +110,50 @@ func TestCheckWarnsAboutOrphanedAgentArtifact(t *testing.T) {
 	}
 }
 
+func TestCheckWarnsAboutLegacyArchiveArtifacts(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh", AgentTargets: []string{"claude"}})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	legacyPrompt := filepath.Join(root, ".speckeep", "templates", "prompts", "archive.md")
+	if err := os.MkdirAll(filepath.Dir(legacyPrompt), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(legacyPrompt, []byte("legacy archive prompt"), 0o644); err != nil {
+		t.Fatalf("WriteFile returned error: %v", err)
+	}
+
+	legacyAgent := filepath.Join(root, ".claude", "commands", "speckeep.archive.md")
+	if err := os.MkdirAll(filepath.Dir(legacyAgent), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(legacyAgent, []byte("legacy archive command"), 0o644); err != nil {
+		t.Fatalf("WriteFile returned error: %v", err)
+	}
+
+	result, err := Check(root)
+	if err != nil {
+		t.Fatalf("Check returned error: %v", err)
+	}
+
+	var foundPromptWarning bool
+	var foundAgentWarning bool
+	for _, finding := range result.Findings {
+		if finding.Level == "warning" && strings.Contains(finding.Message, "legacy archive prompt") {
+			foundPromptWarning = true
+		}
+		if finding.Level == "warning" && strings.Contains(finding.Message, "legacy archive agent artifact") {
+			foundAgentWarning = true
+		}
+	}
+	if !foundPromptWarning || !foundAgentWarning {
+		t.Fatalf("expected legacy archive warnings, got %+v", result.Findings)
+	}
+}
+
 func TestCheckErrorsWhenRequiredFileIsMissing(t *testing.T) {
 	root := t.TempDir()
 

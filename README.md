@@ -277,7 +277,7 @@ AC-002 → T1.2, T2.1
 /speckeep.implement csv-export-for-reports   # Phase 1 done, stops
 /speckeep.implement csv-export-for-reports   # Phase 2 done, stops
 /speckeep.verify    csv-export-for-reports   # verdict: pass
-/speckeep.archive   csv-export-for-reports
+speckeep archive    csv-export-for-reports .
 ```
 
 ### Check readiness at any point

@@ -34,7 +34,6 @@ Agent-facing workflow в SpecKeep:
 - `tasks`
 - `implement`
 - `verify`
-- `archive`
 
 Каждый prompt должен:
 
@@ -45,7 +44,7 @@ Agent-facing workflow в SpecKeep:
 
 Каждая сгенерированная обёртка для агента включает:
 
-- **Hint цепочки workflow**: `constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive` — не позволяет агентам пропускать обязательные фазы или забегать вперёд
+- **Hint цепочки workflow**: `constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive` — не позволяет агентам пропускать обязательные фазы или забегать вперёд, а archive оставляет явным CLI-шагом после agent verify
 - **Дисциплина выполнения скриптов**: явная инструкция выполнять скрипты как shell-команды, доверять stdout/exit code и никогда не читать исходники скриптов
 - **Блок anti-patterns**: типичные ошибки, которых следует избегать — пропуск readiness scripts, перепланирование во время implement, отметка задач без observable proof, чтение всего репозитория когда нужен минимальный контекст
 
@@ -65,7 +64,7 @@ Agent-facing workflow в SpecKeep:
 - более глубокие артефакты читаются только когда нужно подтвердить конкретный вывод
 - его задача — подтвердить готовность к архивированию или следующему refine-циклу, а не превращаться в тяжелый review engine
 
-Для `archive` статус по умолчанию — `completed`; для non-`completed` статусов нужен явный `--reason`. Для `completed` нормально (и дешево) сначала переиспользовать `verify-task-state.sh` перед созданием снимка.
+После `verify: pass` предпочитайте явный CLI-шаг `speckeep archive <slug> .`, чтобы архивирование оставалось вне reasoning-loop агента. Для `archive` статус по умолчанию — `completed`; для non-`completed` статусов нужен явный `--reason`. Для `completed` нормально (и дешево) сначала переиспользовать `verify-task-state.sh` перед созданием снимка.
 
 ## Команды обслуживания
 

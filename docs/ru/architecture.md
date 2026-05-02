@@ -58,7 +58,7 @@ SpecKeep генерирует файлы из локализованных asset
 
 - `constitution.md`
 - шаблоны spec, plan, tasks и archive
-- prompts для `constitution`, `spec`, `inspect`, `plan`, `tasks`, `implement`, `verify` и `archive`
+- prompts для `constitution`, `spec`, `inspect`, `plan`, `tasks`, `implement` и `verify`
 - локализованный `agents-snippet.md`
 
 Общие shell scripts лежат в:

@@ -84,7 +84,6 @@ func Files(settings LanguageSettings) ([]File, error) {
 		{RelativePath: "templates/prompts/plan.md", TargetPath: "templates/prompts/plan.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/tasks.md", TargetPath: "templates/prompts/tasks.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/implement.md", TargetPath: "templates/prompts/implement.md", Mode: 0o644, Language: settings.Agent},
-		{RelativePath: "templates/prompts/archive.md", TargetPath: "templates/prompts/archive.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/verify.md", TargetPath: "templates/prompts/verify.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/handoff.md", TargetPath: "templates/prompts/handoff.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/challenge.md", TargetPath: "templates/prompts/challenge.md", Mode: 0o644, Language: settings.Agent},

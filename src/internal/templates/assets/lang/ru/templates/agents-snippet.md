@@ -26,7 +26,6 @@
 - `/speckeep.tasks` → tasks
 - `/speckeep.implement` → implement
 - `/speckeep.verify` → verify
-- `/speckeep.archive` → archive
 - `/speckeep.repo-map` → обновить `REPOSITORY_MAP.md` по компактному шаблону ниже
 
 Политика repository map (`/speckeep.repo-map`):

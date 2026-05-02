@@ -224,7 +224,7 @@ func nextCommand(state workflow.FeatureState) string {
 	case "verify":
 		return "/speckeep.verify " + state.Slug
 	case "archive":
-		return "/speckeep.archive " + state.Slug
+		return "speckeep archive " + state.Slug + " ."
 	default:
 		return ""
 	}

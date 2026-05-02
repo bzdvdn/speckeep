@@ -346,15 +346,15 @@ Expected agent behavior:
 
 ## 8. Archive the Feature
 
-User request:
+CLI follow-up after `verify: pass`:
 
-```text
-/speckeep.archive partner-scheduling
+```bash
+speckeep archive partner-scheduling .
 ```
 
-Expected agent behavior:
+Expected CLI behavior:
 
-- for `completed` status, start with `.speckeep/scripts/verify-task-state.sh partner-scheduling` and stop if open tasks remain
+- for `completed` status, validate verify/task prerequisites and stop with a clear error if open tasks remain
 - copy the feature package into `archive/partner-scheduling/<YYYY-MM-DD>/`
 - write `summary.md`
 

@@ -346,15 +346,15 @@ func TestSavePartnerSchedule(t *testing.T) {
 
 ## 8. Архивация Фичи
 
-Пример запроса:
+CLI-шаг после `verify: pass`:
 
-```text
-/speckeep.archive partner-scheduling
+```bash
+speckeep archive partner-scheduling .
 ```
 
-Ожидаемое поведение агента:
+Ожидаемое поведение CLI:
 
-- для статуса `completed` сначала запустить `.speckeep/scripts/verify-task-state.sh partner-scheduling` и остановиться, если открытые задачи еще остались
+- для статуса `completed` провалидировать prerequisites verify/tasks и остановиться с понятной ошибкой, если открытые задачи еще остались
 - скопировать feature package в `archive/partner-scheduling/<YYYY-MM-DD>/`
 - записать `summary.md`
 

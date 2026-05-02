@@ -372,6 +372,51 @@ func TestRefreshDryRunDoesNotWriteChanges(t *testing.T) {
 	}
 }
 
+func TestRefreshRemovesLegacyArchiveArtifacts(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:      false,
+		DefaultLang:  "en",
+		Shell:        "sh",
+		AgentTargets: []string{"claude"},
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	legacyPrompt := filepath.Join(root, ".speckeep", "templates", "prompts", "archive.md")
+	if err := os.MkdirAll(filepath.Dir(legacyPrompt), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(legacyPrompt, []byte("legacy archive prompt"), 0o644); err != nil {
+		t.Fatalf("WriteFile returned error: %v", err)
+	}
+
+	legacyAgent := filepath.Join(root, ".claude", "commands", "speckeep.archive.md")
+	if err := os.MkdirAll(filepath.Dir(legacyAgent), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(legacyAgent, []byte("legacy archive workflow"), 0o644); err != nil {
+		t.Fatalf("WriteFile returned error: %v", err)
+	}
+
+	result, err := Refresh(root, RefreshOptions{})
+	if err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+
+	if _, err := os.Stat(legacyPrompt); !os.IsNotExist(err) {
+		t.Fatalf("expected legacy archive prompt to be removed, got err=%v", err)
+	}
+	if _, err := os.Stat(legacyAgent); !os.IsNotExist(err) {
+		t.Fatalf("expected legacy archive agent artifact to be removed, got err=%v", err)
+	}
+	if got := strings.Join(result.Removed, "\n"); !strings.Contains(got, ".speckeep/templates/prompts/archive.md") || !strings.Contains(got, ".claude/commands/speckeep.archive.md") {
+		t.Fatalf("expected refresh removed list to mention legacy archive artifacts, got %v", result.Removed)
+	}
+}
+
 func TestRefreshDryRunAfterInitializeDoesNotReportAgentsDrift(t *testing.T) {
 	root := t.TempDir()
 

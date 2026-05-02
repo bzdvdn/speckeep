@@ -26,7 +26,6 @@ Commands:
 - `/speckeep.tasks` → write tasks
 - `/speckeep.implement` → implement tasks
 - `/speckeep.verify` → verify tasks/AC
-- `/speckeep.archive` → archive
 - `/speckeep.repo-map` → update `REPOSITORY_MAP.md` using the compact template below
 
 Repository map policy (`/speckeep.repo-map`):

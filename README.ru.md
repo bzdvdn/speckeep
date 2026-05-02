@@ -279,7 +279,7 @@ AC-002 → T1.2, T2.1
 /speckeep.implement eksport-otchetov-v-csv   # Фаза 1 выполнена, стоп
 /speckeep.implement eksport-otchetov-v-csv   # Фаза 2 выполнена, стоп
 /speckeep.verify    eksport-otchetov-v-csv   # вердикт: pass
-/speckeep.archive   eksport-otchetov-v-csv
+speckeep archive    eksport-otchetov-v-csv .
 ```
 
 ### Проверить готовность в любой момент

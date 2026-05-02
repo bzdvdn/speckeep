@@ -110,7 +110,6 @@ func TestFilesBuildForSupportedLanguages(t *testing.T) {
 				"templates/prompts/plan.md",
 				"templates/prompts/tasks.md",
 				"templates/prompts/implement.md",
-				"templates/prompts/archive.md",
 				"templates/prompts/verify.md",
 			}
 			ext := ".sh"
@@ -593,7 +592,7 @@ func TestVerifyTemplateAndPromptPreferEvidenceScopedVerification(t *testing.T) {
 		"evidence log",
 		"verify-task-state",
 		"Return to: /speckeep.<phase> <slug>",
-		"Ready for: /speckeep.archive <slug>",
+		"Ready for: speckeep archive <slug> .",
 	} {
 		if !strings.Contains(promptContent, snippet) {
 			t.Fatalf("expected verify prompt to contain %q", snippet)
@@ -652,13 +651,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			want: []string{
 				"`Slug`, `Status`, `Artifacts`, `Blockers`, and either `Ready for` or `Return to`",
 				"Return to: /speckeep.<phase> <slug>",
-				"Ready for: /speckeep.archive <slug>",
-			},
-		},
-		{
-			target: "templates/prompts/archive.md",
-			want: []string{
-				"terminal workflow step for this feature",
+				"Ready for: speckeep archive <slug> .",
 			},
 		},
 	}

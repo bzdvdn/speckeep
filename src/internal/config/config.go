@@ -54,7 +54,6 @@ var defaultConfig = Config{
 		PlanPrompt:         "prompts/plan.md",
 		TasksPrompt:        "prompts/tasks.md",
 		ImplementPrompt:    "prompts/implement.md",
-		ArchivePrompt:      "prompts/archive.md",
 		VerifyPrompt:       "prompts/verify.md",
 	},
 	Scripts: ScriptDefaultsForShell("sh"),
@@ -122,7 +121,6 @@ type Templates struct {
 	PlanPrompt         string `yaml:"plan_prompt"`
 	TasksPrompt        string `yaml:"tasks_prompt"`
 	ImplementPrompt    string `yaml:"implement_prompt"`
-	ArchivePrompt      string `yaml:"archive_prompt"`
 	VerifyPrompt       string `yaml:"verify_prompt"`
 }
 
@@ -353,9 +351,6 @@ func (c *Config) applyDefaults() {
 	}
 	if c.Templates.ImplementPrompt == "" {
 		c.Templates.ImplementPrompt = defaultConfig.Templates.ImplementPrompt
-	}
-	if c.Templates.ArchivePrompt == "" {
-		c.Templates.ArchivePrompt = defaultConfig.Templates.ArchivePrompt
 	}
 	if c.Templates.VerifyPrompt == "" {
 		c.Templates.VerifyPrompt = defaultConfig.Templates.VerifyPrompt
