@@ -6,8 +6,22 @@ import (
 	"strings"
 	"testing"
 
+	"speckeep/src/internal/config"
 	"speckeep/src/internal/project"
 )
+
+func checksSpecsDir(t *testing.T, root string) string {
+	t.Helper()
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	dir, err := cfg.SpecsDir(root)
+	if err != nil {
+		t.Fatalf("cfg.SpecsDir returned error: %v", err)
+	}
+	return dir
+}
 
 func TestCheckResultAddFindingTracksStructuredState(t *testing.T) {
 	var result CheckResult
@@ -88,7 +102,7 @@ func TestInspectSpecValidatesAcceptanceCoverageInGo(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specDir := filepath.Join(root, "specs", "demo")
+	specDir := filepath.Join(checksSpecsDir(t, root), "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
 	}
@@ -98,7 +112,7 @@ func TestInspectSpecValidatesAcceptanceCoverageInGo(t *testing.T) {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
 
-	tasksPath := filepath.Join(root, "specs", "demo", "plan", "tasks.md")
+	tasksPath := filepath.Join(checksSpecsDir(t, root), "demo", "plan", "tasks.md")
 	if err := os.MkdirAll(filepath.Dir(tasksPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -107,7 +121,7 @@ func TestInspectSpecValidatesAcceptanceCoverageInGo(t *testing.T) {
 		t.Fatalf("WriteFile(tasks) returned error: %v", err)
 	}
 
-	result, err := InspectSpec(root, "specs/demo/spec.md", "specs/demo/plan/tasks.md")
+	result, err := InspectSpec(root, "specs/active/demo/spec.md", "specs/active/demo/plan/tasks.md")
 	if err != nil {
 		t.Fatalf("InspectSpec returned error: %v", err)
 	}
@@ -138,7 +152,7 @@ func TestInspectSpecDetectsAmbiguousLanguage(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specDir := filepath.Join(root, "specs", "demo")
+	specDir := filepath.Join(checksSpecsDir(t, root), "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
 	}
@@ -148,7 +162,7 @@ func TestInspectSpecDetectsAmbiguousLanguage(t *testing.T) {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
 
-	result, err := InspectSpec(root, "specs/demo/spec.md", "")
+	result, err := InspectSpec(root, "specs/active/demo/spec.md", "")
 	if err != nil {
 		t.Fatalf("InspectSpec returned error: %v", err)
 	}
@@ -173,7 +187,7 @@ func TestInspectSpecDetectsUnknownCoverageReferences(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specDir := filepath.Join(root, "specs", "demo")
+	specDir := filepath.Join(checksSpecsDir(t, root), "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
 	}
@@ -183,7 +197,7 @@ func TestInspectSpecDetectsUnknownCoverageReferences(t *testing.T) {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
 
-	tasksPath := filepath.Join(root, "specs", "demo", "plan", "tasks.md")
+	tasksPath := filepath.Join(checksSpecsDir(t, root), "demo", "plan", "tasks.md")
 	if err := os.MkdirAll(filepath.Dir(tasksPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -192,7 +206,7 @@ func TestInspectSpecDetectsUnknownCoverageReferences(t *testing.T) {
 		t.Fatalf("WriteFile(tasks) returned error: %v", err)
 	}
 
-	result, err := InspectSpec(root, "specs/demo/spec.md", "specs/demo/plan/tasks.md")
+	result, err := InspectSpec(root, "specs/active/demo/spec.md", "specs/active/demo/plan/tasks.md")
 	if err != nil {
 		t.Fatalf("InspectSpec returned error: %v", err)
 	}
@@ -217,7 +231,7 @@ func TestCheckImplementReadyDetectsPlanTaskSurfaceMismatch(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specDir := filepath.Join(root, "specs", "demo")
+	specDir := filepath.Join(checksSpecsDir(t, root), "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
 	}
@@ -226,7 +240,7 @@ func TestCheckImplementReadyDetectsPlanTaskSurfaceMismatch(t *testing.T) {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
 
-	planDir := filepath.Join(root, "specs", "demo", "plan")
+	planDir := filepath.Join(checksSpecsDir(t, root), "demo", "plan")
 	if err := os.MkdirAll(filepath.Join(planDir, "contracts"), 0o755); err != nil {
 		t.Fatalf("MkdirAll(contracts) returned error: %v", err)
 	}
@@ -266,7 +280,7 @@ func TestVerifyTaskStateReportsOpenTasksWithoutFailing(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	tasksPath := filepath.Join(root, "specs", "demo", "plan", "tasks.md")
+	tasksPath := filepath.Join(checksSpecsDir(t, root), "demo", "plan", "tasks.md")
 	if err := os.MkdirAll(filepath.Dir(tasksPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -303,7 +317,7 @@ func TestCheckArchiveReadyBlocksCompletedArchiveWhenTasksRemainOpen(t *testing.T
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specDir := filepath.Join(root, "specs", "demo")
+	specDir := filepath.Join(checksSpecsDir(t, root), "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
 	}
@@ -311,7 +325,7 @@ func TestCheckArchiveReadyBlocksCompletedArchiveWhenTasksRemainOpen(t *testing.T
 	if err := os.WriteFile(specPath, []byte("# Demo\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
-	verifyPath := filepath.Join(root, "specs", "demo", "plan", "verify.md")
+	verifyPath := filepath.Join(checksSpecsDir(t, root), "demo", "plan", "verify.md")
 	if err := os.MkdirAll(filepath.Dir(verifyPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll(verifyDir) returned error: %v", err)
 	}
@@ -319,7 +333,7 @@ func TestCheckArchiveReadyBlocksCompletedArchiveWhenTasksRemainOpen(t *testing.T
 	if err := os.WriteFile(verifyPath, []byte(verifyContent), 0o644); err != nil {
 		t.Fatalf("WriteFile(verify) returned error: %v", err)
 	}
-	tasksPath := filepath.Join(root, "specs", "demo", "plan", "tasks.md")
+	tasksPath := filepath.Join(checksSpecsDir(t, root), "demo", "plan", "tasks.md")
 	if err := os.MkdirAll(filepath.Dir(tasksPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -351,7 +365,7 @@ func TestCheckArchiveReadyAllowsCompletedWithoutReason(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specDir := filepath.Join(root, "specs", "demo")
+	specDir := filepath.Join(checksSpecsDir(t, root), "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
 	}
@@ -359,7 +373,7 @@ func TestCheckArchiveReadyAllowsCompletedWithoutReason(t *testing.T) {
 	if err := os.WriteFile(specPath, []byte("# Demo\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
-	verifyPath := filepath.Join(root, "specs", "demo", "plan", "verify.md")
+	verifyPath := filepath.Join(checksSpecsDir(t, root), "demo", "plan", "verify.md")
 	if err := os.MkdirAll(filepath.Dir(verifyPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll(verifyDir) returned error: %v", err)
 	}
@@ -389,7 +403,7 @@ func TestCheckArchiveReadyAllowsHotfixWithoutSpec(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specDir := filepath.Join(root, "specs", "demo")
+	specDir := filepath.Join(checksSpecsDir(t, root), "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
 	}
@@ -397,7 +411,7 @@ func TestCheckArchiveReadyAllowsHotfixWithoutSpec(t *testing.T) {
 	if err := os.WriteFile(hotfixPath, []byte("# Hotfix\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile(hotfix) returned error: %v", err)
 	}
-	verifyPath := filepath.Join(root, "specs", "demo", "plan", "verify.md")
+	verifyPath := filepath.Join(checksSpecsDir(t, root), "demo", "plan", "verify.md")
 	if err := os.MkdirAll(filepath.Dir(verifyPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll(verifyDir) returned error: %v", err)
 	}
@@ -427,7 +441,7 @@ func TestCheckArchiveReadyRequiresReasonForDeferred(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specDir := filepath.Join(root, "specs", "demo")
+	specDir := filepath.Join(checksSpecsDir(t, root), "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
 	}

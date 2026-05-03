@@ -116,7 +116,7 @@ slug: add-dark-mode
 
 Если inspection report сохраняется на диск, SpecKeep должен использовать канонический путь:
 
-- `specs/<slug>/inspect.md`
+- `specs/active/<slug>/inspect.md`
 
 Используйте `.speckeep/templates/inspect-report.md` как канонический шаблон, если отчет записывается в файл.
 Сохраненные inspect и verify reports должны начинаться с machine-readable metadata block с полями `report_type`, `slug`, `status`, `docs_language` и `generated_at`.
@@ -159,7 +159,7 @@ SpecKeep должен предпочитать cheap helper findings как пе
 
 ### `tasks`
 
-Преобразует пакет плана в исполнимые задачи. `tasks.md` лежит рядом с остальными plan artifacts внутри `specs/<slug>/plan/`.
+Преобразует пакет плана в исполнимые задачи. `tasks.md` лежит рядом с остальными plan artifacts внутри `specs/active/<slug>/plan/`.
 
 SpecKeep использует **Ленивую декомпозицию** для экономии контекста:
 - **Фаза `tasks`**: Создает высокоуровневую карту (5-10 задач), привязанную к функциональным границам. Микро-задачи (на 1-5 строк кода) на этом этапе не приветствуются.
@@ -249,7 +249,7 @@ AC-001 -> T1.1, T2.1
 
 Если evidence частичны, но явного противоречия не найдено, предпочитайте `concerns`, а не `pass`.
 
-`--persist`: записать отчёт в `specs/<slug>/plan/verify.md` в дополнение к выводу в чат. Без этого флага отчёт остаётся только в чате.
+`--persist`: записать отчёт в `specs/active/<slug>/plan/verify.md` в дополнение к выводу в чат. Без этого флага отчёт остаётся только в чате.
 
 Используйте `.speckeep/templates/verify-report.md` как канонический шаблон, если отчет записывается в файл.
 
@@ -263,7 +263,7 @@ AC-001 -> T1.1, T2.1
 
 ### `archive`
 
-Копирует завершенный, вытесненный, отклоненный, abandoned или deferred feature package в `archive/<slug>/<YYYY-MM-DD>/`.
+Копирует завершенный, вытесненный, отклоненный, abandoned или deferred feature package в `specs/archived/<slug>/<YYYY-MM-DD>/`.
 
 Скрипт архивации сам валидирует статус verify и наличие открытых задач — при невыполнении предусловий возвращает понятную ошибку. Статус по умолчанию — `completed`; для остальных статусов (`superseded`, `abandoned`, `rejected`, `deferred`) требуется явный `--reason`.
 

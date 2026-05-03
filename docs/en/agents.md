@@ -50,7 +50,7 @@ Each generated agent wrapper includes:
 
 `spec` should stay branch-first:
 
-- it should create or switch to `feature/<slug>` before writing `specs/<slug>/spec.md` when the environment allows it
+- it should create or switch to `feature/<slug>` before writing `specs/active/<slug>/spec.md` when the environment allows it
 - it should support `--name`, optional `--slug`, and optional `--branch` for chat-oriented input
 - if `/speckeep.spec` is invoked with `--name` but without enough description, it should preserve context and ask for or accept the next message as the continuation of the spec request
 - when the input comes from a local prompt file, it should prefer top-of-file `name:` and optional `slug:` metadata over a generic filename

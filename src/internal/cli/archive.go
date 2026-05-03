@@ -46,7 +46,7 @@ Archive mode (default):
   - Removes active files (unless --copy)
 
 Restore mode (--restore):
-  - Copies latest archive snapshot back to active specs/ and plans/
+  - Copies latest archive snapshot back to the configured active specs directory
   - Removes the archive entry after successful restore`,
 		Example: `  speckeep archive my-feature .
   speckeep archive my-feature . --status completed --reason "AC covered"

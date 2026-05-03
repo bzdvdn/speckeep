@@ -13,7 +13,7 @@ generated_at: 2026-04-06
 - snapshot: CSV export from the current filtered report table view
 - artifacts:
   - CONSTITUTION.md
-  - specs/export-report/spec.md
+  - specs/active/export-report/spec.md
 
 ## Verdict
 

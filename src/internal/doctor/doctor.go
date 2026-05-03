@@ -180,6 +180,9 @@ func Check(root string) (Result, error) {
 	if warning := speckeepEntrypointWarning(root); warning != "" {
 		findings = append(findings, Finding{Level: "warning", Message: warning})
 	}
+	if warning := layoutWarning(cfg); warning != "" {
+		findings = append(findings, Finding{Level: "warning", Message: warning})
+	}
 
 	enabledTargets := map[string]struct{}{}
 	for _, target := range cfg.Agents.Targets {
@@ -331,6 +334,20 @@ func severityRank(level string) int {
 		return 3
 	default:
 		return 4
+	}
+}
+
+func layoutWarning(cfg config.Config) string {
+	specsDir := strings.TrimSpace(cfg.Paths.SpecsDir)
+	archiveDir := strings.TrimSpace(cfg.Paths.ArchiveDir)
+
+	switch {
+	case specsDir == "specs" && archiveDir == "archive":
+		return "workspace still uses legacy default layout specs/ + archive/ — run `speckeep refresh .` to migrate to specs/active + specs/archived"
+	case specsDir == "specs" || archiveDir == "archive":
+		return fmt.Sprintf("workspace uses mixed old/new feature layout (specs_dir=%s, archive_dir=%s) — prefer specs/active + specs/archived; run `speckeep refresh .` or set both paths explicitly", specsDir, archiveDir)
+	default:
+		return ""
 	}
 }
 

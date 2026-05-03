@@ -444,6 +444,143 @@ func TestRefreshDryRunAfterInitializeDoesNotReportAgentsDrift(t *testing.T) {
 	}
 }
 
+func TestRefreshAutoMigratesLegacyDefaultLayout(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+		SpecsDir:    "specs",
+		ArchiveDir:  "archive",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specPath := filepath.Join(root, "specs", "demo", "spec.md")
+	if err := os.MkdirAll(filepath.Dir(specPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(specPath, []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+
+	archiveMarker := filepath.Join(root, "archive", ".keep")
+	if err := os.MkdirAll(filepath.Dir(archiveMarker), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(archiveMarker, []byte("keep"), 0o644); err != nil {
+		t.Fatalf("WriteFile(archive marker) returned error: %v", err)
+	}
+
+	_, err = Refresh(root, RefreshOptions{})
+	if err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	if got, want := cfg.Paths.SpecsDir, "specs/active"; got != want {
+		t.Fatalf("specs_dir=%q, want %q", got, want)
+	}
+	if got, want := cfg.Paths.ArchiveDir, "specs/archived"; got != want {
+		t.Fatalf("archive_dir=%q, want %q", got, want)
+	}
+
+	if _, err := os.Stat(filepath.Join(root, "specs", "demo")); !os.IsNotExist(err) {
+		t.Fatalf("expected legacy specs/demo to be moved away, got err=%v", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "archive")); !os.IsNotExist(err) {
+		t.Fatalf("expected legacy archive dir to be moved away, got err=%v", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "specs", "active", "demo", "spec.md")); err != nil {
+		t.Fatalf("expected migrated spec to exist, got err=%v", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "specs", "archived", ".keep")); err != nil {
+		t.Fatalf("expected migrated archive marker to exist, got err=%v", err)
+	}
+}
+
+func TestRefreshDryRunDoesNotAutoMigrateLegacyDefaultLayout(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+		SpecsDir:    "specs",
+		ArchiveDir:  "archive",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specPath := filepath.Join(root, "specs", "demo", "spec.md")
+	if err := os.MkdirAll(filepath.Dir(specPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(specPath, []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+
+	_, err = Refresh(root, RefreshOptions{DryRun: true})
+	if err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	if got, want := cfg.Paths.SpecsDir, "specs"; got != want {
+		t.Fatalf("specs_dir=%q after dry-run, want %q", got, want)
+	}
+	if got, want := cfg.Paths.ArchiveDir, "archive"; got != want {
+		t.Fatalf("archive_dir=%q after dry-run, want %q", got, want)
+	}
+
+	if _, err := os.Stat(filepath.Join(root, "specs", "demo", "spec.md")); err != nil {
+		t.Fatalf("expected legacy spec to remain in place, got err=%v", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "specs", "active")); !os.IsNotExist(err) {
+		t.Fatalf("did not expect specs/active to be created on dry-run, got err=%v", err)
+	}
+}
+
+func TestDemoCreatesExampleArtifactsUnderActiveSpecs(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "demo-workspace")
+
+	result, err := Demo(root, DemoOptions{Shell: "sh"})
+	if err != nil {
+		t.Fatalf("Demo returned error: %v", err)
+	}
+
+	if got, want := result.ExampleSlug, "export-report"; got != want {
+		t.Fatalf("ExampleSlug=%q, want %q", got, want)
+	}
+
+	required := []string{
+		filepath.Join(root, "CONSTITUTION.md"),
+		filepath.Join(root, "specs", "active", "export-report", "spec.md"),
+		filepath.Join(root, "specs", "active", "export-report", "inspect.md"),
+		filepath.Join(root, "specs", "active", "export-report", "plan", "plan.md"),
+		filepath.Join(root, "specs", "active", "export-report", "plan", "tasks.md"),
+		filepath.Join(root, "specs", "active", "export-report", "plan", "data-model.md"),
+	}
+	for _, path := range required {
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("expected %s to exist: %v", path, err)
+		}
+	}
+
+	if _, err := os.Stat(filepath.Join(root, ".speckeep", "specs", "export-report", "spec.md")); !os.IsNotExist(err) {
+		t.Fatalf("expected legacy demo path not to exist, got err=%v", err)
+	}
+}
+
 func TestRefreshCanMoveSpecsAndArchiveDirsAndUpdateConfig(t *testing.T) {
 	root := t.TempDir()
 

@@ -94,6 +94,7 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 		}
 		cfg.Paths.ArchiveDir = filepath.ToSlash(filepath.Clean(value))
 	}
+	applyLegacyDefaultLayoutTargets(&cfg, options)
 
 	if err := moveDirIfRequested(root, "specs", previousSpecsDir, cfg.Paths.SpecsDir, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
@@ -228,6 +229,10 @@ func moveDirIfRequested(root, label, previousPath, newPath string, dryRun bool, 
 		return nil
 	}
 
+	if isSubpath(dst, src) {
+		return moveDirContentsIntoChild(src, dst)
+	}
+
 	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
 		return err
 	}
@@ -240,6 +245,79 @@ func moveDirIfRequested(root, label, previousPath, newPath string, dryRun bool, 
 		return err
 	}
 	return os.RemoveAll(src)
+}
+
+func applyLegacyDefaultLayoutTargets(cfg *config.Config, options RefreshOptions) {
+	if strings.TrimSpace(options.SpecsDir) == "" && strings.TrimSpace(cfg.Paths.SpecsDir) == "specs" {
+		cfg.Paths.SpecsDir = "specs/active"
+	}
+	if strings.TrimSpace(options.ArchiveDir) == "" && strings.TrimSpace(cfg.Paths.ArchiveDir) == "archive" {
+		cfg.Paths.ArchiveDir = "specs/archived"
+	}
+}
+
+func isSubpath(path, parent string) bool {
+	relPath, err := filepath.Rel(parent, path)
+	if err != nil {
+		return false
+	}
+	if relPath == "." {
+		return false
+	}
+	return !strings.HasPrefix(relPath, ".."+string(filepath.Separator)) && relPath != ".."
+}
+
+func moveDirContentsIntoChild(src, dst string) error {
+	if err := os.MkdirAll(dst, 0o755); err != nil {
+		return err
+	}
+
+	dstBase := filepath.Base(dst)
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		return err
+	}
+	for _, entry := range entries {
+		if entry.Name() == dstBase {
+			continue
+		}
+		srcPath := filepath.Join(src, entry.Name())
+		dstPath := filepath.Join(dst, entry.Name())
+		if err := movePath(srcPath, dstPath, entry.IsDir()); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func movePath(src, dst string, isDir bool) error {
+	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+		return err
+	}
+	if err := os.Rename(src, dst); err == nil {
+		return nil
+	}
+
+	if isDir {
+		if err := copyDir(src, dst); err != nil {
+			return err
+		}
+		return os.RemoveAll(src)
+	}
+
+	content, err := os.ReadFile(src)
+	if err != nil {
+		return err
+	}
+	info, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(dst, content, info.Mode()&os.ModePerm); err != nil {
+		return err
+	}
+	return os.Remove(src)
 }
 
 func dirExists(path string) bool {

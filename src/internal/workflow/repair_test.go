@@ -6,8 +6,22 @@ import (
 	"strings"
 	"testing"
 
+	"speckeep/src/internal/config"
 	"speckeep/src/internal/project"
 )
+
+func repairSpecsDir(t *testing.T, root string) string {
+	t.Helper()
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	dir, err := cfg.SpecsDir(root)
+	if err != nil {
+		t.Fatalf("cfg.SpecsDir returned error: %v", err)
+	}
+	return dir
+}
 
 func TestRepairFeatureMigratesLegacyFlatSpec(t *testing.T) {
 	root := t.TempDir()
@@ -21,7 +35,7 @@ func TestRepairFeatureMigratesLegacyFlatSpec(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specsDir := filepath.Join(root, "specs")
+	specsDir := repairSpecsDir(t, root)
 	if err := os.MkdirAll(specsDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specsDir) returned error: %v", err)
 	}
@@ -60,7 +74,7 @@ func TestRepairFeatureRemovesDuplicateLegacyFlatSpec(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specsDir := filepath.Join(root, "specs")
+	specsDir := repairSpecsDir(t, root)
 	content := "# Demo Spec\n"
 	canonicalPath := filepath.Join(specsDir, "demo", "spec.md")
 	if err := os.MkdirAll(filepath.Dir(canonicalPath), 0o755); err != nil {
@@ -98,7 +112,7 @@ func TestRepairFeatureWarnsWhenCanonicalAndLegacyDiffer(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specsDir := filepath.Join(root, "specs")
+	specsDir := repairSpecsDir(t, root)
 	canonicalPath := filepath.Join(specsDir, "demo", "spec.md")
 	if err := os.MkdirAll(filepath.Dir(canonicalPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll(canonical) returned error: %v", err)

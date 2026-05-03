@@ -18,7 +18,7 @@
 
 ## Plan Package
 
-Набор файлов под `specs/<slug>/plan/`, обычно включающий `plan.md`, `tasks.md`, `data-model.md`, `contracts/` и optional `research.md`.
+Набор файлов под `specs/active/<slug>/plan/`, обычно включающий `plan.md`, `tasks.md`, `data-model.md`, `contracts/` и optional `research.md`.
 
 ## Tasks
 

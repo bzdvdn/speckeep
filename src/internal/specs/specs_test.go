@@ -8,8 +8,22 @@ import (
 	"strings"
 	"testing"
 
+	"speckeep/src/internal/config"
 	"speckeep/src/internal/project"
 )
+
+func specsDirForTest(t *testing.T, root string) string {
+	t.Helper()
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	dir, err := cfg.SpecsDir(root)
+	if err != nil {
+		t.Fatalf("cfg.SpecsDir returned error: %v", err)
+	}
+	return dir
+}
 
 func TestListReturnsSortedMarkdownSpecsOnly(t *testing.T) {
 	root := t.TempDir()
@@ -19,7 +33,7 @@ func TestListReturnsSortedMarkdownSpecsOnly(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specsDir := filepath.Join(root, "specs")
+	specsDir := specsDirForTest(t, root)
 	if err := os.MkdirAll(filepath.Join(specsDir, "zeta"), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -58,7 +72,7 @@ func TestShowReturnsSpecContent(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specDir := filepath.Join(root, "specs", "demo")
+	specDir := filepath.Join(specsDirForTest(t, root), "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -93,8 +107,8 @@ func TestCreateGeneratesSpecAndTasksFromTemplates(t *testing.T) {
 		t.Fatalf("unexpected messages: %v", result.Messages)
 	}
 
-	specPath := filepath.Join(root, "specs", "partner-scheduling", "spec.md")
-	tasksPath := filepath.Join(root, "specs", "partner-scheduling", "plan", "tasks.md")
+	specPath := filepath.Join(specsDirForTest(t, root), "partner-scheduling", "spec.md")
+	tasksPath := filepath.Join(specsDirForTest(t, root), "partner-scheduling", "plan", "tasks.md")
 
 	specContent, err := os.ReadFile(specPath)
 	if err != nil {

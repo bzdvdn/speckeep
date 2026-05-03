@@ -10,6 +10,19 @@ import (
 	"speckeep/src/internal/project"
 )
 
+func doctorSpecsDir(t *testing.T, root string) string {
+	t.Helper()
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	dir, err := cfg.SpecsDir(root)
+	if err != nil {
+		t.Fatalf("cfg.SpecsDir returned error: %v", err)
+	}
+	return dir
+}
+
 func TestCheckHealthyWorkspace(t *testing.T) {
 	root := t.TempDir()
 
@@ -39,7 +52,7 @@ func TestCheckErrorsWhenPlanSkipsMandatoryInspect(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specDir := filepath.Join(root, "specs", "demo")
+	specDir := filepath.Join(doctorSpecsDir(t, root), "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
 	}
@@ -48,7 +61,7 @@ func TestCheckErrorsWhenPlanSkipsMandatoryInspect(t *testing.T) {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
 
-	planDir := filepath.Join(root, "specs", "demo", "plan")
+	planDir := filepath.Join(doctorSpecsDir(t, root), "demo", "plan")
 	if err := os.MkdirAll(planDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(planDir) returned error: %v", err)
 	}
@@ -298,7 +311,7 @@ func TestCheckWarnsDuplicateStableIDsAcrossSpecs(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	specsDir := filepath.Join(root, "specs")
+	specsDir := doctorSpecsDir(t, root)
 	specA := "# Feature A\n\n## Goal\nDo A.\n\n## Requirements\n- RQ-001 x\n\n## Acceptance Criteria\n### AC-001 A\n- **Given** x\n- **When** y\n- **Then** z\n"
 	specB := "# Feature B\n\n## Goal\nDo B.\n\n## Requirements\n- RQ-001 y\n\n## Acceptance Criteria\n### AC-001 B\n- **Given** a\n- **When** b\n- **Then** c\n"
 
@@ -417,7 +430,15 @@ func TestCheckDoesNotWarnOrphanedTraceabilityWhenTaskIsInArchive(t *testing.T) {
 	}
 
 	// Archive snapshot containing the task ID.
-	archiveTasks := filepath.Join(root, "archive", "demo", "2026-01-01", "plan", "tasks.md")
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	archiveDir, err := cfg.ArchiveDir(root)
+	if err != nil {
+		t.Fatalf("cfg.ArchiveDir returned error: %v", err)
+	}
+	archiveTasks := filepath.Join(archiveDir, "demo", "2026-01-01", "plan", "tasks.md")
 	if err := os.MkdirAll(filepath.Dir(archiveTasks), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -534,5 +555,67 @@ func TestCheckUsesWorkspaceConstitutionSummaryPathForCustomConstitutionFile(t *t
 		if finding.Level == "warning" && strings.Contains(finding.Message, "constitution.summary.md not found") {
 			t.Fatalf("unexpected constitution summary warning when workspace summary exists: %+v", result.Findings)
 		}
+	}
+}
+
+func TestCheckWarnsAboutLegacyDefaultLayout(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+		SpecsDir:    "specs",
+		ArchiveDir:  "archive",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	result, err := Check(root)
+	if err != nil {
+		t.Fatalf("Check returned error: %v", err)
+	}
+
+	var found bool
+	for _, finding := range result.Findings {
+		if finding.Level == "warning" && strings.Contains(finding.Message, "legacy default layout") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected legacy layout warning, got %+v", result.Findings)
+	}
+}
+
+func TestCheckWarnsAboutMixedLayout(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+		SpecsDir:    "specs",
+		ArchiveDir:  "specs/archived",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	result, err := Check(root)
+	if err != nil {
+		t.Fatalf("Check returned error: %v", err)
+	}
+
+	var found bool
+	for _, finding := range result.Findings {
+		if finding.Level == "warning" && strings.Contains(finding.Message, "mixed old/new feature layout") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected mixed layout warning, got %+v", result.Findings)
 	}
 }

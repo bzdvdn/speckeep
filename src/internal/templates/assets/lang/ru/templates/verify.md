@@ -14,7 +14,7 @@ generated_at: <YYYY-MM-DD>
 - verification_mode: default | deep
 - artifacts:
   - CONSTITUTION.md
-  - specs/<slug>/plan/tasks.md
+  - <specs_dir>/<slug>/plan/tasks.md
 - inspected_surfaces:
   - перечислите только те code paths, endpoints, jobs, docs или migrations, которые реально проверили
 

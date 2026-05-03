@@ -5,7 +5,7 @@ Primary context: `.speckeep/`. Languages: docs=[DOCS_LANGUAGE], agent=[AGENT_LAN
 Workflow chain: `constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive`
 
 Core rules:
-- Paths/config: read `.speckeep/speckeep.yaml` ≤ 1 time per session; if missing, defaults: `<specs_dir>=specs`, `<archive_dir>=archive`, constitution=`CONSTITUTION.md`.
+- Paths/config: read `.speckeep/speckeep.yaml` ≤ 1 time per session; if missing, defaults: `<specs_dir>=specs/active`, `<archive_dir>=specs/archived`, constitution=`CONSTITUTION.md`.
 - Constitution: prefer `.speckeep/constitution.summary.md` over `CONSTITUTION.md` when loading constitution in any phase.
 - Branching: only `/speckeep.spec` may switch/create `feature/<slug>` (or `--branch`). Other phases must already be on the correct branch.
 - Scripts: run readiness scripts; trust stdout/exit code; never read `.speckeep/scripts/*` source.
@@ -36,7 +36,7 @@ Repository map policy (`/speckeep.repo-map`):
 - Update in place (minimal diff): preserve unchanged lines/order and edit only impacted entries/sections.
 - Do not rewrite the whole file if only a subset changed.
 - If `REPOSITORY_MAP.md` does not exist, create it from template; otherwise patch existing content.
-- Exclude from indexing: `src/internal/agents/**`, `.speckeep/**`, `specs/**`, `archive/**`, `.git/**`, `bin/**`, `demo/**`, `docs/**`, `TESTS/**`, `node_modules/**`, `vendor/**`, `dist/**`, `build/**`, `coverage/**`.
+- Exclude from indexing: `src/internal/agents/**`, `.speckeep/**`, `specs/archived/**`, `.git/**`, `bin/**`, `demo/**`, `docs/**`, `TESTS/**`, `node_modules/**`, `vendor/**`, `dist/**`, `build/**`, `coverage/**`.
 - Note: project settings are already sourced from `.speckeep/speckeep.yaml`; do not duplicate that config in the map.
 
 Update trigger checklist (run `/speckeep.repo-map` if at least one is true):

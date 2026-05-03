@@ -49,11 +49,10 @@ func Demo(root string, options DemoOptions) (DemoResult, error) {
 		return DemoResult{}, fmt.Errorf("load demo files: %w", err)
 	}
 
-	draftspecDir := filepath.Join(absRoot, ".speckeep")
 	var created []string
 
 	for _, file := range demoFiles {
-		target := filepath.Join(draftspecDir, file.TargetPath)
+		target := filepath.Join(absRoot, file.TargetPath)
 		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 			return DemoResult{}, err
 		}

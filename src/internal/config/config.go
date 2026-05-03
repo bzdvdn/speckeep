@@ -21,8 +21,8 @@ var defaultConfig = Config{
 		Shell: "sh",
 	},
 	Paths: Paths{
-		SpecsDir:     "specs",
-		ArchiveDir:   "archive",
+		SpecsDir:     "specs/active",
+		ArchiveDir:   "specs/archived",
 		TemplatesDir: ".speckeep/templates",
 		ScriptsDir:   ".speckeep/scripts",
 	},

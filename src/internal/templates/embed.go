@@ -255,18 +255,18 @@ func normalizeShellValue(shell string) string {
 }
 
 // DemoFiles returns the pre-populated example artifacts for the demo workspace.
-// All paths are relative to the .speckeep directory.
+// All paths are relative to the project root.
 func DemoFiles() ([]File, error) {
 	entries := []struct {
 		assetPath  string
 		targetPath string
 	}{
 		{"assets/demo/constitution.md", "constitution.md"},
-		{"assets/demo/specs/export-report.md", "specs/export-report/spec.md"},
-		{"assets/demo/specs/export-report.inspect.md", "specs/export-report/inspect.md"},
-		{"assets/demo/specs/export-report/plan/plan.md", "specs/export-report/plan/plan.md"},
-		{"assets/demo/specs/export-report/plan/tasks.md", "specs/export-report/plan/tasks.md"},
-		{"assets/demo/specs/export-report/plan/data-model.md", "specs/export-report/plan/data-model.md"},
+		{"assets/demo/specs/export-report.md", "specs/active/export-report/spec.md"},
+		{"assets/demo/specs/export-report.inspect.md", "specs/active/export-report/inspect.md"},
+		{"assets/demo/specs/export-report/plan/plan.md", "specs/active/export-report/plan/plan.md"},
+		{"assets/demo/specs/export-report/plan/tasks.md", "specs/active/export-report/plan/tasks.md"},
+		{"assets/demo/specs/export-report/plan/data-model.md", "specs/active/export-report/plan/data-model.md"},
 	}
 	files := make([]File, 0, len(entries))
 	for _, e := range entries {

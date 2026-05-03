@@ -117,7 +117,7 @@ Suggested semantics:
 
 When an inspection report is persisted to disk, SpecKeep should use this canonical path:
 
-- `specs/<slug>/inspect.md`
+- `specs/active/<slug>/inspect.md`
 
 Use `.speckeep/templates/inspect-report.md` as the canonical template when the report is written to disk.
 Persisted inspect and verify reports should start with a machine-readable metadata block containing `report_type`, `slug`, `status`, `docs_language`, and `generated_at`.
@@ -160,7 +160,7 @@ Produces technical design artifacts for one feature package:
 
 ### `tasks`
 
-Turns the plan package into executable tasks. `tasks.md` lives next to other plan artifacts inside `specs/<slug>/plan/`.
+Turns the plan package into executable tasks. `tasks.md` lives next to other plan artifacts inside `specs/active/<slug>/plan/`.
 
 SpecKeep uses **Lazy Decomposition** to keep context narrow:
 
@@ -252,7 +252,7 @@ Suggested semantics:
 
 Use `concerns` rather than `pass` when the evidence is partial but no concrete contradiction has been found.
 
-`--persist`: write the report to `specs/<slug>/plan/verify.md` in addition to conversation output. Without this flag, the report stays in the conversation only.
+`--persist`: write the report to `specs/active/<slug>/plan/verify.md` in addition to conversation output. Without this flag, the report stays in the conversation only.
 
 Use `.speckeep/templates/verify-report.md` as the canonical template when the report is written to disk.
 
@@ -266,7 +266,7 @@ Note: generated `.speckeep/scripts/*` wrappers compute the project root from the
 
 ### `archive`
 
-Copies a completed, superseded, rejected, abandoned, or deferred feature package into `archive/<slug>/<YYYY-MM-DD>/`.
+Copies a completed, superseded, rejected, abandoned, or deferred feature package into `specs/archived/<slug>/<YYYY-MM-DD>/`.
 
 The archive script validates verify status and open tasks internally — it returns a clear error if prerequisites are not met. Default archive status is `completed`; other statuses (`superseded`, `abandoned`, `rejected`, `deferred`) require an explicit `--reason`.
 

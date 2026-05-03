@@ -17,8 +17,11 @@ func TestDefaultAppliesExpectedDefaults(t *testing.T) {
 	if cfg.Language.Default != "en" || cfg.Language.Docs != "en" || cfg.Language.Agent != "en" || cfg.Language.Comments != "en" {
 		t.Fatalf("unexpected default languages: %+v", cfg.Language)
 	}
-	if cfg.Paths.SpecsDir != "specs" {
-		t.Fatalf("SpecsDir = %q, want %q", cfg.Paths.SpecsDir, "specs")
+	if cfg.Paths.SpecsDir != "specs/active" {
+		t.Fatalf("SpecsDir = %q, want %q", cfg.Paths.SpecsDir, "specs/active")
+	}
+	if cfg.Paths.ArchiveDir != "specs/archived" {
+		t.Fatalf("ArchiveDir = %q, want %q", cfg.Paths.ArchiveDir, "specs/archived")
 	}
 	if cfg.Templates.SpecPrompt != "prompts/spec.md" {
 		t.Fatalf("SpecPrompt = %q, want %q", cfg.Templates.SpecPrompt, "prompts/spec.md")

@@ -21,8 +21,22 @@ import (
 	"path/filepath"
 	"testing"
 
+	"speckeep/src/internal/config"
 	"speckeep/src/internal/project"
 )
+
+func integrationSpecsDir(t *testing.T, root string) string {
+	t.Helper()
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	dir, err := cfg.SpecsDir(root)
+	if err != nil {
+		t.Fatalf("cfg.SpecsDir returned error: %v", err)
+	}
+	return dir
+}
 
 func TestFullWorkflowCycle(t *testing.T) {
 	root := t.TempDir()
@@ -40,7 +54,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 
 	assertState(t, root, slug, "spec", "constitution")
 
-	specDir := filepath.Join(root, "specs", slug)
+	specDir := filepath.Join(integrationSpecsDir(t, root), slug)
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir): %v", err)
 	}

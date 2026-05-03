@@ -130,7 +130,7 @@ constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> ver
 - `speckeep check <slug>` shows artifact presence, inspect and verify verdict, task progress, the exact next slash command, and a compact readiness summary from structured checks; exits with code 1 when blocked; supports `--json` for CI use. `--all` shows a readiness table across all features.
 - `speckeep demo [path]` creates a demo workspace pre-populated with an example feature at the implement phase — spec, inspect report, plan, tasks, and data model are all populated.
 - `speckeep export <slug>` bundles all feature artifacts into one markdown document for sharing with a reviewer or new agent session; supports `--output` to write to a file.
-- `speckeep list-archive` lists archived features from `archive/`; shows one entry per slug (most recent snapshot) with status, date, and reason; supports `--status` to filter by archive status, `--since <YYYY-MM-DD>` to filter by date, and `--json` for automation.
+- `speckeep list-archive` lists archived features from `specs/archived/`; shows one entry per slug (most recent snapshot) with status, date, and reason; supports `--status` to filter by archive status, `--since <YYYY-MM-DD>` to filter by date, and `--json` for automation.
 - `/speckeep.plan` supports `--research`: enters research-first mode — agent identifies concrete unknowns, writes `research.md`, then asks "Research complete — proceed to full plan?" before producing `plan.md`.
 - `/speckeep.plan` includes `## Incremental Delivery`: guides agents to define MVP (smallest testable increment) and plan iterative expansion steps with AC traceability — avoids monolithic implementations and enables early validation.
 - `/speckeep.spec` supports `--amend`: targeted edit mode — update one section or add one criterion without rewriting the spec or invalidating an existing inspect report.
@@ -200,15 +200,15 @@ speckeep init . --lang en --shell sh --agents claude
 
 Optional advanced flags:
 
-- `--specs-dir` overrides where specs are stored (default: `specs`)
-- `--archive-dir` overrides where archived artifacts are stored (default: `archive`)
+- `--specs-dir` overrides where specs are stored (default: `specs/active`)
+- `--archive-dir` overrides where archived artifacts are stored (default: `specs/archived`)
 - `--constitution-file` overrides where the project constitution is stored (default: `CONSTITUTION.md`)
 
 ### 2. Write the spec
 
 Call `/speckeep.spec --name "CSV export for reports"` in your agent.
 
-`specs/csv-export-for-reports/spec.md`:
+`specs/active/csv-export-for-reports/spec.md`:
 
 ```markdown
 ## Goal
@@ -232,20 +232,20 @@ Then a .csv with headers only downloads — no error shown
 
 Call `/speckeep.inspect csv-export-for-reports`.
 
-- `specs/csv-export-for-reports/inspect.md` — verdict `pass`, all AC have G/W/T
-- `specs/csv-export-for-reports/summary.md` — compact AC table used by implement and verify instead of the full spec
+- `specs/active/csv-export-for-reports/inspect.md` — verdict `pass`, all AC have G/W/T
+- `specs/active/csv-export-for-reports/summary.md` — compact AC table used by implement and verify instead of the full spec
 
 ### 4. Plan
 
 Call `/speckeep.plan csv-export-for-reports`.
 
-`specs/csv-export-for-reports/plan/plan.md` names the implementation surfaces: `ReportsPage.tsx` (add button), `useReportExport.ts` (new hook, CSV logic), `reports.test.ts` (new tests).
+`specs/active/csv-export-for-reports/plan/plan.md` names the implementation surfaces: `ReportsPage.tsx` (add button), `useReportExport.ts` (new hook, CSV logic), `reports.test.ts` (new tests).
 
 ### 5. Tasks
 
 Call `/speckeep.tasks csv-export-for-reports`.
 
-`specs/csv-export-for-reports/plan/tasks.md`:
+`specs/active/csv-export-for-reports/plan/tasks.md`:
 
 ```markdown
 ## Surface Map

@@ -5,8 +5,35 @@ import (
 	"path/filepath"
 	"testing"
 
+	"speckeep/src/internal/config"
 	"speckeep/src/internal/project"
 )
+
+func statusSpecsDir(t *testing.T, root string) string {
+	t.Helper()
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	dir, err := cfg.SpecsDir(root)
+	if err != nil {
+		t.Fatalf("cfg.SpecsDir returned error: %v", err)
+	}
+	return dir
+}
+
+func statusArchiveDir(t *testing.T, root string) string {
+	t.Helper()
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	dir, err := cfg.ArchiveDir(root)
+	if err != nil {
+		t.Fatalf("cfg.ArchiveDir returned error: %v", err)
+	}
+	return dir
+}
 
 func TestCheckInfersPhaseAcrossFeatureLifecycle(t *testing.T) {
 	root := t.TempDir()
@@ -39,7 +66,7 @@ func TestCheckInfersPhaseAcrossFeatureLifecycle(t *testing.T) {
 
 	check("constitution", "spec", true)
 
-	specDir := filepath.Join(root, "specs", "demo")
+	specDir := filepath.Join(statusSpecsDir(t, root), "demo")
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
 	}
@@ -56,7 +83,7 @@ func TestCheckInfersPhaseAcrossFeatureLifecycle(t *testing.T) {
 	}
 	check("inspect", "plan", false)
 
-	planDir := filepath.Join(root, "specs", "demo", "plan")
+	planDir := filepath.Join(statusSpecsDir(t, root), "demo", "plan")
 	if err := os.MkdirAll(planDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(planDir) returned error: %v", err)
 	}
@@ -92,7 +119,7 @@ func TestCheckInfersPhaseAcrossFeatureLifecycle(t *testing.T) {
 	}
 	check("verify", "archive", false)
 
-	archiveDir := filepath.Join(root, "archive", "demo", "2026-03-30")
+	archiveDir := filepath.Join(statusArchiveDir(t, root), "demo", "2026-03-30")
 	if err := os.MkdirAll(archiveDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(archiveDir) returned error: %v", err)
 	}

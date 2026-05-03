@@ -50,7 +50,7 @@ Synchronizes:
 
 			if !jsonOutput {
 				printPanel(cmd.OutOrStdout(), "speckeep refresh", []string{
-					"Sync managed files (without modifying specs/plans).",
+					"Sync managed files (without modifying authored feature contents).",
 					"Tip: add --dry-run to preview changes.",
 				})
 			}

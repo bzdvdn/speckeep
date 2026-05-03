@@ -74,7 +74,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 Это позволяет SpecKeep:
 
-- вывести безопасный путь спецификации вроде `specs/add-dark-mode/spec.md`
+- вывести безопасный путь спецификации вроде `specs/active/add-dark-mode/spec.md`
 - создать или переключить `feature/add-dark-mode`
 - избежать неоднозначных slug из generic filename
 
@@ -144,7 +144,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Ожидаемое поведение агента:
 
 - сначала прочитать constitution
-- создать `specs/partner-scheduling/spec.md`
+- создать `specs/active/partner-scheduling/spec.md`
 - записать acceptance criteria в каноническом формате `Given / When / Then`
 - остальной текст держать на configured documentation language
 
@@ -180,12 +180,12 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 Ожидаемое поведение агента:
 
-- прочитать constitution и `specs/partner-scheduling/spec.md`
+- прочитать constitution и `specs/active/partner-scheduling/spec.md`
 - держать default inspect scope дешевым: сначала `CONSTITUTION.md` и `spec.md`, а `plan.md` или `tasks.md` подтягивать только если они существуют и реально влияют на вывод
 - проверить полноту, соответствие конституции и качество сценариев
 - выпустить focused inspection report
 - использовать `.speckeep/scripts/inspect-spec.sh` или `.speckeep/scripts/inspect-spec.ps1` как дешевый helper первого прохода, когда нужно быстро подтвердить структурные проблемы spec или coverage
-- сохранять inspect report в `specs/partner-scheduling/inspect.md`
+- сохранять inspect report в `specs/active/partner-scheduling/inspect.md`
 - использовать `.speckeep/templates/inspect-report.md` как канонический шаблон отчета
 
 Типовые находки:
@@ -205,10 +205,10 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Ожидаемое поведение агента:
 
 - прочитать constitution и spec
-- если есть `specs/partner-scheduling/inspect.md`, проверить, что статус неблокирующий (`pass` или `concerns`)
-- создать `specs/partner-scheduling/plan/plan.md`
-- создать `specs/partner-scheduling/plan/data-model.md`
-- создать `specs/partner-scheduling/plan/contracts/`
+- если есть `specs/active/partner-scheduling/inspect.md`, проверить, что статус неблокирующий (`pass` или `concerns`)
+- создать `specs/active/partner-scheduling/plan/plan.md`
+- создать `specs/active/partner-scheduling/plan/data-model.md`
+- создать `specs/active/partner-scheduling/plan/contracts/`
 - создавать `research.md` только если действительно есть неопределенность
 
 Типовые выходы:
@@ -229,7 +229,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 - использовать `plan.md` как decomposition entrypoint
 - подтягивать spec, contracts или data model только при необходимости
-- создать `specs/partner-scheduling/plan/tasks.md`
+- создать `specs/active/partner-scheduling/plan/tasks.md`
 - включить acceptance-to-task coverage
 
 Пример структуры задач:
@@ -342,7 +342,7 @@ func TestSavePartnerSchedule(t *testing.T) {
 - выпустить легкий verification report
 - начинать с `.speckeep/scripts/verify-task-state.sh partner-scheduling`, если сначала нужно только подтвердить состояние задач
 - использовать `.speckeep/templates/verify-report.md`, если отчет нужно сохранить в файл
-- по умолчанию использовать `specs/partner-scheduling/plan/verify.md`, если путь явно не указан
+- по умолчанию использовать `specs/active/partner-scheduling/plan/verify.md`, если путь явно не указан
 
 ## 8. Архивация Фичи
 
@@ -355,21 +355,22 @@ speckeep archive partner-scheduling .
 Ожидаемое поведение CLI:
 
 - для статуса `completed` провалидировать prerequisites verify/tasks и остановиться с понятной ошибкой, если открытые задачи еще остались
-- скопировать feature package в `archive/partner-scheduling/<YYYY-MM-DD>/`
+- скопировать feature package в `specs/archived/partner-scheduling/<YYYY-MM-DD>/`
 - записать `summary.md`
 
 Ожидаемый результат архива:
 
 ```text
-archive/
-  partner-scheduling/
-    2026-03-28/
-      summary.md
-      spec.md
-      plan.md
-      tasks.md
-      data-model.md
-      contracts/
+specs/
+  archived/
+    partner-scheduling/
+      2026-03-28/
+        summary.md
+        spec.md
+        plan.md
+        tasks.md
+        data-model.md
+        contracts/
 ```
 
 ## 9. Сценарий Обслуживания Агентов

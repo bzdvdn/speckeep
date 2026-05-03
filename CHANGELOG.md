@@ -20,6 +20,11 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   - agent-facing workflow ends at `verify`
   - successful verify now points to `speckeep archive <slug> .` instead of `/speckeep.archive <slug>`
   - generated agent wrappers no longer include an `archive` phase prompt
+- Default feature storage layout is now nested under `specs/`:
+  - active feature packages default to `specs/active/<slug>/`
+  - archived snapshots default to `specs/archived/<slug>/<YYYY-MM-DD>/`
+  - docs, examples, demo assets, and generated agent guidance now consistently reflect the new defaults
+- `refresh` now auto-migrates the legacy default layout `specs/` + `archive/` to `specs/active/` + `specs/archived/` when paths were not explicitly customized
 - `refresh` now removes deprecated archive-managed artifacts automatically:
   - legacy `.speckeep/templates/prompts/archive.md`
   - legacy agent wrapper files such as `speckeep.archive.md` / `speckeep-archive.mdc`
@@ -29,6 +34,7 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Workspace health/reporting consistency around deprecated archive artifacts:
   - `doctor` warns when old `/speckeep.archive` guidance or legacy archive wrappers remain in the workspace
+  - `doctor` warns when a workspace still uses the legacy default layout or a mixed old/new layout
   - `refresh` and generated assets stay aligned after the archive prompt removal
 
 ## [v0.2.0] - 2026-04-28

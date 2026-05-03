@@ -23,7 +23,7 @@ func newInitCmd() *cobra.Command {
 		Short: "Initialize a SpecKeep workspace in the target project",
 		Long: `Initializes a SpecKeep workspace inside the target project.
 
-Creates the .speckeep/ directory structure (config/templates/scripts), creates the default specs/archive paths, inserts/updates a managed block in AGENTS.md, and (optionally) generates agent-target artifacts.
+Creates the .speckeep/ directory structure (config/templates/scripts), creates the default feature paths (specs/active and specs/archived), inserts/updates a managed block in AGENTS.md, and (optionally) generates agent-target artifacts.
 
 Notes:
   - Template files are created only if missing (existing files are kept).

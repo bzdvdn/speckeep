@@ -223,8 +223,8 @@ Repairs safe feature-local SpecKeep issues.
 
 Current repair scope includes:
 
-- migrating flat spec artifacts (`specs/<slug>.md`) to the canonical directory layout (`specs/<slug>/spec.md`)
-- migrating plan artifacts from the old `plans/<slug>/` layout to `specs/<slug>/plan/`
+- migrating flat spec artifacts (`specs/<slug>.md`) to the canonical directory layout (`specs/active/<slug>/spec.md`)
+- migrating plan artifacts from the old `plans/<slug>/` layout to `specs/active/<slug>/plan/`
 
 Use `--dry-run` to preview changes and `--json` for structured output.
 
@@ -250,7 +250,7 @@ Current migration scope focuses on canonicalizing legacy inspect report paths ac
 
 ### `speckeep list-specs [path]`
 
-Lists spec slugs from `specs_dir/` (default: `specs/`).
+Lists spec slugs from `specs_dir/` (default: `specs/active/`).
 
 ### `speckeep show-spec <name> [path]`
 
@@ -319,7 +319,7 @@ speckeep export export-report my-project --output export-report-bundle.md
 
 ### `speckeep list-archive [path]`
 
-Lists archived features from `archive_dir/` (default: `archive/`).
+Lists archived features from `archive_dir/` (default: `specs/archived/`).
 
 Shows one entry per slug (most recent snapshot) with status, archived date, and reason. Entries are sorted by date descending. Status values are color-coded: `completed` in green, `deferred` in yellow, `abandoned` and `rejected` in red.
 

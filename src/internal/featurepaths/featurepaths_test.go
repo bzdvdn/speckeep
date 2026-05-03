@@ -260,6 +260,25 @@ func TestListSpecSlugsReturnsEmptyForMissingDir(t *testing.T) {
 	}
 }
 
+func TestListSpecSlugsWorksWithNestedActiveRoot(t *testing.T) {
+	dir := t.TempDir()
+	specsDir := filepath.Join(dir, "specs", "active")
+	if err := os.MkdirAll(filepath.Join(specsDir, "demo"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(specsDir, "demo", "spec.md"), []byte("# spec"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	slugs, err := ListSpecSlugs(specsDir)
+	if err != nil {
+		t.Fatalf("ListSpecSlugs: %v", err)
+	}
+	if len(slugs) != 1 || slugs[0] != "demo" {
+		t.Fatalf("expected [demo], got %v", slugs)
+	}
+}
+
 func TestArtifactsReturnsAllExpectedNames(t *testing.T) {
 	artifacts := Artifacts("specs", "demo")
 	names := make(map[string]struct{}, len(artifacts))

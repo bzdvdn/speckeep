@@ -18,7 +18,8 @@ func newDemoCmd() *cobra.Command {
 
 The demo workspace contains a fully worked example feature (export-report) at
 the implement phase — spec, inspect report, plan, tasks, and data model are all
-populated so you can explore the workflow and try slash commands immediately.`,
+populated under specs/active/ so you can explore the workflow and try slash
+commands immediately.`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			root := "./speckeep-demo"

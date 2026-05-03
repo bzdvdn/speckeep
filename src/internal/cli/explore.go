@@ -162,8 +162,8 @@ func generateExploreTemplate(name, slug, language string) string {
 
 ## Связанные артефакты
 
-- Spec: specs/%s/spec.md (не создан)
-- Plan: specs/%s/plan/plan.md (не создан)
+- Spec: specs/active/%s/spec.md (не создан)
+- Plan: specs/active/%s/plan/plan.md (не создан)
 `, name, slug, time.Now().Format("2006-01-02"), slug, slug)
 	}
 
@@ -232,8 +232,8 @@ Which option is preferred and why:
 
 ## Related Artifacts
 
-- Spec: specs/%s/spec.md (not created)
-- Plan: specs/%s/plan/plan.md (not created)
+- Spec: specs/active/%s/spec.md (not created)
+- Plan: specs/active/%s/plan/plan.md (not created)
 `, name, slug, time.Now().Format("2006-01-02"), slug, slug)
 }
 

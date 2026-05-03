@@ -4,7 +4,7 @@ Adversarial review of a spec/plan: find gaps, contradictions, hidden scope, and 
 
 ## Path Resolution
 
-- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `specs`.
+- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `specs/active`.
 
 ## Phase Contract
 

@@ -18,8 +18,11 @@
 ```text
 .speckeep/
   speckeep.yaml
-  constitution.md
-  specs/
+  templates/
+  scripts/
+CONSTITUTION.md
+specs/
+  active/
     <slug>/
       spec.md
       inspect.md
@@ -33,7 +36,7 @@
         contracts/
           api.md
           events.md
-  archive/
+  archived/
     <slug>/
       <YYYY-MM-DD>/
         summary.md
@@ -43,8 +46,6 @@
         data-model.md
         research.md
         contracts/
-  templates/
-  scripts/
 AGENTS.md
 ```
 

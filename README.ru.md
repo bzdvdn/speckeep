@@ -163,7 +163,7 @@ constitution -> spec -> [inspect, опционально] -> plan -> tasks -> im
 - `speckeep check <slug>` показывает наличие артефактов, вердикт inspect и verify, прогресс задач, точную следующую slash-команду и компактную сводку readiness checks; выходит с кодом 1, если заблокировано; поддерживает `--json` для CI. `--all` выводит таблицу готовности по всем фичам.
 - `speckeep demo [path]` создает демо-workspace с заполненным примером фичи на фазе implement — spec, inspect-отчет, plan, tasks и data model уже заполнены.
 - `speckeep export <slug>` упаковывает все артефакты фичи в один markdown-документ для передачи ревьюеру или новой агентской сессии; поддерживает `--output` для записи в файл.
-- `speckeep list-archive` выводит архивированные фичи из `archive/`; показывает одну запись на slug (последний снимок) со статусом, датой и причиной; поддерживает `--status` для фильтрации по статусу, `--since <YYYY-MM-DD>` для фильтрации по дате и `--json` для автоматизации.
+- `speckeep list-archive` выводит архивированные фичи из `specs/archived/`; показывает одну запись на slug (последний снимок) со статусом, датой и причиной; поддерживает `--status` для фильтрации по статусу, `--since <YYYY-MM-DD>` для фильтрации по дате и `--json` для автоматизации.
 - `/speckeep.plan` поддерживает флаг `--research`: входит в режим research-first — агент фиксирует конкретные неизвестные, пишет `research.md`, затем спрашивает "Research complete — proceed to full plan?" перед созданием `plan.md`.
 - `/speckeep.plan` включает секцию `## Incremental Delivery`: направляет агентов на определение MVP (наименьшего тестируемого инкремента) и планирование шагов итеративного расширения с трассировкой AC — предотвращает монолитные реализации и позволяет проводить раннюю валидацию.
 - `/speckeep.spec` поддерживает флаг `--amend`: режим точечного редактирования — добавить критерий или исправить секцию без переписывания спека и без инвалидации inspect-отчёта.
@@ -202,15 +202,15 @@ speckeep init . --lang ru --shell sh --agents claude
 
 Опциональные advanced флаги:
 
-- `--specs-dir` переопределяет директорию для спецификаций (по умолчанию: `specs`)
-- `--archive-dir` переопределяет директорию для архива (по умолчанию: `archive`)
+- `--specs-dir` переопределяет директорию для спецификаций (по умолчанию: `specs/active`)
+- `--archive-dir` переопределяет директорию для архива (по умолчанию: `specs/archived`)
 - `--constitution-file` переопределяет путь к конституции проекта (по умолчанию: `CONSTITUTION.md`)
 
 ### 2. Написать спек
 
 Вызовите `/speckeep.spec --name "Экспорт отчётов в CSV"` в агенте.
 
-`specs/eksport-otchetov-v-csv/spec.md`:
+`specs/active/eksport-otchetov-v-csv/spec.md`:
 
 ```markdown
 ## Цель
@@ -234,8 +234,8 @@ Then скачивается .csv только с заголовками — бе
 
 Вызовите `/speckeep.inspect eksport-otchetov-v-csv`.
 
-- `specs/eksport-otchetov-v-csv/inspect.md` — вердикт `pass`, все AC в формате G/W/T
-- `specs/eksport-otchetov-v-csv/summary.md` — компактная таблица AC, которую используют implement и verify вместо полного spec
+- `specs/active/eksport-otchetov-v-csv/inspect.md` — вердикт `pass`, все AC в формате G/W/T
+- `specs/active/eksport-otchetov-v-csv/summary.md` — компактная таблица AC, которую используют implement и verify вместо полного spec
 
 ### 4. Plan
 
@@ -247,7 +247,7 @@ Then скачивается .csv только с заголовками — бе
 
 Вызовите `/speckeep.tasks eksport-otchetov-v-csv`.
 
-`specs/eksport-otchetov-v-csv/plan/tasks.md`:
+`specs/active/eksport-otchetov-v-csv/plan/tasks.md`:
 
 ```markdown
 ## Surface Map

@@ -5,7 +5,7 @@
 Цепочка workflow: `constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive`
 
 Базовые правила:
-- Пути/конфиг: читайте `.speckeep/speckeep.yaml` ≤ 1 раза за сессию; если конфига нет, defaults: `<specs_dir>=specs`, `<archive_dir>=archive`, constitution=`CONSTITUTION.md`.
+- Пути/конфиг: читайте `.speckeep/speckeep.yaml` ≤ 1 раза за сессию; если конфига нет, defaults: `<specs_dir>=specs/active`, `<archive_dir>=specs/archived`, constitution=`CONSTITUTION.md`.
 - Конституция: в любой фазе предпочитайте `.speckeep/constitution.summary.md` вместо `CONSTITUTION.md` если файл есть.
 - Ветки: только `/speckeep.spec` может переключать/создавать `feature/<slug>` (или `--branch`). Остальные фазы должны уже быть на нужной ветке.
 - Скрипты: запускайте readiness scripts; доверяйте stdout/exit code; исходники `.speckeep/scripts/*` не читать.
@@ -36,7 +36,7 @@
 - Обновляйте in-place (минимальный diff): сохраняйте неизменные строки/порядок и правьте только затронутые записи/секции.
 - Не переписывайте файл целиком, если изменилась только часть карты.
 - Если `REPOSITORY_MAP.md` отсутствует — создайте по шаблону; если существует — патчите существующее содержимое.
-- Исключайте из индексации: `src/internal/agents/**`, `.speckeep/**`, `specs/**`, `archive/**`, `.git/**`, `bin/**`, `demo/**`, `docs/**`, `TESTS/**`, `node_modules/**`, `vendor/**`, `dist/**`, `build/**`, `coverage/**`.
+- Исключайте из индексации: `src/internal/agents/**`, `.speckeep/**`, `specs/archived/**`, `.git/**`, `bin/**`, `demo/**`, `docs/**`, `TESTS/**`, `node_modules/**`, `vendor/**`, `dist/**`, `build/**`, `coverage/**`.
 - Важно: проектные настройки уже читаются из `.speckeep/speckeep.yaml`; не дублируйте этот конфиг в карте.
 
 Чеклист триггеров обновления (запускайте `/speckeep.repo-map`, если истинно хотя бы одно):

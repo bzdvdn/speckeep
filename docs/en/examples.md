@@ -74,7 +74,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 This lets SpecKeep:
 
-- derive a safe spec path such as `specs/add-dark-mode/spec.md`
+- derive a safe spec path such as `specs/active/add-dark-mode/spec.md`
 - create or switch to `feature/add-dark-mode`
 - avoid ambiguous slugs from generic filenames
 
@@ -144,7 +144,7 @@ User request:
 Expected agent behavior:
 
 - read constitution first
-- create `specs/partner-scheduling/spec.md`
+- create `specs/active/partner-scheduling/spec.md`
 - write acceptance criteria using canonical `Given / When / Then`
 - keep surrounding text in the configured documentation language
 
@@ -180,12 +180,12 @@ User request:
 
 Expected agent behavior:
 
-- read constitution and `specs/partner-scheduling/spec.md`
+- read constitution and `specs/active/partner-scheduling/spec.md`
 - keep the default inspect scope cheap: prefer `CONSTITUTION.md` and `spec.md`, then pull `plan.md` or `tasks.md` only when they exist and materially affect the finding
 - check completeness, constitutional consistency, and scenario quality
 - create a focused inspection report
 - use `.speckeep/scripts/inspect-spec.sh` or `.speckeep/scripts/inspect-spec.ps1` as a cheap first-pass helper when structural spec or coverage issues need quick confirmation
-- persist the inspect report at `specs/partner-scheduling/inspect.md`
+- persist the inspect report at `specs/active/partner-scheduling/inspect.md`
 - use `.speckeep/templates/inspect-report.md` as the canonical report template
 
 Typical findings:
@@ -205,10 +205,10 @@ User request:
 Expected agent behavior:
 
 - read constitution and the spec
-- if `specs/partner-scheduling/inspect.md` exists, validate that status is non-blocking (`pass` or `concerns`)
-- create `specs/partner-scheduling/plan/plan.md`
-- create `specs/partner-scheduling/plan/data-model.md`
-- create `specs/partner-scheduling/plan/contracts/`
+- if `specs/active/partner-scheduling/inspect.md` exists, validate that status is non-blocking (`pass` or `concerns`)
+- create `specs/active/partner-scheduling/plan/plan.md`
+- create `specs/active/partner-scheduling/plan/data-model.md`
+- create `specs/active/partner-scheduling/plan/contracts/`
 - create `research.md` only if uncertainty is real
 
 Typical outputs:
@@ -229,7 +229,7 @@ Expected agent behavior:
 
 - use `plan.md` as the decomposition entrypoint
 - pull in spec, contracts, or data model only when needed
-- produce `specs/partner-scheduling/plan/tasks.md`
+- produce `specs/active/partner-scheduling/plan/tasks.md`
 - include acceptance-to-task coverage
 
 Example task structure:
@@ -342,7 +342,7 @@ Expected agent behavior:
 - produce a lightweight verification report
 - start with `.speckeep/scripts/verify-task-state.sh partner-scheduling` when task-state confirmation is enough
 - use `.speckeep/templates/verify-report.md` when the report should be persisted
-- default to `specs/partner-scheduling/plan/verify.md` when no explicit path is provided
+- default to `specs/active/partner-scheduling/plan/verify.md` when no explicit path is provided
 
 ## 8. Archive the Feature
 
@@ -355,21 +355,22 @@ speckeep archive partner-scheduling .
 Expected CLI behavior:
 
 - for `completed` status, validate verify/task prerequisites and stop with a clear error if open tasks remain
-- copy the feature package into `archive/partner-scheduling/<YYYY-MM-DD>/`
+- copy the feature package into `specs/archived/partner-scheduling/<YYYY-MM-DD>/`
 - write `summary.md`
 
 Expected archive result:
 
 ```text
-archive/
-  partner-scheduling/
-    2026-03-28/
-      summary.md
-      spec.md
-      plan.md
-      tasks.md
-      data-model.md
-      contracts/
+specs/
+  archived/
+    partner-scheduling/
+      2026-03-28/
+        summary.md
+        spec.md
+        plan.md
+        tasks.md
+        data-model.md
+        contracts/
 ```
 
 ## 9. Agent Maintenance Scenario

@@ -223,8 +223,8 @@ speckeep dashboard
 
 Сейчас repair умеет:
 
-- переносить flat spec artifacts (`specs/<slug>.md`) в канонический directory layout (`specs/<slug>/spec.md`)
-- переносить plan artifacts из старого layout `plans/<slug>/` в `specs/<slug>/plan/`
+- переносить flat spec artifacts (`specs/<slug>.md`) в канонический directory layout (`specs/active/<slug>/spec.md`)
+- переносить plan artifacts из старого layout `plans/<slug>/` в `specs/active/<slug>/plan/`
 
 Используй `--dry-run`, чтобы посмотреть изменения без применения, и `--json` для структурированного вывода.
 
@@ -250,7 +250,7 @@ speckeep dashboard
 
 ### `speckeep list-specs [path]`
 
-Показывает список spec slug'ов из `specs_dir/` (по умолчанию: `specs/`).
+Показывает список spec slug'ов из `specs_dir/` (по умолчанию: `specs/active/`).
 
 ### `speckeep show-spec <name> [path]`
 
@@ -319,7 +319,7 @@ speckeep export export-report my-project --output export-report-bundle.md
 
 ### `speckeep list-archive [path]`
 
-Выводит архивированные фичи из `archive_dir/` (по умолчанию: `archive/`).
+Выводит архивированные фичи из `archive_dir/` (по умолчанию: `specs/archived/`).
 
 Показывает одну запись на slug (последний снимок) со статусом, датой архивации и причиной. Записи отсортированы по дате по убыванию. Статусы выделены цветом: `completed` — зелёный, `deferred` — жёлтый, `abandoned` и `rejected` — красный.
 

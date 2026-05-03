@@ -13,7 +13,7 @@ generated_at: <YYYY-MM-DD>
 - snapshot: one-line summary of what was inspected
 - artifacts:
   - CONSTITUTION.md
-  - specs/<slug>/spec.md
+  - <specs_dir>/<slug>/spec.md
 
 ## Verdict
 

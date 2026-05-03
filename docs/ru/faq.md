@@ -42,7 +42,7 @@
 
 `refresh` обновляет только SpecKeep-managed generated artifacts, например `.speckeep/templates/`, `.speckeep/scripts/`, `.speckeep/speckeep.yaml`, project-local agent files и managed SpecKeep block внутри `AGENTS.md`.
 
-При этом команда не изменяет содержимое authored feature state (`constitution.md`, `specs/`, `archive/`), но может безопасно перенести директории спецификаций/архива при использовании `--specs-dir` / `--archive-dir`.
+При этом команда не изменяет содержимое authored feature state (`constitution.md`, `specs/active/`, `specs/archived/`), но может безопасно перенести директории спецификаций/архива при использовании `--specs-dir` / `--archive-dir`.
 
 ## Почему SpecKeep оставляет `Given / When / Then` на английском даже в русской документации?
 

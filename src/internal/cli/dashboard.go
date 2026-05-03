@@ -259,7 +259,7 @@ func printDashboardLegend(w io.Writer) {
 	printPanel(w, "Legend", []string{
 		styleWarn(w, "!!") + " prefix in branch column = branch mismatch (expected feature/<slug>)",
 		styleStatus("READY", false, color) + " / " + styleStatus("BLOCKED", true, color) + " = readiness status",
-		"progress bar uses task checklist counts from specs/<slug>/plan/tasks.md",
+		"progress bar uses task checklist counts from specs/active/<slug>/plan/tasks.md",
 	})
 }
 

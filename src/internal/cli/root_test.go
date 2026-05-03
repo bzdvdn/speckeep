@@ -29,9 +29,43 @@ func executeRoot(t *testing.T, args ...string) (string, string, error) {
 func ensureSpecDir(t *testing.T, root, slug string) string {
 	t.Helper()
 
-	dir := filepath.Join(root, "specs", slug)
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	specsDir, err := cfg.SpecsDir(root)
+	if err != nil {
+		t.Fatalf("cfg.SpecsDir returned error: %v", err)
+	}
+	dir := filepath.Join(specsDir, slug)
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(%s) returned error: %v", dir, err)
+	}
+	return dir
+}
+
+func defaultSpecsDir(t *testing.T, root string) string {
+	t.Helper()
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	dir, err := cfg.SpecsDir(root)
+	if err != nil {
+		t.Fatalf("cfg.SpecsDir returned error: %v", err)
+	}
+	return dir
+}
+
+func defaultArchiveDir(t *testing.T, root string) string {
+	t.Helper()
+	cfg, err := config.Load(root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	dir, err := cfg.ArchiveDir(root)
+	if err != nil {
+		t.Fatalf("cfg.ArchiveDir returned error: %v", err)
 	}
 	return dir
 }
@@ -180,7 +214,7 @@ func TestListSpecsAndShowSpecCommands(t *testing.T) {
 		t.Fatalf("init command returned error: %v", err)
 	}
 
-	specsDir := filepath.Join(root, "specs")
+	specsDir := defaultSpecsDir(t, root)
 	if err := os.MkdirAll(filepath.Join(specsDir, "alpha"), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -281,7 +315,7 @@ func TestStatusCommandJSONOutput(t *testing.T) {
 		t.Fatalf("WriteFile(inspect) returned error: %v", err)
 	}
 
-	planDir := filepath.Join(root, "specs", "demo", "plan")
+	planDir := filepath.Join(ensureSpecDir(t, root, "demo"), "plan")
 	if err := os.MkdirAll(planDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(planDir) returned error: %v", err)
 	}
@@ -422,7 +456,7 @@ func TestInitAndStatusCommandsFollowFeatureLifecycle(t *testing.T) {
 		VerifyExists:  false,
 	})
 
-	planDir := filepath.Join(root, "specs", "demo", "plan")
+	planDir := filepath.Join(ensureSpecDir(t, root, "demo"), "plan")
 	if err := os.MkdirAll(planDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(planDir) returned error: %v", err)
 	}
@@ -543,7 +577,7 @@ func TestDashboardCommandJSONIncludesArchivedWithAllFlag(t *testing.T) {
 		t.Fatalf("init command returned error: %v", err)
 	}
 
-	archiveSlugDir := filepath.Join(root, "archive", "old")
+	archiveSlugDir := filepath.Join(defaultArchiveDir(t, root), "old")
 	if err := os.MkdirAll(archiveSlugDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll(archiveSlugDir) returned error: %v", err)
 	}
@@ -641,7 +675,7 @@ func TestFeatureCommandShowsSemanticFindings(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(ensureSpecDir(t, root, "demo"), "inspect.md"), []byte(inspectContent), 0o644); err != nil {
 		t.Fatalf("WriteFile(inspect) returned error: %v", err)
 	}
-	planDir := filepath.Join(root, "specs", "demo", "plan")
+	planDir := filepath.Join(ensureSpecDir(t, root, "demo"), "plan")
 	if err := os.MkdirAll(planDir, 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -1279,8 +1313,8 @@ func TestFeatureCommandShowsLegacyInspectHint(t *testing.T) {
 		t.Fatalf("init command returned error: %v", err)
 	}
 
-	// legacy flat inspect: specs/demo.inspect.md instead of specs/demo/inspect.md
-	legacyInspectPath := filepath.Join(root, "specs", "demo.inspect.md")
+	// legacy flat inspect under the configured specs root.
+	legacyInspectPath := filepath.Join(defaultSpecsDir(t, root), "demo.inspect.md")
 	content := "---\nreport_type: inspect\nslug: demo\nstatus: concerns\ndocs_language: en\ngenerated_at: 2026-03-31\n---\n# Inspect Report: demo\n\n## Verdict\n\n- status: concerns\n"
 	if err := os.WriteFile(legacyInspectPath, []byte(content), 0o644); err != nil {
 		t.Fatalf("WriteFile(inspect) returned error: %v", err)
@@ -1305,8 +1339,8 @@ func TestFeatureRepairCommandMigratesLegacyFlatSpec(t *testing.T) {
 		t.Fatalf("init command returned error: %v", err)
 	}
 
-	// legacy flat spec: specs/demo.md instead of specs/demo/spec.md
-	legacySpecPath := filepath.Join(root, "specs", "demo.md")
+	// legacy flat spec under the configured specs root.
+	legacySpecPath := filepath.Join(defaultSpecsDir(t, root), "demo.md")
 	content := "# Demo Spec\n\n## Goal\nTest.\n\n## Requirements\n- RQ-001 test\n\n## Acceptance Criteria\n### AC-001\n- **Given** x\n- **When** y\n- **Then** z\n"
 	if err := os.WriteFile(legacySpecPath, []byte(content), 0o644); err != nil {
 		t.Fatalf("WriteFile returned error: %v", err)
@@ -1319,7 +1353,7 @@ func TestFeatureRepairCommandMigratesLegacyFlatSpec(t *testing.T) {
 	if !strings.Contains(stdout, "changed: true") || !strings.Contains(stdout, "move legacy") {
 		t.Fatalf("unexpected feature repair output: %s", stdout)
 	}
-	if _, err := os.Stat(filepath.Join(root, "specs", "demo", "spec.md")); err != nil {
+	if _, err := os.Stat(filepath.Join(defaultSpecsDir(t, root), "demo", "spec.md")); err != nil {
 		t.Fatalf("expected canonical spec after repair: %v", err)
 	}
 }
@@ -1331,9 +1365,9 @@ func TestMigrateCommandRepairsLegacyFlatSpecsAcrossProject(t *testing.T) {
 		t.Fatalf("init command returned error: %v", err)
 	}
 
-	// legacy flat specs: specs/alpha.md, specs/beta.md
+	// legacy flat specs under the configured specs root.
 	for _, slug := range []string{"alpha", "beta"} {
-		legacySpecPath := filepath.Join(root, "specs", slug+".md")
+		legacySpecPath := filepath.Join(defaultSpecsDir(t, root), slug+".md")
 		content := "# " + slug + " Spec\n\n## Goal\nTest.\n\n## Requirements\n- RQ-001 test\n\n## Acceptance Criteria\n### AC-001\n- **Given** x\n- **When** y\n- **Then** z\n"
 		if err := os.WriteFile(legacySpecPath, []byte(content), 0o644); err != nil {
 			t.Fatalf("WriteFile returned error: %v", err)
@@ -1348,7 +1382,7 @@ func TestMigrateCommandRepairsLegacyFlatSpecsAcrossProject(t *testing.T) {
 		t.Fatalf("unexpected migrate output: %s", stdout)
 	}
 	for _, slug := range []string{"alpha", "beta"} {
-		if _, err := os.Stat(filepath.Join(root, "specs", slug, "spec.md")); err != nil {
+		if _, err := os.Stat(filepath.Join(defaultSpecsDir(t, root), slug, "spec.md")); err != nil {
 			t.Fatalf("expected canonical spec for %s after migrate: %v", slug, err)
 		}
 	}
@@ -1582,7 +1616,7 @@ func TestInternalInspectSpecCommandUsesWorkflowBackend(t *testing.T) {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
 
-	stdout, _, err := executeRoot(t, "__internal", "inspect-spec", "--root", root, "specs/demo/spec.md")
+	stdout, _, err := executeRoot(t, "__internal", "inspect-spec", "--root", root, "specs/active/demo/spec.md")
 	if err != nil {
 		t.Fatalf("internal inspect-spec command returned error: %v", err)
 	}
@@ -1598,7 +1632,7 @@ func TestInternalVerifyTaskStateCommandReturnsNonFatalWarnings(t *testing.T) {
 		t.Fatalf("init command returned error: %v", err)
 	}
 
-	tasksPath := filepath.Join(root, "specs", "demo", "plan", "tasks.md")
+	tasksPath := filepath.Join(ensureSpecDir(t, root, "demo"), "plan", "tasks.md")
 	if err := os.MkdirAll(filepath.Dir(tasksPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -1622,7 +1656,7 @@ func TestInternalListOpenTasksCommandUsesCLIBackend(t *testing.T) {
 		t.Fatalf("init command returned error: %v", err)
 	}
 
-	tasksPath := filepath.Join(root, "specs", "demo", "plan", "tasks.md")
+	tasksPath := filepath.Join(ensureSpecDir(t, root, "demo"), "plan", "tasks.md")
 	if err := os.MkdirAll(filepath.Dir(tasksPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
