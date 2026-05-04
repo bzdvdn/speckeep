@@ -13,6 +13,7 @@ Core rules:
 - Repository map first: if `REPOSITORY_MAP.md` exists, read it before any broad file discovery. Read it once per session and reuse notes; re-read only if you updated the map in the same session.
 - Git safety: no `git commit/push/tag` and no PRs unless explicitly asked.
 - Done: never mark a task done without observable proof (file path, test output, or command result).
+- Traceability: for every non-trivial completed task, trace markers are mandatory. No `@sk-task` in changed code or no `@sk-test` in changed tests for that task means the task is not done yet.
 - Discovery: do not run `speckeep ... --help` for discovery; use prompt files and readiness scripts instead.
 - CLI: use `./.speckeep/scripts/run-speckeep.sh` (PowerShell: `./.speckeep/scripts/run-speckeep.ps1`) only for actual CLI commands (e.g. `doctor`, `check`, `trace`, `export`, `refresh`). Do not run `run-speckeep.* <phase>` like `spec`/`plan`/`tasks` — phases are slash-commands that write artifacts directly.
 - Chat output: do not paste large `git diff`s/full files/long logs. Provide a concise change summary + the list of touched files; if details are needed, show only a small snippet around the edit.

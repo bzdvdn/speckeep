@@ -16,6 +16,7 @@ Stop if: `tasks.md` is missing, the next task is not concrete, or execution requ
 - Default scope: only the **first unfinished phase** (unless the user restricts otherwise).
 - Before reading any other file, explicitly state `Active phase: T<N>` and list the active task IDs you will execute in this run (only `T<N>.*` from the first unfinished phase). Do not proceed until this is clear.
 - Do not read or edit anything before selecting the active tasks, except `tasks.md` itself.
+- Before editing code, explicitly list a `Trace plan:` for each active task: where you expect to place `@sk-task`, and if tests are part of the task, where you expect to place `@sk-test`.
 - Do not move to phase `T(N+1).*` until all `T(N).*` tasks are checked `[x]` in `tasks.md` and you list observable proof per task (files/tests/trace/command output).
 - Read discipline: at session start, batch-read surfaces from `Touches:` for in-scope tasks; read each file ≤ 1 time per session.
 - Do not re-read already opened files end-to-end “for reassurance”: keep short notes and use targeted slices (`rg`, `sed -n`) and `git diff` to verify changes.
@@ -35,6 +36,7 @@ Stop if: `tasks.md` is missing, the next task is not concrete, or execution requ
   - place `@sk-task` near the owning behavior entrypoint (function/method/block header), not on unrelated field lines.
 - Traceability is mandatory for implementation work:
   - do not mark a task complete if changed code lacks `@sk-task` or changed tests lack `@sk-test` for that task.
+  - if you cannot place the expected markers cleanly, stop and explain the blocker before closing the task.
   - before finalizing, run a quick self-check on changed files to confirm trace markers are present.
   - minimum self-check command pattern before closing tasks: inspect changed files and confirm `@sk-task` / `@sk-test` presence via targeted search (for example with `git diff --name-only` + `rg`).
   - never replace existing trace markers when adding coverage for a new task; append new markers.
@@ -49,6 +51,7 @@ Stop if: `tasks.md` is missing, the next task is not concrete, or execution requ
 ## Output expectations
 
 - Update code/files and mark completed tasks `[x]` in `tasks.md`.
+- Include a short `Trace plan:` block before the result summary for the tasks you touched.
 - Before finalizing, make an explicit map decision line: `Map update: yes|no` + reason (based on `/speckeep.repo-map` trigger checklist in `AGENTS.md`).
 - If `Map update: yes`, run `/speckeep.repo-map` and include `REPOSITORY_MAP.md` in changed files.
 - If repository structure/navigation changed (new/moved modules, new entrypoints, major path reshaping), `Map update` must be `yes`.
@@ -56,5 +59,6 @@ Stop if: `tasks.md` is missing, the next task is not concrete, or execution requ
 - Report: closed task IDs, changed files, and the observable proof.
 - Include a short traceability proof line (which files contain `@sk-task` / `@sk-test` for the closed tasks).
 - Do not finish without explicit `Trace proof:` lines in the form: `<TASK_ID> -> <file>:<line> (@sk-task|@sk-test)`.
+- If a closed task has no valid `Trace proof:` line, treat the task as still open and do not mark it `[x]`.
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`.
 - Final line (mandatory): `Ready for: /speckeep.verify <slug>`
