@@ -39,6 +39,7 @@ func renderTraeCommands(commands []CommandDefinition, language string) string {
 		for _, cmd := range commands {
 			sections = append(sections, fmt.Sprintf("- `/speckeep.%s` → %s", cmd.Name, cmd.PromptPath))
 		}
+		sections = append(sections, "- `speckeep archive <slug> .` → CLI-only archive after verify")
 		sections = append(sections, "")
 		sections = append(sections, "Правила:")
 		sections = append(sections, "- Минимальный контекст: текущий slug и surfaces из `Touches:`.")
@@ -63,6 +64,7 @@ func renderTraeCommands(commands []CommandDefinition, language string) string {
 	for _, cmd := range commands {
 		sections = append(sections, fmt.Sprintf("- `/speckeep.%s` → %s", cmd.Name, cmd.PromptPath))
 	}
+	sections = append(sections, "- `speckeep archive <slug> .` → CLI-only archive after verify")
 	sections = append(sections, "")
 	sections = append(sections, "Rules:")
 	sections = append(sections, "- Minimum context: current slug and surfaces from `Touches:`.")

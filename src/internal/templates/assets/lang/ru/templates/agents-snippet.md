@@ -2,7 +2,7 @@
 
 Основной контекст: `.speckeep/`. Языки: docs=[DOCS_LANGUAGE], agent=[AGENT_LANGUAGE], comments=[COMMENTS_LANGUAGE]
 
-Цепочка workflow: `constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive`
+Цепочка workflow: `constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive (CLI-only после verify)`
 
 Базовые правила:
 - Пути/конфиг: читайте `.speckeep/speckeep.yaml` ≤ 1 раза за сессию; если конфига нет, defaults: `<specs_dir>=specs/active`, `<archive_dir>=specs/archived`, constitution=`CONSTITUTION.md`.
@@ -27,6 +27,7 @@
 - `/speckeep.tasks` → tasks
 - `/speckeep.implement` → implement
 - `/speckeep.verify` → verify
+- `speckeep archive <slug> .` → CLI-only архив после `verify: pass`
 - `/speckeep.repo-map` → обновить `REPOSITORY_MAP.md` по компактному шаблону ниже
 
 Политика repository map (`/speckeep.repo-map`):

@@ -2,7 +2,7 @@
 
 Primary context: `.speckeep/`. Languages: docs=[DOCS_LANGUAGE], agent=[AGENT_LANGUAGE], comments=[COMMENTS_LANGUAGE]
 
-Workflow chain: `constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive`
+Workflow chain: `constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive (CLI-only after verify)`
 
 Core rules:
 - Paths/config: read `.speckeep/speckeep.yaml` ≤ 1 time per session; if missing, defaults: `<specs_dir>=specs/active`, `<archive_dir>=specs/archived`, constitution=`CONSTITUTION.md`.
@@ -27,6 +27,7 @@ Commands:
 - `/speckeep.tasks` → write tasks
 - `/speckeep.implement` → implement tasks
 - `/speckeep.verify` → verify tasks/AC
+- `speckeep archive <slug> .` → CLI-only archive after `verify: pass`
 - `/speckeep.repo-map` → update `REPOSITORY_MAP.md` using the compact template below
 
 Repository map policy (`/speckeep.repo-map`):

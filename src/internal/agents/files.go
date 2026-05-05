@@ -203,9 +203,9 @@ func titleCase(value string) string {
 
 func workflowChainHint(lang string) string {
 	if lang == "ru" {
-		return "Цепочка workflow: constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive. Не пропускайте обязательные фазы и не забегайте вперёд."
+		return "Цепочка workflow: constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive (CLI-only). Не пропускайте обязательные фазы и не забегайте вперёд. После verify используйте `speckeep archive <slug> .`; не придумывайте и не вызывайте `/speckeep.archive`."
 	}
-	return "Workflow chain: constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive. Do not skip required phases or jump ahead."
+	return "Workflow chain: constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive (CLI-only). Do not skip required phases or jump ahead. After verify, use `speckeep archive <slug> .`; do not invent or call `/speckeep.archive`."
 }
 
 func antiPatternHint(lang string) string {
