@@ -21,9 +21,9 @@ Stop if: spec missing, slug ambiguous, or the verdict would require inventing pr
 - Technology mentions: treat technology names, frameworks, library lists, or version pins in the spec as a Warning unless they are a user requirement, repository constraint, or external contract.
 - Ambiguity: flag vague adjectives (fast, scalable, secure, intuitive, robust) without measurable criteria as Warnings; if it blocks planning, treat as blocked.
 - Placeholders: any `TODO`, `TKTK`, `???`, `<placeholder>` or similar unresolved marker is an Error.
-- If `<specs_dir>/<slug>/plan/plan.md` exists: verify `spec <-> plan` (goal/scope preserved; no new major workstreams).
-- If `<specs_dir>/<slug>/plan/tasks.md` exists: verify `plan <-> tasks` and AC coverage (each `AC-*` covered by ≥ 1 task).
-- If `<specs_dir>/<slug>/plan/tasks.md` exists: treat missing `Touches:` as a Warning (token-discipline defect) because it forces broad reads during implement.
+- If `<specs_dir>/<slug>/plan.md` exists: verify `spec <-> plan` (goal/scope preserved; no new major workstreams).
+- If `<specs_dir>/<slug>/tasks.md` exists: verify `plan <-> tasks` and AC coverage (each `AC-*` covered by ≥ 1 task).
+- If `<specs_dir>/<slug>/tasks.md` exists: treat missing `Touches:` as a Warning (token-discipline defect) because it forces broad reads during implement.
 
 If `./.speckeep/scripts/check-inspect-ready.*` exists, run it (slug first) and use its output as a baseline. Do not read `./.speckeep/scripts/*` source.
 

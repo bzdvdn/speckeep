@@ -9,7 +9,7 @@ Create a short handoff for one feature.
 ## Inputs
 
 - current phase (state)
-- `<specs_dir>/<slug>/plan/tasks.md`
+- `<specs_dir>/<slug>/tasks.md`
 - recent changes (files/commands), if known
 
 ## Output expectations

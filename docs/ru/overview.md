@@ -2,7 +2,7 @@
 
 ## Что такое SpecKeep
 
-`speckeep` хранит намерение проекта, спецификации, плановые артефакты и задачи в обычных файлах. Цель инструмента — дать людям и агентам один и тот же проектный контекст без жесткого процессного движка.
+`speckeep` хранит намерение проекта, спецификации, feature artifacts и задачи в обычных файлах. Цель инструмента — дать людям и агентам один и тот же проектный контекст без жесткого процессного движка.
 
 ## Базовые идеи
 
@@ -28,14 +28,14 @@ specs/
       inspect.md
       summary.md
       hotfix.md
-      plan/
-        plan.md
-        tasks.md
-        data-model.md
-        research.md
-        contracts/
-          api.md
-          events.md
+      plan.md
+      tasks.md
+      data-model.md
+      verify.md
+      research.md
+      contracts/
+        api.md
+        events.md
   archived/
     <slug>/
       <YYYY-MM-DD>/

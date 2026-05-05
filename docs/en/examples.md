@@ -206,9 +206,9 @@ Expected agent behavior:
 
 - read constitution and the spec
 - if `specs/active/partner-scheduling/inspect.md` exists, validate that status is non-blocking (`pass` or `concerns`)
-- create `specs/active/partner-scheduling/plan/plan.md`
-- create `specs/active/partner-scheduling/plan/data-model.md`
-- create `specs/active/partner-scheduling/plan/contracts/`
+- create `specs/active/partner-scheduling/plan.md`
+- create `specs/active/partner-scheduling/data-model.md`
+- create `specs/active/partner-scheduling/contracts/`
 - create `research.md` only if uncertainty is real
 
 Typical outputs:
@@ -229,7 +229,7 @@ Expected agent behavior:
 
 - use `plan.md` as the decomposition entrypoint
 - pull in spec, contracts, or data model only when needed
-- produce `specs/active/partner-scheduling/plan/tasks.md`
+- produce `specs/active/partner-scheduling/tasks.md`
 - include acceptance-to-task coverage
 
 Example task structure:
@@ -342,7 +342,7 @@ Expected agent behavior:
 - produce a lightweight verification report
 - start with `.speckeep/scripts/verify-task-state.sh partner-scheduling` when task-state confirmation is enough
 - use `.speckeep/templates/verify-report.md` when the report should be persisted
-- default to `specs/active/partner-scheduling/plan/verify.md` when no explicit path is provided
+- default to `specs/active/partner-scheduling/verify.md` when no explicit path is provided
 
 ## 8. Archive the Feature
 

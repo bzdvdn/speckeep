@@ -9,7 +9,7 @@
 ## Inputs
 
 - текущая фаза (state)
-- `<specs_dir>/<slug>/plan/tasks.md`
+- `<specs_dir>/<slug>/tasks.md`
 - последние изменения (файлы/команды), если известны
 
 ## Output expectations

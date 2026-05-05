@@ -322,7 +322,7 @@ generated_at: 2026-04-16
 - verification_mode: default
 - artifacts:
   - CONSTITUTION.md
-  - specs/demo/plan/tasks.md
+  - specs/demo/tasks.md
 - inspected_surfaces:
   - src/handlers/export.go
   - src/middleware/auth.go

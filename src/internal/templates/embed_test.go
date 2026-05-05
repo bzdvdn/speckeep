@@ -400,7 +400,7 @@ func TestPlanPromptDefinesConcreteResearchTriggers(t *testing.T) {
 
 	content := fileContentByTarget(t, files, "templates/prompts/plan.md")
 	requiredSnippets := []string{
-		"Create `plan/research.md` only when needed",
+		"Create `research.md` only when needed",
 		"Do not create `research.md` for generic brainstorming",
 		"Ready for: /speckeep.tasks <slug>",
 		"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",

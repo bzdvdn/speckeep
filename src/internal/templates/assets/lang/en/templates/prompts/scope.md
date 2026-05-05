@@ -8,7 +8,7 @@ Quick boundary check: what is in/out, where scope creep risk exists.
 
 ## Inputs
 
-`<specs_dir>/<slug>/spec.md` and/or `<specs_dir>/<slug>/plan/plan.md` (as present).
+`<specs_dir>/<slug>/spec.md` and/or `<specs_dir>/<slug>/plan.md` (as present).
 
 ## Output expectations
 

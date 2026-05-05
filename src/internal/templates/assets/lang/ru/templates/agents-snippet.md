@@ -23,7 +23,7 @@
 - `/speckeep.constitution` → конституция
 - `/speckeep.spec` → spec (branch-first)
 - `/speckeep.inspect` → опциональная глубокая проверка качества
-- `/speckeep.plan` → plan package
+- `/speckeep.plan` → plan artifacts
 - `/speckeep.tasks` → tasks
 - `/speckeep.implement` → implement
 - `/speckeep.verify` → verify

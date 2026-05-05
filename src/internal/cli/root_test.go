@@ -655,7 +655,7 @@ func TestFeatureCommandShowsDetailedWorkflowView(t *testing.T) {
 	if err != nil {
 		t.Fatalf("feature command returned error: %v", err)
 	}
-	if !strings.Contains(stdout, "inspect_status: concerns") || !strings.Contains(stdout, "ready_for: plan") || !strings.Contains(stdout, "issues:") || !strings.Contains(stdout, "focus: write the plan package") || strings.Contains(stdout, "verify_path:") {
+	if !strings.Contains(stdout, "inspect_status: concerns") || !strings.Contains(stdout, "ready_for: plan") || !strings.Contains(stdout, "issues:") || !strings.Contains(stdout, "focus: write the plan artifacts") || strings.Contains(stdout, "verify_path:") {
 		t.Fatalf("unexpected feature output: %s", stdout)
 	}
 }

@@ -11,7 +11,7 @@ import (
 	"speckeep/src/internal/config"
 )
 
-//go:embed assets/scripts/* assets/scripts/powershell/* assets/lang/* assets/lang/*/* assets/lang/*/templates/* assets/lang/*/templates/prompts/* assets/lang/*/templates/contracts/* assets/lang/*/templates/archive/* assets/demo/* assets/demo/specs/* assets/demo/specs/export-report/* assets/demo/specs/export-report/plan/*
+//go:embed assets/scripts/* assets/scripts/powershell/* assets/lang/* assets/lang/*/* assets/lang/*/templates/* assets/lang/*/templates/prompts/* assets/lang/*/templates/contracts/* assets/lang/*/templates/archive/* assets/demo/* assets/demo/specs/* assets/demo/specs/export-report/*
 var embedded embed.FS
 
 type File struct {
@@ -264,9 +264,9 @@ func DemoFiles() ([]File, error) {
 		{"assets/demo/constitution.md", "constitution.md"},
 		{"assets/demo/specs/export-report.md", "specs/active/export-report/spec.md"},
 		{"assets/demo/specs/export-report.inspect.md", "specs/active/export-report/inspect.md"},
-		{"assets/demo/specs/export-report/plan/plan.md", "specs/active/export-report/plan/plan.md"},
-		{"assets/demo/specs/export-report/plan/tasks.md", "specs/active/export-report/plan/tasks.md"},
-		{"assets/demo/specs/export-report/plan/data-model.md", "specs/active/export-report/plan/data-model.md"},
+		{"assets/demo/specs/export-report/plan.md", "specs/active/export-report/plan.md"},
+		{"assets/demo/specs/export-report/tasks.md", "specs/active/export-report/tasks.md"},
+		{"assets/demo/specs/export-report/data-model.md", "specs/active/export-report/data-model.md"},
 	}
 	files := make([]File, 0, len(entries))
 	for _, e := range entries {

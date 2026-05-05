@@ -7,7 +7,7 @@
 
 `speckeep` is a lightweight project context kit for development agents and humans.
 
-It keeps project intent, specifications, plan artifacts, and task breakdowns in simple files without introducing a rigid process engine.
+It keeps project intent, specifications, feature artifacts, and task breakdowns in simple files without introducing a rigid process engine.
 
 SpecKeep is the successor to DraftSpec (archived). If you are migrating an existing DraftSpec workspace, start with `speckeep migrate`.
 
@@ -115,7 +115,7 @@ constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> ver
 ## Key Points
 
 - The constitution is the highest-priority project document.
-- Plan packages keep `plan.md`, `tasks.md`, `data-model.md`, `contracts/`, and optional `research.md` together.
+- Feature artifacts keep `plan.md`, `tasks.md`, `data-model.md`, `verify.md`, `contracts/`, and optional `research.md` together under one slug directory.
 - `data-model.md` and `contracts/` are intentionally compact but structured: entities should capture fields, invariants, and lifecycle; contracts should capture boundary IO, failures, and delivery assumptions.
 - Specs use canonical `Given / When / Then` markers across documentation languages.
 - SpecKeep prefers stable IDs and explicit references over repeated narrative summaries: `RQ-*` for requirements, `AC-*` for acceptance criteria, `DEC-*` for plan decisions, and phase-scoped `T*` task IDs.
@@ -239,13 +239,13 @@ Call `/speckeep.inspect csv-export-for-reports`.
 
 Call `/speckeep.plan csv-export-for-reports`.
 
-`specs/active/csv-export-for-reports/plan/plan.md` names the implementation surfaces: `ReportsPage.tsx` (add button), `useReportExport.ts` (new hook, CSV logic), `reports.test.ts` (new tests).
+`specs/active/csv-export-for-reports/plan.md` names the implementation surfaces: `ReportsPage.tsx` (add button), `useReportExport.ts` (new hook, CSV logic), `reports.test.ts` (new tests).
 
 ### 5. Tasks
 
 Call `/speckeep.tasks csv-export-for-reports`.
 
-`specs/active/csv-export-for-reports/plan/tasks.md`:
+`specs/active/csv-export-for-reports/tasks.md`:
 
 ```markdown
 ## Surface Map

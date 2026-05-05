@@ -112,7 +112,7 @@ func TestInspectSpecValidatesAcceptanceCoverageInGo(t *testing.T) {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
 
-	tasksPath := filepath.Join(checksSpecsDir(t, root), "demo", "plan", "tasks.md")
+	tasksPath := filepath.Join(checksSpecsDir(t, root), "demo", "tasks.md")
 	if err := os.MkdirAll(filepath.Dir(tasksPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -121,7 +121,7 @@ func TestInspectSpecValidatesAcceptanceCoverageInGo(t *testing.T) {
 		t.Fatalf("WriteFile(tasks) returned error: %v", err)
 	}
 
-	result, err := InspectSpec(root, "specs/active/demo/spec.md", "specs/active/demo/plan/tasks.md")
+	result, err := InspectSpec(root, "specs/active/demo/spec.md", "specs/active/demo/tasks.md")
 	if err != nil {
 		t.Fatalf("InspectSpec returned error: %v", err)
 	}
@@ -197,7 +197,7 @@ func TestInspectSpecDetectsUnknownCoverageReferences(t *testing.T) {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
 
-	tasksPath := filepath.Join(checksSpecsDir(t, root), "demo", "plan", "tasks.md")
+	tasksPath := filepath.Join(checksSpecsDir(t, root), "demo", "tasks.md")
 	if err := os.MkdirAll(filepath.Dir(tasksPath), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
@@ -206,7 +206,7 @@ func TestInspectSpecDetectsUnknownCoverageReferences(t *testing.T) {
 		t.Fatalf("WriteFile(tasks) returned error: %v", err)
 	}
 
-	result, err := InspectSpec(root, "specs/active/demo/spec.md", "specs/active/demo/plan/tasks.md")
+	result, err := InspectSpec(root, "specs/active/demo/spec.md", "specs/active/demo/tasks.md")
 	if err != nil {
 		t.Fatalf("InspectSpec returned error: %v", err)
 	}

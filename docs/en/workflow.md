@@ -8,7 +8,7 @@ constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> ver
 
 For new projects (Greenfield), work begins with an extended **Constitution** phase (using the `--foundation` flag) that codifies both the process rules and the project's technical foundation.
 
-SpecKeep assumes branch-based delivery: each active feature should be developed in its own git branch, with the feature spec and plan package acting as the shared source of truth instead of a mutable global memory file. The default branch naming convention is `feature/<slug>`.
+SpecKeep assumes branch-based delivery: each active feature should be developed in its own git branch, with the feature spec and artifact set acting as the shared source of truth instead of a mutable global memory file. The default branch naming convention is `feature/<slug>`.
 
 ## Phase Responsibilities
 
@@ -160,7 +160,7 @@ Produces technical design artifacts for one feature package:
 
 ### `tasks`
 
-Turns the plan package into executable tasks. `tasks.md` lives next to other plan artifacts inside `specs/active/<slug>/plan/`.
+Turns the plan artifacts into executable tasks. `tasks.md` lives next to other feature artifacts inside `specs/active/<slug>/`.
 
 SpecKeep uses **Lazy Decomposition** to keep context narrow:
 
@@ -252,7 +252,7 @@ Suggested semantics:
 
 Use `concerns` rather than `pass` when the evidence is partial but no concrete contradiction has been found.
 
-`--persist`: write the report to `specs/active/<slug>/plan/verify.md` in addition to conversation output. Without this flag, the report stays in the conversation only.
+`--persist`: write the report to `specs/active/<slug>/verify.md` in addition to conversation output. Without this flag, the report stays in the conversation only.
 
 Use `.speckeep/templates/verify-report.md` as the canonical template when the report is written to disk.
 

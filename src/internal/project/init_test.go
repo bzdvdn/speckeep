@@ -444,6 +444,62 @@ func TestRefreshDryRunAfterInitializeDoesNotReportAgentsDrift(t *testing.T) {
 	}
 }
 
+func TestRefreshMigratesLegacyNestedPlanLayout(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specsDir := filepath.Join(root, "specs", "active", "demo")
+	legacyPlanDir := filepath.Join(specsDir, "plan")
+	if err := os.MkdirAll(filepath.Join(legacyPlanDir, "contracts"), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(specsDir, "spec.md"), []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(legacyPlanDir, "plan.md"), []byte("# Plan\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(plan) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(legacyPlanDir, "tasks.md"), []byte("# Tasks\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(legacyPlanDir, "verify.md"), []byte("# Verify\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(verify) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(legacyPlanDir, "contracts", "api.md"), []byte("# API\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(contract) returned error: %v", err)
+	}
+
+	result, err := Refresh(root, RefreshOptions{})
+	if err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+	if len(result.Rewritten) == 0 || len(result.Removed) == 0 {
+		t.Fatalf("expected refresh to migrate legacy nested plan artifacts, got %+v", result)
+	}
+
+	for _, path := range []string{
+		filepath.Join(specsDir, "plan.md"),
+		filepath.Join(specsDir, "tasks.md"),
+		filepath.Join(specsDir, "verify.md"),
+		filepath.Join(specsDir, "contracts", "api.md"),
+	} {
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("expected migrated artifact %s to exist: %v", path, err)
+		}
+	}
+	if _, err := os.Stat(legacyPlanDir); !os.IsNotExist(err) {
+		t.Fatalf("expected legacy nested plan dir to be removed, got err=%v", err)
+	}
+}
+
 func TestRefreshAutoMigratesLegacyDefaultLayout(t *testing.T) {
 	root := t.TempDir()
 
@@ -566,9 +622,9 @@ func TestDemoCreatesExampleArtifactsUnderActiveSpecs(t *testing.T) {
 		filepath.Join(root, "CONSTITUTION.md"),
 		filepath.Join(root, "specs", "active", "export-report", "spec.md"),
 		filepath.Join(root, "specs", "active", "export-report", "inspect.md"),
-		filepath.Join(root, "specs", "active", "export-report", "plan", "plan.md"),
-		filepath.Join(root, "specs", "active", "export-report", "plan", "tasks.md"),
-		filepath.Join(root, "specs", "active", "export-report", "plan", "data-model.md"),
+		filepath.Join(root, "specs", "active", "export-report", "plan.md"),
+		filepath.Join(root, "specs", "active", "export-report", "tasks.md"),
+		filepath.Join(root, "specs", "active", "export-report", "data-model.md"),
 	}
 	for _, path := range required {
 		if _, err := os.Stat(path); err != nil {

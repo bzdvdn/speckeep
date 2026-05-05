@@ -247,7 +247,7 @@ Then скачивается .csv только с заголовками — бе
 
 Вызовите `/speckeep.tasks eksport-otchetov-v-csv`.
 
-`specs/active/eksport-otchetov-v-csv/plan/tasks.md`:
+`specs/active/eksport-otchetov-v-csv/tasks.md`:
 
 ```markdown
 ## Surface Map

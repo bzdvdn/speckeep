@@ -11,7 +11,7 @@ This is the **speckeep** repository — a lightweight SDD (Specification-Driven 
   - `src/internal/` — internal packages (templates, cli, config, etc.)
 - `.speckeep/` — speckeep's own project context (dogfooding)
   - `specs/` — feature specifications for speckeep itself
-  - `specs/<slug>/plan/` — plan package per feature
+  - `specs/<slug>/` — feature artifact set (`spec.md`, `plan.md`, `tasks.md`, `verify.md`, etc.)
   - `templates/` — template files that speckeep generates for other projects
   - `scripts/` — helper scripts for workflow phases
 - `docs/` — extended documentation (en/ru)
@@ -38,8 +38,8 @@ When working on speckeep features:
 1. **Check existing specs**: `speckeep list-specs`
 2. **Read the spec**: `.speckeep/specs/<slug>/spec.md`
 3. **Check inspect report**: `.speckeep/specs/<slug>/inspect.md` (must be `pass`)
-4. **Read the plan**: `.speckeep/specs/<slug>/plan/plan.md`
-5. **Read tasks**: `.speckeep/specs/<slug>/plan/tasks.md`
+4. **Read the plan**: `.speckeep/specs/<slug>/plan.md`
+5. **Read tasks**: `.speckeep/specs/<slug>/tasks.md`
 6. **Implement tasks in order**, marking them complete
 7. **Verify**: ensure all ACs are covered
 

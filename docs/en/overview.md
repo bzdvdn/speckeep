@@ -2,7 +2,7 @@
 
 ## What SpecKeep Is
 
-`speckeep` keeps project intent, specifications, plan artifacts, and tasks in plain files. It is designed to help humans and development agents share the same project context without introducing a rigid process engine.
+`speckeep` keeps project intent, specifications, feature artifacts, and tasks in plain files. It is designed to help humans and development agents share the same project context without introducing a rigid process engine.
 
 ## Core Ideas
 
@@ -28,14 +28,14 @@ specs/
       inspect.md
       summary.md
       hotfix.md
-      plan/
-        plan.md
-        tasks.md
-        data-model.md
-        research.md
-        contracts/
-          api.md
-          events.md
+      plan.md
+      tasks.md
+      data-model.md
+      verify.md
+      research.md
+      contracts/
+        api.md
+        events.md
   archived/
     <slug>/
       <YYYY-MM-DD>/

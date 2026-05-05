@@ -54,8 +54,8 @@ Expected artifact growth:
 
 - `specs/active/<slug>/spec.md`
 - `specs/active/<slug>/inspect.md`
-- `specs/active/<slug>/plan/plan.md`
-- `specs/active/<slug>/plan/tasks.md`
+- `specs/active/<slug>/plan.md`
+- `specs/active/<slug>/tasks.md`
 - optional compact plan artifacts only when needed
 
 ## What To Highlight In A Demo

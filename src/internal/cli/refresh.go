@@ -35,8 +35,8 @@ Synchronizes:
   - the managed SpecKeep block in AGENTS.md
   - agent-target artifacts (.claude/, .cursor/, etc.)
 
-	Does not touch authored feature state:
-	  - feature contents under specs_dir are not modified (but can be moved with --specs-dir).
+	Does not rewrite authored feature content:
+	  - feature contents under specs_dir are not regenerated (but paths can be canonicalized or moved with --specs-dir).
 	  - archive contents under archive_dir are not modified (but can be moved with --archive-dir).
 
 	Tip: use --dry-run to preview changes without writing.`,

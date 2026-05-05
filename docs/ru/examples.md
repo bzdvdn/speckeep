@@ -206,9 +206,9 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 - прочитать constitution и spec
 - если есть `specs/active/partner-scheduling/inspect.md`, проверить, что статус неблокирующий (`pass` или `concerns`)
-- создать `specs/active/partner-scheduling/plan/plan.md`
-- создать `specs/active/partner-scheduling/plan/data-model.md`
-- создать `specs/active/partner-scheduling/plan/contracts/`
+- создать `specs/active/partner-scheduling/plan.md`
+- создать `specs/active/partner-scheduling/data-model.md`
+- создать `specs/active/partner-scheduling/contracts/`
 - создавать `research.md` только если действительно есть неопределенность
 
 Типовые выходы:
@@ -229,7 +229,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 - использовать `plan.md` как decomposition entrypoint
 - подтягивать spec, contracts или data model только при необходимости
-- создать `specs/active/partner-scheduling/plan/tasks.md`
+- создать `specs/active/partner-scheduling/tasks.md`
 - включить acceptance-to-task coverage
 
 Пример структуры задач:
@@ -342,7 +342,7 @@ func TestSavePartnerSchedule(t *testing.T) {
 - выпустить легкий verification report
 - начинать с `.speckeep/scripts/verify-task-state.sh partner-scheduling`, если сначала нужно только подтвердить состояние задач
 - использовать `.speckeep/templates/verify-report.md`, если отчет нужно сохранить в файл
-- по умолчанию использовать `specs/active/partner-scheduling/plan/verify.md`, если путь явно не указан
+- по умолчанию использовать `specs/active/partner-scheduling/verify.md`, если путь явно не указан
 
 ## 8. Архивация Фичи
 

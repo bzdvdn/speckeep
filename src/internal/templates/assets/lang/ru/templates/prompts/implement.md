@@ -6,7 +6,7 @@
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`), `<specs_dir>/<slug>/plan/tasks.md`.
+Inputs: `project.constitution_file` (по умолчанию `CONSTITUTION.md`), `<specs_dir>/<slug>/tasks.md`.
 Outputs: изменения в коде/файлах из `Touches:` + обновлённые чекбоксы в `tasks.md`.
 Stop if: `tasks.md` отсутствует, следующая задача неконкретна, или выполнение требует придумать новые задачи/AC.
 

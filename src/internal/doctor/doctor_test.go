@@ -619,3 +619,40 @@ func TestCheckWarnsAboutMixedLayout(t *testing.T) {
 		t.Fatalf("expected mixed layout warning, got %+v", result.Findings)
 	}
 }
+
+func TestCheckErrorsOnLegacyNestedPlanLayout(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	legacyPlanDir := filepath.Join(doctorSpecsDir(t, root), "demo", "plan")
+	if err := os.MkdirAll(legacyPlanDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(legacyPlanDir, "plan.md"), []byte("# Demo Plan\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile returned error: %v", err)
+	}
+
+	result, err := Check(root)
+	if err != nil {
+		t.Fatalf("Check returned error: %v", err)
+	}
+
+	var found bool
+	for _, finding := range result.Findings {
+		if finding.Level == "error" && strings.Contains(finding.Message, "legacy nested plan layout still present") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected legacy nested plan layout error, got %+v", result.Findings)
+	}
+}

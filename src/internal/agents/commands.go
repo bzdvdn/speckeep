@@ -39,7 +39,7 @@ func DefaultCommands(shell string) []CommandDefinition {
 		},
 		{
 			Name:        "plan",
-			Description: "Create or update one feature plan package",
+			Description: "Create or update plan artifacts for one feature",
 			PromptPath:  ".speckeep/templates/prompts/plan.md",
 			Extras:      []string{scriptPath("check-plan-ready", normalizedShell)},
 			Category:    "workflow",

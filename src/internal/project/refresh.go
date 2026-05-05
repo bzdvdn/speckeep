@@ -105,6 +105,9 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 	if err := moveConstitutionIfRequested(root, previousConstitutionFile, cfg.Project.ConstitutionFile, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
 	}
+	if err := migrateLegacyNestedPlanLayout(root, cfg.Paths.SpecsDir, options.DryRun, &result); err != nil {
+		return RefreshResult{}, err
+	}
 
 	if err := syncConfig(root, cfg, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
@@ -256,6 +259,112 @@ func applyLegacyDefaultLayoutTargets(cfg *config.Config, options RefreshOptions)
 	}
 }
 
+func migrateLegacyNestedPlanLayout(root, specsDir string, dryRun bool, result *RefreshResult) error {
+	specsRoot := filepath.Join(root, filepath.FromSlash(specsDir))
+	entries, err := os.ReadDir(specsRoot)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		slugDir := filepath.Join(specsRoot, entry.Name())
+		legacyPlanDir := filepath.Join(slugDir, "plan")
+		planEntries, err := os.ReadDir(legacyPlanDir)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return err
+		}
+
+		for _, planEntry := range planEntries {
+			src := filepath.Join(legacyPlanDir, planEntry.Name())
+			dst := filepath.Join(slugDir, planEntry.Name())
+			if planEntry.IsDir() {
+				if planEntry.Name() != "contracts" {
+					continue
+				}
+				if err := migrateLegacyNestedContracts(root, src, dst, dryRun, result); err != nil {
+					return err
+				}
+				continue
+			}
+			if err := migrateLegacyNestedArtifact(root, src, dst, dryRun, result); err != nil {
+				return err
+			}
+		}
+
+		if dryRun {
+			continue
+		}
+		if err := removeEmptyDir(filepath.Join(legacyPlanDir, "contracts")); err != nil && !os.IsNotExist(err) {
+			return err
+		}
+		if err := removeEmptyDir(legacyPlanDir); err != nil && !os.IsNotExist(err) {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func migrateLegacyNestedContracts(root, srcDir, dstDir string, dryRun bool, result *RefreshResult) error {
+	entries, err := os.ReadDir(srcDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		if err := migrateLegacyNestedArtifact(root, filepath.Join(srcDir, entry.Name()), filepath.Join(dstDir, entry.Name()), dryRun, result); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func migrateLegacyNestedArtifact(root, src, dst string, dryRun bool, result *RefreshResult) error {
+	if fileExists(dst) {
+		srcContent, err := os.ReadFile(src)
+		if err != nil {
+			return err
+		}
+		dstContent, err := os.ReadFile(dst)
+		if err != nil {
+			return err
+		}
+		if !bytes.Equal(srcContent, dstContent) {
+			return fmt.Errorf("legacy nested artifact differs from canonical file: %s -> %s", rel(root, src), rel(root, dst))
+		}
+		recordRefreshAction(result, "removed", rel(root, src))
+		if dryRun {
+			return nil
+		}
+		return os.Remove(src)
+	}
+
+	recordRefreshAction(result, "rewritten", rel(root, dst))
+	recordRefreshAction(result, "removed", rel(root, src))
+	if dryRun {
+		return nil
+	}
+
+	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+		return err
+	}
+	return os.Rename(src, dst)
+}
+
 func isSubpath(path, parent string) bool {
 	relPath, err := filepath.Rel(parent, path)
 	if err != nil {
@@ -323,6 +432,17 @@ func movePath(src, dst string, isDir bool) error {
 func dirExists(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && info.IsDir()
+}
+
+func removeEmptyDir(path string) error {
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return err
+	}
+	if len(entries) > 0 {
+		return nil
+	}
+	return os.Remove(path)
 }
 
 func copyDir(src, dst string) error {

@@ -224,7 +224,7 @@ speckeep dashboard
 Сейчас repair умеет:
 
 - переносить flat spec artifacts (`specs/<slug>.md`) в канонический directory layout (`specs/active/<slug>/spec.md`)
-- переносить plan artifacts из старого layout `plans/<slug>/` в `specs/active/<slug>/plan/`
+- переносить plan artifacts из старого layout `plans/<slug>/` в `specs/active/<slug>/`
 
 Используй `--dry-run`, чтобы посмотреть изменения без применения, и `--json` для структурированного вывода.
 

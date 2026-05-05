@@ -224,7 +224,7 @@ Repairs safe feature-local SpecKeep issues.
 Current repair scope includes:
 
 - migrating flat spec artifacts (`specs/<slug>.md`) to the canonical directory layout (`specs/active/<slug>/spec.md`)
-- migrating plan artifacts from the old `plans/<slug>/` layout to `specs/active/<slug>/plan/`
+- migrating plan artifacts from the old `plans/<slug>/` layout to `specs/active/<slug>/`
 
 Use `--dry-run` to preview changes and `--json` for structured output.
 

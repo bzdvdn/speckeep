@@ -23,7 +23,7 @@ Commands:
 - `/speckeep.constitution` → update constitution
 - `/speckeep.spec` → write spec (branch-first)
 - `/speckeep.inspect` → optional deep quality review
-- `/speckeep.plan` → write plan package
+- `/speckeep.plan` → write plan artifacts
 - `/speckeep.tasks` → write tasks
 - `/speckeep.implement` → implement tasks
 - `/speckeep.verify` → verify tasks/AC

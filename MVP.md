@@ -117,10 +117,10 @@ Dependency rules:
 - `spec` depends on the constitution
 - `inspect` depends on the constitution and one spec
 - `plan` depends on the constitution, one spec, and the persisted inspect report
-- `tasks` depends on the constitution and one plan package
+- `tasks` depends on the constitution and one feature artifact set with a plan
 - `implement` depends on the constitution and one task list
 - `verify` depends on the constitution and one task list
-- `archive` depends on one existing spec and archives the related plan package
+- `archive` depends on one existing spec and archives the related feature artifacts
 
 ## Optional workflow commands
 
@@ -184,15 +184,16 @@ Recommended stable ID scheme:
 - `EVT-*` for event contracts
 - `T<phase>.<index>` for tasks
 
-## Plan package
+## Feature artifacts
 
-Each feature plan lives under `specs/<slug>/plan/`.
+Each feature keeps its phase artifacts under `specs/<slug>/`.
 
 Required artifacts:
 
 - `plan.md` (includes `## Incremental Delivery` section)
 - `tasks.md`
 - `data-model.md`
+- `verify.md` (when verify is persisted)
 
 Optional artifacts:
 
@@ -224,7 +225,7 @@ Inputs:
 
 - `CONSTITUTION.md`
 - `specs/<slug>/spec.md`
-- optional plan artifacts when they exist (cheapest scope first)
+- optional feature artifacts when they exist (cheapest scope first)
 
 Outputs:
 
@@ -240,7 +241,7 @@ Outputs:
 Inputs:
 
 - `CONSTITUTION.md`
-- `specs/<slug>/plan/tasks.md`
+- `specs/<slug>/tasks.md`
 - optional spec, plan, data-model, contracts, targeted code
 
 Outputs:
@@ -263,12 +264,12 @@ The verify phase must:
 Inputs:
 
 - `specs/<slug>/spec.md`
-- optional plan artifacts
+- optional feature artifacts
 
 Outputs:
 
 - `archive/<slug>/<YYYY-MM-DD>/summary.md`
-- archived copies of spec and plan artifacts
+- archived copies of spec and feature artifacts
 - move-based by default (deletes originals after copy)
 - supports `--restore` to reverse archive
 
@@ -338,8 +339,8 @@ Inputs:
 
 Outputs:
 
-- `specs/<slug>/plan/plan.md`
-- `specs/<slug>/plan/data-model.md`
+- `specs/<slug>/plan.md`
+- `specs/<slug>/data-model.md`
 - optional contracts and research
 
 Plan includes:
@@ -356,7 +357,7 @@ Supports `--update` for targeted edits without rewriting entire plan.
 `tasks` reads:
 
 - `CONSTITUTION.md`
-- `specs/<slug>/plan/plan.md`
+- `specs/<slug>/plan.md`
 - reads spec/data-model/contracts only as needed
 
 Must:
@@ -373,7 +374,7 @@ Must:
 `implement` reads:
 
 - `CONSTITUTION.md`
-- `specs/<slug>/plan/tasks.md`
+- `specs/<slug>/tasks.md`
 - reads spec/plan/data-model/contracts only as needed
 
 Must:

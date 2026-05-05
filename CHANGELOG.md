@@ -89,12 +89,18 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Workflow checks/state edge cases around inspect/implement/task readiness
 - Agent command/rendering issues in wrappers and scripts for cross-agent consistency
 
+### Changed
+
+- Canonical feature artifact layout flattened from `specs/<slug>/plan/...` to `specs/<slug>/...` for `plan.md`, `tasks.md`, `data-model.md`, and `verify.md`; `contracts/` remains a dedicated subdirectory
+- Added legacy fallback and safe migration support for existing `specs/<slug>/plan/` workspaces
+- Documentation, prompts, templates, and examples updated to reflect the new artifact layout
+
 ## [v0.1.0] - 2026-04-16
 
 ### Added
 
 - Initial release of the Speckeep CLI (specification-driven development kit for agents and humans)
-- Canonical workspace under `.speckeep/` with file-based artifacts (specs, plan packages, reports, scripts, templates)
+- Canonical workspace under `.speckeep/` with file-based artifacts (specs, feature artifacts, reports, scripts, templates)
 - Strict phase chain: `constitution → spec → inspect → plan → tasks → implement → verify → archive`
 - Bilingual templates/prompts: English (`en`) and Russian (`ru`)
 - Shell support: `sh` and `powershell`

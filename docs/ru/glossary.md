@@ -16,13 +16,13 @@
 
 Техническая фаза проектирования, которая переводит одну spec в артефакты, пригодные для реализации.
 
-## Plan Package
+## Feature Artifact Set
 
-Набор файлов под `specs/active/<slug>/plan/`, обычно включающий `plan.md`, `tasks.md`, `data-model.md`, `contracts/` и optional `research.md`.
+Набор файлов под `specs/active/<slug>/`, обычно включающий `spec.md`, `plan.md`, `tasks.md`, `data-model.md`, `verify.md`, `contracts/` и optional `research.md`.
 
 ## Tasks
 
-Исполнимая декомпозиция feature plan. В SpecKeep файл `tasks.md` живет внутри plan package.
+Исполнимая декомпозиция feature plan. В SpecKeep файл `tasks.md` лежит рядом с `plan.md` внутри feature artifact set.
 
 ## Implement
 

@@ -16,13 +16,13 @@ A review phase that checks a spec and related artifacts for completeness, consis
 
 A technical design phase that translates one spec into implementation-oriented artifacts.
 
-## Plan Package
+## Feature Artifact Set
 
-The group of files stored under `specs/active/<slug>/plan/`, typically including `plan.md`, `tasks.md`, `data-model.md`, `contracts/`, and optional `research.md`.
+The group of files stored under `specs/active/<slug>/`, typically including `spec.md`, `plan.md`, `tasks.md`, `data-model.md`, `verify.md`, `contracts/`, and optional `research.md`.
 
 ## Tasks
 
-The executable breakdown of a feature plan. In SpecKeep, `tasks.md` lives inside the plan package.
+The executable breakdown of a feature plan. In SpecKeep, `tasks.md` lives next to `plan.md` inside the feature artifact set.
 
 ## Implement
 

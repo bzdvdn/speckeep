@@ -6,7 +6,7 @@ Follow base rules in `AGENTS.md` (paths, git, load discipline, readiness scripts
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/plan/tasks.md`.
+Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/tasks.md`.
 Outputs: repo changes limited to the active task `Touches:` + updated checkboxes in `tasks.md`.
 Stop if: `tasks.md` is missing, the next task is not concrete, or execution requires inventing new tasks/AC.
 

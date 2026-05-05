@@ -1,12 +1,12 @@
 # SpecKeep Tasks Prompt (compact)
 
-You create or update `<specs_dir>/<slug>/plan/tasks.md`.
+You create or update `<specs_dir>/<slug>/tasks.md`.
 
 Follow base rules in `AGENTS.md`.
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/plan/plan.digest.md` (preferred) or `plan.md`, optionally `spec.digest.md` (preferred) or `summary.md`/`spec.md` to resolve `AC-*` boundaries.
+Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/plan.digest.md` (preferred) or `plan.md`, optionally `spec.digest.md` (preferred) or `summary.md`/`spec.md` to resolve `AC-*` boundaries.
 Outputs: `tasks.md` with phases, `Touches:` on every task, a `## Surface Map`, and `## Acceptance Coverage` (AC → tasks).
 Stop if: `plan.md` is missing/vague or any `AC-*` cannot be mapped to executable work without guessing.
 
@@ -15,7 +15,7 @@ Stop if: `plan.md` is missing/vague or any `AC-*` cannot be mapped to executable
 - Minimal task list that is still executable in order.
 - Each task: measurable outcome + explicit `Touches:` (files/modules). Missing `Touches:` is a defect.
 - `## Surface Map` is mandatory (Surface | Tasks) to enable batch-reads in implement.
-- Do not look for “examples” in neighboring specs/tasks from other slugs: it’s usually wasted tokens and scope drift. Take structure from `.speckeep/templates/tasks.md` and the current `<specs_dir>/<slug>/plan/plan.md`.
+- Do not look for “examples” in neighboring specs/tasks from other slugs: it’s usually wasted tokens and scope drift. Take structure from `.speckeep/templates/tasks.md` and the current `<specs_dir>/<slug>/plan.md`.
 - Make `tasks.md` implement-self-contained: the implement agent should be able to execute tasks by reading only `tasks.md` + the active task `Touches:` (no mandatory re-read of `plan.md`/`spec.md`/`data-model.md`).
 - If execution depends on key plan/data-model decisions or invariants, include a short `## Implementation Context` section (≤ ~20 lines) and reference it from tasks (e.g., `DEC-*` / `DM`) so implement doesn’t re-read source artifacts end-to-end.
 - Recommended `## Implementation Context` template (keep it short, no fluff):

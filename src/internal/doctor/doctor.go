@@ -183,6 +183,7 @@ func Check(root string) (Result, error) {
 	if warning := layoutWarning(cfg); warning != "" {
 		findings = append(findings, Finding{Level: "warning", Message: warning})
 	}
+	findings = append(findings, legacyNestedPlanFindings(specsDir)...)
 
 	enabledTargets := map[string]struct{}{}
 	for _, target := range cfg.Agents.Targets {
@@ -351,6 +352,28 @@ func layoutWarning(cfg config.Config) string {
 	}
 }
 
+func legacyNestedPlanFindings(specsDir string) []Finding {
+	entries, err := os.ReadDir(specsDir)
+	if err != nil {
+		return nil
+	}
+
+	var findings []Finding
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		legacyPlanDir := filepath.Join(specsDir, entry.Name(), "plan")
+		if info, err := os.Stat(legacyPlanDir); err == nil && info.IsDir() {
+			findings = append(findings, Finding{
+				Level:   "error",
+				Message: fmt.Sprintf("legacy nested plan layout still present for slug %s at %s — run `speckeep refresh .` or `speckeep feature repair %s`", entry.Name(), legacyPlanDir, entry.Name()),
+			})
+		}
+	}
+	return findings
+}
+
 func traceabilityChecks(root string) ([]Finding, error) {
 	var findings []Finding
 
@@ -384,7 +407,7 @@ func traceabilityChecks(root string) ([]Finding, error) {
 	allTaskIDs := make(map[string]string) // taskID -> slug
 	for _, state := range states {
 		if state.TasksExists {
-			tasksPath := featurepaths.Tasks(specsDir, state.Slug)
+			tasksPath, _ := featurepaths.ResolveTasks(specsDir, state.Slug)
 			taskIDs, err := taskIDsFromFile(tasksPath)
 			if err == nil {
 				for _, id := range taskIDs {

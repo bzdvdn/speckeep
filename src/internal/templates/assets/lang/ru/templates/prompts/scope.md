@@ -8,7 +8,7 @@
 
 ## Inputs
 
-`<specs_dir>/<slug>/spec.md` и/или `<specs_dir>/<slug>/plan/plan.md` (что существует).
+`<specs_dir>/<slug>/spec.md` и/или `<specs_dir>/<slug>/plan.md` (что существует).
 
 ## Output expectations
 

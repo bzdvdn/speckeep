@@ -21,9 +21,9 @@ Stop if: spec отсутствует, slug неоднозначен, или verd
 - Упоминания технологий: technology names/frameworks/library lists/version pins в spec — это Warning, если это не требование пользователя, не repo-constraint и не внешний contract.
 - Неоднозначность: расплывчатые прилагательные (быстро, масштабируемо, безопасно, “удобно”, “надёжно”) без измеримых критериев — Warning; если это блокирует планирование — blocked.
 - Плейсхолдеры: `TODO`, `TKTK`, `???`, `<placeholder>` и любые незакрытые маркеры — Error.
-- Если есть `<specs_dir>/<slug>/plan/plan.md`: проверьте `spec <-> plan` (цель/scope сохранены; нет новых крупных workstreams).
-- Если есть `<specs_dir>/<slug>/plan/tasks.md`: проверьте `plan <-> tasks` и покрытие AC (каждый `AC-*` покрыт ≥ 1 задачей).
-- Если есть `<specs_dir>/<slug>/plan/tasks.md`: отсутствие `Touches:` — Warning (дефект token-discipline, который провоцирует широкие чтения на implement).
+- Если есть `<specs_dir>/<slug>/plan.md`: проверьте `spec <-> plan` (цель/scope сохранены; нет новых крупных workstreams).
+- Если есть `<specs_dir>/<slug>/tasks.md`: проверьте `plan <-> tasks` и покрытие AC (каждый `AC-*` покрыт ≥ 1 задачей).
+- Если есть `<specs_dir>/<slug>/tasks.md`: отсутствие `Touches:` — Warning (дефект token-discipline, который провоцирует широкие чтения на implement).
 
 Если есть `./.speckeep/scripts/check-inspect-ready.*` — запустите (slug первым аргументом) и используйте вывод как baseline. Исходники `./.speckeep/scripts/*` не читать.
 
