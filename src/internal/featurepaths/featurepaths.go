@@ -43,26 +43,50 @@ func PlanDir(specsDir, slug string) string {
 }
 
 func Plan(specsDir, slug string) string {
-	return filepath.Join(PlanDir(specsDir, slug), "plan.md")
+	return filepath.Join(SpecDir(specsDir, slug), "plan.md")
 }
 
 func Tasks(specsDir, slug string) string {
-	return filepath.Join(PlanDir(specsDir, slug), "tasks.md")
+	return filepath.Join(SpecDir(specsDir, slug), "tasks.md")
 }
 
 func DataModel(specsDir, slug string) string {
-	return filepath.Join(PlanDir(specsDir, slug), "data-model.md")
+	return filepath.Join(SpecDir(specsDir, slug), "data-model.md")
 }
 
 func Research(specsDir, slug string) string {
-	return filepath.Join(PlanDir(specsDir, slug), "research.md")
+	return filepath.Join(SpecDir(specsDir, slug), "research.md")
 }
 
 func Verify(specsDir, slug string) string {
-	return filepath.Join(PlanDir(specsDir, slug), "verify.md")
+	return filepath.Join(SpecDir(specsDir, slug), "verify.md")
 }
 
 func ContractsDir(specsDir, slug string) string {
+	return filepath.Join(SpecDir(specsDir, slug), "contracts")
+}
+
+func LegacyPlan(specsDir, slug string) string {
+	return filepath.Join(PlanDir(specsDir, slug), "plan.md")
+}
+
+func LegacyTasks(specsDir, slug string) string {
+	return filepath.Join(PlanDir(specsDir, slug), "tasks.md")
+}
+
+func LegacyDataModel(specsDir, slug string) string {
+	return filepath.Join(PlanDir(specsDir, slug), "data-model.md")
+}
+
+func LegacyResearch(specsDir, slug string) string {
+	return filepath.Join(PlanDir(specsDir, slug), "research.md")
+}
+
+func LegacyVerify(specsDir, slug string) string {
+	return filepath.Join(PlanDir(specsDir, slug), "verify.md")
+}
+
+func LegacyContractsDir(specsDir, slug string) string {
 	return filepath.Join(PlanDir(specsDir, slug), "contracts")
 }
 
@@ -105,6 +129,37 @@ func ResolveSummary(specsDir, slug string) (string, bool) {
 
 func ResolveHotfix(specsDir, slug string) (string, bool) {
 	return resolve(Hotfix(specsDir, slug), LegacyHotfix(specsDir, slug))
+}
+
+func ResolvePlan(specsDir, slug string) (string, bool) {
+	return resolve(Plan(specsDir, slug), LegacyPlan(specsDir, slug))
+}
+
+func ResolveTasks(specsDir, slug string) (string, bool) {
+	return resolve(Tasks(specsDir, slug), LegacyTasks(specsDir, slug))
+}
+
+func ResolveDataModel(specsDir, slug string) (string, bool) {
+	return resolve(DataModel(specsDir, slug), LegacyDataModel(specsDir, slug))
+}
+
+func ResolveResearch(specsDir, slug string) (string, bool) {
+	return resolve(Research(specsDir, slug), LegacyResearch(specsDir, slug))
+}
+
+func ResolveVerify(specsDir, slug string) (string, bool) {
+	return resolve(Verify(specsDir, slug), LegacyVerify(specsDir, slug))
+}
+
+func ResolveContractsDir(specsDir, slug string) (string, bool) {
+	switch {
+	case dirExists(ContractsDir(specsDir, slug)):
+		return ContractsDir(specsDir, slug), false
+	case dirExists(LegacyContractsDir(specsDir, slug)):
+		return LegacyContractsDir(specsDir, slug), true
+	default:
+		return ContractsDir(specsDir, slug), false
+	}
 }
 
 func ListSpecSlugs(specsDir string) ([]string, error) {
@@ -166,4 +221,9 @@ func slugFromLegacySpec(name string) (string, bool) {
 func fileExists(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && !info.IsDir()
+}
+
+func dirExists(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
 }

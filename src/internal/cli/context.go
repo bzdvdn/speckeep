@@ -3,11 +3,11 @@ package cli
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"speckeep/src/internal/config"
+	"speckeep/src/internal/featurepaths"
 	"speckeep/src/internal/workflow"
 )
 
@@ -86,12 +86,12 @@ type ContextBudget struct {
 func calculateContextBudget(root, slug string, state workflow.FeatureState, cfg config.Config) ContextBudget {
 	specsDir, _ := cfg.SpecsDir(root)
 
-	specPath := filepath.Join(specsDir, slug, "spec.md")
-	inspectPath := filepath.Join(specsDir, slug, "inspect.md")
-	summaryPath := filepath.Join(specsDir, slug, "summary.md")
-	planPath := filepath.Join(specsDir, slug, "plan", "plan.md")
-	tasksPath := filepath.Join(specsDir, slug, "plan", "tasks.md")
-	dataModelPath := filepath.Join(specsDir, slug, "plan", "data-model.md")
+	specPath, _ := featurepaths.ResolveSpec(specsDir, slug)
+	inspectPath, _ := featurepaths.ResolveInspect(specsDir, slug)
+	summaryPath, _ := featurepaths.ResolveSummary(specsDir, slug)
+	planPath, _ := featurepaths.ResolvePlan(specsDir, slug)
+	tasksPath, _ := featurepaths.ResolveTasks(specsDir, slug)
+	dataModelPath, _ := featurepaths.ResolveDataModel(specsDir, slug)
 
 	return ContextBudget{
 		Phases: []PhaseContext{

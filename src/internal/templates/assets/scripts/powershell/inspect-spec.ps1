@@ -64,9 +64,12 @@ $tasksPath = $null
 if (-not [string]::IsNullOrWhiteSpace($tasksInput)) {
   $tasksPath = $tasksInput
 } elseif (-not [string]::IsNullOrWhiteSpace($slug)) {
-  $candidate = "$specsDir/$slug/plan/$tasksFile"
+  $candidate = "$specsDir/$slug/$tasksFile"
+  $legacyCandidate = "$specsDir/$slug/plan/$tasksFile"
   if (Test-Path -LiteralPath (Join-Path $RootDir $candidate)) {
     $tasksPath = $candidate
+  } elseif (Test-Path -LiteralPath (Join-Path $RootDir $legacyCandidate)) {
+    $tasksPath = $legacyCandidate
   }
 }
 

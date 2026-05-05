@@ -108,7 +108,7 @@ func TestCreateGeneratesSpecAndTasksFromTemplates(t *testing.T) {
 	}
 
 	specPath := filepath.Join(specsDirForTest(t, root), "partner-scheduling", "spec.md")
-	tasksPath := filepath.Join(specsDirForTest(t, root), "partner-scheduling", "plan", "tasks.md")
+	tasksPath := filepath.Join(specsDirForTest(t, root), "partner-scheduling", "tasks.md")
 
 	specContent, err := os.ReadFile(specPath)
 	if err != nil {

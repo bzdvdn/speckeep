@@ -185,7 +185,7 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 		"verify.md",
 	}
 
-	planSourceDir := featurepaths.PlanDir(specsDir, slug)
+	planSourceDir := featurepaths.SpecDir(specsDir, slug)
 	planArchiveDir := filepath.Join(slugArchiveDir, "plan")
 
 	for _, name := range planFiles {
@@ -203,7 +203,7 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 	}
 
 	// Copy contracts if exist
-	contractsSourceDir := featurepaths.ContractsDir(specsDir, slug)
+	contractsSourceDir, _ := featurepaths.ResolveContractsDir(specsDir, slug)
 	contractsArchiveDir := filepath.Join(planArchiveDir, "contracts")
 	if entries, err := os.ReadDir(contractsSourceDir); err == nil && len(entries) > 0 {
 		if err := os.MkdirAll(contractsArchiveDir, 0755); err != nil {
@@ -297,12 +297,12 @@ func restoreFeature(root, slug string) (ArchiveResult, error) {
 
 	// Check for existing active files
 	specPath := featurepaths.Spec(specsDir, slug)
-	planDir := featurepaths.PlanDir(specsDir, slug)
+	featureDir := featurepaths.SpecDir(specsDir, slug)
 	if _, err := os.Stat(specPath); err == nil {
 		return result, fmt.Errorf("active spec already exists for %s - delete first or use different slug", slug)
 	}
-	if _, err := os.Stat(planDir); err == nil {
-		return result, fmt.Errorf("active plan already exists for %s - delete first", slug)
+	if _, err := os.Stat(featureDir); err == nil {
+		return result, fmt.Errorf("active feature directory already exists for %s - delete first", slug)
 	}
 
 	// Restore specs
@@ -328,16 +328,16 @@ func restoreFeature(root, slug string) (ArchiveResult, error) {
 	// Restore plan
 	planArchiveDir := filepath.Join(snapshotDir, "plan")
 	if entries, err := os.ReadDir(planArchiveDir); err == nil {
-		if err := os.MkdirAll(planDir, 0755); err != nil {
+		if err := os.MkdirAll(featureDir, 0755); err != nil {
 			return result, err
 		}
 		for _, entry := range entries {
 			src := filepath.Join(planArchiveDir, entry.Name())
-			dst := filepath.Join(planDir, entry.Name())
+			dst := filepath.Join(featureDir, entry.Name())
 			if entry.IsDir() {
 				if entry.Name() == "contracts" {
 					contractsSrc := filepath.Join(planArchiveDir, "contracts")
-					contractsDst := filepath.Join(planDir, "contracts")
+					contractsDst := filepath.Join(featureDir, "contracts")
 					if err := os.MkdirAll(contractsDst, 0755); err != nil {
 						return result, err
 					}
@@ -349,7 +349,7 @@ func restoreFeature(root, slug string) (ArchiveResult, error) {
 							if err := copyFile(cfs, cfd); err != nil {
 								return result, fmt.Errorf("restore contracts/%s: %w", cf.Name(), err)
 							}
-							result.Restored = append(result.Restored, "specs/"+slug+"/plan/contracts/"+cf.Name())
+							result.Restored = append(result.Restored, "specs/"+slug+"/contracts/"+cf.Name())
 						}
 					}
 				}
@@ -358,7 +358,7 @@ func restoreFeature(root, slug string) (ArchiveResult, error) {
 			if err := copyFile(src, dst); err != nil {
 				return result, fmt.Errorf("restore plan/%s: %w", entry.Name(), err)
 			}
-			result.Restored = append(result.Restored, "specs/"+slug+"/plan/"+entry.Name())
+			result.Restored = append(result.Restored, "specs/"+slug+"/"+entry.Name())
 		}
 	}
 

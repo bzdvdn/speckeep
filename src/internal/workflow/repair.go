@@ -52,6 +52,13 @@ func RepairFeature(root, slug string, dryRun bool) (RepairResult, error) {
 		result.Warnings = append(result.Warnings, warnings...)
 	}
 
+	if changed, warnings, err := migrateNestedPlanArtifacts(root, specsDir, slug, dryRun, &result.Actions); err != nil {
+		return RepairResult{}, err
+	} else {
+		result.Changed = result.Changed || changed
+		result.Warnings = append(result.Warnings, warnings...)
+	}
+
 	workspaceDir := firstWorkspaceWithPlans(root)
 	if workspaceDir == "" {
 		workspaceDir, err = cfg.DraftspecDir(root)
@@ -340,6 +347,59 @@ func migrateFlatSpecArtifacts(root, specsDir, slug string, dryRun bool, actions 
 	return changed, warnings, nil
 }
 
+func migrateNestedPlanArtifacts(root, specsDir, slug string, dryRun bool, actions *[]string) (bool, []string, error) {
+	legacyPlanDir := featurepaths.PlanDir(specsDir, slug)
+	featureDir := featurepaths.SpecDir(specsDir, slug)
+
+	entries, err := os.ReadDir(legacyPlanDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil, nil
+		}
+		return false, nil, fmt.Errorf("read nested legacy plan dir for slug %s: %w", slug, err)
+	}
+	if len(entries) == 0 {
+		return false, nil, nil
+	}
+
+	changed := false
+	var warnings []string
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			if entry.Name() == "contracts" {
+				c, w, err := migrateLegacyContractsDir(
+					root, slug,
+					filepath.Join(legacyPlanDir, "contracts"),
+					featurepaths.ContractsDir(specsDir, slug),
+					dryRun, actions,
+				)
+				if err != nil {
+					return false, nil, err
+				}
+				changed = changed || c
+				warnings = append(warnings, w...)
+			}
+			continue
+		}
+
+		src := filepath.Join(legacyPlanDir, entry.Name())
+		dst := filepath.Join(featureDir, entry.Name())
+		moved, warned, err := migrateLegacyArtifactFile(root, slug, "nested plan", entry.Name(), src, dst, dryRun, actions)
+		if err != nil {
+			return false, nil, err
+		}
+		changed = changed || moved
+		warnings = append(warnings, warned...)
+	}
+
+	if !dryRun {
+		_ = removeEmptyDir(filepath.Join(legacyPlanDir, "contracts"))
+		_ = removeEmptyDir(legacyPlanDir)
+	}
+	return changed, warnings, nil
+}
+
 func removeEmptyDir(path string) error {
 	entries, err := os.ReadDir(path)
 	if err != nil {
@@ -352,10 +412,10 @@ func removeEmptyDir(path string) error {
 }
 
 // migrateLegacyPlanDir moves plan artifacts from the old workspace plans/<slug>/
-// directory layout to the new specs_dir/<slug>/plan/ layout.
+// directory layout to the current specs_dir/<slug>/ layout.
 func migrateLegacyPlanDir(root, workspaceDir, specsDir, slug string, dryRun bool, actions *[]string) (bool, []string, error) {
 	oldPlanDir := filepath.Join(workspaceDir, "plans", slug)
-	newPlanDir := featurepaths.PlanDir(specsDir, slug)
+	featureDir := featurepaths.SpecDir(specsDir, slug)
 
 	entries, err := os.ReadDir(oldPlanDir)
 	if err != nil {
@@ -377,7 +437,7 @@ func migrateLegacyPlanDir(root, workspaceDir, specsDir, slug string, dryRun bool
 				c, w, err := migrateLegacyContractsDir(
 					root, slug,
 					filepath.Join(oldPlanDir, "contracts"),
-					filepath.Join(newPlanDir, "contracts"),
+					featurepaths.ContractsDir(specsDir, slug),
 					dryRun, actions,
 				)
 				if err != nil {
@@ -390,41 +450,13 @@ func migrateLegacyPlanDir(root, workspaceDir, specsDir, slug string, dryRun bool
 		}
 
 		src := filepath.Join(oldPlanDir, entry.Name())
-		dst := filepath.Join(newPlanDir, entry.Name())
-
-		if fileExists(dst) {
-			srcContent, err := os.ReadFile(src)
-			if err != nil {
-				return false, nil, fmt.Errorf("read legacy plan %s for slug %s: %w", entry.Name(), slug, err)
-			}
-			dstContent, err := os.ReadFile(dst)
-			if err != nil {
-				return false, nil, fmt.Errorf("read plan %s for slug %s: %w", entry.Name(), slug, err)
-			}
-			if !bytes.Equal(srcContent, dstContent) {
-				warnings = append(warnings, fmt.Sprintf("plan %s already exists at new location for slug %s and differs; resolve manually", entry.Name(), slug))
-				continue
-			}
-			*actions = append(*actions, fmt.Sprintf("remove duplicate legacy plan %s %s", entry.Name(), displayPath(root, src)))
-			changed = true
-			if !dryRun {
-				if err := os.Remove(src); err != nil {
-					return false, nil, fmt.Errorf("remove duplicate legacy plan %s for slug %s: %w", entry.Name(), slug, err)
-				}
-			}
-			continue
+		dst := filepath.Join(featureDir, entry.Name())
+		moved, warned, err := migrateLegacyArtifactFile(root, slug, "legacy plan", entry.Name(), src, dst, dryRun, actions)
+		if err != nil {
+			return false, nil, err
 		}
-
-		*actions = append(*actions, fmt.Sprintf("move legacy plan %s from %s to %s", entry.Name(), displayPath(root, src), displayPath(root, dst)))
-		changed = true
-		if !dryRun {
-			if err := os.MkdirAll(newPlanDir, 0o755); err != nil {
-				return false, nil, err
-			}
-			if err := os.Rename(src, dst); err != nil {
-				return false, nil, fmt.Errorf("move legacy plan %s for slug %s: %w", entry.Name(), slug, err)
-			}
-		}
+		changed = changed || moved
+		warnings = append(warnings, warned...)
 	}
 
 	if !dryRun {
@@ -483,4 +515,38 @@ func migrateLegacyContractsDir(root, slug, src, dst string, dryRun bool, actions
 		}
 	}
 	return changed, warnings, nil
+}
+
+func migrateLegacyArtifactFile(root, slug, artifactGroup, artifactName, src, dst string, dryRun bool, actions *[]string) (bool, []string, error) {
+	if fileExists(dst) {
+		srcContent, err := os.ReadFile(src)
+		if err != nil {
+			return false, nil, fmt.Errorf("read %s %s for slug %s: %w", artifactGroup, artifactName, slug, err)
+		}
+		dstContent, err := os.ReadFile(dst)
+		if err != nil {
+			return false, nil, fmt.Errorf("read destination %s %s for slug %s: %w", artifactGroup, artifactName, slug, err)
+		}
+		if !bytes.Equal(srcContent, dstContent) {
+			return false, []string{fmt.Sprintf("%s %s already exists at new location for slug %s and differs; resolve manually", artifactGroup, artifactName, slug)}, nil
+		}
+		*actions = append(*actions, fmt.Sprintf("remove duplicate %s %s %s", artifactGroup, artifactName, displayPath(root, src)))
+		if !dryRun {
+			if err := os.Remove(src); err != nil {
+				return false, nil, fmt.Errorf("remove duplicate %s %s for slug %s: %w", artifactGroup, artifactName, slug, err)
+			}
+		}
+		return true, nil, nil
+	}
+
+	*actions = append(*actions, fmt.Sprintf("move %s %s from %s to %s", artifactGroup, artifactName, displayPath(root, src), displayPath(root, dst)))
+	if !dryRun {
+		if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+			return false, nil, err
+		}
+		if err := os.Rename(src, dst); err != nil {
+			return false, nil, fmt.Errorf("move %s %s for slug %s: %w", artifactGroup, artifactName, slug, err)
+		}
+	}
+	return true, nil, nil
 }

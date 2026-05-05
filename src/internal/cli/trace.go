@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
 
 	"github.com/spf13/cobra"
 	"speckeep/src/internal/config"
+	"speckeep/src/internal/featurepaths"
 	"speckeep/src/internal/trace"
 )
 
@@ -108,7 +108,7 @@ func getTaskIDsForSlug(root, slug string) (map[string]struct{}, error) {
 		return nil, err
 	}
 
-	tasksPath := filepath.Join(specsDir, slug, "plan", "tasks.md")
+	tasksPath, _ := featurepaths.ResolveTasks(specsDir, slug)
 	content, err := os.ReadFile(tasksPath)
 	if err != nil {
 		return nil, fmt.Errorf("could not read tasks file for slug %s: %w", slug, err)

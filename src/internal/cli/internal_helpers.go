@@ -24,8 +24,15 @@ func newInternalListOpenTasksCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			tasksDisplay := filepath.ToSlash(filepath.Join(cfg.Paths.SpecsDir, args[0], "plan", "tasks.md"))
-			tasksPath := filepath.Join(root, filepath.FromSlash(tasksDisplay))
+			specsDir, err := cfg.SpecsDir(root)
+			if err != nil {
+				return err
+			}
+			tasksPath, legacy := featurepaths.ResolveTasks(specsDir, args[0])
+			tasksDisplay := filepath.ToSlash(filepath.Join(cfg.Paths.SpecsDir, args[0], "tasks.md"))
+			if legacy {
+				tasksDisplay = filepath.ToSlash(filepath.Join(cfg.Paths.SpecsDir, args[0], "plan", "tasks.md"))
+			}
 			content, err := os.ReadFile(tasksPath)
 			if err != nil {
 				if os.IsNotExist(err) {

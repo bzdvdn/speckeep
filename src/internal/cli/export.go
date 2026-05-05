@@ -56,6 +56,15 @@ func exportFeature(root, slug string) (string, error) {
 	inspectPath, _ := featurepaths.ResolveInspect(specsDir, slug)
 	summaryPath, _ := featurepaths.ResolveSummary(specsDir, slug)
 	hotfixPath, _ := featurepaths.ResolveHotfix(specsDir, slug)
+	planPath, _ := featurepaths.ResolvePlan(specsDir, slug)
+	tasksPath, _ := featurepaths.ResolveTasks(specsDir, slug)
+	dataModelPath, _ := featurepaths.ResolveDataModel(specsDir, slug)
+	researchPath, _ := featurepaths.ResolveResearch(specsDir, slug)
+	verifyPath, _ := featurepaths.ResolveVerify(specsDir, slug)
+	challengePath := filepath.Join(featurepaths.SpecDir(specsDir, slug), "challenge.md")
+	if _, err := os.Stat(challengePath); err != nil {
+		challengePath = filepath.Join(featurepaths.PlanDir(specsDir, slug), "challenge.md")
+	}
 
 	artifacts := []struct {
 		path    string
@@ -65,12 +74,12 @@ func exportFeature(root, slug string) (string, error) {
 		{inspectPath, "Inspect Report"},
 		{summaryPath, "Spec Summary"},
 		{hotfixPath, "Hotfix"},
-		{featurepaths.Plan(specsDir, slug), "Plan"},
-		{featurepaths.Tasks(specsDir, slug), "Tasks"},
-		{featurepaths.DataModel(specsDir, slug), "Data Model"},
-		{featurepaths.Research(specsDir, slug), "Research"},
-		{filepath.Join(featurepaths.PlanDir(specsDir, slug), "challenge.md"), "Challenge Report"},
-		{featurepaths.Verify(specsDir, slug), "Verify Report"},
+		{planPath, "Plan"},
+		{tasksPath, "Tasks"},
+		{dataModelPath, "Data Model"},
+		{researchPath, "Research"},
+		{challengePath, "Challenge Report"},
+		{verifyPath, "Verify Report"},
 	}
 
 	var sections []string

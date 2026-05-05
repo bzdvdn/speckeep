@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"speckeep/src/internal/config"
+	"speckeep/src/internal/featurepaths"
 )
 
 func newRiskCmd() *cobra.Command {
@@ -180,7 +181,10 @@ func assessSecurityImpact(root, slug string) RiskFactor {
 }
 
 func assessDataChanges(root, slug string) RiskFactor {
-	dataModelPath := filepath.Join(root, ".speckeep", "specs", slug, "plan", "data-model.md")
+	dataModelPath := filepath.Join(root, ".speckeep", featurepaths.DataModel("specs", slug))
+	if !fileExists(dataModelPath) {
+		dataModelPath = filepath.Join(root, ".speckeep", featurepaths.LegacyDataModel("specs", slug))
+	}
 
 	if !fileExists(dataModelPath) {
 		return RiskFactor{Name: "Data Changes", Score: 3, Reason: "Data model not yet created"}
@@ -202,7 +206,10 @@ func assessDataChanges(root, slug string) RiskFactor {
 }
 
 func assessAPIChanges(root, slug string) RiskFactor {
-	contractsDir := filepath.Join(root, ".speckeep", "specs", slug, "plan", "contracts")
+	contractsDir := filepath.Join(root, ".speckeep", featurepaths.ContractsDir("specs", slug))
+	if !dirExists(contractsDir) {
+		contractsDir = filepath.Join(root, ".speckeep", featurepaths.LegacyContractsDir("specs", slug))
+	}
 
 	if !dirExists(contractsDir) {
 		return RiskFactor{Name: "API Changes", Score: 2, Reason: "No contracts directory"}

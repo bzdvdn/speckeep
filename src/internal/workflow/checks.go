@@ -374,24 +374,24 @@ func CheckTasksReady(root, slug string) (CheckResult, error) {
 
 	result := CheckResult{}
 	specDisplay, specAbs := resolveSpecDisplayPath(root, cfg.Paths.SpecsDir, slug)
-	planDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "plan.md")
-	dataModelDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "data-model.md")
+	planDisplay, planAbs := resolvePlanDisplayPath(root, cfg.Paths.SpecsDir, slug)
+	dataModelDisplay, dataModelAbs := resolveDataModelDisplayPath(root, cfg.Paths.SpecsDir, slug)
 	tasksTemplateDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.Tasks)
 	promptDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.TasksPrompt)
-	contractsDisplay := joinDisplay(featurepaths.ContractsDir(cfg.Paths.SpecsDir, slug))
+	contractsDisplay, contractsAbs := resolveContractsDisplayPath(root, cfg.Paths.SpecsDir, slug)
 
 	summaryDisplay := joinDisplay(featurepaths.SpecDir(cfg.Paths.SpecsDir, slug), "summary.md")
 
 	checkFile(&result, cfg.Project.ConstitutionFile, absFromRoot(root, cfg.Project.ConstitutionFile))
 	checkFile(&result, specDisplay, specAbs)
-	checkFile(&result, planDisplay, absFromRoot(root, planDisplay))
-	checkFile(&result, dataModelDisplay, absFromRoot(root, dataModelDisplay))
+	checkFile(&result, planDisplay, planAbs)
+	checkFile(&result, dataModelDisplay, dataModelAbs)
 	checkFile(&result, tasksTemplateDisplay, absFromRoot(root, tasksTemplateDisplay))
 	checkFile(&result, promptDisplay, absFromRoot(root, promptDisplay))
 	checkOptionalFile(&result, summaryDisplay, absFromRoot(root, summaryDisplay),
 		fmt.Sprintf("summary.md not found: %s (agents will fall back to full spec for context)", summaryDisplay))
 
-	if isDir(absFromRoot(root, contractsDisplay)) {
+	if isDir(contractsAbs) {
 		result.AddOK(contractsDisplay)
 	} else {
 		result.AddOK("optional contracts directory not present")
@@ -411,7 +411,6 @@ func CheckTasksReady(root, slug string) (CheckResult, error) {
 		result.Merge(inspectResult)
 	}
 
-	planAbs := absFromRoot(root, planDisplay)
 	if fileExists(planAbs) {
 		content, err := os.ReadFile(planAbs)
 		if err != nil {
@@ -431,29 +430,27 @@ func CheckImplementReady(root, slug string) (CheckResult, error) {
 
 	result := CheckResult{}
 	specDisplay, specAbs := resolveSpecDisplayPath(root, cfg.Paths.SpecsDir, slug)
-	planDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "plan.md")
-	tasksDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "tasks.md")
-	dataModelDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "data-model.md")
+	planDisplay, planAbs := resolvePlanDisplayPath(root, cfg.Paths.SpecsDir, slug)
+	tasksDisplay, tasksAbs := resolveTasksDisplayPath(root, cfg.Paths.SpecsDir, slug)
+	dataModelDisplay, dataModelAbs := resolveDataModelDisplayPath(root, cfg.Paths.SpecsDir, slug)
 	promptDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.ImplementPrompt)
-	contractsDisplay := joinDisplay(featurepaths.ContractsDir(cfg.Paths.SpecsDir, slug))
+	contractsDisplay, contractsAbs := resolveContractsDisplayPath(root, cfg.Paths.SpecsDir, slug)
 	summaryDisplay := joinDisplay(featurepaths.SpecDir(cfg.Paths.SpecsDir, slug), "summary.md")
 
 	checkFile(&result, cfg.Project.ConstitutionFile, absFromRoot(root, cfg.Project.ConstitutionFile))
 	checkFile(&result, specDisplay, specAbs)
-	checkFile(&result, planDisplay, absFromRoot(root, planDisplay))
-	checkFile(&result, tasksDisplay, absFromRoot(root, tasksDisplay))
-	checkFile(&result, dataModelDisplay, absFromRoot(root, dataModelDisplay))
+	checkFile(&result, planDisplay, planAbs)
+	checkFile(&result, tasksDisplay, tasksAbs)
+	checkFile(&result, dataModelDisplay, dataModelAbs)
 	checkFile(&result, promptDisplay, absFromRoot(root, promptDisplay))
 	checkOptionalFile(&result, summaryDisplay, absFromRoot(root, summaryDisplay),
 		fmt.Sprintf("summary.md not found: %s (agents will fall back to full spec for context)", summaryDisplay))
 
-	if isDir(absFromRoot(root, contractsDisplay)) {
+	if isDir(contractsAbs) {
 		result.AddOK(contractsDisplay)
 	} else {
 		result.AddOK("optional contracts directory not present")
 	}
-
-	tasksAbs := absFromRoot(root, tasksDisplay)
 	if fileExists(tasksAbs) {
 		content, err := os.ReadFile(tasksAbs)
 		if err != nil {
@@ -472,7 +469,6 @@ func CheckImplementReady(root, slug string) (CheckResult, error) {
 		result.Merge(inspectResult)
 	}
 
-	planAbs := absFromRoot(root, planDisplay)
 	if fileExists(planAbs) && fileExists(tasksAbs) {
 		planContent, err := os.ReadFile(planAbs)
 		if err != nil {
@@ -512,20 +508,19 @@ func CheckVerifyReady(root, slug string) (CheckResult, error) {
 
 	result := CheckResult{}
 	specDisplay, specAbs := resolveSpecDisplayPath(root, cfg.Paths.SpecsDir, slug)
-	tasksDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "tasks.md")
+	tasksDisplay, tasksAbs := resolveTasksDisplayPath(root, cfg.Paths.SpecsDir, slug)
 	reportTemplateDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.VerifyReport)
 	promptDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.VerifyPrompt)
 	summaryDisplay := joinDisplay(featurepaths.SpecDir(cfg.Paths.SpecsDir, slug), "summary.md")
 
 	checkFile(&result, cfg.Project.ConstitutionFile, absFromRoot(root, cfg.Project.ConstitutionFile))
 	checkFile(&result, specDisplay, specAbs)
-	checkFile(&result, tasksDisplay, absFromRoot(root, tasksDisplay))
+	checkFile(&result, tasksDisplay, tasksAbs)
 	checkFile(&result, reportTemplateDisplay, absFromRoot(root, reportTemplateDisplay))
 	checkFile(&result, promptDisplay, absFromRoot(root, promptDisplay))
 	checkOptionalFile(&result, summaryDisplay, absFromRoot(root, summaryDisplay),
 		fmt.Sprintf("summary.md not found: %s (agents will fall back to full spec for context)", summaryDisplay))
 
-	tasksAbs := absFromRoot(root, tasksDisplay)
 	if fileExists(specAbs) && fileExists(tasksAbs) {
 		inspectResult, err := InspectSpec(root, specDisplay, tasksDisplay)
 		if err != nil {
@@ -547,8 +542,7 @@ func CheckVerifyReady(root, slug string) (CheckResult, error) {
 	}
 
 	// Item 7: plan structural validation
-	planDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "plan.md")
-	planAbs := absFromRoot(root, planDisplay)
+	planDisplay, planAbs := resolvePlanDisplayPath(root, cfg.Paths.SpecsDir, slug)
 	if fileExists(planAbs) {
 		if planContent, readErr := os.ReadFile(planAbs); readErr == nil {
 			checkPlanContent(&result, slug, specAbs, planDisplay, string(planContent))
@@ -587,8 +581,7 @@ func CheckArchiveReady(root, slug, status, reason string) (CheckResult, error) {
 		return result, nil
 	}
 
-	tasksDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "tasks.md")
-	tasksAbs := absFromRoot(root, tasksDisplay)
+	_, tasksAbs := resolveTasksDisplayPath(root, cfg.Paths.SpecsDir, slug)
 	state, err := State(root, slug)
 	if err != nil {
 		return CheckResult{}, err
@@ -628,8 +621,7 @@ func VerifyTaskState(root, slug string) (CheckResult, TaskStateSummary, error) {
 		return CheckResult{}, TaskStateSummary{}, err
 	}
 
-	tasksDisplay := joinDisplay(featurepaths.PlanDir(cfg.Paths.SpecsDir, slug), "tasks.md")
-	tasksAbs := absFromRoot(root, tasksDisplay)
+	tasksDisplay, tasksAbs := resolveTasksDisplayPath(root, cfg.Paths.SpecsDir, slug)
 	result := CheckResult{}
 	if !fileExists(tasksAbs) {
 		result.AddError(fmt.Sprintf("missing %s", tasksDisplay))
@@ -913,6 +905,52 @@ func resolveInspectDisplayPath(root, specsDir, slug string) (string, string) {
 		return legacyDisplay, legacyAbs
 	}
 	return display, abs
+}
+
+func resolvePlanDisplayPath(root, specsDir, slug string) (string, string) {
+	return resolveFeatureArtifactPath(root, featurepaths.Plan(specsDir, slug), featurepaths.LegacyPlan(specsDir, slug))
+}
+
+func resolveTasksDisplayPath(root, specsDir, slug string) (string, string) {
+	return resolveFeatureArtifactPath(root, featurepaths.Tasks(specsDir, slug), featurepaths.LegacyTasks(specsDir, slug))
+}
+
+func resolveDataModelDisplayPath(root, specsDir, slug string) (string, string) {
+	return resolveFeatureArtifactPath(root, featurepaths.DataModel(specsDir, slug), featurepaths.LegacyDataModel(specsDir, slug))
+}
+
+func resolveContractsDisplayPath(root, specsDir, slug string) (string, string) {
+	return resolveFeatureArtifactDirPath(root, featurepaths.ContractsDir(specsDir, slug), featurepaths.LegacyContractsDir(specsDir, slug))
+}
+
+func resolveFeatureArtifactPath(root, canonicalPath, legacyPath string) (string, string) {
+	canonicalDisplay := filepath.ToSlash(canonicalPath)
+	canonicalAbs := absFromRoot(root, canonicalDisplay)
+	if fileExists(canonicalAbs) {
+		return canonicalDisplay, canonicalAbs
+	}
+
+	legacyDisplay := filepath.ToSlash(legacyPath)
+	legacyAbs := absFromRoot(root, legacyDisplay)
+	if fileExists(legacyAbs) {
+		return legacyDisplay, legacyAbs
+	}
+	return canonicalDisplay, canonicalAbs
+}
+
+func resolveFeatureArtifactDirPath(root, canonicalPath, legacyPath string) (string, string) {
+	canonicalDisplay := filepath.ToSlash(canonicalPath)
+	canonicalAbs := absFromRoot(root, canonicalDisplay)
+	if isDir(canonicalAbs) {
+		return canonicalDisplay, canonicalAbs
+	}
+
+	legacyDisplay := filepath.ToSlash(legacyPath)
+	legacyAbs := absFromRoot(root, legacyDisplay)
+	if isDir(legacyAbs) {
+		return legacyDisplay, legacyAbs
+	}
+	return canonicalDisplay, canonicalAbs
 }
 
 func checkFile(result *CheckResult, displayPath, absolutePath string) {

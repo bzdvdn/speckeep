@@ -40,9 +40,25 @@ func TestPlanDirReturnsCorrectPath(t *testing.T) {
 
 func TestTasksReturnsCorrectPath(t *testing.T) {
 	got := Tasks("specs", "my-feature")
-	want := filepath.Join("specs", "my-feature", "plan", "tasks.md")
+	want := filepath.Join("specs", "my-feature", "tasks.md")
 	if got != want {
 		t.Errorf("Tasks() = %q, want %q", got, want)
+	}
+}
+
+func TestPlanReturnsCanonicalRootArtifactPath(t *testing.T) {
+	got := Plan("specs", "my-feature")
+	want := filepath.Join("specs", "my-feature", "plan.md")
+	if got != want {
+		t.Errorf("Plan() = %q, want %q", got, want)
+	}
+}
+
+func TestLegacyTasksReturnsNestedPlanPath(t *testing.T) {
+	got := LegacyTasks("specs", "my-feature")
+	want := filepath.Join("specs", "my-feature", "plan", "tasks.md")
+	if got != want {
+		t.Errorf("LegacyTasks() = %q, want %q", got, want)
 	}
 }
 
@@ -126,6 +142,25 @@ func TestResolveSummaryPrefersCanonical(t *testing.T) {
 	}
 	if isLegacy {
 		t.Error("expected isLegacy=false")
+	}
+}
+
+func TestResolveTasksFallsBackToLegacyPlanDir(t *testing.T) {
+	dir := t.TempDir()
+	specsDir := filepath.Join(dir, "specs")
+	if err := os.MkdirAll(filepath.Join(specsDir, "demo", "plan"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(LegacyTasks(specsDir, "demo"), []byte("# tasks"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	path, isLegacy := ResolveTasks(specsDir, "demo")
+	if path != LegacyTasks(specsDir, "demo") {
+		t.Errorf("expected legacy tasks path, got %q", path)
+	}
+	if !isLegacy {
+		t.Error("expected legacy tasks path to be marked as legacy")
 	}
 }
 

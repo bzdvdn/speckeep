@@ -62,9 +62,9 @@ func State(root, slug string) (FeatureState, error) {
 	hotfixPath, _ := featurepaths.ResolveHotfix(specsDir, slug)
 	inspectPath, inspectLegacyFlat := featurepaths.ResolveInspect(specsDir, slug)
 	legacyInspectPath := featurepaths.Inspect(specsDir, slug)
-	planPath := featurepaths.Plan(specsDir, slug)
-	tasksPath := featurepaths.Tasks(specsDir, slug)
-	verifyPath := featurepaths.Verify(specsDir, slug)
+	planPath, _ := featurepaths.ResolvePlan(specsDir, slug)
+	tasksPath, _ := featurepaths.ResolveTasks(specsDir, slug)
+	verifyPath, _ := featurepaths.ResolveVerify(specsDir, slug)
 	archiveSlugDir := filepath.Join(archiveDir, slug)
 
 	state := FeatureState{

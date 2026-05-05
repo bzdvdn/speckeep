@@ -73,9 +73,12 @@ tasks_path=""
 if [ "$tasks_input" != "" ]; then
   tasks_path="$tasks_input"
 elif [ "$slug" != "" ]; then
-  candidate="$specs_dir/$slug/plan/$tasks_file"
+  candidate="$specs_dir/$slug/$tasks_file"
+  legacy_candidate="$specs_dir/$slug/plan/$tasks_file"
   if [ -f "$ROOT_DIR/$candidate" ]; then
     tasks_path="$candidate"
+  elif [ -f "$ROOT_DIR/$legacy_candidate" ]; then
+    tasks_path="$legacy_candidate"
   fi
 fi
 

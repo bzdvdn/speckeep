@@ -37,8 +37,8 @@ func ValidateProject(root string) ([]Finding, error) {
 	var findings []Finding
 	for _, state := range states {
 		specPath, _ := featurepaths.ResolveSpec(specsDir, state.Slug)
-		planPath := featurepaths.Plan(specsDir, state.Slug)
-		tasksPath := featurepaths.Tasks(specsDir, state.Slug)
+		planPath, _ := featurepaths.ResolvePlan(specsDir, state.Slug)
+		tasksPath, _ := featurepaths.ResolveTasks(specsDir, state.Slug)
 
 		if state.InspectExists && !state.SpecExists {
 			findings = append(findings, Finding{Level: "error", Message: fmt.Sprintf("inspect report exists without matching spec for slug %s", state.Slug)})
