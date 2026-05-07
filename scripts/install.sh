@@ -19,9 +19,9 @@ Options:
 
 Examples:
   ./install.sh
-  ./install.sh --version v0.1.0 --bin-dir ~/.local/bin
-  ./install.sh --version v0.1.0 --add-to-path
-  sudo ./install.sh --version v0.1.0 --bin-dir /usr/local/bin
+  ./install.sh --version v0.3.0 --bin-dir ~/.local/bin
+  ./install.sh --version v0.3.0 --add-to-path
+  sudo ./install.sh --version v0.3.0 --bin-dir /usr/local/bin
 EOF
 }
 

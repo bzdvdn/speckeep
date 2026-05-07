@@ -11,7 +11,7 @@ It keeps project intent, specifications, feature artifacts, and task breakdowns 
 
 SpecKeep is the successor to DraftSpec (archived). If you are migrating an existing DraftSpec workspace, start with `speckeep migrate`.
 
-The first release is intentionally optimized for low overhead and real-world usage: narrow default context, minimal required artifacts, strict workflow discipline without heavyweight orchestration, and branch-based collaboration that works cleanly for both solo and team development.
+SpecKeep is intentionally optimized for low overhead and real-world usage: narrow default context, minimal required artifacts, strict workflow discipline without heavyweight orchestration, and branch-based collaboration that works cleanly for both solo and team development.
 
 ## Positioning
 
@@ -317,14 +317,14 @@ SpecKeep is distributed as a single binary via GitHub Releases.
 Linux / macOS:
 
 ```bash
-VERSION=v0.1.0
+VERSION=v0.3.0
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 Windows (PowerShell):
 
 ```powershell
-$version="v0.1.0"
+$version="v0.3.0"
 $env:DRAFTSPEC_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -355,7 +355,7 @@ go test ./...
 go build -o bin/speckeep ./src/cmd/speckeep
 
 # with version stamp
-go build -ldflags "-X speckeep/src/internal/cli.Version=v0.1.0" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v0.3.0" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 The repository includes unit tests for config, project lifecycle, doctor checks, specs, templates, agents, and CLI-level behavior.

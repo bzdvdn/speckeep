@@ -10,13 +10,13 @@ SpecKeep should continue to position itself between heavier spec-driven systems 
 - lighter than spec-kit
 - optimized for agent-first workflows on real codebases
 
-## First Release Focus
+## Release Focus
 
 The immediate goal for SpecKeep is not to match heavier SDD systems in phase count, artifact count, or automation depth.
 
 The immediate goal is to:
 
-- ship a lightweight first release
+- ship a lightweight release
 - test the workflow in real codebases and real agent sessions
 - validate that a strict-by-structure approach works without large default context
 
