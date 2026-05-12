@@ -19,7 +19,7 @@ SpecKeep умеет генерировать project-local command или prompt
 - Copilot: `.github/prompts/`
 - Cursor: `.cursor/rules/`
 - Kilo Code: `.kilocode/rules/`
-- Trae: `.trae/project_rules.md`
+- Trae: `.trae/rules/`
 
 Эти generated files являются тонкой оберткой над каноническими промтами в `.speckeep/templates/prompts/`.
 

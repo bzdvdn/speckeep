@@ -19,7 +19,7 @@ SpecKeep can generate project-local command or prompt files for:
 - Copilot: `.github/prompts/`
 - Cursor: `.cursor/rules/`
 - Kilo Code: `.kilocode/rules/`
-- Trae: `.trae/project_rules.md`
+- Trae: `.trae/rules/`
 
 These generated files are thin wrappers around the canonical SpecKeep prompts in `.speckeep/templates/prompts/`.
 

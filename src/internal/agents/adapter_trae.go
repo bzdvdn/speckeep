@@ -2,7 +2,7 @@ package agents
 
 import (
 	"fmt"
-	"strings"
+	"path/filepath"
 )
 
 type traeAdapter struct{}
@@ -10,70 +10,70 @@ type traeAdapter struct{}
 func (traeAdapter) Target() string { return "trae" }
 
 func (traeAdapter) Render(commands []CommandDefinition, language string) ([]File, error) {
-	return []File{{
-		Path:    ".trae/project_rules.md",
-		Content: renderTraeCommands(commands, language),
-		Mode:    0o644,
-	}}, nil
+	lang := normalizeLanguage(language)
+	files := make([]File, 0, len(commands))
+	for _, command := range commands {
+		files = append(files, File{
+			Path:    filepath.ToSlash(filepath.Join(".trae", "rules", fmt.Sprintf("speckeep.%s.md", command.Name))),
+			Content: renderTrae(command, lang),
+			Mode:    0o644,
+		})
+	}
+	return files, nil
 }
 
 func (traeAdapter) Paths(commands []CommandDefinition, language string) ([]string, error) {
-	return []string{".trae/project_rules.md"}, nil
+	files, err := traeAdapter{}.Render(commands, language)
+	if err != nil {
+		return nil, err
+	}
+	paths := make([]string, 0, len(files))
+	for _, file := range files {
+		paths = append(paths, file.Path)
+	}
+	return paths, nil
 }
 
-func renderTrae(language, shell string) string {
-	return renderTraeCommands(DefaultCommands(shell), language)
-}
-
-func renderTraeCommands(commands []CommandDefinition, language string) string {
-	lang := normalizeLanguage(language)
+func renderTrae(spec CommandDefinition, lang string) string {
 	if lang == "ru" {
-		var sections []string
-		sections = append(sections, "# SpecKeep Project Rules")
-		sections = append(sections, "")
-		sections = append(sections, "Используйте `.speckeep/` как основной источник контекста. Для каждой фазы открывайте prompt в `.speckeep/templates/prompts/<phase>.md` и следуйте ему.")
-		sections = append(sections, "")
-		sections = append(sections, workflowChainHint(lang))
-		sections = append(sections, "")
-		sections = append(sections, "Команды:")
-		for _, cmd := range commands {
-			sections = append(sections, fmt.Sprintf("- `/speckeep.%s` → %s", cmd.Name, cmd.PromptPath))
-		}
-		sections = append(sections, "- `speckeep archive <slug> .` → CLI-only archive after verify")
-		sections = append(sections, "")
-		sections = append(sections, "Правила:")
-		sections = append(sections, "- Минимальный контекст: текущий slug и surfaces из `Touches:`.")
-		sections = append(sections, "- "+scriptExecutionHint(lang))
-		sections = append(sections, "- "+helpDiscoveryHint(lang))
-		if hint := specBranchFirstBullet("spec", lang); hint != "" {
-			sections = append(sections, hint)
-		}
-		sections = append(sections, "")
-		sections = append(sections, antiPatternHint(lang))
-		return strings.Join(sections, "\n") + "\n"
+		return fmt.Sprintf(`# SpecKeep %s
+
+Следуйте файлу %q.
+
+%s
+
+%s
+
+Используйте это rule, когда запрос явно относится к фазе %q или к команде /speckeep.%s.
+
+Правила:
+- %s
+- %s
+- Минимальный контекст: текущий slug и surfaces из `+"`Touches:`"+`.
+%s
+
+%s
+%s
+`, titleCase(spec.Name), spec.PromptPath, workflowChainHint(lang), commandHint(spec.Name, lang), spec.Name, spec.Name, scriptExecutionHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), antiPatternHint(lang), scriptListBlock(spec.Extras, lang))
 	}
 
-	var sections []string
-	sections = append(sections, "# SpecKeep Project Rules")
-	sections = append(sections, "")
-	sections = append(sections, "Use `.speckeep/` as the primary context. For each phase, open the prompt in `.speckeep/templates/prompts/<phase>.md` and follow it.")
-	sections = append(sections, "")
-	sections = append(sections, workflowChainHint(lang))
-	sections = append(sections, "")
-	sections = append(sections, "Commands:")
-	for _, cmd := range commands {
-		sections = append(sections, fmt.Sprintf("- `/speckeep.%s` → %s", cmd.Name, cmd.PromptPath))
-	}
-	sections = append(sections, "- `speckeep archive <slug> .` → CLI-only archive after verify")
-	sections = append(sections, "")
-	sections = append(sections, "Rules:")
-	sections = append(sections, "- Minimum context: current slug and surfaces from `Touches:`.")
-	sections = append(sections, "- "+scriptExecutionHint(lang))
-	sections = append(sections, "- "+helpDiscoveryHint(lang))
-	if hint := specBranchFirstBullet("spec", lang); hint != "" {
-		sections = append(sections, hint)
-	}
-	sections = append(sections, "")
-	sections = append(sections, antiPatternHint(lang))
-	return strings.Join(sections, "\n") + "\n"
+	return fmt.Sprintf(`# SpecKeep %s
+
+Follow %q.
+
+%s
+
+%s
+
+Use this rule when the request clearly maps to the %q phase or the /speckeep.%s command.
+
+Rules:
+- %s
+- %s
+- Minimum context: current slug and surfaces from `+"`Touches:`"+`.
+%s
+
+%s
+%s
+`, titleCase(spec.Name), spec.PromptPath, workflowChainHint(lang), commandHint(spec.Name, lang), spec.Name, spec.Name, scriptExecutionHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), antiPatternHint(lang), scriptListBlock(spec.Extras, lang))
 }

@@ -33,8 +33,8 @@ func TestFiles(t *testing.T) {
 		t.Fatalf("Files returned error: %v", err)
 	}
 
-	if len(files) != 86 {
-		t.Fatalf("expected 86 generated agent files, got %d", len(files))
+	if len(files) != 97 {
+		t.Fatalf("expected 97 generated agent files, got %d", len(files))
 	}
 
 	required := map[string]bool{
@@ -49,7 +49,8 @@ func TestFiles(t *testing.T) {
 		".kilocode/workflows/speckeep.verify.md":    false,
 		".roo/rules/speckeep-spec.md":               false,
 		".roo/rules/speckeep-plan.md":               false,
-		".trae/project_rules.md":                    false,
+		".trae/rules/speckeep.plan.md":              false,
+		".trae/rules/speckeep.verify.md":            false,
 		".windsurf/workflows/speckeep.implement.md": false,
 		".windsurf/workflows/speckeep.verify.md":    false,
 		".claude/commands/speckeep.recap.md":        false,
@@ -87,7 +88,7 @@ func TestRenderEmphasizesRunningScriptsFirst(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			content := renderTrae(tt.lang, "sh")
+			_, content, _ := render("trae", tt.lang, commandSpecs("sh")[0])
 			if !strings.Contains(content, tt.want) {
 				t.Fatalf("expected trae rules for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
 			}
@@ -117,7 +118,7 @@ func TestRenderWindsurfMentionsHiddenDirsAndRepoRoot(t *testing.T) {
 func TestRenderIncludesNoCommitRule(t *testing.T) {
 	// trae and aider are standalone agents that do not load AGENTS.md,
 	// so the no-commit rule must appear in their generated files.
-	content := renderTrae("en", "sh")
+	_, content, _ := render("trae", "en", commandSpecs("sh")[0])
 	if !strings.Contains(content, "git commit") {
 		t.Fatalf("expected trae rules to contain no-commit rule\ncontent:\n%s", content)
 	}
@@ -143,7 +144,7 @@ func TestRenderTraeEmphasizesRunningScriptsFirst(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			content := renderTrae(tt.lang, "sh")
+			_, content, _ := render("trae", tt.lang, commandSpecs("sh")[0])
 			if !strings.Contains(content, tt.want) {
 				t.Fatalf("expected trae rules for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
 			}
@@ -186,13 +187,13 @@ func TestRenderTraeIncludesCommandHints(t *testing.T) {
 		lang string
 		want string
 	}{
-		{name: "en", lang: "en", want: "- `/speckeep.verify` → .speckeep/templates/prompts/verify.md"},
-		{name: "ru", lang: "ru", want: "- `/speckeep.verify` → .speckeep/templates/prompts/verify.md"},
+		{name: "en", lang: "en", want: "Command: `/speckeep.verify [request]`"},
+		{name: "ru", lang: "ru", want: "Команда: `/speckeep.verify [request]`"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			content := renderTrae(tt.lang, "sh")
+			_, content, _ := render("trae", tt.lang, commandSpecs("sh")[6])
 			if !strings.Contains(content, tt.want) {
 				t.Fatalf("expected trae rules for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
 			}
