@@ -317,14 +317,14 @@ SpecKeep is distributed as a single binary via GitHub Releases.
 Linux / macOS:
 
 ```bash
-VERSION=v0.3.0
+VERSION=v0.3.1
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 Windows (PowerShell):
 
 ```powershell
-$version="v0.3.0"
+$version="v0.3.1"
 $env:DRAFTSPEC_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -355,7 +355,7 @@ go test ./...
 go build -o bin/speckeep ./src/cmd/speckeep
 
 # with version stamp
-go build -ldflags "-X speckeep/src/internal/cli.Version=v0.3.0" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v0.3.1" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 The repository includes unit tests for config, project lifecycle, doctor checks, specs, templates, agents, and CLI-level behavior.

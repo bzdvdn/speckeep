@@ -112,7 +112,7 @@ go test ./...
 go test -cover ./...
 
 # Build with version stamp
-go build -ldflags "-X speckeep/src/internal/cli.Version=v0.3.0" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v0.3.1" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 ## Key Design Principles

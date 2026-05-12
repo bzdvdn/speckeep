@@ -189,7 +189,8 @@ func TestInspectPromptDefinesCheapScopeAndVerdictRules(t *testing.T) {
 		"pass|concerns|blocked",
 		"check-inspect-ready",
 		"summary.md",
-		"Ready for: /speckeep.plan <slug>",
+		".speckeep/constitution.summary.md",
+		"Return to: /speckeep.spec <slug>",
 	}
 	for _, snippet := range requiredSnippets {
 		if !strings.Contains(content, snippet) {
@@ -375,8 +376,10 @@ func TestSpecPromptDefinesDeterministicStagedMode(t *testing.T) {
 		"treat the next non-command user message as the continuation",
 		"staged mode is canceled",
 		"Do not pin technologies/versions unless required",
+		".speckeep/constitution.summary.md",
 		"/speckeep.inspect <slug>",
 		"/speckeep.plan <slug>",
+		"Final line (mandatory): `Ready for:",
 		"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",
 	}
 	for _, snippet := range requiredSnippets {
@@ -402,6 +405,7 @@ func TestPlanPromptDefinesConcreteResearchTriggers(t *testing.T) {
 	requiredSnippets := []string{
 		"Create `research.md` only when needed",
 		"Do not create `research.md` for generic brainstorming",
+		".speckeep/constitution.summary.md",
 		"Ready for: /speckeep.tasks <slug>",
 		"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",
 	}
@@ -619,14 +623,17 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 		{
 			target: "templates/prompts/spec.md",
 			want: []string{
+				".speckeep/constitution.summary.md",
 				"/speckeep.inspect <slug>",
 				"/speckeep.plan <slug>",
+				"Final line (mandatory): `Ready for:",
 				"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",
 			},
 		},
 		{
 			target: "templates/prompts/plan.md",
 			want: []string{
+				".speckeep/constitution.summary.md",
 				"Ready for: /speckeep.tasks <slug>",
 				"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",
 			},
@@ -634,6 +641,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 		{
 			target: "templates/prompts/tasks.md",
 			want: []string{
+				".speckeep/constitution.summary.md",
 				"Ready for: /speckeep.implement <slug>",
 				"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",
 			},
@@ -642,6 +650,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			target: "templates/prompts/implement.md",
 			want: []string{
 				"Default scope: only the **first unfinished phase**",
+				".speckeep/constitution.summary.md",
 				"`Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`",
 				"Ready for: /speckeep.verify <slug>",
 			},
@@ -649,6 +658,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 		{
 			target: "templates/prompts/verify.md",
 			want: []string{
+				".speckeep/constitution.summary.md",
 				"`Slug`, `Status`, `Artifacts`, `Blockers`, and either `Ready for` or `Return to`",
 				"Return to: /speckeep.<phase> <slug>",
 				"Ready for: speckeep archive <slug> .",

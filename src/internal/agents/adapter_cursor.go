@@ -47,9 +47,11 @@ alwaysApply: false
 
 Используйте эту rule, когда запрос явно относится к фазе %q или к команде /speckeep.%s.
 
+- %s
+- %s
 %s
 %s
-`, spec.Name, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, spec.Name, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, constitutionSummaryHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`---
@@ -63,7 +65,9 @@ Follow %q.
 
 Use this rule when the request clearly maps to the %q phase or the /speckeep.%s command.
 
+- %s
+- %s
 %s
 %s
-`, spec.Name, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, spec.Name, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, constitutionSummaryHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

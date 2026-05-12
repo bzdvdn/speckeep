@@ -4,7 +4,7 @@ You create or update one feature spec: `<specs_dir>/<slug>/spec.md`.
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), user request, minimum required repo context.
+Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), user request, minimum required repo context.
 Outputs: `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/spec.digest.md`, `<specs_dir>/<slug>/summary.md`.
 Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 
@@ -20,6 +20,7 @@ Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 - Required sections: Out of Scope, Assumptions, Open Questions (or `none`).
 - Clarify with 1–3 targeted questions only if otherwise you must guess AC or scope boundaries.
 - If invoked with `--name` but without enough description, ask for it and treat the next non-command user message as the continuation. If the next message starts with `/speckeep.`, staged mode is canceled.
+- When constitution context is needed, load `.speckeep/constitution.summary.md` first if it exists; only fall back to `project.constitution_file` when the summary is absent.
 - Do not pin technologies/versions unless required by the user or a hard repo/contract constraint. If a technology choice is an implementation preference, record it in `plan`, not in `spec`.
 - Refine instead of guessing: if the request implies multiple feature slugs or multiple independent specs, stop and ask for one concrete feature.
 - If `./.speckeep/scripts/check-spec-ready.*` exists, run it (slug first) before finishing.
@@ -39,3 +40,4 @@ Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 - Next steps (offer both):
   - Deep quality review: `/speckeep.inspect <slug>` — checks constitution alignment, AC completeness, ambiguity
   - Skip to planning if spec looks solid: `/speckeep.plan <slug>`
+- Final line (mandatory): `Ready for: /speckeep.inspect <slug>` or `Ready for: /speckeep.plan <slug>`. Prefer `/speckeep.inspect` when ambiguity, risk, or open questions remain.

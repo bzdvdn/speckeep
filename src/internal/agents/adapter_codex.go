@@ -47,9 +47,10 @@ func renderCodex(spec CommandDefinition, lang string) string {
 
 Дополнительно:
 - %s
+- %s
 %s
 %s
-`, title, spec.PromptPath, commandHint(spec.Name, lang), toolInvocationHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, title, spec.PromptPath, commandHint(spec.Name, lang), constitutionSummaryHint(lang), toolInvocationHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`# SpecKeep %s
@@ -62,7 +63,8 @@ User input: {{arguments}}
 
 Additional context:
 - %s
+- %s
 %s
 %s
-`, title, spec.PromptPath, commandHint(spec.Name, lang), toolInvocationHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, title, spec.PromptPath, commandHint(spec.Name, lang), constitutionSummaryHint(lang), toolInvocationHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

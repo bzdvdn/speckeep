@@ -177,6 +177,20 @@ func toolInvocationHint(lang string) string {
 	return "Use tools directly through the agent runtime; do not print raw JSON/XML/tool-call payloads or expose internal reasoning about tool choice."
 }
 
+func constitutionSummaryHint(lang string) string {
+	if lang == "ru" {
+		return "Если в фазе нужна конституция, сначала загрузите `.speckeep/constitution.summary.md`, если файл существует; только при его отсутствии переходите к `project.constitution_file`."
+	}
+	return "If the phase needs constitution context, load `.speckeep/constitution.summary.md` first when it exists; fall back to `project.constitution_file` only when the summary is absent."
+}
+
+func finalLineHint(lang string) string {
+	if lang == "ru" {
+		return "Строго сохраните точную финальную строку из prompt-файла: `Готово к: ...` или `Вернуться к: ...` без перефразирования и без пропуска."
+	}
+	return "Preserve the exact final line from the prompt file: `Ready for: ...` or `Return to: ...` with no paraphrase and no omission."
+}
+
 func helpDiscoveryHint(lang string) string {
 	if lang == "ru" {
 		return "Не запускайте `speckeep ... --help`/`speckeep help` для «разведки»; вместо этого опирайтесь на prompt-файл и readiness scripts."

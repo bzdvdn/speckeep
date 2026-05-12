@@ -6,7 +6,7 @@ Follow base rules in `AGENTS.md`.
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/plan.digest.md` (preferred) or `plan.md`, optionally `spec.digest.md` (preferred) or `summary.md`/`spec.md` to resolve `AC-*` boundaries.
+Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/plan.digest.md` (preferred) or `plan.md`, optionally `spec.digest.md` (preferred) or `summary.md`/`spec.md` to resolve `AC-*` boundaries.
 Outputs: `tasks.md` with phases, `Touches:` on every task, a `## Surface Map`, and `## Acceptance Coverage` (AC → tasks).
 Stop if: `plan.md` is missing/vague or any `AC-*` cannot be mapped to executable work without guessing.
 
@@ -29,6 +29,7 @@ Stop if: `plan.md` is missing/vague or any `AC-*` cannot be mapped to executable
 - Every `AC-*` must be covered by ≥ 1 task: `AC-001 -> T1.1, T2.1`.
 - Do not implement or edit source code in the tasks phase.
 - Do not assume `research.md` should exist; only reference it when the plan explicitly depends on it.
+- When constitution context is needed, load `.speckeep/constitution.summary.md` first if it exists; only fall back to `project.constitution_file` when the summary is absent.
 - If `./.speckeep/scripts/check-tasks-ready.*` exists, run it (slug first) as a cheap gate.
 
 ## Output expectations

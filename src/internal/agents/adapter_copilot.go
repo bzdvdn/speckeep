@@ -44,7 +44,9 @@ func renderCopilot(spec CommandDefinition, lang string) string {
 
 %s
 %s
-`, spec.Name, spec.PromptPath, commandHint(spec.Name, lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+%s
+%s
+`, spec.Name, spec.PromptPath, commandHint(spec.Name, lang), constitutionSummaryHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`# SpecKeep %s
@@ -55,5 +57,7 @@ Use %q as the primary workflow prompt.
 
 %s
 %s
-`, spec.Name, spec.PromptPath, commandHint(spec.Name, lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+%s
+%s
+`, spec.Name, spec.PromptPath, commandHint(spec.Name, lang), constitutionSummaryHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

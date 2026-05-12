@@ -49,9 +49,10 @@ trigger: manual
 Важно: readiness scripts почти всегда требуют `+"`<slug>`"+` первым аргументом. Пример: `+"`bash ./.speckeep/scripts/check-tasks-ready.sh <slug>`"+`.
 
 - %s
+- %s
 %s
 %s
-`, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, windsurfWorkspaceHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, windsurfWorkspaceHint(lang), constitutionSummaryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`---
@@ -67,7 +68,8 @@ Use this workflow when the request clearly maps to the %q phase or the /speckeep
 Important: readiness scripts almost always require `+"`<slug>`"+` as the first argument. Example: `+"`bash ./.speckeep/scripts/check-tasks-ready.sh <slug>`"+`.
 
 - %s
+- %s
 %s
 %s
-`, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, windsurfWorkspaceHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, windsurfWorkspaceHint(lang), constitutionSummaryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

@@ -49,12 +49,14 @@ func renderTrae(spec CommandDefinition, lang string) string {
 Правила:
 - %s
 - %s
+- %s
+- %s
 - Минимальный контекст: текущий slug и surfaces из `+"`Touches:`"+`.
 %s
 
 %s
 %s
-`, titleCase(spec.Name), spec.PromptPath, workflowChainHint(lang), commandHint(spec.Name, lang), spec.Name, spec.Name, scriptExecutionHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), antiPatternHint(lang), scriptListBlock(spec.Extras, lang))
+`, titleCase(spec.Name), spec.PromptPath, workflowChainHint(lang), commandHint(spec.Name, lang), spec.Name, spec.Name, constitutionSummaryHint(lang), finalLineHint(lang), scriptExecutionHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), antiPatternHint(lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`# SpecKeep %s
@@ -70,10 +72,12 @@ Use this rule when the request clearly maps to the %q phase or the /speckeep.%s 
 Rules:
 - %s
 - %s
+- %s
+- %s
 - Minimum context: current slug and surfaces from `+"`Touches:`"+`.
 %s
 
 %s
 %s
-`, titleCase(spec.Name), spec.PromptPath, workflowChainHint(lang), commandHint(spec.Name, lang), spec.Name, spec.Name, scriptExecutionHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), antiPatternHint(lang), scriptListBlock(spec.Extras, lang))
+`, titleCase(spec.Name), spec.PromptPath, workflowChainHint(lang), commandHint(spec.Name, lang), spec.Name, spec.Name, constitutionSummaryHint(lang), finalLineHint(lang), scriptExecutionHint(lang), helpDiscoveryHint(lang), specBranchFirstBullet(spec.Name, lang), antiPatternHint(lang), scriptListBlock(spec.Extras, lang))
 }

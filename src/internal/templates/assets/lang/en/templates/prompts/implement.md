@@ -6,7 +6,7 @@ Follow base rules in `AGENTS.md` (paths, git, load discipline, readiness scripts
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/tasks.md`.
+Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/tasks.md`.
 Outputs: repo changes limited to the active task `Touches:` + updated checkboxes in `tasks.md`.
 Stop if: `tasks.md` is missing, the next task is not concrete, or execution requires inventing new tasks/AC.
 
@@ -24,6 +24,7 @@ Stop if: `tasks.md` is missing, the next task is not concrete, or execution requ
 - Editing a file outside the active task `Touches:` is a **scope violation** → stop and explain.
 - Tests: run only targeted package/tests. Do not run `go test ./...` unless explicitly requested. Do not paste long logs; summarize and include only the last lines when needed.
 - If `./.speckeep/scripts/check-implement-ready.*` exists, run it (slug first) and trust stdout/exit code. Do not read `./.speckeep/scripts/*` source.
+- When constitution context is needed, load `.speckeep/constitution.summary.md` first if it exists; only fall back to `project.constitution_file` when the summary is absent.
 - Do not assume `research.md` should exist; only read it if a task explicitly depends on it.
 - No redesign / re-planning. If the task cannot be implemented safely from current artifacts → stop and request refinement.
 - Prefer minimal patches over full-file rewrites. Do not rewrite a whole file “for simplicity” unless strictly necessary.

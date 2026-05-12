@@ -48,7 +48,9 @@ func renderKilo(spec CommandDefinition, lang string) string {
 
 %s
 %s
-`, spec.Name, spec.PromptPath, "/speckeep."+spec.Name+".md", commandHint(spec.Name, lang), spec.Name, specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+%s
+%s
+`, spec.Name, spec.PromptPath, "/speckeep."+spec.Name+".md", commandHint(spec.Name, lang), spec.Name, constitutionSummaryHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`# SpecKeep %s
@@ -63,5 +65,7 @@ Use this workflow when the request maps to the %q phase.
 
 %s
 %s
-`, spec.Name, spec.PromptPath, "/speckeep."+spec.Name+".md", commandHint(spec.Name, lang), spec.Name, specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+%s
+%s
+`, spec.Name, spec.PromptPath, "/speckeep."+spec.Name+".md", commandHint(spec.Name, lang), spec.Name, constitutionSummaryHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

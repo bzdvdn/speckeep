@@ -6,7 +6,7 @@ Follow base rules in `AGENTS.md`.
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`.
+Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`.
 Outputs: `<specs_dir>/<slug>/inspect.md` with `pass|concerns|blocked` and `<specs_dir>/<slug>/summary.md`.
 Stop if: spec missing, slug ambiguous, or the verdict would require inventing product intent.
 
@@ -16,6 +16,7 @@ Stop if: spec missing, slug ambiguous, or the verdict would require inventing pr
 - Avoid repetitive full-file reads “for reassurance”: keep brief notes and re-open only targeted sections when needed.
 - Take the report format from `.speckeep/templates/inspect.md`. Do not look for “examples” in other slugs’ inspect reports for shape: it’s wasted tokens and scope drift.
 - Constitution ↔ spec: no conflicts with constraints, workflow rules, and language policy.
+- When constitution context is needed, load `.speckeep/constitution.summary.md` first if it exists; only fall back to `project.constitution_file` when the summary is absent.
 - `AC-*`: every AC uses Given/When/Then; no placeholders; no open `[NEEDS CLARIFICATION: ...]`.
 - Scope: exactly one feature; explicit Out of Scope + Assumptions + Open Questions (or `none`).
 - Technology mentions: treat technology names, frameworks, library lists, or version pins in the spec as a Warning unless they are a user requirement, repository constraint, or external contract.
@@ -33,4 +34,6 @@ If `./.speckeep/scripts/check-inspect-ready.*` exists, run it (slug first) and u
 - `inspect.md` MUST include: verdict, Errors, Warnings, and Next step (when not blocked).
 - For `blocked`, do not suggest the next phase command; state which refinement is required first.
 - In chat: compact verdict + non-empty Errors/Warnings + Next step.
-- Final line: `Ready for: /speckeep.plan <slug>`
+- Final line:
+  - if `pass|concerns`: `Ready for: /speckeep.plan <slug>`
+  - if `blocked`: `Return to: /speckeep.spec <slug>`

@@ -7,6 +7,26 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v0.3.1] - 2026-05-12
+
+### Changed
+
+- Agent phase prompts now resolve constitution context more reliably:
+  - when `.speckeep/constitution.summary.md` exists, agents are instructed to prefer it over the full constitution file
+  - this guidance is now reinforced both in generated phase prompts and in agent-target wrappers
+- Next-step guidance after each phase is now stricter and more explicit:
+  - `spec` now requires a final `Ready for:` / `Готово к:` line pointing to either `inspect` or `plan`
+  - `inspect` now distinguishes pass/concerns vs blocked outcomes, returning to `spec` when refinement is required
+  - generated wrappers for Codex, Windsurf, Trae, and other targets now emphasize preserving the exact final next-command line from the prompt
+- Trae adapter generation now matches the per-command wrapper model used by other agent targets:
+  - generated workflow files now live under `.trae/rules/`
+  - Trae no longer relies on a single aggregated `.trae/project_rules.md`
+
+### Fixed
+
+- Reduced cases where agents missed `.speckeep/constitution.summary.md` and read only the adjacent constitution file instead
+- Reduced cases where agents completed a phase response without surfacing the next command for the user
+
 ## [v0.3.0] - 2026-05-07
 
 ### Added
@@ -123,5 +143,6 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 [0.2.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.2.0
 [0.1.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.1.0
+[0.3.1]: https://github.com/bzdvdn/speckeep/releases/tag/v0.3.1
 [0.3.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.3.0
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.3.0...HEAD
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.3.1...HEAD
