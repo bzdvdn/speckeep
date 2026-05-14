@@ -15,14 +15,14 @@ Windows (PowerShell):
 
 ```powershell
 $version="v0.3.1"
-$env:DRAFTSPEC_VERSION=$version
+$env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
 
 To also add the install directory to `PATH`:
 
-- Linux: add `--add-to-path` or set `DRAFTSPEC_ADD_TO_PATH=1`
-- Windows: set `$env:DRAFTSPEC_ADD_TO_PATH=1` or run the script with `-AddToPath`
+- Linux: add `--add-to-path` or set `SPECKEEP_ADD_TO_PATH=1`
+- Windows: set `$env:SPECKEEP_ADD_TO_PATH=1` or run the script with `-AddToPath`
 
 ## Commands
 
