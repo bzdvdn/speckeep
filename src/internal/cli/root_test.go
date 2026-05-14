@@ -1210,7 +1210,7 @@ func TestSyncSkillsAliasCommand(t *testing.T) {
 func TestInstallSkillsCommandCopiesToAgentDirs(t *testing.T) {
 	root := t.TempDir()
 
-	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh", "--agents", "codex,claude,windsurf,kilocode,trae"); err != nil {
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh", "--agents", "codex,opencode,claude,windsurf,kilocode,trae"); err != nil {
 		t.Fatalf("init command returned error: %v", err)
 	}
 
@@ -1236,6 +1236,7 @@ func TestInstallSkillsCommandCopiesToAgentDirs(t *testing.T) {
 
 	for _, rel := range []string{
 		".codex/skills/architecture/SKILL.md",
+		".opencode/skills/architecture/SKILL.md",
 		".claude/skills/architecture/SKILL.md",
 		".windsurf/skills/architecture/SKILL.md",
 		".kilocode/skills/architecture/SKILL.md",

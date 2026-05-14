@@ -380,16 +380,12 @@ func CheckTasksReady(root, slug string) (CheckResult, error) {
 	promptDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.TasksPrompt)
 	contractsDisplay, contractsAbs := resolveContractsDisplayPath(root, cfg.Paths.SpecsDir, slug)
 
-	summaryDisplay := joinDisplay(featurepaths.SpecDir(cfg.Paths.SpecsDir, slug), "summary.md")
-
 	checkFile(&result, cfg.Project.ConstitutionFile, absFromRoot(root, cfg.Project.ConstitutionFile))
 	checkFile(&result, specDisplay, specAbs)
 	checkFile(&result, planDisplay, planAbs)
 	checkFile(&result, dataModelDisplay, dataModelAbs)
 	checkFile(&result, tasksTemplateDisplay, absFromRoot(root, tasksTemplateDisplay))
 	checkFile(&result, promptDisplay, absFromRoot(root, promptDisplay))
-	checkOptionalFile(&result, summaryDisplay, absFromRoot(root, summaryDisplay),
-		fmt.Sprintf("summary.md not found: %s (agents will fall back to full spec for context)", summaryDisplay))
 
 	if isDir(contractsAbs) {
 		result.AddOK(contractsDisplay)
@@ -435,7 +431,6 @@ func CheckImplementReady(root, slug string) (CheckResult, error) {
 	dataModelDisplay, dataModelAbs := resolveDataModelDisplayPath(root, cfg.Paths.SpecsDir, slug)
 	promptDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.ImplementPrompt)
 	contractsDisplay, contractsAbs := resolveContractsDisplayPath(root, cfg.Paths.SpecsDir, slug)
-	summaryDisplay := joinDisplay(featurepaths.SpecDir(cfg.Paths.SpecsDir, slug), "summary.md")
 
 	checkFile(&result, cfg.Project.ConstitutionFile, absFromRoot(root, cfg.Project.ConstitutionFile))
 	checkFile(&result, specDisplay, specAbs)
@@ -443,8 +438,6 @@ func CheckImplementReady(root, slug string) (CheckResult, error) {
 	checkFile(&result, tasksDisplay, tasksAbs)
 	checkFile(&result, dataModelDisplay, dataModelAbs)
 	checkFile(&result, promptDisplay, absFromRoot(root, promptDisplay))
-	checkOptionalFile(&result, summaryDisplay, absFromRoot(root, summaryDisplay),
-		fmt.Sprintf("summary.md not found: %s (agents will fall back to full spec for context)", summaryDisplay))
 
 	if isDir(contractsAbs) {
 		result.AddOK(contractsDisplay)
@@ -457,6 +450,7 @@ func CheckImplementReady(root, slug string) (CheckResult, error) {
 			return CheckResult{}, fmt.Errorf("read tasks %s: %w", tasksDisplay, err)
 		}
 		checkPattern(&result, string(content), `(?m)^## (Покрытие критериев приемки|Acceptance Coverage)$`, "tasks include acceptance coverage section")
+		checkPattern(&result, string(content), `(?m)^## (Implementation Context|Контекст реализации)$`, "tasks include implementation context section")
 		checkPattern(&result, string(content), taskIDPattern.String(), "tasks include phase-scoped task IDs")
 		checkPattern(&result, string(content), coverageLinePattern.String(), "tasks include AC-to-task coverage lines")
 	}
@@ -511,15 +505,12 @@ func CheckVerifyReady(root, slug string) (CheckResult, error) {
 	tasksDisplay, tasksAbs := resolveTasksDisplayPath(root, cfg.Paths.SpecsDir, slug)
 	reportTemplateDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.VerifyReport)
 	promptDisplay := joinDisplay(cfg.Paths.TemplatesDir, cfg.Templates.VerifyPrompt)
-	summaryDisplay := joinDisplay(featurepaths.SpecDir(cfg.Paths.SpecsDir, slug), "summary.md")
 
 	checkFile(&result, cfg.Project.ConstitutionFile, absFromRoot(root, cfg.Project.ConstitutionFile))
 	checkFile(&result, specDisplay, specAbs)
 	checkFile(&result, tasksDisplay, tasksAbs)
 	checkFile(&result, reportTemplateDisplay, absFromRoot(root, reportTemplateDisplay))
 	checkFile(&result, promptDisplay, absFromRoot(root, promptDisplay))
-	checkOptionalFile(&result, summaryDisplay, absFromRoot(root, summaryDisplay),
-		fmt.Sprintf("summary.md not found: %s (agents will fall back to full spec for context)", summaryDisplay))
 
 	if fileExists(specAbs) && fileExists(tasksAbs) {
 		inspectResult, err := InspectSpec(root, specDisplay, tasksDisplay)
@@ -1268,6 +1259,14 @@ func checkPlanContent(result *CheckResult, slug, specAbs, planDisplay, planConte
 	if len(decisionIDPattern.FindAllString(planContent, -1)) == 0 {
 		result.AddStructuredWarn("plan_no_decision_ids", CategoryTraceability, planDisplay,
 			fmt.Sprintf("plan has no stable decision IDs (DEC-*) for slug %s", slug))
+	}
+	if !ContainsAny(planContent, "## Implementation Surfaces", "## Поверхности реализации", "## Реализационные поверхности") {
+		result.AddStructuredWarn("plan_missing_implementation_surfaces", CategoryStructure, planDisplay,
+			fmt.Sprintf("plan is missing Implementation Surfaces section for slug %s", slug))
+	}
+	if !ContainsAny(planContent, "## Data and Contracts", "## Данные и контракты") {
+		result.AddStructuredWarn("plan_missing_data_contracts", CategoryStructure, planDisplay,
+			fmt.Sprintf("plan is missing Data and Contracts section for slug %s", slug))
 	}
 	if !ContainsAny(planContent, "## Acceptance Approach") {
 		result.AddStructuredWarn("plan_missing_acceptance_approach", CategoryStructure, planDisplay,

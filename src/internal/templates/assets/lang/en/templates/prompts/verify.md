@@ -6,7 +6,7 @@ Follow base rules in `AGENTS.md`.
 
 ## Phase Contract
 
-Inputs: `<specs_dir>/<slug>/tasks.md` (entrypoint), optionally `.speckeep/constitution.summary.md` (preferred when constitution context is needed) or `project.constitution_file`, `spec.digest.md` (preferred) or `summary.md`/`spec.md` when AC context is needed, `plan.md` when design surfaces must be confirmed.
+Inputs: `<specs_dir>/<slug>/tasks.md` (entrypoint), optionally `.speckeep/constitution.summary.md` (preferred when constitution context is needed) or `project.constitution_file`, `spec.md` when AC context is needed, `plan.md` when design surfaces must be confirmed.
 Outputs: `<specs_dir>/<slug>/verify.md` (or a chat report) + `tasks.md` status fixes when a checkbox is wrong.
 Stop if: `tasks.md` missing or slug ambiguous.
 

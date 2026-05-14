@@ -188,7 +188,6 @@ func TestInspectPromptDefinesCheapScopeAndVerdictRules(t *testing.T) {
 		"## Phase Contract",
 		"pass|concerns|blocked",
 		"check-inspect-ready",
-		"summary.md",
 		".speckeep/constitution.summary.md",
 		"Return to: /speckeep.spec <slug>",
 	}
@@ -469,6 +468,7 @@ func TestPlanAndTasksPromptsReinforceDetailedButTightArtifacts(t *testing.T) {
 				"Touches:",
 				"Surface Map",
 				"Acceptance Coverage",
+				"Implementation Context",
 			},
 		},
 	}

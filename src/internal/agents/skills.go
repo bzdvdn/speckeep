@@ -6,6 +6,8 @@ func SkillBasePath(target string) (string, bool) {
 	switch target {
 	case "codex":
 		return filepath.ToSlash(filepath.Join(".codex", "skills")), true
+	case "opencode":
+		return filepath.ToSlash(filepath.Join(".opencode", "skills")), true
 	case "claude":
 		return filepath.ToSlash(filepath.Join(".claude", "skills")), true
 	case "kilocode":

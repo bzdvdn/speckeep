@@ -6,7 +6,7 @@ Follow base rules in `AGENTS.md`.
 
 ## Phase Contract
 
-Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/plan.digest.md` (preferred) or `plan.md`, optionally `spec.digest.md` (preferred) or `summary.md`/`spec.md` to resolve `AC-*` boundaries.
+Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/plan.md`, optionally `spec.md` when needed to resolve `AC-*` boundaries.
 Outputs: `tasks.md` with phases, `Touches:` on every task, a `## Surface Map`, and `## Acceptance Coverage` (AC → tasks).
 Stop if: `plan.md` is missing/vague or any `AC-*` cannot be mapped to executable work without guessing.
 
@@ -18,6 +18,7 @@ Stop if: `plan.md` is missing/vague or any `AC-*` cannot be mapped to executable
 - Do not look for “examples” in neighboring specs/tasks from other slugs: it’s usually wasted tokens and scope drift. Take structure from `.speckeep/templates/tasks.md` and the current `<specs_dir>/<slug>/plan.md`.
 - Make `tasks.md` implement-self-contained: the implement agent should be able to execute tasks by reading only `tasks.md` + the active task `Touches:` (no mandatory re-read of `plan.md`/`spec.md`/`data-model.md`).
 - If execution depends on key plan/data-model decisions or invariants, include a short `## Implementation Context` section (≤ ~20 lines) and reference it from tasks (e.g., `DEC-*` / `DM`) so implement doesn’t re-read source artifacts end-to-end.
+- `## Implementation Context` is always required, even when short: it is the main operational bridge from spec/plan into implement/verify.
 - Recommended `## Implementation Context` template (keep it short, no fluff):
   - `MVP goal:` (1 line)
   - `Invariants/semantics:` (2–5 bullets)

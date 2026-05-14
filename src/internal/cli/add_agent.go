@@ -37,7 +37,7 @@ func newAddAgentCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "generate project-local agent command files for one or more targets: claude, codex, copilot, cursor, kilocode, trae, all")
+	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "generate project-local agent command files for one or more targets: claude, codex, copilot, cursor, kilocode, opencode, trae, windsurf, roocode, aider, all")
 	cmd.Flags().StringSliceVar(&legacyAgentTargets, "agent", nil, "deprecated alias for --agents")
 	cmd.Flags().MarkHidden("agent")
 	cmd.Flags().StringVar(&agentLang, "agent-lang", "", "override the configured agent language for generated agent files: en or ru")

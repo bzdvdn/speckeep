@@ -22,19 +22,19 @@ func TestNormalizeTargetsAll(t *testing.T) {
 		t.Fatalf("NormalizeTargets returned error: %v", err)
 	}
 
-	if len(targets) != 9 {
-		t.Fatalf("expected 9 targets for all, got %#v", targets)
+	if len(targets) != 10 {
+		t.Fatalf("expected 10 targets for all, got %#v", targets)
 	}
 }
 
 func TestFiles(t *testing.T) {
-	files, err := Files([]string{"aider", "claude", "codex", "copilot", "cursor", "kilocode", "roocode", "trae", "windsurf"}, "en", "sh")
+	files, err := Files([]string{"aider", "claude", "codex", "copilot", "cursor", "kilocode", "opencode", "roocode", "trae", "windsurf"}, "en", "sh")
 	if err != nil {
 		t.Fatalf("Files returned error: %v", err)
 	}
 
-	if len(files) != 97 {
-		t.Fatalf("expected 97 generated agent files, got %d", len(files))
+	if len(files) != 109 {
+		t.Fatalf("expected 109 generated agent files, got %d", len(files))
 	}
 
 	required := map[string]bool{
@@ -47,6 +47,7 @@ func TestFiles(t *testing.T) {
 		".cursor/rules/speckeep-implement.mdc":      false,
 		".cursor/rules/speckeep-verify.mdc":         false,
 		".kilocode/workflows/speckeep.verify.md":    false,
+		".opencode/commands/speckeep.verify.md":     false,
 		".roo/rules/speckeep-spec.md":               false,
 		".roo/rules/speckeep-plan.md":               false,
 		".trae/rules/speckeep.plan.md":              false,
@@ -56,6 +57,7 @@ func TestFiles(t *testing.T) {
 		".claude/commands/speckeep.recap.md":        false,
 		".claude/commands/speckeep.hotfix.md":       false,
 		".cursor/rules/speckeep-recap.mdc":          false,
+		".opencode/commands/speckeep.recap.md":      false,
 	}
 
 	for _, file := range files {
@@ -229,6 +231,39 @@ func TestRenderCodexDisallowsRawToolPayloads(t *testing.T) {
 			_, content, _ := render("codex", tt.lang, specs["plan"])
 			if !strings.Contains(content, tt.want) {
 				t.Fatalf("expected codex rendered content for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
+			}
+		})
+	}
+}
+
+func TestRenderOpencodeDeclaresArgumentHint(t *testing.T) {
+	specs := map[string]commandSpec{}
+	for _, spec := range commandSpecs("sh") {
+		specs[spec.Name] = spec
+	}
+
+	tests := []struct {
+		name string
+		lang string
+		want string
+	}{
+		{
+			name: "en",
+			lang: "en",
+			want: "argument-hint: [request]",
+		},
+		{
+			name: "ru",
+			lang: "ru",
+			want: "argument-hint: [request]",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, content, _ := render("opencode", tt.lang, specs["spec"])
+			if !strings.Contains(content, tt.want) {
+				t.Fatalf("expected opencode rendered content for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
 			}
 		})
 	}

@@ -6,7 +6,7 @@
 
 ## Phase Contract
 
-Inputs: `<specs_dir>/<slug>/tasks.md` (entrypoint), опционально `.speckeep/constitution.summary.md` (предпочтительно, если нужен контекст конституции) или `project.constitution_file`, `spec.digest.md` (предпочтительно) или `summary.md`/`spec.md` если нужен AC-контекст, `plan.md` если нужно подтвердить design surfaces.
+Inputs: `<specs_dir>/<slug>/tasks.md` (entrypoint), опционально `.speckeep/constitution.summary.md` (предпочтительно, если нужен контекст конституции) или `project.constitution_file`, `spec.md` если нужен AC-контекст, `plan.md` если нужно подтвердить design surfaces.
 Outputs: `<specs_dir>/<slug>/verify.md` (или verify report в разговоре) + обновления в `tasks.md`, если выявлены ошибки статуса.
 Stop if: `tasks.md` отсутствует или slug неоднозначен.
 

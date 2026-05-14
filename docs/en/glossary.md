@@ -50,7 +50,7 @@ An optional plan artifact used only when uncertainty, external investigation, or
 
 ## Agent Target
 
-A supported agent ecosystem for which SpecKeep can generate project-local command or prompt files, such as `claude`, `codex`, `copilot`, `cursor`, `kilocode`, or `trae`.
+A supported agent ecosystem for which SpecKeep can generate project-local command or prompt files, such as `claude`, `codex`, `copilot`, `cursor`, `kilocode`, `opencode`, or `trae`.
 
 ## Orphaned Agent Artifact
 

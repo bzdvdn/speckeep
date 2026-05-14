@@ -116,6 +116,7 @@ constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> ver
 
 - The constitution is the highest-priority project document.
 - Feature artifacts keep `plan.md`, `tasks.md`, `data-model.md`, `verify.md`, `contracts/`, and optional `research.md` together under one slug directory.
+- Lean artifact mode is now the default for generated workspaces: canonical active artifacts are `spec.md`, optional `inspect.md`, `plan.md`, `tasks.md`, `data-model.md`, `contracts/`, and `verify.md`; older `summary.md`, `spec.digest.md`, and `plan.digest.md` are legacy optional artifacts.
 - `data-model.md` and `contracts/` are intentionally compact but structured: entities should capture fields, invariants, and lifecycle; contracts should capture boundary IO, failures, and delivery assumptions.
 - Specs use canonical `Given / When / Then` markers across documentation languages.
 - SpecKeep prefers stable IDs and explicit references over repeated narrative summaries: `RQ-*` for requirements, `AC-*` for acceptance criteria, `DEC-*` for plan decisions, and phase-scoped `T*` task IDs.
@@ -123,10 +124,11 @@ constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> ver
 - Strictness comes from phase entrypoints, templates, stable artifact structure, and readiness checks rather than large default prompts.
 - `inspect` now treats helper-script output as the primary structural evidence layer: readiness checks can emit categorized findings such as `structure`, `traceability`, `ambiguity`, `consistency`, and `readiness`, which the agent should preserve and only deepen when necessary.
 - Agent-facing `/speckeep.spec` is branch-first: it should work from `feature/<slug>`, support `--name` with optional `--slug` / `--branch`, and still prefer explicit `name:` / `slug:` metadata for prompt files.
-- `speckeep init` requires an explicit `--shell` and generates one script family: `sh` or `powershell`. Supported agent targets: `claude`, `codex`, `copilot`, `cursor`, `kilocode`, `trae`, `windsurf`, `roocode`, `aider`.
+- `speckeep init` requires an explicit `--shell` and generates one script family: `sh` or `powershell`. Supported agent targets: `claude`, `codex`, `copilot`, `cursor`, `kilocode`, `opencode`, `trae`, `windsurf`, `roocode`, `aider`.
 - Generated workspaces include `.speckeep/scripts/run-speckeep.*` as the stable CLI launcher for agents; it resolves `DRAFTSPEC_BIN` first and falls back to `speckeep` from `PATH`.
 - Generated `.speckeep/scripts/*` wrappers compute the project root from the script location and pass it via `--root`, so they can be executed from any working directory.
 - `speckeep feature repair` and `speckeep migrate` provide safe canonicalization for legacy artifacts such as old inspect report paths.
+- Existing projects may keep legacy `summary.md`, `spec.digest.md`, and `plan.digest.md` during transition; `refresh` no longer expects them, and new generated guidance does not depend on them.
 - `speckeep check <slug>` shows artifact presence, inspect and verify verdict, task progress, the exact next slash command, and a compact readiness summary from structured checks; exits with code 1 when blocked; supports `--json` for CI use. `--all` shows a readiness table across all features.
 - `speckeep demo [path]` creates a demo workspace pre-populated with an example feature at the implement phase — spec, inspect report, plan, tasks, and data model are all populated.
 - `speckeep export <slug>` bundles all feature artifacts into one markdown document for sharing with a reviewer or new agent session; supports `--output` to write to a file.
@@ -233,7 +235,7 @@ Then a .csv with headers only downloads — no error shown
 Call `/speckeep.inspect csv-export-for-reports`.
 
 - `specs/active/csv-export-for-reports/inspect.md` — verdict `pass`, all AC have G/W/T
-- `specs/active/csv-export-for-reports/summary.md` — compact AC table used by implement and verify instead of the full spec
+- no extra recap file is required; implement and verify will rely on `tasks.md` as the main operational entrypoint
 
 ### 4. Plan
 
@@ -255,6 +257,16 @@ Call `/speckeep.tasks csv-export-for-reports`.
 | hooks/useReportExport.ts   | T1.1  |
 | components/ReportsPage.tsx | T1.2  |
 | tests/reports.test.ts      | T2.1  |
+
+## Implementation Context
+
+- MVP Goal: export the current visible reports table as CSV
+- Acceptance Boundaries: AC-001, AC-002
+- Key Rules: keep behavior in-browser; no extra export formats; preserve empty-state UX
+- Data/Domain Invariants: exported columns match the visible table; header row is always present
+- Contracts/Protocols: browser download only; no background job or email delivery
+- Proof Signals: CSV file downloads; empty table exports headers only
+- Out of Scope: batch export, scheduled export, XLSX support
 
 ## Phase 1: Hook and button
 

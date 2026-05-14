@@ -14,6 +14,16 @@ Stop if: tasks would be vague or acceptance coverage cannot be mapped.
 | src/handlers/feature.ts | T2.1, T2.2 |
 | src/tests/feature.test.ts | T3.1 |
 
+## Implementation Context
+
+- MVP Goal: <1 line>
+- Acceptance Boundaries: AC-001, AC-002
+- Key Rules: <2-4 bullets from constitution/plan>
+- Data/Domain Invariants: <2-4 bullets>
+- Contracts/Protocols: <1-3 bullets>
+- Proof Signals: <what counts as completion evidence>
+- Out of Scope: <what is intentionally excluded>
+
 ## Phase 1: Foundation
 
 Goal: establish the minimum structure, contracts, or data prerequisites so later work stays predictable.
@@ -58,3 +68,4 @@ Goal: prove the feature works and leave the package in a reviewable state.
 - Separate validation work from broad implementation work instead of hiding proof inside a large task
 - Mark tasks complete as implementation progresses and do not leave acceptance criteria without task coverage
 - State explicitly when a phase is intentionally omitted because the feature does not need it
+- Keep `Implementation Context` short but sufficient so implement and verify rarely need to re-read `spec.md` or `plan.md`

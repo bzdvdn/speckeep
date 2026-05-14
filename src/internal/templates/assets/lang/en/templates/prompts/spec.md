@@ -5,7 +5,7 @@ You create or update one feature spec: `<specs_dir>/<slug>/spec.md`.
 ## Phase Contract
 
 Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), user request, minimum required repo context.
-Outputs: `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/spec.digest.md`, `<specs_dir>/<slug>/summary.md`.
+Outputs: `<specs_dir>/<slug>/spec.md`.
 Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 
 ## Mandatory Rules
@@ -27,15 +27,9 @@ Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 
 ## Output expectations
 
-- **Write `<specs_dir>/<slug>/spec.digest.md` first** (mandatory, always, even on patch). One line per `AC-*`, format `AC-NNN: <≤10-word summary>`. Example:
-  ```
-  AC-001: user submits login form with valid credentials
-  AC-002: invalid password shows inline error message
-  ```
 - Write/patch `spec.md` (patch > rewrite).
-- Write `summary.md` (≤25 lines): Goal (1–2 sentences), AC table (one row per `AC-*`), Out of Scope list.
 - Self-check before finishing: no `TODO`/`???`/`<placeholder>` in spec.md; every AC has Given/When/Then with observable proof; Out of Scope + Assumptions + Open Questions sections exist.
-- Summarize: goal, scope, AC list, open questions/blockers.
+- Summarize: goal, scope, AC list, open questions/blockers in the response; do not create extra derived recap files just for this summary.
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`.
 - Next steps (offer both):
   - Deep quality review: `/speckeep.inspect <slug>` — checks constitution alignment, AC completeness, ambiguity

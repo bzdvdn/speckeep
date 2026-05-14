@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -85,16 +86,24 @@ type ContextBudget struct {
 
 func calculateContextBudget(root, slug string, state workflow.FeatureState, cfg config.Config) ContextBudget {
 	specsDir, _ := cfg.SpecsDir(root)
+	draftspecDir, _ := cfg.DraftspecDir(root)
 
 	specPath, _ := featurepaths.ResolveSpec(specsDir, slug)
 	inspectPath, _ := featurepaths.ResolveInspect(specsDir, slug)
-	summaryPath, _ := featurepaths.ResolveSummary(specsDir, slug)
 	planPath, _ := featurepaths.ResolvePlan(specsDir, slug)
 	tasksPath, _ := featurepaths.ResolveTasks(specsDir, slug)
 	dataModelPath, _ := featurepaths.ResolveDataModel(specsDir, slug)
+	constitutionSummaryPath := filepath.Join(draftspecDir, "constitution.summary.md")
 
 	return ContextBudget{
 		Phases: []PhaseContext{
+			{
+				Name:            "Constitution Summary",
+				Path:            relPath(root, constitutionSummaryPath),
+				Exists:          fileExists(constitutionSummaryPath),
+				EstimatedTokens: estimateTokens(constitutionSummaryPath),
+				Description:     "Compact policy context reused across phases",
+			},
 			{
 				Name:            "Spec",
 				Path:            relPath(root, specPath),
@@ -108,13 +117,6 @@ func calculateContextBudget(root, slug string, state workflow.FeatureState, cfg 
 				Exists:          state.InspectExists,
 				EstimatedTokens: estimateTokens(inspectPath),
 				Description:     "Quality gate verification",
-			},
-			{
-				Name:            "Summary",
-				Path:            relPath(root, summaryPath),
-				Exists:          fileExists(summaryPath),
-				EstimatedTokens: estimateTokens(summaryPath),
-				Description:     "Compact AC table for implement/verify",
 			},
 			{
 				Name:            "Plan",

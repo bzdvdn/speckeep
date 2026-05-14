@@ -7,7 +7,7 @@
 ## Phase Contract
 
 Inputs: `.speckeep/constitution.summary.md` (предпочтительно, если файл есть) или `project.constitution_file` (по умолчанию `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`.
-Outputs: `<specs_dir>/<slug>/inspect.md` со статусом `pass|concerns|blocked` и `<specs_dir>/<slug>/summary.md`.
+Outputs: `<specs_dir>/<slug>/inspect.md` со статусом `pass|concerns|blocked`.
 Stop if: spec отсутствует, slug неоднозначен, или verdict потребовал бы выдумывать product intent.
 
 ## Проверки (строго, но дёшево)
@@ -30,7 +30,8 @@ Stop if: spec отсутствует, slug неоднозначен, или verd
 
 ## Output expectations
 
-- Запишите `inspect.md` и `summary.md` (summary ≤ ~25 строк: Goal, AC table, Out of Scope).
+- Запишите `inspect.md`.
+- Если нужен компактный recap по AC или scope, держите его внутри `inspect.md`; не создавайте отдельный `summary.md`.
 - В `inspect.md` обязательно: verdict, Errors, Warnings и Next step (если не blocked).
 - Для `blocked` не предлагайте следующую фазу; явно укажите, какой refinement нужен.
 - В разговоре дайте компактный verdict + непустые Errors/Warnings + Next step.

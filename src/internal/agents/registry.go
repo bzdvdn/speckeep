@@ -8,7 +8,7 @@ type Adapter interface {
 	Paths(commands []CommandDefinition, language string) ([]string, error)
 }
 
-var orderedTargets = []string{"aider", "claude", "codex", "copilot", "cursor", "kilocode", "roocode", "trae", "windsurf"}
+var orderedTargets = []string{"aider", "claude", "codex", "copilot", "cursor", "kilocode", "opencode", "roocode", "trae", "windsurf"}
 
 var adapterRegistry = map[string]Adapter{
 	"aider":    aiderAdapter{},
@@ -17,6 +17,7 @@ var adapterRegistry = map[string]Adapter{
 	"copilot":  copilotAdapter{},
 	"cursor":   cursorAdapter{},
 	"kilocode": kilocodeAdapter{},
+	"opencode": opencodeAdapter{},
 	"roocode":  roocodeAdapter{},
 	"trae":     traeAdapter{},
 	"windsurf": windsurfAdapter{},

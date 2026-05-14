@@ -72,6 +72,8 @@ speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --she
 	- содержимое `specs_dir/<slug>/plan/**`
 	- содержимое `archive_dir/**` (но может безопасно перенести директорию при `--archive-dir`)
 
+Lean-модель артефактов теперь является дефолтной для generated guidance и readiness checks. В существующих feature package ещё могут лежать legacy `summary.md`, `spec.digest.md` или `plan.digest.md`, но refresh их больше не требует, а новые workspace на них не опираются.
+
 Примеры:
 
 ```bash
@@ -142,7 +144,7 @@ speckeep add-skill my-project --id openai-docs --from-git https://example.com/sk
 
 Устанавливает включенные skills из `.speckeep/skills/manifest.yaml` в skill-папки выбранных агентов.
 
-По умолчанию используются targets из `.speckeep/speckeep.yaml`. Можно переопределить через `--targets codex,claude`.
+По умолчанию используются targets из `.speckeep/speckeep.yaml`. Можно переопределить через `--targets codex,opencode`.
 
 Важные флаги:
 
@@ -173,6 +175,16 @@ speckeep skills install my-project
 ```bash
 speckeep skills sync my-project
 ```
+
+## Миграция Существующих Feature Packages
+
+Если в активных feature folders у вас ещё лежат `summary.md`, `spec.digest.md` или `plan.digest.md`:
+
+- их можно временно оставить; текущие prompts и checks по умолчанию их игнорируют
+- считайте `tasks.md` главным operational entrypoint для `implement` и `verify`
+- важный recap-контекст лучше перенести в `tasks.md` `## Implementation Context`
+- `.speckeep/constitution.summary.md` стоит сохранить как компактный policy layer
+- перед нормализацией старых feature packages сначала выполните `speckeep refresh . --dry-run`, чтобы увидеть managed changes без записи
 
 ### `speckeep doctor [path]`
 

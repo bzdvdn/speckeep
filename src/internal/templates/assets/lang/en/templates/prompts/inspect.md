@@ -7,7 +7,7 @@ Follow base rules in `AGENTS.md`.
 ## Phase Contract
 
 Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`.
-Outputs: `<specs_dir>/<slug>/inspect.md` with `pass|concerns|blocked` and `<specs_dir>/<slug>/summary.md`.
+Outputs: `<specs_dir>/<slug>/inspect.md` with `pass|concerns|blocked`.
 Stop if: spec missing, slug ambiguous, or the verdict would require inventing product intent.
 
 ## Checks (strict but cheap)
@@ -30,7 +30,8 @@ If `./.speckeep/scripts/check-inspect-ready.*` exists, run it (slug first) and u
 
 ## Output expectations
 
-- Write `inspect.md` and `summary.md` (summary ~≤25 lines: Goal, AC table, Out of Scope).
+- Write `inspect.md`.
+- If a compact AC or scope recap is useful, keep it inside `inspect.md`; do not create a separate `summary.md`.
 - `inspect.md` MUST include: verdict, Errors, Warnings, and Next step (when not blocked).
 - For `blocked`, do not suggest the next phase command; state which refinement is required first.
 - In chat: compact verdict + non-empty Errors/Warnings + Next step.

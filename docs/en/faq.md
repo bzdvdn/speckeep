@@ -56,8 +56,9 @@ No. `implement` should start from `tasks.md` and load deeper artifacts only when
 
 Typical minimal read order:
 
-- `constitution.md`
 - `tasks.md`
+- `.speckeep/constitution.summary.md` when policy context is needed
+- then `CONSTITUTION.md` only if the summary is absent or insufficient
 - then `spec.md`, `plan.md`, `data-model.md`, `contracts/`, or `research.md` only if needed
 
 ## Can `plan` run without `spec`?

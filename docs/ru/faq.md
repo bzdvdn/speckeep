@@ -56,8 +56,9 @@
 
 Типичный минимальный порядок чтения:
 
-- `constitution.md`
 - `tasks.md`
+- `.speckeep/constitution.summary.md`, если нужен policy-контекст
+- затем `CONSTITUTION.md` только если summary отсутствует или недостаточен
 - затем `spec.md`, `plan.md`, `data-model.md`, `contracts/` или `research.md` только при необходимости
 
 ## Может ли `plan` работать без `spec`?

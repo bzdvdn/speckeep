@@ -7,7 +7,7 @@ Follow base rules in `AGENTS.md`.
 ## Phase Contract
 
 Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/inspect.md` (optional; if present, must be `pass`).
-Outputs: `<specs_dir>/<slug>/plan.md`, `<specs_dir>/<slug>/plan.digest.md`, and when required `<specs_dir>/<slug>/data-model.md`, `<specs_dir>/<slug>/contracts/*`, `<specs_dir>/<slug>/research.md`.
+Outputs: `<specs_dir>/<slug>/plan.md`, and when required `<specs_dir>/<slug>/data-model.md`, `<specs_dir>/<slug>/contracts/*`, `<specs_dir>/<slug>/research.md`.
 Stop if: inspect.md is present and not `pass`, the goal is ambiguous, or planning would require inventing requirements/AC.
 
 ## Rules
@@ -23,15 +23,8 @@ Stop if: inspect.md is present and not `pass`, the goal is ambiguous, or plannin
 
 ## Output expectations
 
-- **Write `<specs_dir>/<slug>/plan.digest.md` first** (mandatory, always, even on patch). One line per `DEC-*`, then a `Surfaces:` block (surface name + key files, one line each). If no `DEC-*` entries exist, write `Surfaces:` only. Example:
-  ```
-  DEC-001: use postgres, not sqlite, for persistence
-  DEC-002: REST over GraphQL for public API surface
-  Surfaces:
-  - auth-handler: internal/auth/handler.go, internal/auth/middleware.go
-  - user-store: internal/store/user.go
-  ```
 - Write/patch `<specs_dir>/<slug>/plan.md` (create additional artifacts only when justified).
+- Inside `plan.md`, keep compact sections for `DEC-*`, surfaces, risks, and data-model/contract impact; do not move that recap into separate digest files.
 - Summarize key `DEC-*`, surfaces, sequencing constraints, and risks.
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`.
 - Final line: `Ready for: /speckeep.tasks <slug>`

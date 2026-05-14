@@ -149,6 +149,7 @@ constitution -> spec -> [inspect, опционально] -> plan -> tasks -> im
 
 - Конституция — главный документ проекта.
 - Plan package хранит вместе `plan.md`, `tasks.md`, `data-model.md`, `contracts/` и optional `research.md`.
+- Lean-модель артефактов теперь является дефолтной для generated workspace: каноническими active artifacts считаются `spec.md`, optional `inspect.md`, `plan.md`, `tasks.md`, `data-model.md`, `contracts/` и `verify.md`; старые `summary.md`, `spec.digest.md` и `plan.digest.md` считаются legacy optional artifacts.
 - `data-model.md` и `contracts/` должны оставаться компактными, но структурированными: сущности должны описывать поля, инварианты и жизненный цикл, а контракты — входы и выходы на границах системы, ошибки и предположения о доставке.
 - Specs используют канонические маркеры `Given / When / Then` независимо от языка документации.
 - SpecKeep предпочитает стабильные ID и явные ссылки вместо повторяющихся narrative summaries: `RQ-*` для требований, `AC-*` для критериев приемки, `DEC-*` для решений плана и phase-scoped `T*` для task IDs.
@@ -156,10 +157,11 @@ constitution -> spec -> [inspect, опционально] -> plan -> tasks -> im
 - Strictness обеспечивается phase entrypoints, templates, стабильной структурой артефактов и readiness checks, а не большими prompt contexts.
 - `inspect` теперь использует вывод helper scripts как основной слой структурных доказательств: readiness checks могут выдавать категоризированные findings вроде `structure`, `traceability`, `ambiguity`, `consistency` и `readiness`, которые агент должен сохранять и углублять только при необходимости.
 - Agent-facing `/speckeep.spec` работает branch-first: от `feature/<slug>`, поддерживает `--name` с optional `--slug` / `--branch` и сохраняет приоритет явных `name:` / `slug:` в prompt-файлах.
-- `speckeep init` требует явный `--shell` и генерирует только одно семейство scripts: `sh` или `powershell`. Поддерживаемые agent targets: `claude`, `codex`, `copilot`, `cursor`, `kilocode`, `trae`, `windsurf`, `roocode`, `aider`.
+- `speckeep init` требует явный `--shell` и генерирует только одно семейство scripts: `sh` или `powershell`. Поддерживаемые agent targets: `claude`, `codex`, `copilot`, `cursor`, `kilocode`, `opencode`, `trae`, `windsurf`, `roocode`, `aider`.
 - Сгенерированный workspace включает `.speckeep/scripts/run-speckeep.*` как стабильный CLI launcher для агентов; он сначала использует `DRAFTSPEC_BIN`, а потом пытается вызвать `speckeep` из `PATH`.
 - Сгенерированные обёртки `.speckeep/scripts/*` вычисляют корень проекта из расположения скрипта и передают его через `--root`, поэтому их можно запускать из любого текущего каталога.
 - `speckeep feature repair` и `speckeep migrate` дают безопасную каноникализацию legacy-артефактов, например старых путей к inspect reports.
+- Существующие проекты могут временно сохранять legacy `summary.md`, `spec.digest.md` и `plan.digest.md`; `refresh` их больше не ожидает, а новый generated guidance на них не опирается.
 - `speckeep check <slug>` показывает наличие артефактов, вердикт inspect и verify, прогресс задач, точную следующую slash-команду и компактную сводку readiness checks; выходит с кодом 1, если заблокировано; поддерживает `--json` для CI. `--all` выводит таблицу готовности по всем фичам.
 - `speckeep demo [path]` создает демо-workspace с заполненным примером фичи на фазе implement — spec, inspect-отчет, plan, tasks и data model уже заполнены.
 - `speckeep export <slug>` упаковывает все артефакты фичи в один markdown-документ для передачи ревьюеру или новой агентской сессии; поддерживает `--output` для записи в файл.
@@ -235,7 +237,7 @@ Then скачивается .csv только с заголовками — бе
 Вызовите `/speckeep.inspect eksport-otchetov-v-csv`.
 
 - `specs/active/eksport-otchetov-v-csv/inspect.md` — вердикт `pass`, все AC в формате G/W/T
-- `specs/active/eksport-otchetov-v-csv/summary.md` — компактная таблица AC, которую используют implement и verify вместо полного spec
+- отдельный recap-файл не обязателен; implement и verify используют `tasks.md` как главный operational entrypoint
 
 ### 4. Plan
 
@@ -257,6 +259,16 @@ Then скачивается .csv только с заголовками — бе
 | hooks/useReportExport.ts   | T1.1   |
 | components/ReportsPage.tsx | T1.2   |
 | tests/reports.test.ts      | T2.1   |
+
+## Implementation Context
+
+- Цель MVP: экспортировать текущую видимую таблицу отчётов в CSV
+- Границы приемки: AC-001, AC-002
+- Ключевые правила: всё работает в браузере; не добавляем новые форматы; сохраняем UX пустого состояния
+- Инварианты данных/домена: экспортируются только видимые колонки; строка заголовков всегда присутствует
+- Контракты/протокол: только browser download; без background job и email delivery
+- Proof signals: CSV скачивается; пустая таблица экспортирует только заголовки
+- Вне scope: batch export, scheduled export, XLSX
 
 ## Фаза 1: Хук и кнопка
 

@@ -26,7 +26,6 @@ specs/
     <slug>/
       spec.md
       inspect.md
-      summary.md
       hotfix.md
       plan.md
       tasks.md
@@ -48,6 +47,8 @@ specs/
         contracts/
 AGENTS.md
 ```
+
+`tasks.md` is the main operational entrypoint for `implement` and `verify`; `spec.md` and `plan.md` remain source artifacts, while `.speckeep/constitution.summary.md` is the preferred compact policy context when constitution rules are needed.
 
 ## Public CLI Surface
 

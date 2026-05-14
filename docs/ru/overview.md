@@ -26,7 +26,6 @@ specs/
     <slug>/
       spec.md
       inspect.md
-      summary.md
       hotfix.md
       plan.md
       tasks.md
@@ -48,6 +47,8 @@ specs/
         contracts/
 AGENTS.md
 ```
+
+`tasks.md` — главный operational entrypoint для `implement` и `verify`; `spec.md` и `plan.md` остаются source-артефактами, а `.speckeep/constitution.summary.md` — предпочитаемый компактный policy-контекст, когда нужны правила конституции.
 
 ## Публичный CLI
 

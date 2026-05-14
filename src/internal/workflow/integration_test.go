@@ -83,7 +83,6 @@ func TestFullWorkflowCycle(t *testing.T) {
 	})
 
 	// ── inspect ───────────────────────────────────────────────────────────
-	writeFile(t, filepath.Join(specDir, "summary.md"), summaryMD)
 	writeFile(t, filepath.Join(specDir, "inspect.md"), inspectMD)
 
 	assertState(t, root, slug, "plan", "inspect")
@@ -194,26 +193,6 @@ Enable PDF export of reports.
 - Browser-based PDF generation is sufficient for v1.
 `
 
-const summaryMD = `---
-slug: demo
-generated_at: 2026-04-16
----
-
-## Goal
-Enable PDF export of reports.
-
-## Acceptance Criteria
-| ID | Summary | Proof Signal |
-|---|---|---|
-| AC-001 | PDF export available | PDF file downloaded |
-| AC-002 | Export access for all | Export completes |
-
-## Out of Scope
-- Batch export
-- Email delivery
-- Non-PDF formats
-`
-
 const inspectMD = `---
 report_type: inspect
 slug: demo
@@ -261,6 +240,10 @@ Chosen for simplicity and zero additional dependencies.
 - AC-001 -> implement export button and download handler
 - AC-002 -> ensure auth middleware applies to the export route
 
+## Data and Contracts
+- data-model.md remains a no-change stub for this feature.
+- No external contract expansion is required for the initial PDF export path.
+
 ## Constitution Compliance
 - No architectural constraints violated.
 - Follows repository language policy.
@@ -278,6 +261,16 @@ const tasksMDOpen = `# Demo Tasks
 |---------|-------|
 | src/handlers/export.go | T1.1 |
 | src/middleware/auth.go | T1.2 |
+
+## Implementation Context
+
+- MVP Goal: let an authenticated user download one report as PDF.
+- Acceptance Boundaries: AC-001, AC-002
+- Key Rules: keep scope to current slug; do not add new formats; preserve auth guard.
+- Data/Domain Invariants: report payload shape does not change; export remains read-only.
+- Contracts/Protocols: existing authenticated HTTP flow; browser download is sufficient for v1.
+- Proof Signals: export handler exists; auth path still guards export.
+- Out of Scope: batch export, email delivery, non-PDF formats.
 
 ## Phase 1: Implementation
 
@@ -297,6 +290,16 @@ const tasksMDDone = `# Demo Tasks
 |---------|-------|
 | src/handlers/export.go | T1.1 |
 | src/middleware/auth.go | T1.2 |
+
+## Implementation Context
+
+- MVP Goal: let an authenticated user download one report as PDF.
+- Acceptance Boundaries: AC-001, AC-002
+- Key Rules: keep scope to current slug; do not add new formats; preserve auth guard.
+- Data/Domain Invariants: report payload shape does not change; export remains read-only.
+- Contracts/Protocols: existing authenticated HTTP flow; browser download is sufficient for v1.
+- Proof Signals: export handler exists; auth path still guards export.
+- Out of Scope: batch export, email delivery, non-PDF formats.
 
 ## Phase 1: Implementation
 

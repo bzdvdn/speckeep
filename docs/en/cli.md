@@ -72,6 +72,8 @@ This command does not update:
 - contents under `specs_dir/<slug>/plan/**`
 - contents under `archive_dir/**` (but it can safely move the directory with `--archive-dir`)
 
+Lean artifact layout is now the default for generated guidance and readiness checks. Existing feature packages may still contain legacy `summary.md`, `spec.digest.md`, or `plan.digest.md`, but refresh no longer requires them and new workspaces do not depend on them.
+
 Examples:
 
 ```bash
@@ -142,7 +144,7 @@ Use `--no-install` to skip immediate reconciliation of installed skills in agent
 
 Installs enabled skills from `.speckeep/skills/manifest.yaml` into target agent skill folders.
 
-By default, uses enabled targets from `.speckeep/speckeep.yaml`. Override with `--targets codex,claude`.
+By default, uses enabled targets from `.speckeep/speckeep.yaml`. Override with `--targets codex,opencode`.
 
 Important flags:
 
@@ -173,6 +175,16 @@ Equivalent subcommand:
 ```bash
 speckeep skills sync my-project
 ```
+
+## Migrating Existing Feature Packages
+
+If your active feature folders still contain `summary.md`, `spec.digest.md`, or `plan.digest.md`:
+
+- you can keep them temporarily; current prompts and checks ignore them by default
+- treat `tasks.md` as the main operational entrypoint for `implement` and `verify`
+- move the important recap material into `tasks.md` `## Implementation Context`
+- keep `.speckeep/constitution.summary.md` as the compact policy layer
+- run `speckeep refresh . --dry-run` first to preview managed guidance changes before normalizing older feature packages
 
 ### `speckeep doctor [path]`
 

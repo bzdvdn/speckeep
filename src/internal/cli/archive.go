@@ -42,7 +42,7 @@ func newArchiveCmd() *cobra.Command {
 
 Archive mode (default):
   - Copies all feature artifacts to <archive_dir>/<slug>/<YYYY-MM-DD>/
-  - Generates summary.md from verify.md
+  - Generates archive summary.md from verify.md
   - Removes active files (unless --copy)
 
 Restore mode (--restore):
@@ -155,8 +155,6 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 	specFiles := []string{
 		featurepaths.Spec(specsDir, slug),
 		featurepaths.Inspect(specsDir, slug),
-		featurepaths.Summary(specsDir, slug),
-		featurepaths.SpecDigest(specsDir, slug),
 		featurepaths.Hotfix(specsDir, slug),
 	}
 
@@ -178,7 +176,6 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 	// Copy plan artifacts
 	planFiles := []string{
 		"plan.md",
-		"plan.digest.md",
 		"tasks.md",
 		"data-model.md",
 		"research.md",

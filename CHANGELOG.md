@@ -7,6 +7,20 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- New `opencode` agent target support:
+  - generates SpecKeep workflow wrappers under `.opencode/commands/`
+  - included in agent target normalization, refresh/cleanup flows, CLI help text, and EN/RU docs
+
+### Changed
+
+- Lean feature artifact layout is now the default for generated guidance and readiness checks:
+  - canonical active artifacts now center on `spec.md`, optional `inspect.md`, `plan.md`, `tasks.md`, `data-model.md`, `contracts/`, and `verify.md`
+  - generated prompts no longer require `summary.md`, `spec.digest.md`, or `plan.digest.md`
+  - `tasks.md` now carries an explicit `Implementation Context` section as the main operational bridge for `implement` and `verify`
+  - `refresh` and new workspaces treat old summary/digest files as legacy optional artifacts rather than canonical defaults
+
 ## [v0.3.1] - 2026-05-12
 
 ### Changed

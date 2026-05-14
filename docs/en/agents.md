@@ -9,7 +9,11 @@ SpecKeep can generate project-local command or prompt files for:
 - `copilot`
 - `cursor`
 - `kilocode`
+- `opencode`
 - `trae`
+- `windsurf`
+- `roocode`
+- `aider`
 - `all`
 
 ## Generated Locations
@@ -18,8 +22,12 @@ SpecKeep can generate project-local command or prompt files for:
 - Codex: `.codex/prompts/`
 - Copilot: `.github/prompts/`
 - Cursor: `.cursor/rules/`
-- Kilo Code: `.kilocode/rules/`
+- Kilo Code: `.kilocode/workflows/`
+- OpenCode: `.opencode/commands/`
 - Trae: `.trae/rules/`
+- Windsurf: `.windsurf/workflows/`
+- Roo Code: `.roo/rules/`
+- Aider: `.aider/CONVENTIONS.md`
 
 These generated files are thin wrappers around the canonical SpecKeep prompts in `.speckeep/templates/prompts/`.
 

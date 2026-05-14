@@ -76,7 +76,11 @@ The `templates` package assembles these assets into the generated `.speckeep/` w
 - `copilot`
 - `cursor`
 - `kilocode`
+- `opencode`
 - `trae`
+- `windsurf`
+- `roocode`
+- `aider`
 
 These generated files are wrappers that point back to canonical SpecKeep prompts inside `.speckeep/templates/prompts/`.
 

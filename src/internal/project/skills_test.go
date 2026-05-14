@@ -200,7 +200,7 @@ func TestInstallSkillsCopiesToAgentSkillDirsAndCleansStale(t *testing.T) {
 		InitGit:      false,
 		DefaultLang:  "en",
 		Shell:        "sh",
-		AgentTargets: []string{"codex", "claude", "windsurf", "kilocode", "trae", "cursor"},
+		AgentTargets: []string{"codex", "opencode", "claude", "windsurf", "kilocode", "trae", "cursor"},
 	})
 	if err != nil {
 		t.Fatalf("Initialize returned error: %v", err)
@@ -235,6 +235,7 @@ func TestInstallSkillsCopiesToAgentSkillDirsAndCleansStale(t *testing.T) {
 
 	for _, rel := range []string{
 		".codex/skills/architecture/SKILL.md",
+		".opencode/skills/architecture/SKILL.md",
 		".claude/skills/architecture/SKILL.md",
 		".windsurf/skills/architecture/SKILL.md",
 		".kilocode/skills/architecture/SKILL.md",
@@ -255,6 +256,7 @@ func TestInstallSkillsCopiesToAgentSkillDirsAndCleansStale(t *testing.T) {
 
 	for _, rel := range []string{
 		".codex/skills/architecture",
+		".opencode/skills/architecture",
 		".claude/skills/architecture",
 		".windsurf/skills/architecture",
 		".kilocode/skills/architecture",

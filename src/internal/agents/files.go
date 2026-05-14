@@ -37,7 +37,7 @@ func NormalizeTargets(values []string) ([]string, error) {
 				continue
 			}
 			if _, ok := adapterRegistry[target]; !ok {
-				return nil, fmt.Errorf("unsupported agent target %q, expected one of: aider, claude, codex, copilot, cursor, kilocode, roocode, trae, windsurf, all", target)
+				return nil, fmt.Errorf("unsupported agent target %q, expected one of: aider, claude, codex, copilot, cursor, kilocode, opencode, roocode, trae, windsurf, all", target)
 			}
 			if _, ok := seen[target]; ok {
 				continue
@@ -111,6 +111,7 @@ func LegacyArchivePaths() []string {
 		".github/prompts/speckeep-archive.prompt.md",
 		".cursor/rules/speckeep-archive.mdc",
 		".kilocode/workflows/speckeep.archive.md",
+		".opencode/commands/speckeep.archive.md",
 		".roo/rules/speckeep-archive.md",
 		".windsurf/workflows/speckeep.archive.md",
 	}

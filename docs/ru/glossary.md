@@ -50,7 +50,7 @@ Plan-артефакты, определяющие интерфейсы, напр
 
 ## Agent Target
 
-Поддерживаемая агентная экосистема, для которой SpecKeep может генерировать project-local command или prompt files, например `claude`, `codex`, `copilot`, `cursor`, `kilocode` или `trae`.
+Поддерживаемая агентная экосистема, для которой SpecKeep может генерировать project-local command или prompt files, например `claude`, `codex`, `copilot`, `cursor`, `kilocode`, `opencode` или `trae`.
 
 ## Orphaned Agent Artifact
 

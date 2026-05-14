@@ -5,7 +5,7 @@
 ## Phase Contract
 
 Inputs: `.speckeep/constitution.summary.md` (предпочтительно, если файл есть) или `project.constitution_file` (по умолчанию `CONSTITUTION.md`), запрос пользователя, минимально нужный контекст репозитория.
-Outputs: `<specs_dir>/<slug>/spec.md`, `<specs_dir>/<slug>/spec.digest.md`, `<specs_dir>/<slug>/summary.md`.
+Outputs: `<specs_dir>/<slug>/spec.md`.
 Stop if: запрос неоднозначен/мульти-фича или пришлось бы выдумывать `AC-*`.
 
 ## Обязательные правила
@@ -27,15 +27,9 @@ Stop if: запрос неоднозначен/мульти-фича или пр
 
 ## Output expectations
 
-- **Сначала запишите `<specs_dir>/<slug>/spec.digest.md`** (обязательно, всегда, даже при patch). Одна строка на каждый `AC-*`, формат `AC-NNN: <краткое описание ≤10 слов>`. Пример:
-  ```
-  AC-001: пользователь отправляет форму входа с верными данными
-  AC-002: неверный пароль показывает inline-ошибку
-  ```
 - Запишите/patch `spec.md` (patch > переписывание).
-- Запишите `summary.md` (≤25 строк): Goal (1–2 предложения), таблица AC (одна строка на `AC-*`), список Out of Scope.
 - Самопроверка перед завершением: в spec.md нет `TODO`/`???`/`<placeholder>`; каждый AC содержит Given/When/Then с observable proof; секции Out of Scope, Assumptions, Open Questions существуют.
-- Коротко суммируйте цель, scope, список AC, открытые вопросы/блокеры.
+- Коротко суммируйте цель, scope, список AC, открытые вопросы/блокеры в ответе, не создавая отдельные derived-файлы только ради recap.
 - Добавьте короткий summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Готово к`.
 - Следующие шаги (предложите оба варианта):
   - Глубокая проверка качества: `/speckeep.inspect <slug>` — проверяет соответствие конституции, полноту AC, неоднозначности

@@ -105,7 +105,7 @@ Synchronizes:
 	cmd.Flags().StringVar(&constitutionFile, "constitution-file", "", "override the constitution file path and (safely) move the existing file when possible")
 	cmd.Flags().StringVar(&specsDir, "specs-dir", "", "override paths.specs_dir and (safely) move the existing specs directory when possible")
 	cmd.Flags().StringVar(&archiveDir, "archive-dir", "", "override paths.archive_dir and (safely) move the existing archive directory when possible")
-	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "override enabled project-local agent targets: claude, codex, copilot, cursor, kilocode, trae, all")
+	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "override enabled project-local agent targets: claude, codex, copilot, cursor, kilocode, opencode, trae, windsurf, roocode, aider, all")
 	cmd.Flags().StringSliceVar(&legacyAgentTargets, "agent", nil, "deprecated alias for --agents")
 	cmd.Flags().MarkHidden("agent")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show which managed files would change without writing them")

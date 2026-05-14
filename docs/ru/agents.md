@@ -9,7 +9,11 @@ SpecKeep умеет генерировать project-local command или prompt
 - `copilot`
 - `cursor`
 - `kilocode`
+- `opencode`
 - `trae`
+- `windsurf`
+- `roocode`
+- `aider`
 - `all`
 
 ## Куда пишутся файлы
@@ -18,8 +22,12 @@ SpecKeep умеет генерировать project-local command или prompt
 - Codex: `.codex/prompts/`
 - Copilot: `.github/prompts/`
 - Cursor: `.cursor/rules/`
-- Kilo Code: `.kilocode/rules/`
+- Kilo Code: `.kilocode/workflows/`
+- OpenCode: `.opencode/commands/`
 - Trae: `.trae/rules/`
+- Windsurf: `.windsurf/workflows/`
+- Roo Code: `.roo/rules/`
+- Aider: `.aider/CONVENTIONS.md`
 
 Эти generated files являются тонкой оберткой над каноническими промтами в `.speckeep/templates/prompts/`.
 

@@ -76,7 +76,11 @@ SpecKeep генерирует файлы из локализованных asset
 - `copilot`
 - `cursor`
 - `kilocode`
+- `opencode`
 - `trae`
+- `windsurf`
+- `roocode`
+- `aider`
 
 Эти generated files являются обертками, которые ссылаются на канонические prompts SpecKeep в `.speckeep/templates/prompts/`.
 
