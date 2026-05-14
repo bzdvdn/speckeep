@@ -51,11 +51,12 @@ argument-hint: [request]
 Требования:
 - сначала прочитайте project.constitution_file (по умолчанию CONSTITUTION.md), если это требуется prompt-файлом
 - %s
+- %s
 - используйте только минимально нужный контекст репозитория
 - %s
 %s
 %s
-`, spec.Description, spec.PromptPath, commandHint(spec.Name, lang), constitutionSummaryHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, spec.Description, spec.PromptPath, commandHint(spec.Name, lang), constitutionSummaryHint(lang), tracePlacementHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`---
@@ -73,9 +74,10 @@ User arguments:
 Requirements:
 - read project.constitution_file (default: CONSTITUTION.md) first when the prompt requires it
 - %s
+- %s
 - use only the minimum repository context needed
 - %s
 %s
 %s
-`, spec.Description, spec.PromptPath, commandHint(spec.Name, lang), constitutionSummaryHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, spec.Description, spec.PromptPath, commandHint(spec.Name, lang), constitutionSummaryHint(lang), tracePlacementHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

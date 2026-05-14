@@ -80,8 +80,10 @@ speckeep add-skill [path]
 speckeep list-skills [path]
 speckeep remove-skill [path]
 speckeep install-skills [path]
+speckeep skills-restore [path]
 speckeep sync-skills [path]
 speckeep skills install [path]
+speckeep skills restore [path]
 speckeep skills sync [path]
 speckeep doctor [path]
 speckeep doctor [path] --json
@@ -156,6 +158,8 @@ If you are starting a project from scratch:
 
 `--ref` is required for git sources to keep skill installs reproducible and avoid floating branch drift.
 
+For git-backed skills, SpecKeep caches the source checkout under `.speckeep/skills/checkouts/<id>` and keeps that path ignored via a managed root `.gitignore` block.
+
 ```bash
 # add a local skill
 speckeep add-skill my-project --id architecture --from-local skills/architecture
@@ -168,6 +172,9 @@ speckeep list-skills my-project
 
 # install skills into agent folders
 speckeep install-skills my-project
+
+# restore missing git-backed checkouts from manifest.yaml
+speckeep skills-restore my-project
 
 # sync only skills-managed artifacts
 speckeep sync-skills my-project

@@ -14,6 +14,7 @@
 - Git safety: не делать `git commit/push/tag` и PR без явной просьбы.
 - Done: никогда не отмечать задачу выполненной без observable proof (путь файла, вывод теста или команды).
 - Traceability: для каждой нетривиально завершённой задачи trace-маркеры обязательны. Нет `@sk-task` в изменённом коде или нет `@sk-test` в изменённых тестах для этой задачи — задача ещё не завершена.
+- Placement: trace-маркеры запрещено ставить на уровень `package`, `import` или file-header comment; ставьте их над owning function/method/test/type declaration.
 - Discovery: не запускать `speckeep ... --help` для разведки; используйте prompt-файлы и readiness scripts.
 - CLI: используйте `./.speckeep/scripts/run-speckeep.sh` (PowerShell: `./.speckeep/scripts/run-speckeep.ps1`) только для настоящих CLI-команд (напр. `doctor`, `check`, `trace`, `export`, `refresh`). Не запускайте `run-speckeep.* <phase>` вроде `spec`/`plan`/`tasks` — фазы выполняются как slash-команды, а артефакты пишутся напрямую.
 - Вывод в чат: не вставляйте большие `git diff`/полные файлы/простыни логов. Давайте краткое резюме изменений + список затронутых файлов; если нужны детали — покажите только небольшой фрагмент вокруг места правки.

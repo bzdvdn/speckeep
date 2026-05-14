@@ -257,18 +257,22 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 - прочитать `tasks.md` и использовать его как манифест выполнения
 - выполнять **In-place Декомпозицию**, если задача слишком сложная, добавляя вложенные подзадачи (напр., `T1.1.1`)
-- аннотировать каждое нетривиальное изменение кода меткой `// @sk-task <ID> (<AC_ID>)`
+- аннотировать каждое нетривиальное изменение кода trace-маркером в idiomatic style языка
 - отмечать завершенные задачи в `tasks.md`
 - оставаться в рамках списка `Touches:`, определенного для каждой задачи
 
-Пример аннотации в коде:
+Пример аннотации в коде для Go:
 
 ```go
-// @sk-task T1.1: Добавить модель расписания партнера (AC-001)
+// @sk-task partner-scheduling#T1.1: Добавить модель расписания партнера (AC-001)
 func SavePartnerSchedule(p Partner) {
     // ...
 }
 ```
+
+Для других языков стиль может отличаться:
+- Python: `# @sk-task ...` первой строкой внутри `def` / `class`
+- JS/TS: `// @sk-task ...` над declaration, а для `test()/it()` первой строкой внутри callback
 
 ## 7. Верификация реализации
 
@@ -285,14 +289,28 @@ func SavePartnerSchedule(p Partner) {
 - подтверждать соответствие реализации описанию задач и критериям приемки
 - предоставить четкий вердикт (`pass`, `concerns` или `blocked`)
 - включить конкретные доказательства в секцию `## Checks`
+- если одну задачу проверяют несколько тестов, ожидать `@sk-test` на каждом таком тесте
 
-Пример аннотации в тесте:
+Пример аннотаций в тестах для Go:
 
 ```go
-// @sk-test T1.1: TestSavePartnerSchedule (AC-001)
+// @sk-test partner-scheduling#T1.1: TestSavePartnerSchedule (AC-001)
 func TestSavePartnerSchedule(t *testing.T) {
     // ...
 }
+
+// @sk-test partner-scheduling#T1.1: TestSavePartnerScheduleDefaults (AC-001)
+func TestSavePartnerScheduleDefaults(t *testing.T) {
+    // ...
+}
+```
+
+Для Python тот же принцип выглядит так:
+
+```python
+def test_save_partner_schedule():
+    # @sk-test partner-scheduling#T1.1: test_save_partner_schedule (AC-001)
+    ...
 ```
 
 Если фича создана давно и не содержит аннотаций, агент переходит к ручной проверке файлов из `Touches:` и ручному запуску тестов.

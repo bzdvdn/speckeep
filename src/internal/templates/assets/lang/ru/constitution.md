@@ -74,8 +74,20 @@
 - Для нетривиальных правок обязательны traceability-маркеры:
   - код: `@sk-task <slug>#<TASK_ID>: <short> (<AC_ID>)`
   - тесты: `@sk-test <slug>#<TASK_ID>: <TestName> (<AC_ID>)`
+  - если одну задачу подтверждают несколько тестов/кейсов, `@sk-test <slug>#<TASK_ID>` должен стоять на каждом таком тесте/кейсе, а не только на одном representative тесте.
 - Правило размещения маркеров:
   - размещайте trace-маркеры на объявлениях функций/методов/структур/классов (или на заголовках поведенческих блоков), а не на строках полей.
+  - запрещено ставить trace-маркеры на уровень `package`, `import` или file-header comment; маркер должен принадлежать конкретному owning symbol.
+  - если язык поддерживает именованные объявления, ставьте маркер непосредственно над тем объявлением, которое реализует или проверяет поведение.
+- Примеры размещения и стиля по языкам:
+  - Go: `//` непосредственно над `func`, method receiver, `type`, `func Test...`; если несколько `Test...` проверяют одну задачу, `@sk-test` нужен на каждом таком тесте.
+  - Python: `#` первой строкой внутри тела `def` / `async def` / `class` / `def test_*`; не в module docstring и не над `import`. Если одну задачу покрывают несколько test functions, маркер нужен внутри каждой из них.
+  - JavaScript / TypeScript: `//` над `function`, `async function`, class method, `class`; для `test(...)`/`it(...)` — первой строкой внутри callback/body. Если кейсов несколько, маркер нужен в каждом `test/it`.
+  - Java: `//` или `/* */` непосредственно над `class`, `interface`, `enum`, method, JUnit test method; не над `package`, `import`, полями.
+  - C# / .NET: `//` или `/* */` непосредственно над `class`, `record`, `interface`, method, test method; не над `using`, namespace header, properties/fields без owning behavior.
+  - C / C++: `//` или `/* */` над function, method, class/struct declaration, test case macro/block; не над `#include`, namespace-only header, отдельными полями struct.
+  - Shell / Bash: `#` над `function name()` или первой строкой именованного behavior/test block; не в file header только ради trace.
+  - SQL / migrations: `--` или `/* */` непосредственно над `CREATE FUNCTION|PROCEDURE|TRIGGER|VIEW` или первой строкой явно именованного migration block; не в верхнем комментарии файла без привязки к изменению.
 - Существующие trace-маркеры сохраняются; покрытие новой задачи добавляется доп. маркерами (без перезаписи).
 - Если один метод/тест покрывает несколько задач, на нем одновременно остаются несколько маркеров.
 - Перед archive в verify должна быть подтверждена покрываемость acceptance criteria.

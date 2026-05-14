@@ -203,7 +203,10 @@ When selective execution skips unfinished earlier work, SpecKeep should warn abo
 During implementation, SpecKeep should emit short runtime progress updates whenever it starts or completes a phase in the active execution scope.
 
 Every non-trivial code change should include a **traceability annotation** linking it back to the task ID and the primary acceptance criterion (AC).
-Format: `// @sk-task <TASK_ID>: <Description> (<AC_ID>)`
+Preferred format: `@sk-task <slug>#<TASK_ID>: <Description> (<AC_ID>)`
+- For tests: `@sk-test <slug>#<TASK_ID>: <TestName> (<AC_ID>)`
+- If multiple tests/cases verify the same task, `@sk-test` must appear on each such test/case.
+- Placement style depends on the language: Go/Java/C#/C/C++ usually use a comment above the declaration; Python uses `# @sk-*` as the first line inside `def/class/test`; JS/TS for `test()/it()` uses the first line inside the callback.
 
 Those phase-status updates should follow the project's configured agent language rather than defaulting to English.
 

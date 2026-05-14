@@ -119,6 +119,8 @@ Adds or updates one skill in `.speckeep/skills/manifest.yaml`.
 
 For git sources, `--ref` is required to keep installs reproducible and avoid floating branch drift.
 
+For git sources, SpecKeep materializes a checkout under `.speckeep/skills/checkouts/<id>`. This is a runtime cache of the skill source, and SpecKeep maintains a managed block for it in the root `.gitignore`.
+
 Use `--no-install` to update only manifest/AGENTS and skip immediate install into agent skill folders.
 
 Examples:
@@ -146,6 +148,8 @@ Installs enabled skills from `.speckeep/skills/manifest.yaml` into target agent 
 
 By default, uses enabled targets from `.speckeep/speckeep.yaml`. Override with `--targets codex,opencode`.
 
+For git-backed skills, this command can rehydrate missing `.speckeep/skills/checkouts/<id>` from manifest data (`location` + `ref`) before installation. This helps when a checkout was deleted locally. If the upstream git source is unavailable, the manifest alone is not enough to reconstruct the skill contents.
+
 Important flags:
 
 - `--dry-run` reports pending changes without writing them
@@ -158,11 +162,28 @@ Equivalent subcommand:
 speckeep skills install my-project
 ```
 
+### `speckeep skills-restore [path]`
+
+Restores git-backed checkouts in `.speckeep/skills/checkouts/` from `.speckeep/skills/manifest.yaml` without installing skills into agent folders.
+
+Useful when the local checkouts were deleted but `manifest.yaml` still has the `location` and pinned `ref`.
+
+If the upstream git source is unavailable, the command cannot reconstruct the contents from the manifest alone.
+
+Use `--json` for machine-readable output.
+
+Equivalent subcommand:
+
+```bash
+speckeep skills restore my-project
+```
+
 ### `speckeep sync-skills [path]`
 
 Synchronizes skill-managed artifacts only:
 
 - `.speckeep/skills/manifest.yaml`
+- managed root `.gitignore` block for `.speckeep/skills/checkouts/`
 - managed SpecKeep block in `AGENTS.md` (including skills section)
 
 Important flags:
@@ -291,6 +312,12 @@ Scans for traceability annotations in the codebase.
 Annotations follow the format:
 - `// @sk-task <TASK_ID>: <Description> (<AC_ID>)` for implementation code.
 - `// @sk-test <TASK_ID>: <TestName> (<AC_ID>)` for test evidence.
+
+Placement rule:
+- a trace marker must sit above a concrete owning declaration or behavior block, not at file level.
+- do not place it above `package`, `import`, a file-header comment, or any line that does not belong to a concrete function/method/type/test.
+- if multiple tests/cases verify the same task, `@sk-test <slug>#<TASK_ID>` must appear on each such test/case.
+- stack guide: Go `//` above `func/type/Test...`; Python `#` as the first line inside `def/class/test_*`; JS/TS `//` above declarations and as the first line inside `test()/it()` callbacks; Java/C#/C/C++ comments above method/class/test blocks.
 
 This command identifies links between implementation code, task IDs from `tasks.md`, and acceptance criteria from `spec.md`.
 

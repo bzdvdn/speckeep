@@ -64,6 +64,7 @@ Documentation:
 	cmd.AddCommand(newListSkillsCmd())
 	cmd.AddCommand(newRemoveSkillCmd())
 	cmd.AddCommand(newInstallSkillsCmd())
+	cmd.AddCommand(newRestoreSkillCheckoutsCmd())
 	cmd.AddCommand(newSyncSkillsCmd())
 	cmd.AddCommand(newSkillsCmd())
 	cmd.AddCommand(newDoctorCmd())

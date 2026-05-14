@@ -51,6 +51,12 @@ type SyncSkillsResult struct {
 	Messages  []string `json:"messages,omitempty"`
 }
 
+type RestoreSkillCheckoutsResult struct {
+	Restored  []string `json:"restored,omitempty"`
+	Messages  []string `json:"messages,omitempty"`
+	Unchanged bool     `json:"unchanged"`
+}
+
 func AddSkill(root string, options AddSkillOptions) (AddSkillResult, error) {
 	root, cfg, err := loadInitializedProject(root)
 	if err != nil {
@@ -93,6 +99,11 @@ func AddSkill(root string, options AddSkillOptions) (AddSkillResult, error) {
 	if strings.TrimSpace(result.Entry.ResolvedCommit) != "" {
 		messages = append(messages, fmt.Sprintf("resolved commit: %s", result.Entry.ResolvedCommit))
 	}
+	var refreshResult RefreshResult
+	if err := syncSkillsGitignore(root, false, &refreshResult); err != nil {
+		return AddSkillResult{}, err
+	}
+	messages = append(messages, ".gitignore keeps .speckeep/skills/checkouts/ ignored")
 	if err := refreshAgentsSnippetFromConfig(root, cfg); err != nil {
 		return AddSkillResult{}, err
 	}
@@ -136,7 +147,12 @@ func RemoveSkill(root string, options RemoveSkillOptions) (RemoveSkillResult, er
 	messages := []string{
 		fmt.Sprintf("removed skill %q", strings.TrimSpace(options.ID)),
 		"updated .speckeep/skills/manifest.yaml",
+		".gitignore keeps .speckeep/skills/checkouts/ ignored",
 		"updated managed SpecKeep block in AGENTS.md",
+	}
+	var refreshResult RefreshResult
+	if err := syncSkillsGitignore(root, false, &refreshResult); err != nil {
+		return RemoveSkillResult{}, err
 	}
 	if options.NoInstall {
 		messages = append(messages, "skipped skill installation into agent folders (--no-install)")
@@ -179,6 +195,9 @@ func SyncSkills(root string, options SyncSkillsOptions) (SyncSkillsResult, error
 	if err := syncSkillsManifest(root, options.DryRun, &internalResult); err != nil {
 		return SyncSkillsResult{}, err
 	}
+	if err := syncSkillsGitignore(root, options.DryRun, &internalResult); err != nil {
+		return SyncSkillsResult{}, err
+	}
 	if err := refreshAgentsSnippetFromConfigWithDryRun(root, cfg, options.DryRun, &internalResult); err != nil {
 		return SyncSkillsResult{}, err
 	}
@@ -190,6 +209,47 @@ func SyncSkills(root string, options SyncSkillsOptions) (SyncSkillsResult, error
 		Updated:   append([]string(nil), internalResult.Updated...),
 		Unchanged: append([]string(nil), internalResult.Unchanged...),
 		Messages:  append([]string(nil), internalResult.Messages...),
+	}, nil
+}
+
+func RestoreSkillCheckouts(root string) (RestoreSkillCheckoutsResult, error) {
+	root, _, err := loadInitializedProject(root)
+	if err != nil {
+		return RestoreSkillCheckoutsResult{}, err
+	}
+
+	manifest, err := skills.Load(root)
+	if err != nil {
+		return RestoreSkillCheckoutsResult{}, err
+	}
+
+	_, restored, err := skills.RehydrateGitCheckouts(root, manifest)
+	if err != nil {
+		return RestoreSkillCheckoutsResult{}, err
+	}
+
+	var refreshResult RefreshResult
+	if err := syncSkillsGitignore(root, false, &refreshResult); err != nil {
+		return RestoreSkillCheckoutsResult{}, err
+	}
+
+	if len(restored) == 0 {
+		return RestoreSkillCheckoutsResult{
+			Unchanged: true,
+			Messages: []string{
+				"no git skill checkouts needed restoration",
+				".gitignore keeps .speckeep/skills/checkouts/ ignored",
+			},
+		}, nil
+	}
+
+	return RestoreSkillCheckoutsResult{
+		Restored: append([]string(nil), restored...),
+		Messages: []string{
+			fmt.Sprintf("restored git skill checkouts from manifest: %s", strings.Join(restored, ", ")),
+			"updated .speckeep/skills/manifest.yaml",
+			".gitignore keeps .speckeep/skills/checkouts/ ignored",
+		},
 	}, nil
 }
 

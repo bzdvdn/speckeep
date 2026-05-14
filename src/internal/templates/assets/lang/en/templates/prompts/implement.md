@@ -35,8 +35,11 @@ Stop if: `tasks.md` is missing, the next task is not concrete, or execution requ
 - Annotation placement:
   - place `@sk-test` directly above the target test function declaration (for example above `func Test...`), not on struct fields/local variables/assert blocks.
   - place `@sk-task` near the owning behavior entrypoint (function/method/block header), not on unrelated field lines.
+  - never place `@sk-task`/`@sk-test` above `package`, `import`, or a file-header comment just to make the file look traced.
+  - follow idiomatic language style: Go/Java/C#/C/C++ usually need the comment directly above the declaration; Python uses `# @sk-task`/`# @sk-test` as the first line inside the `def/class/test` body; JS/TS `test(...)`/`it(...)` uses the first line inside the callback.
 - Traceability is mandatory for implementation work:
   - do not mark a task complete if changed code lacks `@sk-task` or changed tests lack `@sk-test` for that task.
+  - if multiple tests/cases verify the same task, `@sk-test` must be present on each such test/case.
   - if you cannot place the expected markers cleanly, stop and explain the blocker before closing the task.
   - before finalizing, run a quick self-check on changed files to confirm trace markers are present.
   - minimum self-check command pattern before closing tasks: inspect changed files and confirm `@sk-task` / `@sk-test` presence via targeted search (for example with `git diff --name-only` + `rg`).

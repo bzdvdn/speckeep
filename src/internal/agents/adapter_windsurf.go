@@ -50,9 +50,10 @@ trigger: manual
 
 - %s
 - %s
+- %s
 %s
 %s
-`, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, windsurfWorkspaceHint(lang), constitutionSummaryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, windsurfWorkspaceHint(lang), constitutionSummaryHint(lang), tracePlacementHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`---
@@ -69,7 +70,8 @@ Important: readiness scripts almost always require `+"`<slug>`"+` as the first a
 
 - %s
 - %s
+- %s
 %s
 %s
-`, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, windsurfWorkspaceHint(lang), constitutionSummaryHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, spec.PromptPath, commandHint(spec.Name, lang), spec.Name, spec.Name, windsurfWorkspaceHint(lang), constitutionSummaryHint(lang), tracePlacementHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

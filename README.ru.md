@@ -61,6 +61,8 @@ SpecKeep — это строгий и легкий SDD-kit для реальны
 
 Для git-источников `--ref` обязателен: это фиксирует версию skill и предотвращает drift на плавающих ветках.
 
+Для git-backed skills SpecKeep кеширует source checkout в `.speckeep/skills/checkouts/<id>` и держит этот путь в managed block корневого `.gitignore`.
+
 ```bash
 # добавить локальный skill
 speckeep add-skill my-project --id architecture --from-local skills/architecture
@@ -73,6 +75,9 @@ speckeep list-skills my-project
 
 # установить skills в агентские папки
 speckeep install-skills my-project
+
+# восстановить отсутствующие git-backed checkout'ы из manifest.yaml
+speckeep skills-restore my-project
 
 # синхронизировать только skills-managed артефакты
 speckeep sync-skills my-project
@@ -113,8 +118,10 @@ speckeep add-skill [path]
 speckeep list-skills [path]
 speckeep remove-skill [path]
 speckeep install-skills [path]
+speckeep skills-restore [path]
 speckeep sync-skills [path]
 speckeep skills install [path]
+speckeep skills restore [path]
 speckeep skills sync [path]
 speckeep doctor [path]
 speckeep doctor [path] --json

@@ -1063,6 +1063,13 @@ func TestListSkillsCommandJSON(t *testing.T) {
 	if !strings.Contains(stdout, "openai-docs") {
 		t.Fatalf("unexpected add-skill output: %s", stdout)
 	}
+	gitignoreContent, err := os.ReadFile(filepath.Join(root, ".gitignore"))
+	if err != nil {
+		t.Fatalf("ReadFile(.gitignore) returned error: %v", err)
+	}
+	if !strings.Contains(string(gitignoreContent), ".speckeep/skills/checkouts/") {
+		t.Fatalf("expected add-skill to update .gitignore for skills checkouts, got %q", string(gitignoreContent))
+	}
 
 	stdout, _, err = executeRoot(t, "list-skills", root, "--json")
 	if err != nil {
@@ -1304,6 +1311,35 @@ func TestSkillsInstallSubcommandDryRunJSON(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(root, ".codex", "skills", "architecture")); err != nil {
 		t.Fatalf("expected add-skill to auto-install .codex/skills/architecture before dry-run, got err=%v", err)
+	}
+}
+
+func TestSkillsRestoreCommandRehydratesMissingGitCheckout(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	gitSkillRepo := createGitSkillRepo(t, root)
+	if _, _, err := executeRoot(t, "add-skill", root, "--id", "openai-docs", "--from-git", gitSkillRepo, "--ref", "v1.2.3"); err != nil {
+		t.Fatalf("add-skill command returned error: %v", err)
+	}
+
+	checkoutDir := filepath.Join(root, ".speckeep", "skills", "checkouts", "openai-docs")
+	if err := os.RemoveAll(checkoutDir); err != nil {
+		t.Fatalf("RemoveAll(checkoutDir) returned error: %v", err)
+	}
+
+	stdout, _, err := executeRoot(t, "skills-restore", root)
+	if err != nil {
+		t.Fatalf("skills-restore command returned error: %v", err)
+	}
+	if !strings.Contains(stdout, "restored git skill checkouts from manifest: openai-docs") {
+		t.Fatalf("unexpected skills-restore output: %s", stdout)
+	}
+	if _, err := os.Stat(checkoutDir); err != nil {
+		t.Fatalf("expected skills-restore to recreate checkout dir, got err=%v", err)
 	}
 }
 

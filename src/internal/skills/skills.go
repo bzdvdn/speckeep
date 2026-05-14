@@ -306,6 +306,78 @@ func checkoutPath(root, id string) string {
 	return filepath.Join(root, ".speckeep", "skills", "checkouts", id)
 }
 
+func ensureCheckoutDir(root string, entry Entry) (Entry, bool, error) {
+	if entry.Source != "git" {
+		return entry, false, nil
+	}
+	if strings.TrimSpace(entry.Location) == "" {
+		return entry, false, fmt.Errorf("skill %q has empty git location", entry.ID)
+	}
+	if strings.TrimSpace(entry.Ref) == "" {
+		return entry, false, fmt.Errorf("skill %q git source requires ref", entry.ID)
+	}
+	if isFloatingGitRef(entry.Ref) {
+		return entry, false, fmt.Errorf("skill %q uses floating git ref %q", entry.ID, entry.Ref)
+	}
+
+	desiredRel, err := filepath.Rel(root, checkoutPath(root, entry.ID))
+	if err != nil {
+		return entry, false, fmt.Errorf("resolve checkout path for skill %q: %w", entry.ID, err)
+	}
+	desiredRel = filepath.ToSlash(desiredRel)
+
+	checkoutRel := strings.TrimSpace(entry.CheckoutDir)
+	if checkoutRel == "" {
+		checkoutRel = desiredRel
+	}
+
+	checkoutAbs := checkoutRel
+	if !filepath.IsAbs(checkoutAbs) {
+		checkoutAbs = filepath.Join(root, filepath.FromSlash(checkoutRel))
+	}
+	if info, err := os.Stat(checkoutAbs); err == nil && info.IsDir() {
+		changed := false
+		if entry.CheckoutDir != checkoutRel {
+			entry.CheckoutDir = checkoutRel
+			changed = true
+		}
+		return entry, changed, nil
+	}
+
+	checkoutRelPath, resolvedCommit, err := materializeGitSource(root, entry.ID, entry.Location, entry.Ref)
+	if err != nil {
+		return entry, false, err
+	}
+	entry.CheckoutDir = checkoutRelPath
+	entry.ResolvedCommit = resolvedCommit
+	return entry, true, nil
+}
+
+func RehydrateGitCheckouts(root string, manifest Manifest) (Manifest, []string, error) {
+	var restored []string
+	updated := manifest
+	if updated.Skills == nil {
+		updated.Skills = []Entry{}
+	}
+	for i, entry := range updated.Skills {
+		next, changed, err := ensureCheckoutDir(root, entry)
+		if err != nil {
+			return manifest, nil, err
+		}
+		if changed {
+			updated.Skills[i] = next
+			restored = append(restored, next.ID)
+		}
+	}
+	if len(restored) == 0 {
+		return manifest, nil, nil
+	}
+	if err := Save(root, updated); err != nil {
+		return manifest, nil, err
+	}
+	return updated, restored, nil
+}
+
 func materializeGitSource(root, id, sourceURL, ref string) (string, string, error) {
 	destination := checkoutPath(root, id)
 	if err := os.RemoveAll(destination); err != nil {

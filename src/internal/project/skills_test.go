@@ -54,6 +54,13 @@ func TestAddListRemoveSkills(t *testing.T) {
 	if strings.TrimSpace(added.Entry.CheckoutDir) == "" {
 		t.Fatalf("expected checkout dir to be populated")
 	}
+	gitignoreContent, err := os.ReadFile(filepath.Join(root, ".gitignore"))
+	if err != nil {
+		t.Fatalf("ReadFile(.gitignore) returned error: %v", err)
+	}
+	if !strings.Contains(string(gitignoreContent), ".speckeep/skills/checkouts/") {
+		t.Fatalf("expected .gitignore to ignore skill checkouts, got %q", string(gitignoreContent))
+	}
 
 	list, err := ListSkills(root)
 	if err != nil {
@@ -95,6 +102,144 @@ func TestAddListRemoveSkills(t *testing.T) {
 	}
 	if !strings.Contains(string(agentsContent), "openai-docs") {
 		t.Fatalf("expected AGENTS.md to contain skill listing, got %q", string(agentsContent))
+	}
+}
+
+func TestRefreshRestoresSkillsGitignoreBlock(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	if _, err := AddSkill(root, AddSkillOptions{
+		ID:      "openai-docs",
+		FromGit: createGitSkillRepo(t, root),
+		Ref:     "v1.2.3",
+		Path:    ".",
+		Enabled: true,
+	}); err != nil {
+		t.Fatalf("AddSkill(git) returned error: %v", err)
+	}
+
+	gitignorePath := filepath.Join(root, ".gitignore")
+	if err := os.WriteFile(gitignorePath, []byte("custom-entry\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(.gitignore) returned error: %v", err)
+	}
+
+	if _, err := Refresh(root, RefreshOptions{}); err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+
+	content, err := os.ReadFile(gitignorePath)
+	if err != nil {
+		t.Fatalf("ReadFile(.gitignore) returned error: %v", err)
+	}
+	got := string(content)
+	if !strings.Contains(got, "custom-entry") {
+		t.Fatalf("expected existing .gitignore content to be preserved, got %q", got)
+	}
+	if !strings.Contains(got, ".speckeep/skills/checkouts/") {
+		t.Fatalf("expected refreshed .gitignore to contain skills checkout ignore, got %q", got)
+	}
+}
+
+func TestInstallSkillsRehydratesMissingGitCheckoutFromManifest(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:      false,
+		DefaultLang:  "en",
+		Shell:        "sh",
+		AgentTargets: []string{"opencode"},
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	added, err := AddSkill(root, AddSkillOptions{
+		ID:      "openai-docs",
+		FromGit: createGitSkillRepo(t, root),
+		Ref:     "v1.2.3",
+		Path:    ".",
+		Enabled: true,
+	})
+	if err != nil {
+		t.Fatalf("AddSkill(git) returned error: %v", err)
+	}
+
+	checkoutAbs := filepath.Join(root, filepath.FromSlash(added.Entry.CheckoutDir))
+	if err := os.RemoveAll(checkoutAbs); err != nil {
+		t.Fatalf("RemoveAll(checkout) returned error: %v", err)
+	}
+
+	installed, err := InstallSkills(root, InstallSkillsOptions{Targets: []string{"opencode"}})
+	if err != nil {
+		t.Fatalf("InstallSkills returned error: %v", err)
+	}
+	if _, err := os.Stat(checkoutAbs); err != nil {
+		t.Fatalf("expected checkout to be restored from manifest, got err=%v", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, ".opencode", "skills", "openai-docs", "SKILL.md")); err != nil {
+		t.Fatalf("expected skill to install after checkout restore, got err=%v", err)
+	}
+	foundMessage := false
+	for _, line := range installed.Messages {
+		if strings.Contains(line, "restored git skill checkouts from manifest") {
+			foundMessage = true
+			break
+		}
+	}
+	if !foundMessage {
+		t.Fatalf("expected install result to mention restored checkouts, got %+v", installed.Messages)
+	}
+}
+
+func TestRestoreSkillCheckoutsRehydratesMissingGitCheckoutFromManifest(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	added, err := AddSkill(root, AddSkillOptions{
+		ID:      "openai-docs",
+		FromGit: createGitSkillRepo(t, root),
+		Ref:     "v1.2.3",
+		Path:    ".",
+		Enabled: true,
+	})
+	if err != nil {
+		t.Fatalf("AddSkill(git) returned error: %v", err)
+	}
+
+	checkoutAbs := filepath.Join(root, filepath.FromSlash(added.Entry.CheckoutDir))
+	if err := os.RemoveAll(checkoutAbs); err != nil {
+		t.Fatalf("RemoveAll(checkout) returned error: %v", err)
+	}
+
+	restored, err := RestoreSkillCheckouts(root)
+	if err != nil {
+		t.Fatalf("RestoreSkillCheckouts returned error: %v", err)
+	}
+	if restored.Unchanged {
+		t.Fatalf("expected restore to report changes")
+	}
+	if len(restored.Restored) != 1 || restored.Restored[0] != "openai-docs" {
+		t.Fatalf("unexpected restored skills: %+v", restored.Restored)
+	}
+	if _, err := os.Stat(checkoutAbs); err != nil {
+		t.Fatalf("expected checkout to be restored from manifest, got err=%v", err)
 	}
 }
 

@@ -5,21 +5,39 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v0.4.0] - 2026-05-14
 
 ### Added
 
 - New `opencode` agent target support:
   - generates SpecKeep workflow wrappers under `.opencode/commands/`
-  - included in agent target normalization, refresh/cleanup flows, CLI help text, and EN/RU docs
+  - included in agent target normalization, refresh/cleanup flows, skill installation paths, CLI help text, and EN/RU docs
+  - OpenCode now participates in project-local skills installation under `.opencode/skills/<id>`
+- New skill checkout recovery command:
+  - `speckeep skills-restore [path]`
+  - grouped subcommand: `speckeep skills restore [path]`
+  - restores missing git-backed `.speckeep/skills/checkouts/<id>` from skills manifest metadata (`location` + pinned `ref`)
 
 ### Changed
 
 - Lean feature artifact layout is now the default for generated guidance and readiness checks:
   - canonical active artifacts now center on `spec.md`, optional `inspect.md`, `plan.md`, `tasks.md`, `data-model.md`, `contracts/`, and `verify.md`
-  - generated prompts no longer require `summary.md`, `spec.digest.md`, or `plan.digest.md`
+  - generated prompts no longer require legacy digest artifacts such as `summary.md`, `spec.digest.md`, or `plan.digest.md`
   - `tasks.md` now carries an explicit `Implementation Context` section as the main operational bridge for `implement` and `verify`
   - `refresh` and new workspaces treat old summary/digest files as legacy optional artifacts rather than canonical defaults
+- Legacy digest artifacts are now effectively retired from the default workflow:
+  - `summary.md`, `spec.digest.md`, and `plan.digest.md` are no longer part of the canonical generated artifact set
+  - readiness checks and generated guidance no longer depend on `*.digest` files
+  - existing repositories may keep old digest files temporarily, but SpecKeep no longer treats them as required operational inputs
+- Skills lifecycle is now more self-healing and explicit:
+  - `install-skills` auto-rehydrates missing git-backed checkouts from `.speckeep/skills/manifest.yaml` before installing into agent folders
+  - `add-skill`, `sync-skills`, and `refresh` now maintain a managed root `.gitignore` block for `.speckeep/skills/checkouts/`
+  - README and CLI docs now document checkout caching, restore flow, and managed `.gitignore` behavior
+- Traceability guidance is now stricter and more language-aware across constitutions, prompts, workflow docs, CLI docs, and examples:
+  - namespaced `@sk-task <slug>#<TASK_ID>` / `@sk-test <slug>#<TASK_ID>` guidance is now reinforced throughout the docs and generated guidance
+  - placement rules now explicitly forbid file-level/package-level markers and include language-specific examples (Go, Python, JS/TS, Java, C#/.NET, C/C++, Shell, SQL)
+  - if multiple tests verify the same task, trace markers are now required on each such test/case
+- `opencode` and `windsurf` wrappers now emphasize trace-marker placement more strongly for implement flows
 
 ## [v0.3.1] - 2026-05-12
 

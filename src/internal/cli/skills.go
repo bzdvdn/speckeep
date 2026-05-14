@@ -14,6 +14,7 @@ func newSkillsCmd() *cobra.Command {
 		Short: "Manage project skills and skills integration",
 	}
 	cmd.AddCommand(newSkillsInstallSubCmd())
+	cmd.AddCommand(newSkillsRestoreSubCmd())
 	cmd.AddCommand(newSkillsSyncSubCmd())
 	return cmd
 }

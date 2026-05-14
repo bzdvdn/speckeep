@@ -257,18 +257,22 @@ Expected agent behavior:
 
 - read `tasks.md` and use it as the execution manifest
 - perform **In-place Decomposition** if a task is too complex, adding indented sub-tasks (e.g., `T1.1.1`)
-- annotate every non-trivial code change with `// @sk-task <ID> (<AC_ID>)`
+- annotate every non-trivial code change with a trace marker in the idiomatic style of the language
 - mark completed tasks in `tasks.md`
 - stay within the `Touches:` list defined for each task
 
-Example code annotation:
+Example Go code annotation:
 
 ```go
-// @sk-task T1.1: Add partner scheduling override model (AC-001)
+// @sk-task partner-scheduling#T1.1: Add partner scheduling override model (AC-001)
 func SavePartnerSchedule(p Partner) {
     // ...
 }
 ```
+
+Other languages may differ in style:
+- Python: `# @sk-task ...` as the first line inside a `def` / `class`
+- JS/TS: `// @sk-task ...` above the declaration, and for `test()/it()` as the first line inside the callback
 
 ## 7. Verify the Implementation
 
@@ -285,14 +289,28 @@ Expected agent behavior:
 - confirm that implementation matches task descriptions and acceptance criteria
 - provide a clear verdict (`pass`, `concerns`, or `blocked`)
 - include concrete evidence in the `## Checks` section
+- if multiple tests verify the same task, expect `@sk-test` on each such test
 
-Example test annotation:
+Example Go test annotations:
 
 ```go
-// @sk-test T1.1: TestSavePartnerSchedule (AC-001)
+// @sk-test partner-scheduling#T1.1: TestSavePartnerSchedule (AC-001)
 func TestSavePartnerSchedule(t *testing.T) {
     // ...
 }
+
+// @sk-test partner-scheduling#T1.1: TestSavePartnerScheduleDefaults (AC-001)
+func TestSavePartnerScheduleDefaults(t *testing.T) {
+    // ...
+}
+```
+
+The same rule in Python looks like this:
+
+```python
+def test_save_partner_schedule():
+    # @sk-test partner-scheduling#T1.1: test_save_partner_schedule (AC-001)
+    ...
 ```
 
 If the feature is older and lacks annotations, the agent falls back to manual inspection of the files listed in `Touches:` and running tests manually.

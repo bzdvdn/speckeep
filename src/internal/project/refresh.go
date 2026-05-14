@@ -115,6 +115,9 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 	if err := syncSkillsManifest(root, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
 	}
+	if err := syncSkillsGitignore(root, options.DryRun, &result); err != nil {
+		return RefreshResult{}, err
+	}
 
 	draftspecDir, err := cfg.DraftspecDir(root)
 	if err != nil {

@@ -48,14 +48,26 @@ func InstallSkills(root string, options InstallSkillsOptions) (InstallSkillsResu
 	if err != nil {
 		return InstallSkillsResult{}, err
 	}
-
 	refresh := RefreshResult{DryRun: options.DryRun}
+	manifest, restored, err := skills.RehydrateGitCheckouts(root, manifest)
+	if err != nil {
+		return InstallSkillsResult{}, err
+	}
+	if len(restored) > 0 {
+		if err := syncSkillsGitignore(root, options.DryRun, &refresh); err != nil {
+			return InstallSkillsResult{}, err
+		}
+	}
+
 	warnings, err := installSkillsForTargets(root, targets, manifest.Skills, options.IncludeDisabled, options.DryRun, &refresh)
 	if err != nil {
 		return InstallSkillsResult{}, err
 	}
 
 	refresh.Messages = buildRefreshMessages(refresh)
+	if len(restored) > 0 {
+		refresh.Messages = append(refresh.Messages, fmt.Sprintf("restored git skill checkouts from manifest: %s", strings.Join(restored, ", ")))
+	}
 	refresh.Messages = append(refresh.Messages, warnings...)
 
 	return InstallSkillsResult{

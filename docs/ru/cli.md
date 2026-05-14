@@ -119,6 +119,8 @@ speckeep add-agent my-project --agents claude --agents codex
 
 Для git-источников `--ref` обязателен: это фиксирует версию и предотвращает drift на плавающих ветках.
 
+Для git-источников SpecKeep materialize'ит checkout в `.speckeep/skills/checkouts/<id>`. Это runtime-cache для skill source, и SpecKeep поддерживает для него managed block в корневом `.gitignore`.
+
 Используйте `--no-install`, чтобы обновить только manifest/AGENTS без немедленной установки в agent skill folders.
 
 Примеры:
@@ -146,6 +148,8 @@ speckeep add-skill my-project --id openai-docs --from-git https://example.com/sk
 
 По умолчанию используются targets из `.speckeep/speckeep.yaml`. Можно переопределить через `--targets codex,opencode`.
 
+Для git-backed skills команда умеет rehydrate отсутствующие `.speckeep/skills/checkouts/<id>` из данных manifest (`location` + `ref`) перед установкой. Это помогает, если checkout был удален локально. Если исходный git source недоступен, одного manifest недостаточно для восстановления содержимого.
+
 Важные флаги:
 
 - `--dry-run` показывает pending changes без записи на диск
@@ -158,11 +162,28 @@ speckeep add-skill my-project --id openai-docs --from-git https://example.com/sk
 speckeep skills install my-project
 ```
 
+### `speckeep skills-restore [path]`
+
+Восстанавливает git-backed checkouts в `.speckeep/skills/checkouts/` по данным из `.speckeep/skills/manifest.yaml`, не устанавливая skill'ы в agent folders.
+
+Полезно, если checkout'ы были удалены локально, но `manifest.yaml` сохранил `location` и pinned `ref`.
+
+Если upstream git source недоступен, команда не сможет восстановить содержимое только по manifest.
+
+Для machine-readable output используйте `--json`.
+
+Эквивалентная subcommand:
+
+```bash
+speckeep skills restore my-project
+```
+
 ### `speckeep sync-skills [path]`
 
 Синхронизирует только skill-managed артефакты:
 
 - `.speckeep/skills/manifest.yaml`
+- managed block в корневом `.gitignore` для `.speckeep/skills/checkouts/`
 - managed SpecKeep block в `AGENTS.md` (включая секцию skills)
 
 Важные флаги:
@@ -291,6 +312,12 @@ speckeep check my-project --all --json
 Форматы аннотаций:
 - `// @sk-task <TASK_ID>: <Описание> (<AC_ID>)` для кода реализации.
 - `// @sk-test <TASK_ID>: <НазваниеТеста> (<AC_ID>)` для тестовых доказательств.
+
+Правило размещения:
+- trace-маркер должен стоять над конкретным owning declaration или behavior block, а не на уровне файла.
+- не ставьте его над `package`, `import`, file-header comment или другой строкой, которая не принадлежит конкретной функции/методу/типу/тесту.
+- если одну задачу подтверждают несколько тестов/кейсов, `@sk-test <slug>#<TASK_ID>` нужен на каждом таком тесте/кейсе.
+- ориентир по стеку: Go `//` над `func/type/Test...`; Python `#` первой строкой внутри `def/class/test_*`; JS/TS `//` над declaration, а для `test()/it()` первой строкой внутри callback; Java/C#/C/C++ comment над method/class/test block.
 
 Эта команда находит связи между кодом реализации, ID задач из `tasks.md` и критериями приемки из `spec.md`.
 

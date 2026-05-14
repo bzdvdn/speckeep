@@ -268,3 +268,69 @@ func TestRenderOpencodeDeclaresArgumentHint(t *testing.T) {
 		})
 	}
 }
+
+func TestRenderOpencodeIncludesTracePlacementHint(t *testing.T) {
+	specs := map[string]commandSpec{}
+	for _, spec := range commandSpecs("sh") {
+		specs[spec.Name] = spec
+	}
+
+	tests := []struct {
+		name string
+		lang string
+		want string
+	}{
+		{
+			name: "en",
+			lang: "en",
+			want: "never put `@sk-task`/`@sk-test` at `package`, `import`, or file-header level",
+		},
+		{
+			name: "ru",
+			lang: "ru",
+			want: "никогда не ставьте `@sk-task`/`@sk-test` на уровень `package`, `import` или file-header comment",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, content, _ := render("opencode", tt.lang, specs["implement"])
+			if !strings.Contains(content, tt.want) {
+				t.Fatalf("expected opencode rendered content for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
+			}
+		})
+	}
+}
+
+func TestRenderWindsurfIncludesTracePlacementHint(t *testing.T) {
+	specs := map[string]commandSpec{}
+	for _, spec := range commandSpecs("sh") {
+		specs[spec.Name] = spec
+	}
+
+	tests := []struct {
+		name string
+		lang string
+		want string
+	}{
+		{
+			name: "en",
+			lang: "en",
+			want: "never put `@sk-task`/`@sk-test` at `package`, `import`, or file-header level",
+		},
+		{
+			name: "ru",
+			lang: "ru",
+			want: "никогда не ставьте `@sk-task`/`@sk-test` на уровень `package`, `import` или file-header comment",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, content, _ := render("windsurf", tt.lang, specs["implement"])
+			if !strings.Contains(content, tt.want) {
+				t.Fatalf("expected windsurf rendered content for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
+			}
+		})
+	}
+}

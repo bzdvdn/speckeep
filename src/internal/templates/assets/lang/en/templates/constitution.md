@@ -74,8 +74,20 @@
 - Traceability markers are mandatory on non-trivial changes:
   - code: `@sk-task <slug>#<TASK_ID>: <short> (<AC_ID>)`
   - tests: `@sk-test <slug>#<TASK_ID>: <TestName> (<AC_ID>)`
+  - if multiple tests/cases verify the same task, `@sk-test <slug>#<TASK_ID>` must appear on each such test/case, not just on one representative test.
 - Marker placement rule:
   - place trace markers on function/method/struct/class declarations (or behavior block headers), not on field lines.
+  - never place trace markers at `package`, `import`, or file-header comment level; every marker must belong to a concrete owning symbol.
+  - if the language has named declarations, place the marker directly above the declaration that owns the behavior or test.
+- Placement and style examples by language:
+  - Go: `//` directly above `func`, method receiver, `type`, `func Test...`; if multiple `Test...` functions verify one task, each of them needs its own `@sk-test`.
+  - Python: `#` as the first line inside the body of `def` / `async def` / `class` / `def test_*`; never in the module docstring and never above `import`. If one task is covered by multiple test functions, each function needs its own marker in its body.
+  - JavaScript / TypeScript: `//` above `function`, `async function`, class method, `class`; for `test(...)`/`it(...)`, put it on the first line inside the callback/body. If multiple cases verify one task, each `test/it` needs the marker.
+  - Java: `//` or `/* */` directly above `class`, `interface`, `enum`, method, or JUnit test method; never above `package`, `import`, or fields.
+  - C# / .NET: `//` or `/* */` directly above `class`, `record`, `interface`, method, or test method; never above `using`, namespace headers, or properties/fields without owning behavior.
+  - C / C++: `//` or `/* */` above function, method, class/struct declaration, or test case macro/block; never above `#include`, namespace-only headers, or standalone struct fields.
+  - Shell / Bash: `#` above `function name()` or as the first line of a named behavior/test block; never in the file header just to make the file look traced.
+  - SQL / migrations: `--` or `/* */` directly above `CREATE FUNCTION|PROCEDURE|TRIGGER|VIEW` or on the first line of an explicitly named migration block; never in a top-of-file comment with no concrete target.
 - Existing trace markers MUST be preserved; new task coverage appends markers (do not overwrite).
 - If one method/test covers multiple tasks, multiple markers MUST coexist on that method/test.
 - Verification MUST confirm acceptance-criteria coverage before archive.

@@ -192,6 +192,13 @@ func finalLineHint(lang string) string {
 	return "Preserve the exact final line from the prompt file: `Ready for: ...` or `Return to: ...` with no paraphrase and no omission."
 }
 
+func tracePlacementHint(lang string) string {
+	if lang == "ru" {
+		return "Trace placement: никогда не ставьте `@sk-task`/`@sk-test` на уровень `package`, `import` или file-header comment; размещайте маркер непосредственно над owning function/method/test/type declaration (или над явным behavioral block header, если в языке нет таких объявлений)."
+	}
+	return "Trace placement: never put `@sk-task`/`@sk-test` at `package`, `import`, or file-header level; place the marker directly above the owning function/method/test/type declaration (or an explicit behavioral block header when the language has no such declarations)."
+}
+
 func helpDiscoveryHint(lang string) string {
 	if lang == "ru" {
 		return "Не запускайте `speckeep ... --help`/`speckeep help` для «разведки»; вместо этого опирайтесь на prompt-файл и readiness scripts."
