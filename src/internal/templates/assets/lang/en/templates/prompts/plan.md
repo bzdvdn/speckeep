@@ -19,12 +19,12 @@ Stop if: inspect.md is present and not `pass`, the goal is ambiguous, or plannin
 - Create `research.md` only when needed (e.g., external dependency/integration boundary, multiple realistic implementation options, or a high-risk unknown). Do not create `research.md` for generic brainstorming.
 - Constitution: see AGENTS.md (`.speckeep/constitution.summary.md` preferred over full constitution).
 - Minimum context: current slug only; narrow repo reads (no full-repo scans).
-- If `./.speckeep/scripts/check-plan-ready.*` exists, run it (slug first) before writing.
+- Run the pre-phase readiness script (see AGENTS.md: Scripts).
 
 ## Output expectations
 
 - Write/patch `<specs_dir>/<slug>/plan.md` (create additional artifacts only when justified).
 - Inside `plan.md`, keep compact sections for `DEC-*`, surfaces, risks, and data-model/contract impact; do not move that recap into separate digest files.
 - Summarize key `DEC-*`, surfaces, sequencing constraints, and risks.
-- Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`.
+- End with standard end block (see AGENTS.md).
 - Final line: `Ready for: /speckeep.tasks <slug>`

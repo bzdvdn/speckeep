@@ -31,11 +31,11 @@ Stop if: `plan.md` is missing/vague or any `AC-*` cannot be mapped to executable
 - Do not implement or edit source code in the tasks phase.
 - Do not assume `research.md` should exist; only reference it when the plan explicitly depends on it.
 - Constitution: see AGENTS.md (`.speckeep/constitution.summary.md` preferred over full constitution).
-- If `./.speckeep/scripts/check-tasks-ready.*` exists, run it (slug first) as a cheap gate.
+- Run the pre-phase readiness script (see AGENTS.md: Scripts).
 
 ## Output expectations
 
 - Write/patch `tasks.md` (avoid full rewrites for small changes).
 - Summarize: phases, main surfaces, AC coverage, blockers.
-- Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`.
+- End with standard end block (see AGENTS.md).
 - Final line: `Ready for: /speckeep.implement <slug>`

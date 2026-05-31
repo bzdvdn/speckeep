@@ -23,14 +23,14 @@ Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 - Constitution: see AGENTS.md (`.speckeep/constitution.summary.md` preferred over full constitution).
 - Do not pin technologies/versions unless required by the user or a hard repo/contract constraint. If a technology choice is an implementation preference, record it in `plan`, not in `spec`.
 - Refine instead of guessing: if the request implies multiple feature slugs or multiple independent specs, stop and ask for one concrete feature.
-- If `./.speckeep/scripts/check-spec-ready.*` exists, run it (slug first) before finishing.
+- Run the pre-phase readiness script (see AGENTS.md: Scripts).
 
 ## Output expectations
 
 - Write/patch `spec.md` (patch > rewrite).
 - Self-check before finishing: no `TODO`/`???`/`<placeholder>` in spec.md; every AC has Given/When/Then with observable proof; Out of Scope + Assumptions + Open Questions sections exist.
 - Summarize: goal, scope, AC list, open questions/blockers in the response; do not create extra derived recap files just for this summary.
-- Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`.
+- End with standard end block (see AGENTS.md).
 - Next steps (offer both):
   - Deep quality review: `/speckeep.inspect <slug>` — checks constitution alignment, AC completeness, ambiguity
   - Skip to planning if spec looks solid: `/speckeep.plan <slug>`

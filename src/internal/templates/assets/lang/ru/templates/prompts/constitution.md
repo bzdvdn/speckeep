@@ -14,7 +14,7 @@ Stop if: правила остаются `TBD`/placeholder или конфлик
 - Укажите: Purpose, принципы, ограничения, tech stack, архитектуру, language policy, workflow.
 - Всегда используйте шаблон `.speckeep/templates/constitution.md` как каркас и формат результата. Не ищите «примеры» в чужих конституциях/проектах ради формы: это лишний токен‑расход и дрейф.
 - Constitution summary: фаза автоматически загружает `.speckeep/constitution.summary.md` (см. AGENTS.md).
-- Если есть `./.speckeep/scripts/check-constitution.*` — запустите перед завершением.
+- Запустите readiness script фазы (см. AGENTS.md: Скрипты).
 
 ## Output expectations
 

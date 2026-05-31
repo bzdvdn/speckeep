@@ -14,7 +14,7 @@ Stop if: rules remain `TBD`/placeholder or contradict repo reality without an ex
 - Include: Purpose, principles, constraints, tech stack, architecture, language policy, workflow.
 - Always use `.speckeep/templates/constitution.md` as the skeleton and output format. Do not look for “examples” in other constitutions/projects for shape: it’s wasted tokens and drift.
 - Constitution summary: the phase loads `.speckeep/constitution.summary.md` automatically when present (see AGENTS.md).
-- If `./.speckeep/scripts/check-constitution.*` exists, run it before finishing.
+- Run the pre-phase readiness script (see AGENTS.md: Scripts).
 
 ## Output expectations
 

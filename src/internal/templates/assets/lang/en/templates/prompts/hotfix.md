@@ -12,8 +12,7 @@ Stop if: changes exceed 3 files, or require a design change — return to standa
 
 - Minimal diff to remove a concrete bug/blocker.
 - No scope expansion and no re-planning.
-- Follow base rules in AGENTS.md (paths, git, load discipline, language).
-- If `./.speckeep/scripts/check-hotfix-ready.*` exists, run it before finishing.
+- Follow base rules in AGENTS.md (paths, git, load discipline, language, scripts).
 
 ## Output expectations
 

@@ -23,14 +23,14 @@ Stop if: запрос неоднозначен/мульти-фича или пр
 - Конституция: см. AGENTS.md (`.speckeep/constitution.summary.md` предпочтительнее полной конституции).
 - Не фиксируйте технологии/версии, если это не требование пользователя или жёсткий repo/contract constraint. Если это лишь implementation preference — фиксируйте в `plan`, не в `spec`.
 - Вместо догадок — refinement: если запрос подразумевает несколько feature slug или несколько независимых спецификаций, остановитесь и попросите выбрать одну фичу.
-- Если есть `./.speckeep/scripts/check-spec-ready.*` — запустите (slug первым аргументом) перед завершением.
+- Запустите readiness script фазы (см. AGENTS.md: Скрипты).
 
 ## Output expectations
 
 - Запишите/patch `spec.md` (patch > переписывание).
 - Самопроверка перед завершением: в spec.md нет `TODO`/`???`/`<placeholder>`; каждый AC содержит Given/When/Then с observable proof; секции Out of Scope, Assumptions, Open Questions существуют.
 - Коротко суммируйте цель, scope, список AC, открытые вопросы/блокеры в ответе, не создавая отдельные derived-файлы только ради recap.
-- Добавьте короткий summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Готово к`.
+- Завершите стандартным end block (см. AGENTS.md).
 - Следующие шаги (предложите оба варианта):
   - Глубокая проверка качества: `/speckeep.inspect <slug>` — проверяет соответствие конституции, полноту AC, неоднозначности
   - Перейти к плану если спека выглядит хорошо: `/speckeep.plan <slug>`
