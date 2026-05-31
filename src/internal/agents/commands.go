@@ -110,5 +110,13 @@ func DefaultCommands(shell string) []CommandDefinition {
 			Optional:    true,
 			Category:    "workflow",
 		},
+		{
+			Name:        "repo-map",
+			Description: "Update REPOSITORY_MAP.md navigation index",
+			PromptPath:  ".speckeep/templates/prompts/repo-map.md",
+			Extras:      nil,
+			Optional:    true,
+			Category:    "workflow",
+		},
 	}
 }

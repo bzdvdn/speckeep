@@ -30,18 +30,7 @@
 - `/speckeep.implement` → implement
 - `/speckeep.verify` → verify
 - `speckeep archive <slug> .` → CLI-only архив после `verify: pass`
-- `/speckeep.repo-map` → обновить `REPOSITORY_MAP.md` по компактному шаблону ниже
-
-Политика repository map (`/speckeep.repo-map`):
-- Держите `REPOSITORY_MAP.md` компактным и code-only (пути + короткие роли).
-- Language-agnostic: определяйте стек по маркерам репозитория (напр. `go.mod`, `package.json`, `pyproject.toml`, `Cargo.toml`, `pom.xml`, `*.csproj`) и адаптируйте секции под найденный стек.
-- Не предполагайте Go-структуру для не-Go проектов.
-- Жесткий лимит размера: целевой объем до 180 строк; если карта растет — сжимайте, а не расширяйте prose.
-- Обновляйте in-place (минимальный diff): сохраняйте неизменные строки/порядок и правьте только затронутые записи/секции.
-- Не переписывайте файл целиком, если изменилась только часть карты.
-- Если `REPOSITORY_MAP.md` отсутствует — создайте по шаблону; если существует — патчите существующее содержимое.
-- Исключайте из индексации: `src/internal/agents/**`, `.speckeep/**`, `specs/archived/**`, `.git/**`, `bin/**`, `demo/**`, `docs/**`, `TESTS/**`, `node_modules/**`, `vendor/**`, `dist/**`, `build/**`, `coverage/**`.
-- Важно: проектные настройки уже читаются из `.speckeep/speckeep.yaml`; не дублируйте этот конфиг в карте.
+- `/speckeep.repo-map` → обновить `REPOSITORY_MAP.md` (см. выделенный prompt для политики + шаблона)
 
 Чеклист триггеров обновления (запускайте `/speckeep.repo-map`, если истинно хотя бы одно):
 - Добавлена или удалена верхнеуровневая кодовая директория/модуль.
@@ -49,23 +38,3 @@
 - Добавлены/удалены runtime/service/CLI entrypoints.
 - Существенно изменены границы подсистем (заметно поменялись where-to-edit пути).
 - Пользователь явно попросил обновить repo map.
-
-Шаблон repository map:
-```md
-# Repository Map
-
-## Entry Points
-- `<path>` — `<runtime/service/cli entrypoint>`
-
-## Top-Level Code
-- `<path>` — `<module role>`
-
-## Key Paths
-- `<path>` — `<what is implemented here>`
-
-## Where To Edit
-- `<change type>` — `<likely paths>`
-
-## Excluded
-- `<glob>` — `excluded from indexing`
-```
