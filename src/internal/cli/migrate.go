@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"speckeep/src/internal/project"
 	"speckeep/src/internal/workflow"
 )
 
@@ -27,6 +28,12 @@ func newMigrateCmd() *cobra.Command {
 			result, err := workflow.MigrateProject(context.Background(), root, dryRun, copyWorkspace)
 			if err != nil {
 				return err
+			}
+
+			if result.Changed && !dryRun {
+				if _, refreshErr := project.Refresh(root, project.RefreshOptions{}); refreshErr != nil {
+					result.Warnings = append(result.Warnings, fmt.Sprintf("refresh after migration failed: %v", refreshErr))
+				}
 			}
 
 			if jsonOutput {

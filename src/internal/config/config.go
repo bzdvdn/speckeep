@@ -11,25 +11,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type Service interface {
-	Load(ctx context.Context, root string) (Config, error)
-	Save(ctx context.Context, root string, cfg Config) error
-}
-
-type service struct{}
-
-func NewService() Service {
-	return &service{}
-}
-
-func (s *service) Load(ctx context.Context, root string) (Config, error) {
-	return Load(ctx, root)
-}
-
-func (s *service) Save(ctx context.Context, root string, cfg Config) error {
-	return Save(ctx, root, cfg)
-}
-
 var (
 	ErrUnsupportedShell = errors.New("unsupported shell, expected sh or powershell")
 )

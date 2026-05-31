@@ -80,7 +80,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 
 	assertState(t, root, slug, "plan", "spec")
 	assertCheckPasses(t, "CheckInspectReady", func() (CheckResult, error) {
-		return CheckInspectReady(context.Background(), root, slug)
+		return CheckInspectReady(context.Background(), config.Default(), root, slug)
 	})
 
 	// ── inspect ───────────────────────────────────────────────────────────
@@ -88,7 +88,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 
 	assertState(t, root, slug, "plan", "inspect")
 	assertCheckPasses(t, "CheckPlanReady", func() (CheckResult, error) {
-		return CheckPlanReady(context.Background(), root, slug)
+		return CheckPlanReady(context.Background(), config.Default(), root, slug)
 	})
 
 	// ── plan ──────────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 
 	assertState(t, root, slug, "tasks", "plan")
 	assertCheckPasses(t, "CheckTasksReady", func() (CheckResult, error) {
-		return CheckTasksReady(context.Background(), root, slug)
+		return CheckTasksReady(context.Background(), config.Default(), root, slug)
 	})
 
 	// ── tasks (one open — implement phase) ────────────────────────────────
@@ -105,7 +105,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 
 	assertState(t, root, slug, "implement", "implement")
 	assertCheckPasses(t, "CheckImplementReady", func() (CheckResult, error) {
-		return CheckImplementReady(context.Background(), root, slug)
+		return CheckImplementReady(context.Background(), config.Default(), root, slug)
 	})
 
 	// ── tasks (all done — verify phase) ───────────────────────────────────
@@ -113,14 +113,14 @@ func TestFullWorkflowCycle(t *testing.T) {
 
 	assertState(t, root, slug, "verify", "verify")
 	assertCheckPasses(t, "CheckVerifyReady", func() (CheckResult, error) {
-		return CheckVerifyReady(context.Background(), root, slug)
+		return CheckVerifyReady(context.Background(), config.Default(), root, slug)
 	})
 
 	// ── verify ────────────────────────────────────────────────────────────
 	writeFile(t, filepath.Join(planDir, "verify.md"), verifyMD)
 
 	assertState(t, root, slug, "archive", "verify")
-	archiveCheck, err := CheckArchiveReady(context.Background(), root, slug, "completed", "")
+	archiveCheck, err := CheckArchiveReady(context.Background(), config.Default(), root, slug, "completed", "")
 	if err != nil {
 		t.Fatalf("CheckArchiveReady: %v", err)
 	}

@@ -31,18 +31,6 @@ type TraceResult struct {
 // Legacy annotations (@ds-task/@ds-test) are also accepted.
 var tracePattern = regexp.MustCompile(`@(?:ds|sk)-(task|test)\s+([A-Za-z0-9._-]+(?:#[A-Za-z0-9._-]+)?)(?::\s*([^(]*))?(?:\s*\((AC-[0-9]+)\))?`)
 
-type Service interface {
-	Scan(ctx context.Context, root string) (TraceResult, error)
-}
-
-type service struct{}
-
-func NewService() Service { return &service{} }
-
-func (s *service) Scan(ctx context.Context, root string) (TraceResult, error) {
-	return Scan(ctx, root)
-}
-
 func Scan(ctx context.Context, root string) (TraceResult, error) {
 	var result TraceResult
 

@@ -11,30 +11,6 @@ import (
 	"strings"
 )
 
-type Service interface {
-	EnsureRepository(ctx context.Context, root string) (bool, error)
-	EnsureBranch(ctx context.Context, root string, branch string) (string, error)
-	CurrentBranch(ctx context.Context, root string) (string, error)
-}
-
-type service struct{}
-
-func NewService() Service {
-	return &service{}
-}
-
-func (s *service) EnsureRepository(ctx context.Context, root string) (bool, error) {
-	return EnsureRepository(ctx, root)
-}
-
-func (s *service) EnsureBranch(ctx context.Context, root string, branch string) (string, error) {
-	return EnsureBranch(ctx, root, branch)
-}
-
-func (s *service) CurrentBranch(ctx context.Context, root string) (string, error) {
-	return CurrentBranch(ctx, root)
-}
-
 func EnsureRepository(ctx context.Context, root string) (bool, error) {
 	gitDir := filepath.Join(root, ".git")
 	if _, err := os.Stat(gitDir); err == nil {

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"speckeep/src/internal/config"
 	"speckeep/src/internal/workflow"
 )
 
@@ -23,6 +24,11 @@ func newFeatureCmd() *cobra.Command {
 				root = args[1]
 			}
 
+			cfg, err := config.Load(context.Background(), root)
+			if err != nil {
+				return err
+			}
+
 			state, err := workflow.State(context.Background(), root, args[0])
 			if err != nil {
 				return err
@@ -31,7 +37,7 @@ func newFeatureCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			phaseResult, err := phaseCheckResult(root, state)
+			phaseResult, err := phaseCheckResult(context.Background(), cfg, root, state)
 			if err != nil {
 				return err
 			}

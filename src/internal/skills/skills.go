@@ -66,36 +66,6 @@ type RemoveResult struct {
 	Removed bool
 }
 
-type Service interface {
-	Load(ctx context.Context, root string) (Manifest, error)
-	Save(ctx context.Context, root string, manifest Manifest) error
-	Add(ctx context.Context, root string, options AddOptions) (AddResult, error)
-	Remove(ctx context.Context, root, id string) (RemoveResult, error)
-	ValidateManifest(ctx context.Context, root string, manifest Manifest) (errors []string, warnings []string)
-	RehydrateGitCheckouts(ctx context.Context, root string, manifest Manifest) (Manifest, []string, error)
-}
-
-type service struct{}
-
-func NewService() Service { return &service{} }
-
-func (s *service) Load(ctx context.Context, root string) (Manifest, error) { return Load(ctx, root) }
-func (s *service) Save(ctx context.Context, root string, manifest Manifest) error {
-	return Save(ctx, root, manifest)
-}
-func (s *service) Add(ctx context.Context, root string, options AddOptions) (AddResult, error) {
-	return Add(ctx, root, options)
-}
-func (s *service) Remove(ctx context.Context, root, id string) (RemoveResult, error) {
-	return Remove(ctx, root, id)
-}
-func (s *service) ValidateManifest(ctx context.Context, root string, manifest Manifest) ([]string, []string) {
-	return ValidateManifest(ctx, root, manifest)
-}
-func (s *service) RehydrateGitCheckouts(ctx context.Context, root string, manifest Manifest) (Manifest, []string, error) {
-	return RehydrateGitCheckouts(ctx, root, manifest)
-}
-
 func ManifestPath(root string) string {
 	return filepath.Join(root, ".speckeep", "skills", "manifest.yaml")
 }

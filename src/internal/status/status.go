@@ -6,25 +6,6 @@ import (
 	"speckeep/src/internal/workflow"
 )
 
-type Service interface {
-	Check(ctx context.Context, root, slug string) (Result, error)
-	List(ctx context.Context, root string) ([]Result, error)
-}
-
-type service struct{}
-
-func NewService() Service {
-	return &service{}
-}
-
-func (s *service) Check(ctx context.Context, root, slug string) (Result, error) {
-	return Check(ctx, root, slug)
-}
-
-func (s *service) List(ctx context.Context, root string) ([]Result, error) {
-	return List(ctx, root)
-}
-
 type Result struct {
 	Slug           string `json:"slug"`
 	Phase          string `json:"phase"`

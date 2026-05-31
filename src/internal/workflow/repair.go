@@ -11,7 +11,6 @@ import (
 
 	"speckeep/src/internal/config"
 	"speckeep/src/internal/featurepaths"
-	"speckeep/src/internal/project"
 )
 
 type RepairResult struct {
@@ -98,22 +97,6 @@ func MigrateProject(ctx context.Context, root string, dryRun, copyWorkspace bool
 		result.Results = append(result.Results, workspace)
 		if workspaceChanged {
 			result.Changed = true
-		}
-	}
-
-	if workspaceChanged && !dryRun {
-		if refreshResult, refreshErr := project.Refresh(root, project.RefreshOptions{}); refreshErr == nil {
-			if len(refreshResult.Created)+len(refreshResult.Updated)+len(refreshResult.Removed) > 0 {
-				result.Results = append(result.Results, RepairResult{
-					Slug:    "__refresh__",
-					DryRun:  false,
-					Changed: true,
-					Actions: append([]string(nil), refreshResult.Messages...),
-				})
-				result.Changed = true
-			}
-		} else {
-			result.Warnings = append(result.Warnings, fmt.Sprintf("refresh after workspace migration failed: %v", refreshErr))
 		}
 	}
 

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"speckeep/src/internal/config"
 	"speckeep/src/internal/workflow"
 )
 
@@ -86,12 +87,17 @@ func newCheckCmd() *cobra.Command {
 				root = args[1]
 			}
 
+			cfg, err := config.Load(context.Background(), root)
+			if err != nil {
+				return err
+			}
+
 			state, err := workflow.State(context.Background(), root, args[0])
 			if err != nil {
 				return err
 			}
 
-			result, err := buildCheckResult(context.Background(), root, state)
+			result, err := buildCheckResult(context.Background(), cfg, root, state)
 			if err != nil {
 				return err
 			}
@@ -127,10 +133,15 @@ func runCheckAll(cmd *cobra.Command, root string, jsonOutput bool) error {
 		return err
 	}
 
+	cfg, err := config.Load(context.Background(), root)
+	if err != nil {
+		return err
+	}
+
 	results := make([]checkResult, 0, len(states))
 	anyBlocked := false
 	for _, state := range states {
-		r, err := buildCheckResult(context.Background(), root, state)
+		r, err := buildCheckResult(context.Background(), cfg, root, state)
 		if err != nil {
 			return err
 		}
@@ -159,7 +170,7 @@ func runCheckAll(cmd *cobra.Command, root string, jsonOutput bool) error {
 	return nil
 }
 
-func buildCheckResult(ctx context.Context, root string, state workflow.FeatureState) (checkResult, error) {
+func buildCheckResult(ctx context.Context, cfg config.Config, root string, state workflow.FeatureState) (checkResult, error) {
 	result := checkResult{
 		Slug:    state.Slug,
 		Phase:   state.Phase,
@@ -187,7 +198,7 @@ func buildCheckResult(ctx context.Context, root string, state workflow.FeatureSt
 
 	result.NextCommand = nextCommand(state)
 
-	phaseResult, err := phaseCheckResult(ctx, root, state)
+	phaseResult, err := phaseCheckResult(ctx, cfg, root, state)
 	if err != nil {
 		return checkResult{}, err
 	}
@@ -379,18 +390,18 @@ func printCheckAll(cmd *cobra.Command, states []workflow.FeatureState, results [
 	fmt.Fprintln(w)
 }
 
-func phaseCheckResult(ctx context.Context, root string, state workflow.FeatureState) (workflow.CheckResult, error) {
+func phaseCheckResult(ctx context.Context, cfg config.Config, root string, state workflow.FeatureState) (workflow.CheckResult, error) {
 	switch state.ReadyFor {
 	case "inspect":
-		return workflow.CheckInspectReady(ctx, root, state.Slug)
+		return workflow.CheckInspectReady(ctx, cfg, root, state.Slug)
 	case "plan":
-		return workflow.CheckPlanReady(ctx, root, state.Slug)
+		return workflow.CheckPlanReady(ctx, cfg, root, state.Slug)
 	case "tasks":
-		return workflow.CheckTasksReady(ctx, root, state.Slug)
+		return workflow.CheckTasksReady(ctx, cfg, root, state.Slug)
 	case "implement":
-		return workflow.CheckImplementReady(ctx, root, state.Slug)
+		return workflow.CheckImplementReady(ctx, cfg, root, state.Slug)
 	case "verify":
-		return workflow.CheckVerifyReady(ctx, root, state.Slug)
+		return workflow.CheckVerifyReady(ctx, cfg, root, state.Slug)
 	default:
 		return workflow.CheckResult{}, nil
 	}

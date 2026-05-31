@@ -33,8 +33,8 @@ func TestFiles(t *testing.T) {
 		t.Fatalf("Files returned error: %v", err)
 	}
 
-	if len(files) != 109 {
-		t.Fatalf("expected 109 generated agent files, got %d", len(files))
+	if len(files) != 118 {
+		t.Fatalf("expected 118 generated agent files, got %d", len(files))
 	}
 
 	required := map[string]bool{

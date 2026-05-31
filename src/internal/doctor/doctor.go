@@ -15,24 +15,11 @@ import (
 	"speckeep/src/internal/config"
 	"speckeep/src/internal/featurepaths"
 	"speckeep/src/internal/gitutil"
+	"speckeep/src/internal/project"
 	"speckeep/src/internal/skills"
 	"speckeep/src/internal/trace"
 	"speckeep/src/internal/workflow"
 )
-
-type Service interface {
-	Check(ctx context.Context, root string) (Result, error)
-}
-
-type service struct{}
-
-func NewService() Service {
-	return &service{}
-}
-
-func (s *service) Check(ctx context.Context, root string) (Result, error) {
-	return Check(ctx, root)
-}
 
 var placeholderPattern = regexp.MustCompile(`\[[A-Z][A-Z0-9_]*\]`)
 
@@ -75,6 +62,12 @@ func Check(ctx context.Context, root string) (Result, error) {
 			continue
 		}
 		findings = append(findings, Finding{Level: "warning", Message: warning})
+	}
+
+	if migrationResult.Changed {
+		if _, refreshErr := project.Refresh(root, project.RefreshOptions{}); refreshErr != nil {
+			findings = append(findings, Finding{Level: "warning", Message: fmt.Sprintf("refresh after migration failed: %v", refreshErr)})
+		}
 	}
 
 	draftspecDir, err := cfg.DraftspecDir(root)

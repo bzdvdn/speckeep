@@ -35,24 +35,6 @@ type ResolvedInput struct {
 	Slug  string
 }
 
-type Service interface {
-	List(ctx context.Context, root string) ([]string, error)
-	Show(ctx context.Context, root, name string) (string, error)
-	Create(ctx context.Context, root, name string, options CreateOptions) (CreateResult, error)
-}
-
-type service struct{}
-
-func NewService() Service { return &service{} }
-
-func (s *service) List(ctx context.Context, root string) ([]string, error) { return List(ctx, root) }
-func (s *service) Show(ctx context.Context, root, name string) (string, error) {
-	return Show(ctx, root, name)
-}
-func (s *service) Create(ctx context.Context, root, name string, options CreateOptions) (CreateResult, error) {
-	return Create(ctx, root, name, options)
-}
-
 func List(ctx context.Context, root string) ([]string, error) {
 	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
