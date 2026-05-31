@@ -369,6 +369,8 @@ Project contribution and trust docs:
 
 ## Development
 
+Requires **Go 1.26+**.
+
 ```bash
 go test ./...
 go build -o bin/speckeep ./src/cmd/speckeep

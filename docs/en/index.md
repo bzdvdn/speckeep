@@ -18,6 +18,8 @@ This documentation is organized into a few practical guides:
 - [Glossary](glossary.md)
 - [Roadmap](roadmap.md)
 
+Built with **Go 1.26+**.
+
 ## Quick Start
 
 ```bash
