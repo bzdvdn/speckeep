@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -22,11 +23,11 @@ func newFeatureCmd() *cobra.Command {
 				root = args[1]
 			}
 
-			state, err := workflow.State(root, args[0])
+			state, err := workflow.State(context.Background(), root, args[0])
 			if err != nil {
 				return err
 			}
-			findings, err := workflow.ValidateFeature(root, args[0])
+			findings, err := workflow.ValidateFeature(context.Background(), root, args[0])
 			if err != nil {
 				return err
 			}
@@ -207,7 +208,7 @@ func newFeatureRepairCmd() *cobra.Command {
 				root = args[1]
 			}
 
-			result, err := workflow.RepairFeature(root, args[0], dryRun)
+			result, err := workflow.RepairFeature(context.Background(), root, args[0], dryRun)
 			if err != nil {
 				return err
 			}

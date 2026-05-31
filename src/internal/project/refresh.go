@@ -2,6 +2,7 @@ package project
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -536,7 +537,7 @@ func syncConfig(root string, cfg config.Config, dryRun bool, result *RefreshResu
 }
 
 func syncSkillsManifest(root string, dryRun bool, result *RefreshResult) error {
-	manifest, err := skills.Load(root)
+	manifest, err := skills.Load(context.Background(), root)
 	if err != nil {
 		return err
 	}

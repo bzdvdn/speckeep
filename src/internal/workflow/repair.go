@@ -2,6 +2,7 @@ package workflow
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -28,12 +29,12 @@ type MigrationResult struct {
 	Warnings []string       `json:"warnings,omitempty"`
 }
 
-func RepairFeature(root, slug string, dryRun bool) (RepairResult, error) {
+func RepairFeature(ctx context.Context, root, slug string, dryRun bool) (RepairResult, error) {
 	root, err := filepath.Abs(root)
 	if err != nil {
 		return RepairResult{}, err
 	}
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		return RepairResult{}, err
 	}
@@ -80,7 +81,7 @@ func RepairFeature(root, slug string, dryRun bool) (RepairResult, error) {
 	return result, nil
 }
 
-func MigrateProject(root string, dryRun bool, copyWorkspace bool) (MigrationResult, error) {
+func MigrateProject(ctx context.Context, root string, dryRun, copyWorkspace bool) (MigrationResult, error) {
 	root, err := filepath.Abs(root)
 	if err != nil {
 		return MigrationResult{}, err
@@ -116,7 +117,7 @@ func MigrateProject(root string, dryRun bool, copyWorkspace bool) (MigrationResu
 		}
 	}
 
-	states, err := States(root)
+	states, err := States(ctx, root)
 	if err != nil {
 		return MigrationResult{}, err
 	}
@@ -142,7 +143,7 @@ func MigrateProject(root string, dryRun bool, copyWorkspace bool) (MigrationResu
 	sort.Strings(slugs)
 
 	for _, slug := range slugs {
-		repair, err := RepairFeature(root, slug, dryRun)
+		repair, err := RepairFeature(ctx, root, slug, dryRun)
 		if err != nil {
 			return MigrationResult{}, err
 		}
@@ -208,7 +209,7 @@ func migrateLegacyDraftspecWorkspace(root string, dryRun bool, copyWorkspace boo
 
 	// Canonicalize config paths from .draftspec -> .speckeep when possible.
 	if fileExists(canonicalCfg) {
-		cfg, err := config.Load(root)
+		cfg, err := config.Load(context.Background(), root)
 		if err != nil {
 			return true, nil, err
 		}
@@ -218,7 +219,7 @@ func migrateLegacyDraftspecWorkspace(root string, dryRun bool, copyWorkspace boo
 		cfg.Paths.TemplatesDir = rewriteLegacyWorkspacePrefix(cfg.Paths.TemplatesDir)
 		cfg.Paths.ScriptsDir = rewriteLegacyWorkspacePrefix(cfg.Paths.ScriptsDir)
 
-		if err := config.Save(root, cfg); err != nil {
+		if err := config.Save(context.Background(), root, cfg); err != nil {
 			return true, nil, err
 		}
 	}

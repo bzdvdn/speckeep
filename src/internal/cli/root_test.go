@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"os"
 	"os/exec"
@@ -29,7 +30,7 @@ func executeRoot(t *testing.T, args ...string) (string, string, error) {
 func ensureSpecDir(t *testing.T, root, slug string) string {
 	t.Helper()
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -46,7 +47,7 @@ func ensureSpecDir(t *testing.T, root, slug string) string {
 
 func defaultSpecsDir(t *testing.T, root string) string {
 	t.Helper()
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -59,7 +60,7 @@ func defaultSpecsDir(t *testing.T, root string) string {
 
 func defaultArchiveDir(t *testing.T, root string) string {
 	t.Helper()
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -133,7 +134,7 @@ func TestInitCommandSupportsCustomSpecsAndArchiveDirs(t *testing.T) {
 		t.Fatalf("init command returned error: %v", err)
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Load config returned error: %v", err)
 	}
@@ -1538,7 +1539,7 @@ func TestRefreshCommandCanMoveConstitutionFile(t *testing.T) {
 		t.Fatalf("refresh command returned error: %v", err)
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Load config returned error: %v", err)
 	}
@@ -1614,7 +1615,7 @@ func TestRefreshCommandCanMoveSpecsAndArchiveDirs(t *testing.T) {
 		t.Fatalf("refresh command returned error: %v", err)
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Load config returned error: %v", err)
 	}

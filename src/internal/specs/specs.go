@@ -2,6 +2,7 @@ package specs
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -27,8 +28,26 @@ type ResolvedInput struct {
 	Slug  string
 }
 
-func List(root string) ([]string, error) {
-	cfg, err := config.Load(root)
+type Service interface {
+	List(ctx context.Context, root string) ([]string, error)
+	Show(ctx context.Context, root, name string) (string, error)
+	Create(ctx context.Context, root, name string, options CreateOptions) (CreateResult, error)
+}
+
+type service struct{}
+
+func NewService() Service { return &service{} }
+
+func (s *service) List(ctx context.Context, root string) ([]string, error) { return List(ctx, root) }
+func (s *service) Show(ctx context.Context, root, name string) (string, error) {
+	return Show(ctx, root, name)
+}
+func (s *service) Create(ctx context.Context, root, name string, options CreateOptions) (CreateResult, error) {
+	return Create(ctx, root, name, options)
+}
+
+func List(ctx context.Context, root string) ([]string, error) {
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +59,8 @@ func List(root string) ([]string, error) {
 	return featurepaths.ListSpecSlugs(specsDir)
 }
 
-func Show(root, name string) (string, error) {
-	cfg, err := config.Load(root)
+func Show(ctx context.Context, root, name string) (string, error) {
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		return "", err
 	}
@@ -60,20 +79,20 @@ func Show(root, name string) (string, error) {
 	return string(content), nil
 }
 
-func Create(root, name string, options CreateOptions) (CreateResult, error) {
+func Create(ctx context.Context, root, name string, options CreateOptions) (CreateResult, error) {
 	resolved, err := ResolveInput(name)
 	if err != nil {
 		return CreateResult{}, err
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		return CreateResult{}, err
 	}
 
 	var messages []string
 	if options.CreateBranch {
-		message, err := gitutil.EnsureBranch(root, branchName(resolved.Slug, options.BranchPrefix))
+		message, err := gitutil.EnsureBranch(context.Background(), root, branchName(resolved.Slug, options.BranchPrefix))
 		if err != nil {
 			return CreateResult{}, err
 		}

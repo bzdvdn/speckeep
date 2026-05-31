@@ -1,6 +1,7 @@
 package doctor
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,7 +13,7 @@ import (
 
 func doctorSpecsDir(t *testing.T, root string) string {
 	t.Helper()
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -31,7 +32,7 @@ func TestCheckHealthyWorkspace(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -69,7 +70,7 @@ func TestCheckErrorsWhenPlanSkipsMandatoryInspect(t *testing.T) {
 		t.Fatalf("WriteFile(plan) returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -106,7 +107,7 @@ func TestCheckWarnsAboutOrphanedAgentArtifact(t *testing.T) {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -147,7 +148,7 @@ func TestCheckWarnsAboutLegacyArchiveArtifacts(t *testing.T) {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -180,7 +181,7 @@ func TestCheckErrorsWhenRequiredFileIsMissing(t *testing.T) {
 		t.Fatalf("Remove returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -209,7 +210,7 @@ func TestCheckHealthyPowerShellWorkspace(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -226,16 +227,16 @@ func TestCheckErrorsOnUnsupportedShell(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
 	cfg.Runtime.Shell = "fish"
-	if err := config.Save(root, cfg); err != nil {
+	if err := config.Save(context.Background(), root, cfg); err != nil {
 		t.Fatalf("config.Save returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -260,7 +261,7 @@ func TestCheckWarnsWhenConstitutionHasPlaceholders(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -291,7 +292,7 @@ func TestCheckNoPlaceholderWarnWhenConstitutionIsFilled(t *testing.T) {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -328,7 +329,7 @@ func TestCheckWarnsDuplicateStableIDsAcrossSpecs(t *testing.T) {
 		t.Fatalf("WriteFile(feature-b) returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -364,7 +365,7 @@ func TestCheckErrorsOnInvalidSkillsManifestEntry(t *testing.T) {
 		t.Fatalf("WriteFile(manifest) returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -395,7 +396,7 @@ func TestCheckWarnsWhenSkillMissingResolvedCommit(t *testing.T) {
 		t.Fatalf("WriteFile(manifest) returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -430,7 +431,7 @@ func TestCheckDoesNotWarnOrphanedTraceabilityWhenTaskIsInArchive(t *testing.T) {
 	}
 
 	// Archive snapshot containing the task ID.
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -446,7 +447,7 @@ func TestCheckDoesNotWarnOrphanedTraceabilityWhenTaskIsInArchive(t *testing.T) {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -469,7 +470,7 @@ func TestCheckWarnsWhenSpecgateEntrypointCannotBeResolved(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -501,7 +502,7 @@ func TestCheckDoesNotWarnMissingConstitutionSummaryWhenNoActiveSpecsAndCustomPat
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -528,7 +529,7 @@ func TestCheckUsesWorkspaceConstitutionSummaryPathForCustomConstitutionFile(t *t
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -546,7 +547,7 @@ func TestCheckUsesWorkspaceConstitutionSummaryPathForCustomConstitutionFile(t *t
 		t.Fatalf("WriteFile(summary) returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -572,7 +573,7 @@ func TestCheckWarnsAboutLegacyDefaultLayout(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -603,7 +604,7 @@ func TestCheckWarnsAboutMixedLayout(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}
@@ -640,7 +641,7 @@ func TestCheckErrorsOnLegacyNestedPlanLayout(t *testing.T) {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
-	result, err := Check(root)
+	result, err := Check(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}

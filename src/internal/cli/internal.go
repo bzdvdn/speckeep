@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -47,7 +48,7 @@ func newInternalCheckConstitutionCmd() *cobra.Command {
 			if len(args) == 1 {
 				constitutionPath = args[0]
 			}
-			result, err := workflow.CheckConstitution(root, constitutionPath)
+			result, err := workflow.CheckConstitution(context.Background(), root, constitutionPath)
 			return renderCheckResult(cmd, result, err)
 		},
 	}
@@ -68,7 +69,7 @@ func newInternalCheckSpecReadyCmd() *cobra.Command {
 			if len(args) == 1 {
 				slug = args[0]
 			}
-			result, err := workflow.CheckSpecReadyForSlug(root, slug)
+			result, err := workflow.CheckSpecReadyForSlug(context.Background(), root, slug)
 			return renderCheckResult(cmd, result, err)
 		},
 	}
@@ -85,7 +86,7 @@ func newInternalCheckInspectReadyCmd() *cobra.Command {
 		SilenceErrors: true,
 		Args:          cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			result, err := workflow.CheckInspectReady(root, args[0])
+			result, err := workflow.CheckInspectReady(context.Background(), root, args[0])
 			return renderCheckResult(cmd, result, err)
 		},
 	}
@@ -102,7 +103,7 @@ func newInternalCheckPlanReadyCmd() *cobra.Command {
 		SilenceErrors: true,
 		Args:          cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			result, err := workflow.CheckPlanReady(root, args[0])
+			result, err := workflow.CheckPlanReady(context.Background(), root, args[0])
 			return renderCheckResult(cmd, result, err)
 		},
 	}
@@ -119,7 +120,7 @@ func newInternalCheckTasksReadyCmd() *cobra.Command {
 		SilenceErrors: true,
 		Args:          cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			result, err := workflow.CheckTasksReady(root, args[0])
+			result, err := workflow.CheckTasksReady(context.Background(), root, args[0])
 			return renderCheckResult(cmd, result, err)
 		},
 	}
@@ -136,7 +137,7 @@ func newInternalCheckImplementReadyCmd() *cobra.Command {
 		SilenceErrors: true,
 		Args:          cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			result, err := workflow.CheckImplementReady(root, args[0])
+			result, err := workflow.CheckImplementReady(context.Background(), root, args[0])
 			return renderCheckResult(cmd, result, err)
 		},
 	}
@@ -153,7 +154,7 @@ func newInternalCheckVerifyReadyCmd() *cobra.Command {
 		SilenceErrors: true,
 		Args:          cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			result, err := workflow.CheckVerifyReady(root, args[0])
+			result, err := workflow.CheckVerifyReady(context.Background(), root, args[0])
 			return renderCheckResult(cmd, result, err)
 		},
 	}
@@ -174,7 +175,7 @@ func newInternalCheckArchiveReadyCmd() *cobra.Command {
 			if len(args) == 3 {
 				reason = args[2]
 			}
-			result, err := workflow.CheckArchiveReady(root, args[0], args[1], reason)
+			result, err := workflow.CheckArchiveReady(context.Background(), root, args[0], args[1], reason)
 			return renderCheckResult(cmd, result, err)
 		},
 	}
@@ -195,7 +196,7 @@ func newInternalInspectSpecCmd() *cobra.Command {
 			if len(args) == 2 {
 				tasksPath = args[1]
 			}
-			result, err := workflow.InspectSpec(root, args[0], tasksPath)
+			result, err := workflow.InspectSpec(context.Background(), root, args[0], tasksPath)
 			return renderCheckResult(cmd, result, err)
 		},
 	}
@@ -212,7 +213,7 @@ func newInternalVerifyTaskStateCmd() *cobra.Command {
 		SilenceErrors: true,
 		Args:          cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			result, _, err := workflow.VerifyTaskState(root, args[0])
+			result, _, err := workflow.VerifyTaskState(context.Background(), root, args[0])
 			return renderCheckResult(cmd, result, err)
 		},
 	}

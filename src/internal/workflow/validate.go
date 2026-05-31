@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"regexp"
@@ -18,8 +19,8 @@ type Finding struct {
 
 var findingSlugPattern = regexp.MustCompile(`\bfor slug ([a-z0-9][a-z0-9-]*)\b`)
 
-func ValidateProject(root string) ([]Finding, error) {
-	cfg, err := config.Load(root)
+func ValidateProject(ctx context.Context, root string) ([]Finding, error) {
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +30,7 @@ func ValidateProject(root string) ([]Finding, error) {
 		return nil, err
 	}
 
-	states, err := States(root)
+	states, err := States(ctx, root)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +58,7 @@ func ValidateProject(root string) ([]Finding, error) {
 		}
 
 		if state.InspectExists {
-			report, err := ParseReport(state.InspectPath)
+			report, err := ParseReport(ctx, state.InspectPath)
 			if err != nil {
 				findings = append(findings, Finding{Level: "error", Message: err.Error()})
 			} else {
@@ -70,7 +71,7 @@ func ValidateProject(root string) ([]Finding, error) {
 		}
 
 		if state.VerifyExists {
-			report, err := ParseReport(state.VerifyPath)
+			report, err := ParseReport(ctx, state.VerifyPath)
 			if err != nil {
 				findings = append(findings, Finding{Level: "error", Message: err.Error()})
 			} else {
@@ -99,8 +100,8 @@ func ValidateProject(root string) ([]Finding, error) {
 	return findings, nil
 }
 
-func ValidateFeature(root, slug string) ([]Finding, error) {
-	findings, err := ValidateProject(root)
+func ValidateFeature(ctx context.Context, root, slug string) ([]Finding, error) {
+	findings, err := ValidateProject(ctx, root)
 	if err != nil {
 		return nil, err
 	}

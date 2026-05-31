@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -39,12 +40,12 @@ type FeatureState struct {
 
 var checkboxPattern = regexp.MustCompile(`^\s*- \[([ x])\]`)
 
-func State(root, slug string) (FeatureState, error) {
+func State(ctx context.Context, root, slug string) (FeatureState, error) {
 	if slug == "" {
 		return FeatureState{}, fmt.Errorf("slug cannot be empty")
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		return FeatureState{}, err
 	}
@@ -92,10 +93,10 @@ func State(root, slug string) (FeatureState, error) {
 	}
 
 	state.Archived = archiveExists(archiveSlugDir)
-	state.InspectStatus, _ = reportStatus(state.InspectPath)
-	state.VerifyStatus, _ = reportStatus(state.VerifyPath)
+	state.InspectStatus, _ = reportStatus(ctx, state.InspectPath)
+	state.VerifyStatus, _ = reportStatus(ctx, state.VerifyPath)
 
-	if branch, err := gitutil.CurrentBranch(root); err == nil {
+	if branch, err := gitutil.CurrentBranch(context.Background(), root); err == nil {
 		state.CurrentBranch = branch
 		if !state.Archived && (state.SpecExists || state.HotfixExists) {
 			expected := "feature/" + slug
@@ -113,8 +114,8 @@ func State(root, slug string) (FeatureState, error) {
 	return state, nil
 }
 
-func States(root string) ([]FeatureState, error) {
-	cfg, err := config.Load(root)
+func States(ctx context.Context, root string) ([]FeatureState, error) {
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +141,7 @@ func States(root string) ([]FeatureState, error) {
 
 	results := make([]FeatureState, 0, len(slugs))
 	for _, slug := range slugs {
-		state, err := State(root, slug)
+		state, err := State(ctx, root, slug)
 		if err != nil {
 			return nil, err
 		}
@@ -214,12 +215,12 @@ func inferLifecycle(state *FeatureState) {
 	}
 }
 
-func reportStatus(path string) (string, error) {
+func reportStatus(ctx context.Context, path string) (string, error) {
 	if path == "" || !fileExists(path) {
 		return "", nil
 	}
 
-	report, err := ParseReport(path)
+	report, err := ParseReport(ctx, path)
 	if err != nil {
 		return "", err
 	}

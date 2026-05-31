@@ -2,6 +2,7 @@ package gitutil
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -10,7 +11,31 @@ import (
 	"strings"
 )
 
-func EnsureRepository(root string) (bool, error) {
+type Service interface {
+	EnsureRepository(ctx context.Context, root string) (bool, error)
+	EnsureBranch(ctx context.Context, root string, branch string) (string, error)
+	CurrentBranch(ctx context.Context, root string) (string, error)
+}
+
+type service struct{}
+
+func NewService() Service {
+	return &service{}
+}
+
+func (s *service) EnsureRepository(ctx context.Context, root string) (bool, error) {
+	return EnsureRepository(ctx, root)
+}
+
+func (s *service) EnsureBranch(ctx context.Context, root string, branch string) (string, error) {
+	return EnsureBranch(ctx, root, branch)
+}
+
+func (s *service) CurrentBranch(ctx context.Context, root string) (string, error) {
+	return CurrentBranch(ctx, root)
+}
+
+func EnsureRepository(ctx context.Context, root string) (bool, error) {
 	gitDir := filepath.Join(root, ".git")
 	if _, err := os.Stat(gitDir); err == nil {
 		return false, nil
@@ -18,55 +43,55 @@ func EnsureRepository(root string) (bool, error) {
 		return false, err
 	}
 
-	if _, _, err := run(root, "git", "init"); err != nil {
+	if _, _, err := run(ctx, root, "git", "init"); err != nil {
 		return false, err
 	}
 
 	return true, nil
 }
 
-func EnsureBranch(root, branch string) (string, error) {
-	exists, err := branchExists(root, branch)
+func EnsureBranch(ctx context.Context, root, branch string) (string, error) {
+	exists, err := branchExists(ctx, root, branch)
 	if err != nil {
 		return "", err
 	}
 
 	if exists {
-		if _, _, err := run(root, "git", "checkout", branch); err != nil {
+		if _, _, err := run(ctx, root, "git", "checkout", branch); err != nil {
 			return "", err
 		}
 		return fmt.Sprintf("switched to existing branch %s", branch), nil
 	}
 
-	hasCommits, err := hasCommits(root)
+	hasCommits, err := hasCommits(ctx, root)
 	if err != nil {
 		return "", err
 	}
 
 	if hasCommits {
-		if _, _, err := run(root, "git", "checkout", "-b", branch); err != nil {
+		if _, _, err := run(ctx, root, "git", "checkout", "-b", branch); err != nil {
 			return "", err
 		}
 		return fmt.Sprintf("created and switched to new branch %s", branch), nil
 	}
 
-	if _, _, err := run(root, "git", "checkout", "--orphan", branch); err != nil {
+	if _, _, err := run(ctx, root, "git", "checkout", "--orphan", branch); err != nil {
 		return "", err
 	}
 
 	return fmt.Sprintf("created and switched to new orphan branch %s", branch), nil
 }
 
-func CurrentBranch(root string) (string, error) {
-	stdout, _, err := run(root, "git", "rev-parse", "--abbrev-ref", "HEAD")
+func CurrentBranch(ctx context.Context, root string) (string, error) {
+	stdout, _, err := run(ctx, root, "git", "rev-parse", "--abbrev-ref", "HEAD")
 	if err != nil {
 		return "", err
 	}
 	return strings.TrimSpace(stdout), nil
 }
 
-func branchExists(root, branch string) (bool, error) {
-	_, _, err := run(root, "git", "rev-parse", "--verify", "--quiet", "refs/heads/"+branch)
+func branchExists(ctx context.Context, root, branch string) (bool, error) {
+	_, _, err := run(ctx, root, "git", "rev-parse", "--verify", "--quiet", "refs/heads/"+branch)
 	if err == nil {
 		return true, nil
 	}
@@ -79,8 +104,8 @@ func branchExists(root, branch string) (bool, error) {
 	return false, err
 }
 
-func hasCommits(root string) (bool, error) {
-	_, _, err := run(root, "git", "rev-parse", "--verify", "HEAD")
+func hasCommits(ctx context.Context, root string) (bool, error) {
+	_, _, err := run(ctx, root, "git", "rev-parse", "--verify", "HEAD")
 	if err == nil {
 		return true, nil
 	}
@@ -93,8 +118,8 @@ func hasCommits(root string) (bool, error) {
 	return false, err
 }
 
-func run(dir string, name string, args ...string) (string, string, error) {
-	cmd := exec.Command(name, args...)
+func run(ctx context.Context, dir string, name string, args ...string) (string, string, error) {
+	cmd := exec.CommandContext(ctx, name, args...)
 	cmd.Dir = dir
 
 	var stdout bytes.Buffer

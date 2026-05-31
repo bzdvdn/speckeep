@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"regexp"
@@ -34,7 +35,7 @@ type reportFrontmatter struct {
 	GeneratedAt  string `yaml:"generated_at"`
 }
 
-func ParseReport(path string) (Report, error) {
+func ParseReport(ctx context.Context, path string) (Report, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return Report{}, fmt.Errorf("read report %s: %w", path, err)

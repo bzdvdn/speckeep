@@ -2,6 +2,7 @@ package trace
 
 import (
 	"bufio"
+	"context"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -30,7 +31,19 @@ type TraceResult struct {
 // Legacy annotations (@ds-task/@ds-test) are also accepted.
 var tracePattern = regexp.MustCompile(`@(?:ds|sk)-(task|test)\s+([A-Za-z0-9._-]+(?:#[A-Za-z0-9._-]+)?)(?::\s*([^(]*))?(?:\s*\((AC-[0-9]+)\))?`)
 
-func Scan(root string) (TraceResult, error) {
+type Service interface {
+	Scan(ctx context.Context, root string) (TraceResult, error)
+}
+
+type service struct{}
+
+func NewService() Service { return &service{} }
+
+func (s *service) Scan(ctx context.Context, root string) (TraceResult, error) {
+	return Scan(ctx, root)
+}
+
+func Scan(ctx context.Context, root string) (TraceResult, error) {
 	var result TraceResult
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {

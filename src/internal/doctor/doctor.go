@@ -1,6 +1,7 @@
 package doctor
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -19,6 +20,20 @@ import (
 	"speckeep/src/internal/workflow"
 )
 
+type Service interface {
+	Check(ctx context.Context, root string) (Result, error)
+}
+
+type service struct{}
+
+func NewService() Service {
+	return &service{}
+}
+
+func (s *service) Check(ctx context.Context, root string) (Result, error) {
+	return Check(ctx, root)
+}
+
 var placeholderPattern = regexp.MustCompile(`\[[A-Z][A-Z0-9_]*\]`)
 
 type Finding struct {
@@ -30,20 +45,20 @@ type Result struct {
 	Findings []Finding
 }
 
-func Check(root string) (Result, error) {
+func Check(ctx context.Context, root string) (Result, error) {
 	root, err := filepath.Abs(root)
 	if err != nil {
 		return Result{}, err
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(ctx, root)
 	if err != nil {
 		return Result{}, err
 	}
 
 	var findings []Finding
 
-	migrationResult, err := workflow.MigrateProject(root, false, false)
+	migrationResult, err := workflow.MigrateProject(ctx, root, false, false)
 	if err != nil {
 		return Result{}, err
 	}
@@ -223,11 +238,11 @@ func Check(root string) (Result, error) {
 		}
 	}
 
-	skillsManifest, err := skills.Load(root)
+	skillsManifest, err := skills.Load(ctx, root)
 	if err != nil {
 		findings = append(findings, Finding{Level: "error", Message: err.Error()})
 	} else {
-		skillErrors, skillWarnings := skills.ValidateManifest(root, skillsManifest)
+		skillErrors, skillWarnings := skills.ValidateManifest(context.Background(), root, skillsManifest)
 		for _, message := range skillErrors {
 			findings = append(findings, Finding{Level: "error", Message: message})
 		}
@@ -236,7 +251,7 @@ func Check(root string) (Result, error) {
 		}
 	}
 
-	workflowFindings, err := workflow.ValidateProject(root)
+	workflowFindings, err := workflow.ValidateProject(ctx, root)
 	if err != nil {
 		findings = append(findings, Finding{Level: "error", Message: err.Error()})
 	} else {
@@ -259,13 +274,13 @@ func Check(root string) (Result, error) {
 	}
 
 	// Traceability checks
-	traceFindings, err := traceabilityChecks(root)
+	traceFindings, err := traceabilityChecks(ctx, root)
 	if err == nil {
 		findings = append(findings, traceFindings...)
 	}
 
 	// Branching checks
-	if branch, err := gitutil.CurrentBranch(root); err == nil {
+	if branch, err := gitutil.CurrentBranch(ctx, root); err == nil {
 		if branch != "main" && branch != "master" && !strings.HasPrefix(branch, "feature/") && !strings.HasPrefix(branch, "hotfix/") {
 			findings = append(findings, Finding{
 				Level:   "warning",
@@ -374,10 +389,10 @@ func legacyNestedPlanFindings(specsDir string) []Finding {
 	return findings
 }
 
-func traceabilityChecks(root string) ([]Finding, error) {
+func traceabilityChecks(ctx context.Context, root string) ([]Finding, error) {
 	var findings []Finding
 
-	traceResult, err := trace.Scan(root)
+	traceResult, err := trace.Scan(ctx, root)
 	if err != nil {
 		return nil, err
 	}
@@ -386,7 +401,7 @@ func traceabilityChecks(root string) ([]Finding, error) {
 		return []Finding{{Level: "error", Message: "no traceability annotations (@sk-task / @sk-test) found in codebase"}}, nil
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(ctx, root)
 	if err != nil {
 		return nil, err
 	}
@@ -399,7 +414,7 @@ func traceabilityChecks(root string) ([]Finding, error) {
 		return nil, err
 	}
 
-	states, err := workflow.States(root)
+	states, err := workflow.States(ctx, root)
 	if err != nil {
 		return nil, err
 	}

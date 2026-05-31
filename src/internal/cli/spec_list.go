@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -18,7 +19,7 @@ func newListSpecsCmd() *cobra.Command {
 				root = args[0]
 			}
 
-			names, err := specs.List(root)
+			names, err := specs.List(context.Background(), root)
 			if err != nil {
 				return err
 			}

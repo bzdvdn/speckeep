@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,7 +13,7 @@ import (
 
 func checksSpecsDir(t *testing.T, root string) string {
 	t.Helper()
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -121,7 +122,7 @@ func TestInspectSpecValidatesAcceptanceCoverageInGo(t *testing.T) {
 		t.Fatalf("WriteFile(tasks) returned error: %v", err)
 	}
 
-	result, err := InspectSpec(root, "specs/active/demo/spec.md", "specs/active/demo/tasks.md")
+	result, err := InspectSpec(context.Background(), root, "specs/active/demo/spec.md", "specs/active/demo/tasks.md")
 	if err != nil {
 		t.Fatalf("InspectSpec returned error: %v", err)
 	}
@@ -162,7 +163,7 @@ func TestInspectSpecDetectsAmbiguousLanguage(t *testing.T) {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
 
-	result, err := InspectSpec(root, "specs/active/demo/spec.md", "")
+	result, err := InspectSpec(context.Background(), root, "specs/active/demo/spec.md", "")
 	if err != nil {
 		t.Fatalf("InspectSpec returned error: %v", err)
 	}
@@ -206,7 +207,7 @@ func TestInspectSpecDetectsUnknownCoverageReferences(t *testing.T) {
 		t.Fatalf("WriteFile(tasks) returned error: %v", err)
 	}
 
-	result, err := InspectSpec(root, "specs/active/demo/spec.md", "specs/active/demo/tasks.md")
+	result, err := InspectSpec(context.Background(), root, "specs/active/demo/spec.md", "specs/active/demo/tasks.md")
 	if err != nil {
 		t.Fatalf("InspectSpec returned error: %v", err)
 	}
@@ -256,7 +257,7 @@ func TestCheckImplementReadyDetectsPlanTaskSurfaceMismatch(t *testing.T) {
 		t.Fatalf("WriteFile(tasks) returned error: %v", err)
 	}
 
-	result, err := CheckImplementReady(root, "demo")
+	result, err := CheckImplementReady(context.Background(), root, "demo")
 	if err != nil {
 		t.Fatalf("CheckImplementReady returned error: %v", err)
 	}
@@ -289,7 +290,7 @@ func TestVerifyTaskStateReportsOpenTasksWithoutFailing(t *testing.T) {
 		t.Fatalf("WriteFile(tasks) returned error: %v", err)
 	}
 
-	result, summary, err := VerifyTaskState(root, "demo")
+	result, summary, err := VerifyTaskState(context.Background(), root, "demo")
 	if err != nil {
 		t.Fatalf("VerifyTaskState returned error: %v", err)
 	}
@@ -341,7 +342,7 @@ func TestCheckArchiveReadyBlocksCompletedArchiveWhenTasksRemainOpen(t *testing.T
 		t.Fatalf("WriteFile(tasks) returned error: %v", err)
 	}
 
-	result, err := CheckArchiveReady(root, "demo", "completed", "done")
+	result, err := CheckArchiveReady(context.Background(), root, "demo", "completed", "done")
 	if err != nil {
 		t.Fatalf("CheckArchiveReady returned error: %v", err)
 	}
@@ -382,7 +383,7 @@ func TestCheckArchiveReadyAllowsCompletedWithoutReason(t *testing.T) {
 		t.Fatalf("WriteFile(verify) returned error: %v", err)
 	}
 
-	result, err := CheckArchiveReady(root, "demo", "completed", "")
+	result, err := CheckArchiveReady(context.Background(), root, "demo", "completed", "")
 	if err != nil {
 		t.Fatalf("CheckArchiveReady returned error: %v", err)
 	}
@@ -420,7 +421,7 @@ func TestCheckArchiveReadyAllowsHotfixWithoutSpec(t *testing.T) {
 		t.Fatalf("WriteFile(verify) returned error: %v", err)
 	}
 
-	result, err := CheckArchiveReady(root, "demo", "completed", "")
+	result, err := CheckArchiveReady(context.Background(), root, "demo", "completed", "")
 	if err != nil {
 		t.Fatalf("CheckArchiveReady returned error: %v", err)
 	}
@@ -450,7 +451,7 @@ func TestCheckArchiveReadyRequiresReasonForDeferred(t *testing.T) {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
 
-	result, err := CheckArchiveReady(root, "demo", "deferred", "")
+	result, err := CheckArchiveReady(context.Background(), root, "demo", "deferred", "")
 	if err != nil {
 		t.Fatalf("CheckArchiveReady returned error: %v", err)
 	}
@@ -487,7 +488,7 @@ func TestInspectSpecDetectsNeedsClarificationMarker(t *testing.T) {
 		t.Fatalf("WriteFile(spec): %v", err)
 	}
 
-	result, err := InspectSpec(root, "specs/demo/spec.md", "")
+	result, err := InspectSpec(context.Background(), root, "specs/demo/spec.md", "")
 	if err != nil {
 		t.Fatalf("InspectSpec: %v", err)
 	}
@@ -516,7 +517,7 @@ func TestInspectSpecWarnsOnMissingAssumptions(t *testing.T) {
 		t.Fatalf("WriteFile(spec): %v", err)
 	}
 
-	result, err := InspectSpec(root, "specs/demo/spec.md", "")
+	result, err := InspectSpec(context.Background(), root, "specs/demo/spec.md", "")
 	if err != nil {
 		t.Fatalf("InspectSpec: %v", err)
 	}
@@ -552,7 +553,7 @@ func TestInspectSpecWarnsOnMissingRQIDs(t *testing.T) {
 		t.Fatalf("WriteFile(spec): %v", err)
 	}
 
-	result, err := InspectSpec(root, "specs/demo/spec.md", "")
+	result, err := InspectSpec(context.Background(), root, "specs/demo/spec.md", "")
 	if err != nil {
 		t.Fatalf("InspectSpec: %v", err)
 	}
@@ -577,7 +578,7 @@ func TestInspectSpecDetectsRQIDs(t *testing.T) {
 		t.Fatalf("WriteFile(spec): %v", err)
 	}
 
-	result, err := InspectSpec(root, "specs/demo/spec.md", "")
+	result, err := InspectSpec(context.Background(), root, "specs/demo/spec.md", "")
 	if err != nil {
 		t.Fatalf("InspectSpec: %v", err)
 	}

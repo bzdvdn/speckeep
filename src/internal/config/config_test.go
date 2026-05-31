@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"path/filepath"
 	"testing"
 )
@@ -40,7 +41,7 @@ func TestDefaultAppliesExpectedDefaults(t *testing.T) {
 func TestLoadReturnsDefaultsWhenConfigDoesNotExist(t *testing.T) {
 	root := t.TempDir()
 
-	cfg, err := Load(root)
+	cfg, err := Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Load returned error: %v", err)
 	}
@@ -63,11 +64,11 @@ func TestSaveAndLoadPreserveConfigAndApplyDefaults(t *testing.T) {
 	cfg.Paths.SpecsDir = "workspace/specs"
 	cfg.Agents.Targets = []string{"claude", "cursor"}
 
-	if err := Save(root, cfg); err != nil {
+	if err := Save(context.Background(), root, cfg); err != nil {
 		t.Fatalf("Save returned error: %v", err)
 	}
 
-	loaded, err := Load(root)
+	loaded, err := Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("Load returned error: %v", err)
 	}

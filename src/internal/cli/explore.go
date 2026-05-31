@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -34,7 +35,7 @@ Examples:
 				root = args[0]
 			}
 
-			cfg, err := config.Load(root)
+			cfg, err := config.Load(context.Background(), root)
 			if err != nil {
 				return fmt.Errorf("load config: %w", err)
 			}

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -34,7 +35,7 @@ Includes phase, task progress, readiness, and branch mismatch hints.`,
 				return newExitError(1, "flags --all and --archived are mutually exclusive")
 			}
 
-			states, err := workflow.States(root)
+			states, err := workflow.States(context.Background(), root)
 			if err != nil {
 				return err
 			}

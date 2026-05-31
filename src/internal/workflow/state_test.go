@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,7 +13,7 @@ import (
 
 func testSpecsDir(t *testing.T, root string) string {
 	t.Helper()
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -35,7 +36,7 @@ func TestStateInfersLifecycleAndReportStatuses(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	state, err := State(root, "demo")
+	state, err := State(context.Background(), root, "demo")
 	if err != nil {
 		t.Fatalf("State returned error: %v", err)
 	}
@@ -52,7 +53,7 @@ func TestStateInfersLifecycleAndReportStatuses(t *testing.T) {
 		t.Fatalf("WriteFile(spec) returned error: %v", err)
 	}
 
-	state, err = State(root, "demo")
+	state, err = State(context.Background(), root, "demo")
 	if err != nil {
 		t.Fatalf("State returned error: %v", err)
 	}
@@ -66,7 +67,7 @@ func TestStateInfersLifecycleAndReportStatuses(t *testing.T) {
 		t.Fatalf("WriteFile(inspect invalid) returned error: %v", err)
 	}
 
-	state, err = State(root, "demo")
+	state, err = State(context.Background(), root, "demo")
 	if err != nil {
 		t.Fatalf("State returned error: %v", err)
 	}
@@ -79,7 +80,7 @@ func TestStateInfersLifecycleAndReportStatuses(t *testing.T) {
 		t.Fatalf("WriteFile(inspect) returned error: %v", err)
 	}
 
-	state, err = State(root, "demo")
+	state, err = State(context.Background(), root, "demo")
 	if err != nil {
 		t.Fatalf("State returned error: %v", err)
 	}
@@ -126,7 +127,7 @@ func TestInferLifecycleEmptyTasksFile(t *testing.T) {
 		t.Fatalf("WriteFile(tasks) returned error: %v", err)
 	}
 
-	state, err := State(root, "demo")
+	state, err := State(context.Background(), root, "demo")
 	if err != nil {
 		t.Fatalf("State returned error: %v", err)
 	}
@@ -178,7 +179,7 @@ func TestStateTreatsInvalidVerifyReportAsNotVerified(t *testing.T) {
 		t.Fatalf("WriteFile(verify invalid) returned error: %v", err)
 	}
 
-	state, err := State(root, "demo")
+	state, err := State(context.Background(), root, "demo")
 	if err != nil {
 		t.Fatalf("State returned error: %v", err)
 	}
@@ -223,7 +224,7 @@ func TestInferLifecycleSubTaskCheckboxes(t *testing.T) {
 		t.Fatalf("WriteFile(tasks) returned error: %v", err)
 	}
 
-	state, err := State(root, "demo")
+	state, err := State(context.Background(), root, "demo")
 	if err != nil {
 		t.Fatalf("State returned error: %v", err)
 	}
@@ -314,7 +315,7 @@ func TestValidateProjectFindsSemanticWorkflowProblems(t *testing.T) {
 		t.Fatalf("WriteFile(plan) returned error: %v", err)
 	}
 
-	findings, err := ValidateProject(root)
+	findings, err := ValidateProject(context.Background(), root)
 	if err != nil {
 		t.Fatalf("ValidateProject returned error: %v", err)
 	}
@@ -381,7 +382,7 @@ func TestValidateProjectFindsPlanTasksAndVerifyCoherenceProblems(t *testing.T) {
 		t.Fatalf("WriteFile(verify) returned error: %v", err)
 	}
 
-	findings, err := ValidateProject(root)
+	findings, err := ValidateProject(context.Background(), root)
 	if err != nil {
 		t.Fatalf("ValidateProject returned error: %v", err)
 	}
@@ -451,7 +452,7 @@ func TestValidateProjectFindsVerifyTraceabilityAndArchiveReadinessProblems(t *te
 		t.Fatalf("WriteFile(verify) returned error: %v", err)
 	}
 
-	findings, err := ValidateProject(root)
+	findings, err := ValidateProject(context.Background(), root)
 	if err != nil {
 		t.Fatalf("ValidateProject returned error: %v", err)
 	}
@@ -503,7 +504,7 @@ func TestValidateFeatureReturnsOnlyFindingsForRequestedSlug(t *testing.T) {
 		t.Fatalf("WriteFile(beta) returned error: %v", err)
 	}
 
-	findings, err := ValidateFeature(root, "alpha")
+	findings, err := ValidateFeature(context.Background(), root, "alpha")
 	if err != nil {
 		t.Fatalf("ValidateFeature returned error: %v", err)
 	}
@@ -558,7 +559,7 @@ func TestValidateProjectFindsVerifyChecksSectionProblems(t *testing.T) {
 		t.Fatalf("WriteFile(verify): %v", err)
 	}
 
-	findings, err := ValidateProject(root)
+	findings, err := ValidateProject(context.Background(), root)
 	if err != nil {
 		t.Fatalf("ValidateProject: %v", err)
 	}
@@ -617,7 +618,7 @@ func TestValidateProjectFindsVerifyPerACEvidenceProblems(t *testing.T) {
 		t.Fatalf("WriteFile(verify): %v", err)
 	}
 
-	findings, err := ValidateProject(root)
+	findings, err := ValidateProject(context.Background(), root)
 	if err != nil {
 		t.Fatalf("ValidateProject: %v", err)
 	}

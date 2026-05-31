@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -37,7 +38,7 @@ func newTraceCmd() *cobra.Command {
 				}
 			}
 
-			traceResult, err := trace.Scan(root)
+			traceResult, err := trace.Scan(context.Background(), root)
 			if err != nil {
 				return err
 			}
@@ -98,7 +99,7 @@ func newTraceCmd() *cobra.Command {
 }
 
 func getTaskIDsForSlug(root, slug string) (map[string]struct{}, error) {
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		return nil, err
 	}

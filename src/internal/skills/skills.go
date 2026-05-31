@@ -2,6 +2,7 @@ package skills
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -56,11 +57,41 @@ type RemoveResult struct {
 	Removed bool
 }
 
+type Service interface {
+	Load(ctx context.Context, root string) (Manifest, error)
+	Save(ctx context.Context, root string, manifest Manifest) error
+	Add(ctx context.Context, root string, options AddOptions) (AddResult, error)
+	Remove(ctx context.Context, root, id string) (RemoveResult, error)
+	ValidateManifest(ctx context.Context, root string, manifest Manifest) (errors []string, warnings []string)
+	RehydrateGitCheckouts(ctx context.Context, root string, manifest Manifest) (Manifest, []string, error)
+}
+
+type service struct{}
+
+func NewService() Service { return &service{} }
+
+func (s *service) Load(ctx context.Context, root string) (Manifest, error) { return Load(ctx, root) }
+func (s *service) Save(ctx context.Context, root string, manifest Manifest) error {
+	return Save(ctx, root, manifest)
+}
+func (s *service) Add(ctx context.Context, root string, options AddOptions) (AddResult, error) {
+	return Add(ctx, root, options)
+}
+func (s *service) Remove(ctx context.Context, root, id string) (RemoveResult, error) {
+	return Remove(ctx, root, id)
+}
+func (s *service) ValidateManifest(ctx context.Context, root string, manifest Manifest) ([]string, []string) {
+	return ValidateManifest(ctx, root, manifest)
+}
+func (s *service) RehydrateGitCheckouts(ctx context.Context, root string, manifest Manifest) (Manifest, []string, error) {
+	return RehydrateGitCheckouts(ctx, root, manifest)
+}
+
 func ManifestPath(root string) string {
 	return filepath.Join(root, ".speckeep", "skills", "manifest.yaml")
 }
 
-func Load(root string) (Manifest, error) {
+func Load(ctx context.Context, root string) (Manifest, error) {
 	path := ManifestPath(root)
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -89,7 +120,7 @@ func Load(root string) (Manifest, error) {
 	return manifest, nil
 }
 
-func Save(root string, manifest Manifest) error {
+func Save(ctx context.Context, root string, manifest Manifest) error {
 	manifest.Version = manifestVersion
 	if manifest.Skills == nil {
 		manifest.Skills = []Entry{}
@@ -112,13 +143,13 @@ func Save(root string, manifest Manifest) error {
 	return nil
 }
 
-func Add(root string, options AddOptions) (AddResult, error) {
+func Add(ctx context.Context, root string, options AddOptions) (AddResult, error) {
 	entry, err := buildEntry(root, options)
 	if err != nil {
 		return AddResult{}, err
 	}
 
-	manifest, err := Load(root)
+	manifest, err := Load(ctx, root)
 	if err != nil {
 		return AddResult{}, err
 	}
@@ -128,26 +159,26 @@ func Add(root string, options AddOptions) (AddResult, error) {
 			continue
 		}
 		manifest.Skills[i] = entry
-		if err := Save(root, manifest); err != nil {
+		if err := Save(ctx, root, manifest); err != nil {
 			return AddResult{}, err
 		}
 		return AddResult{Updated: true, Entry: entry}, nil
 	}
 
 	manifest.Skills = append(manifest.Skills, entry)
-	if err := Save(root, manifest); err != nil {
+	if err := Save(ctx, root, manifest); err != nil {
 		return AddResult{}, err
 	}
 	return AddResult{Created: true, Entry: entry}, nil
 }
 
-func Remove(root, id string) (RemoveResult, error) {
+func Remove(ctx context.Context, root, id string) (RemoveResult, error) {
 	skillID, err := normalizeID(id)
 	if err != nil {
 		return RemoveResult{}, err
 	}
 
-	manifest, err := Load(root)
+	manifest, err := Load(ctx, root)
 	if err != nil {
 		return RemoveResult{}, err
 	}
@@ -166,7 +197,7 @@ func Remove(root, id string) (RemoveResult, error) {
 	}
 
 	manifest.Skills = filtered
-	if err := Save(root, manifest); err != nil {
+	if err := Save(ctx, root, manifest); err != nil {
 		return RemoveResult{}, err
 	}
 	return RemoveResult{Removed: true}, nil
@@ -353,7 +384,7 @@ func ensureCheckoutDir(root string, entry Entry) (Entry, bool, error) {
 	return entry, true, nil
 }
 
-func RehydrateGitCheckouts(root string, manifest Manifest) (Manifest, []string, error) {
+func RehydrateGitCheckouts(ctx context.Context, root string, manifest Manifest) (Manifest, []string, error) {
 	var restored []string
 	updated := manifest
 	if updated.Skills == nil {
@@ -372,7 +403,7 @@ func RehydrateGitCheckouts(root string, manifest Manifest) (Manifest, []string, 
 	if len(restored) == 0 {
 		return manifest, nil, nil
 	}
-	if err := Save(root, updated); err != nil {
+	if err := Save(ctx, root, updated); err != nil {
 		return manifest, nil, err
 	}
 	return updated, restored, nil
@@ -417,7 +448,7 @@ func runGit(root string, args ...string) (string, error) {
 	return output, err
 }
 
-func ValidateManifest(root string, manifest Manifest) (errors []string, warnings []string) {
+func ValidateManifest(ctx context.Context, root string, manifest Manifest) (errors []string, warnings []string) {
 	seen := map[string]struct{}{}
 	for _, entry := range manifest.Skills {
 		if _, ok := seen[entry.ID]; ok {

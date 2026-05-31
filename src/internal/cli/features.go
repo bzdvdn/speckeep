@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"text/tabwriter"
@@ -23,7 +24,7 @@ func newFeaturesCmd() *cobra.Command {
 				root = args[0]
 			}
 
-			results, err := status.List(root)
+			results, err := status.List(context.Background(), root)
 			if err != nil {
 				return err
 			}
@@ -121,7 +122,7 @@ type issueCount struct {
 }
 
 func featureIssueCounts(root string) (map[string]issueCount, error) {
-	findings, err := workflow.ValidateProject(root)
+	findings, err := workflow.ValidateProject(context.Background(), root)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +182,7 @@ func renderTaskProgress(state workflow.FeatureState) string {
 }
 
 func featureStatesBySlug(root string) (map[string]workflow.FeatureState, error) {
-	states, err := workflow.States(root)
+	states, err := workflow.States(context.Background(), root)
 	if err != nil {
 		return nil, err
 	}

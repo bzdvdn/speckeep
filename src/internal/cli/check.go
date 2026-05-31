@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -85,12 +86,12 @@ func newCheckCmd() *cobra.Command {
 				root = args[1]
 			}
 
-			state, err := workflow.State(root, args[0])
+			state, err := workflow.State(context.Background(), root, args[0])
 			if err != nil {
 				return err
 			}
 
-			result, err := buildCheckResult(root, state)
+			result, err := buildCheckResult(context.Background(), root, state)
 			if err != nil {
 				return err
 			}
@@ -121,7 +122,7 @@ func newCheckCmd() *cobra.Command {
 }
 
 func runCheckAll(cmd *cobra.Command, root string, jsonOutput bool) error {
-	states, err := workflow.States(root)
+	states, err := workflow.States(context.Background(), root)
 	if err != nil {
 		return err
 	}
@@ -129,7 +130,7 @@ func runCheckAll(cmd *cobra.Command, root string, jsonOutput bool) error {
 	results := make([]checkResult, 0, len(states))
 	anyBlocked := false
 	for _, state := range states {
-		r, err := buildCheckResult(root, state)
+		r, err := buildCheckResult(context.Background(), root, state)
 		if err != nil {
 			return err
 		}
@@ -158,7 +159,7 @@ func runCheckAll(cmd *cobra.Command, root string, jsonOutput bool) error {
 	return nil
 }
 
-func buildCheckResult(root string, state workflow.FeatureState) (checkResult, error) {
+func buildCheckResult(ctx context.Context, root string, state workflow.FeatureState) (checkResult, error) {
 	result := checkResult{
 		Slug:    state.Slug,
 		Phase:   state.Phase,
@@ -186,7 +187,7 @@ func buildCheckResult(root string, state workflow.FeatureState) (checkResult, er
 
 	result.NextCommand = nextCommand(state)
 
-	phaseResult, err := phaseCheckResult(root, state)
+	phaseResult, err := phaseCheckResult(ctx, root, state)
 	if err != nil {
 		return checkResult{}, err
 	}
@@ -378,18 +379,18 @@ func printCheckAll(cmd *cobra.Command, states []workflow.FeatureState, results [
 	fmt.Fprintln(w)
 }
 
-func phaseCheckResult(root string, state workflow.FeatureState) (workflow.CheckResult, error) {
+func phaseCheckResult(ctx context.Context, root string, state workflow.FeatureState) (workflow.CheckResult, error) {
 	switch state.ReadyFor {
 	case "inspect":
-		return workflow.CheckInspectReady(root, state.Slug)
+		return workflow.CheckInspectReady(ctx, root, state.Slug)
 	case "plan":
-		return workflow.CheckPlanReady(root, state.Slug)
+		return workflow.CheckPlanReady(ctx, root, state.Slug)
 	case "tasks":
-		return workflow.CheckTasksReady(root, state.Slug)
+		return workflow.CheckTasksReady(ctx, root, state.Slug)
 	case "implement":
-		return workflow.CheckImplementReady(root, state.Slug)
+		return workflow.CheckImplementReady(ctx, root, state.Slug)
 	case "verify":
-		return workflow.CheckVerifyReady(root, state.Slug)
+		return workflow.CheckVerifyReady(ctx, root, state.Slug)
 	default:
 		return workflow.CheckResult{}, nil
 	}

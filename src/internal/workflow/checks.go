@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -170,7 +171,7 @@ func (r *CheckResult) Merge(other CheckResult) {
 	}
 }
 
-func CheckConstitution(root, constitutionPath string) (CheckResult, error) {
+func CheckConstitution(ctx context.Context, root, constitutionPath string) (CheckResult, error) {
 	root, cfg, err := loadCheckConfig(root)
 	if err != nil {
 		return CheckResult{}, err
@@ -221,11 +222,11 @@ func CheckConstitution(root, constitutionPath string) (CheckResult, error) {
 	return result, nil
 }
 
-func CheckSpecReady(root string) (CheckResult, error) {
-	return CheckSpecReadyForSlug(root, "")
+func CheckSpecReady(ctx context.Context, root string) (CheckResult, error) {
+	return CheckSpecReadyForSlug(ctx, root, "")
 }
 
-func CheckSpecReadyForSlug(root, slug string) (CheckResult, error) {
+func CheckSpecReadyForSlug(ctx context.Context, root, slug string) (CheckResult, error) {
 	root, cfg, err := loadCheckConfig(root)
 	if err != nil {
 		return CheckResult{}, err
@@ -256,7 +257,7 @@ func CheckSpecReadyForSlug(root, slug string) (CheckResult, error) {
 
 	if strings.TrimSpace(slug) != "" {
 		expectedBranch := "feature/" + strings.TrimSpace(slug)
-		branch, err := gitutil.CurrentBranch(root)
+		branch, err := gitutil.CurrentBranch(context.Background(), root)
 		if err != nil {
 			result.AddWarn("git branch check skipped (git not available)")
 		} else if branch == "HEAD" {
@@ -271,7 +272,7 @@ func CheckSpecReadyForSlug(root, slug string) (CheckResult, error) {
 	return result, nil
 }
 
-func CheckInspectReady(root, slug string) (CheckResult, error) {
+func CheckInspectReady(ctx context.Context, root, slug string) (CheckResult, error) {
 	root, cfg, err := loadCheckConfig(root)
 	if err != nil {
 		return CheckResult{}, err
@@ -288,7 +289,7 @@ func CheckInspectReady(root, slug string) (CheckResult, error) {
 	checkFile(&result, promptDisplay, absFromRoot(root, promptDisplay))
 
 	if !result.Failed {
-		inspectResult, err := InspectSpec(root, specDisplay, "")
+		inspectResult, err := InspectSpec(ctx, root, specDisplay, "")
 		if err != nil {
 			return CheckResult{}, err
 		}
@@ -301,7 +302,7 @@ func CheckInspectReady(root, slug string) (CheckResult, error) {
 	return result, nil
 }
 
-func CheckPlanReady(root, slug string) (CheckResult, error) {
+func CheckPlanReady(ctx context.Context, root, slug string) (CheckResult, error) {
 	root, cfg, err := loadCheckConfig(root)
 	if err != nil {
 		return CheckResult{}, err
@@ -339,7 +340,7 @@ func CheckPlanReady(root, slug string) (CheckResult, error) {
 	}
 
 	if fileExists(inspectAbs) {
-		report, err := ParseReport(inspectAbs)
+		report, err := ParseReport(ctx, inspectAbs)
 		if err != nil {
 			result.AddError(err.Error())
 		} else {
@@ -356,7 +357,7 @@ func CheckPlanReady(root, slug string) (CheckResult, error) {
 	}
 
 	if fileExists(specAbs) {
-		inspectResult, err := InspectSpec(root, specDisplay, "")
+		inspectResult, err := InspectSpec(ctx, root, specDisplay, "")
 		if err != nil {
 			return CheckResult{}, err
 		}
@@ -366,7 +367,7 @@ func CheckPlanReady(root, slug string) (CheckResult, error) {
 	return result, nil
 }
 
-func CheckTasksReady(root, slug string) (CheckResult, error) {
+func CheckTasksReady(ctx context.Context, root, slug string) (CheckResult, error) {
 	root, cfg, err := loadCheckConfig(root)
 	if err != nil {
 		return CheckResult{}, err
@@ -400,7 +401,7 @@ func CheckTasksReady(root, slug string) (CheckResult, error) {
 		}
 		checkPattern(&result, string(content), acceptanceIDPattern.String(), "spec has stable acceptance IDs")
 
-		inspectResult, err := InspectSpec(root, specDisplay, "")
+		inspectResult, err := InspectSpec(ctx, root, specDisplay, "")
 		if err != nil {
 			return CheckResult{}, err
 		}
@@ -418,7 +419,7 @@ func CheckTasksReady(root, slug string) (CheckResult, error) {
 	return result, nil
 }
 
-func CheckImplementReady(root, slug string) (CheckResult, error) {
+func CheckImplementReady(ctx context.Context, root, slug string) (CheckResult, error) {
 	root, cfg, err := loadCheckConfig(root)
 	if err != nil {
 		return CheckResult{}, err
@@ -456,7 +457,7 @@ func CheckImplementReady(root, slug string) (CheckResult, error) {
 	}
 
 	if fileExists(specAbs) && fileExists(tasksAbs) {
-		inspectResult, err := InspectSpec(root, specDisplay, tasksDisplay)
+		inspectResult, err := InspectSpec(ctx, root, specDisplay, tasksDisplay)
 		if err != nil {
 			return CheckResult{}, err
 		}
@@ -484,7 +485,7 @@ func CheckImplementReady(root, slug string) (CheckResult, error) {
 		checkPlanContent(&result, slug, specAbs, planDisplay, string(planContent))
 	}
 
-	constitutionResult, err := CheckConstitution(root, cfg.Project.ConstitutionFile)
+	constitutionResult, err := CheckConstitution(ctx, root, cfg.Project.ConstitutionFile)
 	if err != nil {
 		return CheckResult{}, err
 	}
@@ -494,7 +495,7 @@ func CheckImplementReady(root, slug string) (CheckResult, error) {
 	return result, nil
 }
 
-func CheckVerifyReady(root, slug string) (CheckResult, error) {
+func CheckVerifyReady(ctx context.Context, root, slug string) (CheckResult, error) {
 	root, cfg, err := loadCheckConfig(root)
 	if err != nil {
 		return CheckResult{}, err
@@ -513,14 +514,14 @@ func CheckVerifyReady(root, slug string) (CheckResult, error) {
 	checkFile(&result, promptDisplay, absFromRoot(root, promptDisplay))
 
 	if fileExists(specAbs) && fileExists(tasksAbs) {
-		inspectResult, err := InspectSpec(root, specDisplay, tasksDisplay)
+		inspectResult, err := InspectSpec(ctx, root, specDisplay, tasksDisplay)
 		if err != nil {
 			return CheckResult{}, err
 		}
 		result.Merge(inspectResult)
 	}
 	if fileExists(tasksAbs) {
-		taskStateResult, _, err := VerifyTaskState(root, slug)
+		taskStateResult, _, err := VerifyTaskState(ctx, root, slug)
 		if err != nil {
 			return CheckResult{}, err
 		}
@@ -543,7 +544,7 @@ func CheckVerifyReady(root, slug string) (CheckResult, error) {
 	return result, nil
 }
 
-func CheckArchiveReady(root, slug, status, reason string) (CheckResult, error) {
+func CheckArchiveReady(ctx context.Context, root, slug, status, reason string) (CheckResult, error) {
 	root, cfg, err := loadCheckConfig(root)
 	if err != nil {
 		return CheckResult{}, err
@@ -573,7 +574,7 @@ func CheckArchiveReady(root, slug, status, reason string) (CheckResult, error) {
 	}
 
 	_, tasksAbs := resolveTasksDisplayPath(root, cfg.Paths.SpecsDir, slug)
-	state, err := State(root, slug)
+	state, err := State(ctx, root, slug)
 	if err != nil {
 		return CheckResult{}, err
 	}
@@ -584,7 +585,7 @@ func CheckArchiveReady(root, slug, status, reason string) (CheckResult, error) {
 		result.AddError(fmt.Sprintf("verify status is %s - fix before archiving", state.VerifyStatus))
 	}
 	if fileExists(tasksAbs) {
-		taskStateResult, summary, err := VerifyTaskState(root, slug)
+		taskStateResult, summary, err := VerifyTaskState(ctx, root, slug)
 		if err != nil {
 			return CheckResult{}, err
 		}
@@ -606,7 +607,7 @@ func CheckArchiveReady(root, slug, status, reason string) (CheckResult, error) {
 	return result, nil
 }
 
-func VerifyTaskState(root, slug string) (CheckResult, TaskStateSummary, error) {
+func VerifyTaskState(ctx context.Context, root, slug string) (CheckResult, TaskStateSummary, error) {
 	root, cfg, err := loadCheckConfig(root)
 	if err != nil {
 		return CheckResult{}, TaskStateSummary{}, err
@@ -648,7 +649,7 @@ func VerifyTaskState(root, slug string) (CheckResult, TaskStateSummary, error) {
 	return result, summary, nil
 }
 
-func InspectSpec(root, specPath, tasksPath string) (CheckResult, error) {
+func InspectSpec(ctx context.Context, root, specPath, tasksPath string) (CheckResult, error) {
 	root, cfg, err := loadCheckConfig(root)
 	if err != nil {
 		return CheckResult{}, err
@@ -781,7 +782,7 @@ func loadCheckConfig(root string) (string, config.Config, error) {
 	if err != nil {
 		return "", config.Config{}, err
 	}
-	cfg, err := config.Load(absoluteRoot)
+	cfg, err := config.Load(context.Background(), absoluteRoot)
 	if err != nil {
 		return "", config.Config{}, err
 	}

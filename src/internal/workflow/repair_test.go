@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,7 +13,7 @@ import (
 
 func repairSpecsDir(t *testing.T, root string) string {
 	t.Helper()
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -45,7 +46,7 @@ func TestRepairFeatureMigratesLegacyFlatSpec(t *testing.T) {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
-	result, err := RepairFeature(root, "demo", false)
+	result, err := RepairFeature(context.Background(), root, "demo", false)
 	if err != nil {
 		t.Fatalf("RepairFeature returned error: %v", err)
 	}
@@ -88,7 +89,7 @@ func TestRepairFeatureRemovesDuplicateLegacyFlatSpec(t *testing.T) {
 		t.Fatalf("WriteFile(legacy) returned error: %v", err)
 	}
 
-	result, err := RepairFeature(root, "demo", false)
+	result, err := RepairFeature(context.Background(), root, "demo", false)
 	if err != nil {
 		t.Fatalf("RepairFeature returned error: %v", err)
 	}
@@ -125,7 +126,7 @@ func TestRepairFeatureWarnsWhenCanonicalAndLegacyDiffer(t *testing.T) {
 		t.Fatalf("WriteFile(legacy) returned error: %v", err)
 	}
 
-	result, err := RepairFeature(root, "demo", false)
+	result, err := RepairFeature(context.Background(), root, "demo", false)
 	if err != nil {
 		t.Fatalf("RepairFeature returned error: %v", err)
 	}

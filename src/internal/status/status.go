@@ -1,6 +1,29 @@
 package status
 
-import "speckeep/src/internal/workflow"
+import (
+	"context"
+
+	"speckeep/src/internal/workflow"
+)
+
+type Service interface {
+	Check(ctx context.Context, root, slug string) (Result, error)
+	List(ctx context.Context, root string) ([]Result, error)
+}
+
+type service struct{}
+
+func NewService() Service {
+	return &service{}
+}
+
+func (s *service) Check(ctx context.Context, root, slug string) (Result, error) {
+	return Check(ctx, root, slug)
+}
+
+func (s *service) List(ctx context.Context, root string) ([]Result, error) {
+	return List(ctx, root)
+}
 
 type Result struct {
 	Slug           string `json:"slug"`
@@ -21,16 +44,16 @@ type Result struct {
 	Blocked        bool   `json:"blocked"`
 }
 
-func Check(root, slug string) (Result, error) {
-	state, err := workflow.State(root, slug)
+func Check(ctx context.Context, root, slug string) (Result, error) {
+	state, err := workflow.State(ctx, root, slug)
 	if err != nil {
 		return Result{}, err
 	}
 	return fromFeatureState(state), nil
 }
 
-func List(root string) ([]Result, error) {
-	states, err := workflow.States(root)
+func List(ctx context.Context, root string) ([]Result, error) {
+	states, err := workflow.States(ctx, root)
 	if err != nil {
 		return nil, err
 	}

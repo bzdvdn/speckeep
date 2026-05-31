@@ -1,6 +1,7 @@
 package specs
 
 import (
+	"context"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,7 +15,7 @@ import (
 
 func specsDirForTest(t *testing.T, root string) string {
 	t.Helper()
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -53,7 +54,7 @@ func TestListReturnsSortedMarkdownSpecsOnly(t *testing.T) {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
 
-	got, err := List(root)
+	got, err := List(context.Background(), root)
 	if err != nil {
 		t.Fatalf("List returned error: %v", err)
 	}
@@ -82,7 +83,7 @@ func TestShowReturnsSpecContent(t *testing.T) {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
-	got, err := Show(root, "demo")
+	got, err := Show(context.Background(), root, "demo")
 	if err != nil {
 		t.Fatalf("Show returned error: %v", err)
 	}
@@ -99,7 +100,7 @@ func TestCreateGeneratesSpecAndTasksFromTemplates(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	result, err := Create(root, "Partner Scheduling", CreateOptions{CreateBranch: false})
+	result, err := Create(context.Background(), root, "Partner Scheduling", CreateOptions{CreateBranch: false})
 	if err != nil {
 		t.Fatalf("Create returned error: %v", err)
 	}
@@ -135,7 +136,7 @@ func TestCreateFailsOnEmptySlug(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	_, err = Create(root, "---", CreateOptions{CreateBranch: false})
+	_, err = Create(context.Background(), root, "---", CreateOptions{CreateBranch: false})
 	if err == nil {
 		t.Fatal("expected error for empty slug, got nil")
 	}
@@ -228,7 +229,7 @@ func TestCreateCreatesAndSwitchesFeatureBranch(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	result, err := Create(root, "Partner Scheduling", CreateOptions{CreateBranch: true})
+	result, err := Create(context.Background(), root, "Partner Scheduling", CreateOptions{CreateBranch: true})
 	if err != nil {
 		t.Fatalf("Create returned error: %v", err)
 	}

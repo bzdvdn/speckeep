@@ -17,6 +17,7 @@ package workflow
 //  3. Calls the corresponding Check*Ready function and asserts it does not fail.
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -27,7 +28,7 @@ import (
 
 func integrationSpecsDir(t *testing.T, root string) string {
 	t.Helper()
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -79,7 +80,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 
 	assertState(t, root, slug, "plan", "spec")
 	assertCheckPasses(t, "CheckInspectReady", func() (CheckResult, error) {
-		return CheckInspectReady(root, slug)
+		return CheckInspectReady(context.Background(), root, slug)
 	})
 
 	// ── inspect ───────────────────────────────────────────────────────────
@@ -87,7 +88,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 
 	assertState(t, root, slug, "plan", "inspect")
 	assertCheckPasses(t, "CheckPlanReady", func() (CheckResult, error) {
-		return CheckPlanReady(root, slug)
+		return CheckPlanReady(context.Background(), root, slug)
 	})
 
 	// ── plan ──────────────────────────────────────────────────────────────
@@ -96,7 +97,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 
 	assertState(t, root, slug, "tasks", "plan")
 	assertCheckPasses(t, "CheckTasksReady", func() (CheckResult, error) {
-		return CheckTasksReady(root, slug)
+		return CheckTasksReady(context.Background(), root, slug)
 	})
 
 	// ── tasks (one open — implement phase) ────────────────────────────────
@@ -104,7 +105,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 
 	assertState(t, root, slug, "implement", "implement")
 	assertCheckPasses(t, "CheckImplementReady", func() (CheckResult, error) {
-		return CheckImplementReady(root, slug)
+		return CheckImplementReady(context.Background(), root, slug)
 	})
 
 	// ── tasks (all done — verify phase) ───────────────────────────────────
@@ -112,14 +113,14 @@ func TestFullWorkflowCycle(t *testing.T) {
 
 	assertState(t, root, slug, "verify", "verify")
 	assertCheckPasses(t, "CheckVerifyReady", func() (CheckResult, error) {
-		return CheckVerifyReady(root, slug)
+		return CheckVerifyReady(context.Background(), root, slug)
 	})
 
 	// ── verify ────────────────────────────────────────────────────────────
 	writeFile(t, filepath.Join(planDir, "verify.md"), verifyMD)
 
 	assertState(t, root, slug, "archive", "verify")
-	archiveCheck, err := CheckArchiveReady(root, slug, "completed", "")
+	archiveCheck, err := CheckArchiveReady(context.Background(), root, slug, "completed", "")
 	if err != nil {
 		t.Fatalf("CheckArchiveReady: %v", err)
 	}
@@ -140,7 +141,7 @@ func writeFile(t *testing.T, path, content string) {
 // assertState verifies that State returns the expected ReadyFor and Phase values.
 func assertState(t *testing.T, root, slug, wantReadyFor, wantPhase string) {
 	t.Helper()
-	state, err := State(root, slug)
+	state, err := State(context.Background(), root, slug)
 	if err != nil {
 		t.Fatalf("State(%s): %v", slug, err)
 	}

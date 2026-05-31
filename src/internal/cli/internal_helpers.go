@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -20,7 +21,7 @@ func newInternalListOpenTasksCmd() *cobra.Command {
 		SilenceErrors: true,
 		Args:          cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(root)
+			cfg, err := config.Load(context.Background(), root)
 			if err != nil {
 				return err
 			}
@@ -62,7 +63,7 @@ func newInternalListSpecsCmd() *cobra.Command {
 		Args:          cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			specsDirDisplay := "specs"
-			if cfg, err := config.Load(root); err == nil {
+			if cfg, err := config.Load(context.Background(), root); err == nil {
 				if strings.TrimSpace(cfg.Paths.SpecsDir) != "" {
 					specsDirDisplay = strings.TrimSpace(cfg.Paths.SpecsDir)
 				}
@@ -105,7 +106,7 @@ func newInternalShowSpecCmd() *cobra.Command {
 		Args:          cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			specsDirDisplay := "specs"
-			if cfg, err := config.Load(root); err == nil {
+			if cfg, err := config.Load(context.Background(), root); err == nil {
 				if strings.TrimSpace(cfg.Paths.SpecsDir) != "" {
 					specsDirDisplay = strings.TrimSpace(cfg.Paths.SpecsDir)
 				}

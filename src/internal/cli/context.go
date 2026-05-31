@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -31,12 +32,12 @@ Examples:
 			}
 			slug := args[0]
 
-			cfg, err := config.Load(root)
+			cfg, err := config.Load(context.Background(), root)
 			if err != nil {
 				return fmt.Errorf("load config: %w", err)
 			}
 
-			state, err := workflow.State(root, slug)
+			state, err := workflow.State(context.Background(), root, slug)
 			if err != nil {
 				return fmt.Errorf("get feature state: %w", err)
 			}

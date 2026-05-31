@@ -1,6 +1,7 @@
 package project
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -63,7 +64,7 @@ func AddSkill(root string, options AddSkillOptions) (AddSkillResult, error) {
 		return AddSkillResult{}, err
 	}
 
-	result, err := skills.Add(root, skills.AddOptions{
+	result, err := skills.Add(context.Background(), root, skills.AddOptions{
 		ID:        options.ID,
 		FromLocal: options.FromLocal,
 		FromGit:   options.FromGit,
@@ -130,7 +131,7 @@ func RemoveSkill(root string, options RemoveSkillOptions) (RemoveSkillResult, er
 		return RemoveSkillResult{}, err
 	}
 
-	removed, err := skills.Remove(root, options.ID)
+	removed, err := skills.Remove(context.Background(), root, options.ID)
 	if err != nil {
 		return RemoveSkillResult{}, err
 	}
@@ -175,7 +176,7 @@ func ListSkills(root string) (ListSkillsResult, error) {
 		return ListSkillsResult{}, err
 	}
 
-	manifest, err := skills.Load(root)
+	manifest, err := skills.Load(context.Background(), root)
 	if err != nil {
 		return ListSkillsResult{}, err
 	}
@@ -218,12 +219,12 @@ func RestoreSkillCheckouts(root string) (RestoreSkillCheckoutsResult, error) {
 		return RestoreSkillCheckoutsResult{}, err
 	}
 
-	manifest, err := skills.Load(root)
+	manifest, err := skills.Load(context.Background(), root)
 	if err != nil {
 		return RestoreSkillCheckoutsResult{}, err
 	}
 
-	_, restored, err := skills.RehydrateGitCheckouts(root, manifest)
+	_, restored, err := skills.RehydrateGitCheckouts(context.Background(), root, manifest)
 	if err != nil {
 		return RestoreSkillCheckoutsResult{}, err
 	}

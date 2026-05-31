@@ -1,6 +1,7 @@
 package status
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -11,7 +12,7 @@ import (
 
 func statusSpecsDir(t *testing.T, root string) string {
 	t.Helper()
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -24,7 +25,7 @@ func statusSpecsDir(t *testing.T, root string) string {
 
 func statusArchiveDir(t *testing.T, root string) string {
 	t.Helper()
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -49,7 +50,7 @@ func TestCheckInfersPhaseAcrossFeatureLifecycle(t *testing.T) {
 
 	check := func(wantPhase, wantReadyFor string, wantBlocked bool) {
 		t.Helper()
-		result, err := Check(root, "demo")
+		result, err := Check(context.Background(), root, "demo")
 		if err != nil {
 			t.Fatalf("Check returned error: %v", err)
 		}
@@ -97,7 +98,7 @@ func TestCheckInfersPhaseAcrossFeatureLifecycle(t *testing.T) {
 		t.Fatalf("WriteFile(tasks) returned error: %v", err)
 	}
 
-	result, err := Check(root, "demo")
+	result, err := Check(context.Background(), root, "demo")
 	if err != nil {
 		t.Fatalf("Check returned error: %v", err)
 	}

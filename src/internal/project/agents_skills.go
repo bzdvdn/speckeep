@@ -1,6 +1,7 @@
 package project
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -16,7 +17,7 @@ func renderManagedAgentsBlockForRoot(root, snippet string) (string, error) {
 }
 
 func appendSkillsSection(root, snippet string) (string, error) {
-	manifest, err := skills.Load(root)
+	manifest, err := skills.Load(context.Background(), root)
 	if err != nil {
 		return "", err
 	}

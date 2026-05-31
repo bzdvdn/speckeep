@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -18,7 +19,7 @@ func newShowSpecCmd() *cobra.Command {
 				root = args[1]
 			}
 
-			content, err := specs.Show(root, args[0])
+			content, err := specs.Show(context.Background(), root, args[0])
 			if err != nil {
 				return err
 			}

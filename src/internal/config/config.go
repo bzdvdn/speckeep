@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,6 +9,25 @@ import (
 
 	"gopkg.in/yaml.v3"
 )
+
+type Service interface {
+	Load(ctx context.Context, root string) (Config, error)
+	Save(ctx context.Context, root string, cfg Config) error
+}
+
+type service struct{}
+
+func NewService() Service {
+	return &service{}
+}
+
+func (s *service) Load(ctx context.Context, root string) (Config, error) {
+	return Load(ctx, root)
+}
+
+func (s *service) Save(ctx context.Context, root string, cfg Config) error {
+	return Save(ctx, root, cfg)
+}
 
 const speckeepDirName = ".speckeep"
 
@@ -193,7 +213,11 @@ func Default() Config {
 	return cfg
 }
 
-func Load(root string) (Config, error) {
+func Load(ctx context.Context, root string) (Config, error) {
+	return load(ctx, root)
+}
+
+func load(_ context.Context, root string) (Config, error) {
 	root, err := filepath.Abs(root)
 	if err != nil {
 		return Config{}, err
@@ -205,7 +229,7 @@ func Load(root string) (Config, error) {
 	if err != nil {
 		if os.IsNotExist(err) {
 			legacyPaths := []string{
-				filepath.Join(root, ".speckeep", "specgate.yaml"), // legacy config filename (pre-rename)
+				filepath.Join(root, ".speckeep", "specgate.yaml"),
 			}
 			for _, legacyPath := range legacyPaths {
 				legacyContent, legacyErr := os.ReadFile(legacyPath)
@@ -231,7 +255,11 @@ func Load(root string) (Config, error) {
 	return cfg, nil
 }
 
-func Save(root string, cfg Config) error {
+func Save(ctx context.Context, root string, cfg Config) error {
+	return save(ctx, root, cfg)
+}
+
+func save(_ context.Context, root string, cfg Config) error {
 	root, err := filepath.Abs(root)
 	if err != nil {
 		return err

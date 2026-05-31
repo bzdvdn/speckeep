@@ -1,6 +1,7 @@
 package gitutil
 
 import (
+	"context"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -57,7 +58,7 @@ func TestEnsureRepositoryCreatesGitDir(t *testing.T) {
 	skipIfNoGit(t)
 	dir := t.TempDir()
 
-	created, err := EnsureRepository(dir)
+	created, err := EnsureRepository(context.Background(), dir)
 	if err != nil {
 		t.Fatalf("EnsureRepository: %v", err)
 	}
@@ -74,7 +75,7 @@ func TestEnsureRepositoryNoOpsWhenAlreadyExists(t *testing.T) {
 	dir := t.TempDir()
 	initRepo(t, dir)
 
-	created, err := EnsureRepository(dir)
+	created, err := EnsureRepository(context.Background(), dir)
 	if err != nil {
 		t.Fatalf("EnsureRepository: %v", err)
 	}
@@ -89,7 +90,7 @@ func TestCurrentBranchReturnsName(t *testing.T) {
 	initRepo(t, dir)
 	seedCommit(t, dir)
 
-	branch, err := CurrentBranch(dir)
+	branch, err := CurrentBranch(context.Background(), dir)
 	if err != nil {
 		t.Fatalf("CurrentBranch: %v", err)
 	}
@@ -111,7 +112,7 @@ func TestCurrentBranchReturnsCorrectNameAfterCheckout(t *testing.T) {
 		t.Fatalf("git checkout -b: %v\n%s", err, out)
 	}
 
-	branch, err := CurrentBranch(dir)
+	branch, err := CurrentBranch(context.Background(), dir)
 	if err != nil {
 		t.Fatalf("CurrentBranch: %v", err)
 	}
@@ -139,7 +140,7 @@ func TestCurrentBranchReturnsHEADWhenDetached(t *testing.T) {
 		t.Fatalf("git checkout (detach): %v\n%s", err, out)
 	}
 
-	branch, err := CurrentBranch(dir)
+	branch, err := CurrentBranch(context.Background(), dir)
 	if err != nil {
 		t.Fatalf("CurrentBranch: %v", err)
 	}
@@ -154,7 +155,7 @@ func TestEnsureBranchCreatesNewBranch(t *testing.T) {
 	initRepo(t, dir)
 	seedCommit(t, dir)
 
-	msg, err := EnsureBranch(dir, "feature/new-feature")
+	msg, err := EnsureBranch(context.Background(), dir, "feature/new-feature")
 	if err != nil {
 		t.Fatalf("EnsureBranch: %v", err)
 	}
@@ -162,7 +163,7 @@ func TestEnsureBranchCreatesNewBranch(t *testing.T) {
 		t.Errorf("expected message to mention 'created', got %q", msg)
 	}
 
-	branch, err := CurrentBranch(dir)
+	branch, err := CurrentBranch(context.Background(), dir)
 	if err != nil {
 		t.Fatalf("CurrentBranch: %v", err)
 	}
@@ -178,7 +179,7 @@ func TestEnsureBranchSwitchesToExistingBranch(t *testing.T) {
 	seedCommit(t, dir)
 
 	// Create branch first
-	if _, err := EnsureBranch(dir, "feature/existing"); err != nil {
+	if _, err := EnsureBranch(context.Background(), dir, "feature/existing"); err != nil {
 		t.Fatalf("EnsureBranch (create): %v", err)
 	}
 	// Switch back to main
@@ -188,14 +189,14 @@ func TestEnsureBranchSwitchesToExistingBranch(t *testing.T) {
 		t.Fatalf("git checkout main: %v\n%s", err, out)
 	}
 	// Now EnsureBranch should switch to existing
-	msg, err := EnsureBranch(dir, "feature/existing")
+	msg, err := EnsureBranch(context.Background(), dir, "feature/existing")
 	if err != nil {
 		t.Fatalf("EnsureBranch (switch): %v", err)
 	}
 	if !strings.Contains(msg, "switched") {
 		t.Errorf("expected message to mention 'switched', got %q", msg)
 	}
-	branch, err := CurrentBranch(dir)
+	branch, err := CurrentBranch(context.Background(), dir)
 	if err != nil {
 		t.Fatalf("CurrentBranch: %v", err)
 	}

@@ -1,6 +1,7 @@
 package project
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
@@ -22,7 +23,7 @@ func TestInitializeCreatesWorkspaceAndAgentTargets(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -282,7 +283,7 @@ func TestRefreshUpdatesManagedFilesWithoutTouchingAuthoredArtifacts(t *testing.T
 		t.Fatal("expected refresh to update managed files")
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -363,7 +364,7 @@ func TestRefreshDryRunDoesNotWriteChanges(t *testing.T) {
 		t.Fatalf("expected dry-run not to change managed file, got %q", string(content))
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -535,7 +536,7 @@ func TestRefreshAutoMigratesLegacyDefaultLayout(t *testing.T) {
 		t.Fatalf("Refresh returned error: %v", err)
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -587,7 +588,7 @@ func TestRefreshDryRunDoesNotAutoMigrateLegacyDefaultLayout(t *testing.T) {
 		t.Fatalf("Refresh returned error: %v", err)
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -675,7 +676,7 @@ func TestRefreshCanMoveSpecsAndArchiveDirsAndUpdateConfig(t *testing.T) {
 		t.Fatalf("Refresh returned error: %v", err)
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}
@@ -735,7 +736,7 @@ func TestRefreshDryRunDoesNotMoveSpecsOrArchiveDirsOrUpdateConfig(t *testing.T) 
 		t.Fatalf("Refresh returned error: %v", err)
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		t.Fatalf("config.Load returned error: %v", err)
 	}

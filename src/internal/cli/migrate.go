@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -23,7 +24,7 @@ func newMigrateCmd() *cobra.Command {
 				root = args[0]
 			}
 
-			result, err := workflow.MigrateProject(root, dryRun, copyWorkspace)
+			result, err := workflow.MigrateProject(context.Background(), root, dryRun, copyWorkspace)
 			if err != nil {
 				return err
 			}

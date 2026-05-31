@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -23,7 +24,7 @@ func newDoctorCmd() *cobra.Command {
 			if len(args) == 1 {
 				root = args[0]
 			}
-			result, err := doctor.Check(root)
+			result, err := doctor.Check(context.Background(), root)
 			if err != nil {
 				return err
 			}

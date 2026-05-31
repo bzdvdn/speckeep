@@ -2,6 +2,7 @@ package project
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"fmt"
 	"io"
@@ -44,12 +45,12 @@ func InstallSkills(root string, options InstallSkillsOptions) (InstallSkillsResu
 		}
 	}
 
-	manifest, err := skills.Load(root)
+	manifest, err := skills.Load(context.Background(), root)
 	if err != nil {
 		return InstallSkillsResult{}, err
 	}
 	refresh := RefreshResult{DryRun: options.DryRun}
-	manifest, restored, err := skills.RehydrateGitCheckouts(root, manifest)
+	manifest, restored, err := skills.RehydrateGitCheckouts(context.Background(), root, manifest)
 	if err != nil {
 		return InstallSkillsResult{}, err
 	}

@@ -1,6 +1,7 @@
 package trace
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -132,7 +133,7 @@ func TestDo() {}
 		t.Fatal(err)
 	}
 
-	result, err := Scan(tmpDir)
+	result, err := Scan(context.Background(), tmpDir)
 	if err != nil {
 		t.Errorf("Scan() error = %v", err)
 		return

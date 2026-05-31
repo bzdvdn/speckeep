@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -92,7 +93,7 @@ by archive status, and --since to filter by date.`,
 }
 
 func loadArchiveEntries(root, filterStatus string, since time.Time) ([]archiveEntry, error) {
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		return nil, fmt.Errorf("load config: %w", err)
 	}

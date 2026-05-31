@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -108,7 +109,7 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 		return result, fmt.Errorf("archive reason is required for non-completed statuses")
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		return result, fmt.Errorf("load config: %w", err)
 	}
@@ -123,7 +124,7 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 	}
 
 	// Check preconditions
-	state, err := workflow.State(root, slug)
+	state, err := workflow.State(context.Background(), root, slug)
 	if err != nil {
 		return result, fmt.Errorf("get feature state: %w", err)
 	}
@@ -254,7 +255,7 @@ func restoreFeature(root, slug string) (ArchiveResult, error) {
 		Mode: "restore",
 	}
 
-	cfg, err := config.Load(root)
+	cfg, err := config.Load(context.Background(), root)
 	if err != nil {
 		return result, fmt.Errorf("load config: %w", err)
 	}

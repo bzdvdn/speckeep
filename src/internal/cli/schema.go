@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -29,7 +30,7 @@ Examples:
 				root = args[0]
 			}
 
-			cfg, err := config.Load(root)
+			cfg, err := config.Load(context.Background(), root)
 			if err != nil {
 				return fmt.Errorf("load config: %w", err)
 			}
@@ -67,7 +68,7 @@ Examples:
 				root = args[0]
 			}
 
-			cfg, err := config.Load(root)
+			cfg, err := config.Load(context.Background(), root)
 			if err != nil {
 				return fmt.Errorf("load config: %w", err)
 			}
@@ -90,7 +91,7 @@ Examples:
 			}
 
 			cfg.Workflow.Schema = setSchema
-			if err := config.Save(root, cfg); err != nil {
+			if err := config.Save(context.Background(), root, cfg); err != nil {
 				return fmt.Errorf("save config: %w", err)
 			}
 

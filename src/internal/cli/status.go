@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -24,7 +25,7 @@ func newStatusCmd() *cobra.Command {
 				root = args[1]
 			}
 
-			result, err := status.Check(root, args[0])
+			result, err := status.Check(context.Background(), root, args[0])
 			if err != nil {
 				return err
 			}

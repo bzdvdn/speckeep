@@ -1,6 +1,7 @@
 package project
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -96,7 +97,7 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 
 	cfg := config.Default()
 	if configExists {
-		loaded, err := config.Load(root)
+		loaded, err := config.Load(context.Background(), root)
 		if err != nil {
 			return InitResult{}, err
 		}
@@ -141,7 +142,7 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 
 	var messages []string
 	if options.InitGit {
-		created, err := gitutil.EnsureRepository(root)
+		created, err := gitutil.EnsureRepository(context.Background(), root)
 		if err != nil {
 			return InitResult{}, err
 		}
@@ -222,7 +223,7 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 		}
 
 		if file.TargetPath == "speckeep.yaml" && written && !configExists {
-			if err := config.Save(root, cfg); err != nil {
+			if err := config.Save(context.Background(), root, cfg); err != nil {
 				return InitResult{}, err
 			}
 		}
@@ -279,7 +280,7 @@ func AddAgents(root string, options AddAgentsOptions) (AddAgentsResult, error) {
 	}
 
 	cfg.Agents.Targets = combined
-	if err := config.Save(root, cfg); err != nil {
+	if err := config.Save(context.Background(), root, cfg); err != nil {
 		return AddAgentsResult{}, err
 	}
 
@@ -313,7 +314,7 @@ func RemoveAgents(root string, options RemoveAgentsOptions) (RemoveAgentsResult,
 	}
 	sort.Strings(remaining)
 	cfg.Agents.Targets = remaining
-	if err := config.Save(root, cfg); err != nil {
+	if err := config.Save(context.Background(), root, cfg); err != nil {
 		return RemoveAgentsResult{}, err
 	}
 
@@ -473,7 +474,7 @@ func loadInitializedProject(root string) (string, config.Config, error) {
 		}
 		return "", config.Config{}, err
 	}
-	cfg, err := config.Load(absRoot)
+	cfg, err := config.Load(context.Background(), absRoot)
 	if err != nil {
 		return "", config.Config{}, err
 	}
