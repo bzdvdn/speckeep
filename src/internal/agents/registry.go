@@ -1,6 +1,11 @@
 package agents
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
+
+var ErrUnsupportedTarget = errors.New("unsupported agent target")
 
 type Adapter interface {
 	Target() string
@@ -30,7 +35,7 @@ func SupportedTargets() []string {
 func adapterForTarget(target string) (Adapter, error) {
 	adapter, ok := adapterRegistry[target]
 	if !ok {
-		return nil, fmt.Errorf("unsupported agent target %q", target)
+		return nil, fmt.Errorf("unsupported agent target %q: %w", target, ErrUnsupportedTarget)
 	}
 	return adapter, nil
 }

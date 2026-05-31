@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -28,6 +29,10 @@ func (s *service) Load(ctx context.Context, root string) (Config, error) {
 func (s *service) Save(ctx context.Context, root string, cfg Config) error {
 	return Save(ctx, root, cfg)
 }
+
+var (
+	ErrUnsupportedShell = errors.New("unsupported shell, expected sh or powershell")
+)
 
 const speckeepDirName = ".speckeep"
 
@@ -173,7 +178,7 @@ func NormalizeShell(shell string) (string, error) {
 	case "sh", "powershell":
 		return value, nil
 	default:
-		return "", fmt.Errorf("unsupported shell %q, expected sh or powershell", shell)
+		return "", fmt.Errorf("unsupported shell %q: %w", shell, ErrUnsupportedShell)
 	}
 }
 

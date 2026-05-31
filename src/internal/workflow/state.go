@@ -42,7 +42,7 @@ var checkboxPattern = regexp.MustCompile(`^\s*- \[([ x])\]`)
 
 func State(ctx context.Context, root, slug string) (FeatureState, error) {
 	if slug == "" {
-		return FeatureState{}, fmt.Errorf("slug cannot be empty")
+		return FeatureState{}, ErrSlugEmpty
 	}
 
 	cfg, err := config.Load(context.Background(), root)

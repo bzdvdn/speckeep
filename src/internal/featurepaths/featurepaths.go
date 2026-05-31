@@ -1,12 +1,15 @@
 package featurepaths
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 )
+
+var ErrSpecNotFound = errors.New("spec not found")
 
 type Artifact struct {
 	Name          string

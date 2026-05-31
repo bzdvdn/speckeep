@@ -579,7 +579,7 @@ func CheckArchiveReady(ctx context.Context, root, slug, status, reason string) (
 		return CheckResult{}, err
 	}
 	if !state.VerifyExists {
-		result.AddError("verify.md not found - run verify before archiving")
+		result.AddError(ErrVerifyMissing.Error())
 	}
 	if state.VerifyStatus != StatusPass && state.VerifyStatus != StatusConcerns {
 		result.AddError(fmt.Sprintf("verify status is %s - fix before archiving", state.VerifyStatus))

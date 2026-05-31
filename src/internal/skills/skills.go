@@ -3,6 +3,7 @@ package skills
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -12,6 +13,14 @@ import (
 	"strings"
 
 	"gopkg.in/yaml.v3"
+)
+
+var (
+	ErrGitRefRequired   = errors.New("git source requires a pinned ref (tag or commit)")
+	ErrSkillExists      = errors.New("skill already exists")
+	ErrUnsupportedSrc   = errors.New("unsupported skill source")
+	ErrManifestVersion  = errors.New("unsupported manifest version")
+	ErrCheckoutNotFound = errors.New("skill checkout not found")
 )
 
 const (
@@ -109,7 +118,7 @@ func Load(ctx context.Context, root string) (Manifest, error) {
 		manifest.Version = manifestVersion
 	}
 	if manifest.Version != manifestVersion {
-		return Manifest{}, fmt.Errorf("unsupported skills manifest version %d, expected %d", manifest.Version, manifestVersion)
+		return Manifest{}, fmt.Errorf("unsupported skills manifest version %d, expected %d: %w", manifest.Version, manifestVersion, ErrManifestVersion)
 	}
 	if manifest.Skills == nil {
 		manifest.Skills = []Entry{}
@@ -247,7 +256,7 @@ func buildEntry(root string, options AddOptions) (Entry, error) {
 	}
 	ref := strings.TrimSpace(options.Ref)
 	if ref == "" {
-		return Entry{}, fmt.Errorf("git source requires --ref (pin to tag or commit)")
+		return Entry{}, ErrGitRefRequired
 	}
 	if isFloatingGitRef(ref) {
 		return Entry{}, fmt.Errorf("git ref %q looks floating; use a pinned tag or commit", ref)

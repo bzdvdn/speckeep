@@ -3,6 +3,7 @@ package specs
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,6 +13,12 @@ import (
 	"speckeep/src/internal/config"
 	"speckeep/src/internal/featurepaths"
 	"speckeep/src/internal/gitutil"
+)
+
+var (
+	ErrInputEmpty  = errors.New("spec input cannot be empty")
+	ErrSlugInvalid = errors.New("spec slug is invalid")
+	ErrSpecExists  = errors.New("spec already exists")
 )
 
 type CreateOptions struct {
@@ -151,7 +158,7 @@ func Create(ctx context.Context, root, name string, options CreateOptions) (Crea
 func ResolveInput(input string) (ResolvedInput, error) {
 	input = strings.TrimSpace(input)
 	if input == "" {
-		return ResolvedInput{}, fmt.Errorf("spec input cannot be empty")
+		return ResolvedInput{}, ErrInputEmpty
 	}
 
 	if looksLikeURL(input) {
