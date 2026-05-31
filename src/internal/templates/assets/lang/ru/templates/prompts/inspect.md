@@ -16,7 +16,7 @@ Stop if: spec отсутствует, slug неоднозначен, или verd
 - Не делайте повторных full-file чтений «для спокойствия»: держите краткие заметки и переоткрывайте только нужные секции.
 - Формат отчёта берите из `.speckeep/templates/inspect.md`. Не ищите «примеры» inspect-отчётов в других slug ради формы: это лишний токен‑расход и scope drift.
 - Constitution ↔ spec: нет конфликтов с конституцией, workflow-правилами и language policy.
-- Если нужен контекст конституции, сначала загрузите `.speckeep/constitution.summary.md`, если файл существует; только при его отсутствии переходите к `project.constitution_file`.
+- Конституция: см. AGENTS.md (`.speckeep/constitution.summary.md` предпочтительнее полной конституции).
 - `AC-*`: каждый AC в Given/When/Then; нет placeholder; нет незакрытых `[NEEDS CLARIFICATION: ...]`.
 - Scope: строго одна фича; явные `Вне scope`, `Допущения`, `Открытые вопросы` (или `none`).
 - Упоминания технологий: technology names/frameworks/library lists/version pins в spec — это Warning, если это не требование пользователя, не repo-constraint и не внешний contract.

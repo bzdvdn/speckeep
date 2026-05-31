@@ -8,7 +8,7 @@ Adversarial review of a spec/plan: find gaps, contradictions, hidden scope, and 
 
 ## Phase Contract
 
-Inputs: `project.constitution_file` (default: `CONSTITUTION.md`) + `<specs_dir>/<slug>/spec.md` or `<specs_dir>/<slug>/plan.md` (as requested).
+Inputs: constitution (see AGENTS.md: `.speckeep/constitution.summary.md` preferred over full constitution) + `<specs_dir>/<slug>/spec.md` or `<specs_dir>/<slug>/plan.md` (as requested).
 Outputs: concrete findings + minimal fixes (where/why).
 Stop if: the artifact is missing.
 

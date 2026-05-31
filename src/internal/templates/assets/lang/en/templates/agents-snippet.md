@@ -6,7 +6,7 @@ Workflow chain: `constitution → spec → [inspect, optional] → plan → task
 
 Core rules:
 - Paths/config: read `.speckeep/speckeep.yaml` ≤ 1 time per session; if missing, defaults: `<specs_dir>=specs/active`, `<archive_dir>=specs/archived`, constitution=`CONSTITUTION.md`.
-- Constitution: prefer `.speckeep/constitution.summary.md` over `CONSTITUTION.md` when loading constitution in any phase.
+- Constitution: load `.speckeep/constitution.summary.md` first if it exists; fall back to `project.constitution_file` (default: `CONSTITUTION.md`) only when the summary is absent.
 - Branching: only `/speckeep.spec` may switch/create `feature/<slug>` (or `--branch`). Other phases must already be on the correct branch.
 - Scripts: run readiness scripts; trust stdout/exit code; never read `.speckeep/scripts/*` source.
 - Scope/load: default to the current slug only; avoid broad repo scans; prefer `Touches:` surfaces.

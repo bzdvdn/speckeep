@@ -17,7 +17,7 @@ Stop if: inspect.md is present and not `pass`, the goal is ambiguous, or plannin
 - Always use `.speckeep/templates/plan.md` as the skeleton and output format (and `.speckeep/templates/data-model.md` when needed). Do not look for “examples” in neighboring feature artifacts from other slugs: reading other plans for shape is wasted tokens and scope drift.
 - If the data model does not change, still create `data-model.md` with an explicit `status: no-change` + rationale.
 - Create `research.md` only when needed (e.g., external dependency/integration boundary, multiple realistic implementation options, or a high-risk unknown). Do not create `research.md` for generic brainstorming.
-- When constitution context is needed, load `.speckeep/constitution.summary.md` first if it exists; only fall back to `project.constitution_file` when the summary is absent.
+- Constitution: see AGENTS.md (`.speckeep/constitution.summary.md` preferred over full constitution).
 - Minimum context: current slug only; narrow repo reads (no full-repo scans).
 - If `./.speckeep/scripts/check-plan-ready.*` exists, run it (slug first) before writing.
 

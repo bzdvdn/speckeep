@@ -6,16 +6,17 @@
 
 ## Phase Contract
 
-Inputs: `<specs_dir>/<slug>/tasks.md` (entrypoint), опционально `.speckeep/constitution.summary.md` (предпочтительно, если нужен контекст конституции) или `project.constitution_file`, `spec.md` если нужен AC-контекст, `plan.md` если нужно подтвердить design surfaces.
+Inputs: `<specs_dir>/<slug>/tasks.md` (entrypoint), конституция — см. AGENTS.md (`.speckeep/constitution.summary.md` предпочтительнее), `spec.md` если нужен AC-контекст, `plan.md` если нужно подтвердить design surfaces.
 Outputs: `<specs_dir>/<slug>/verify.md` (или verify report в разговоре) + обновления в `tasks.md`, если выявлены ошибки статуса.
 Stop if: `tasks.md` отсутствует или slug неоднозначен.
 
 ## Правила
 
 - Treat verify как evidence log (task/AC → proof), не как «ритуал успокоения».
+- При записи `<specs_dir>/<slug>/verify.md` всегда включайте YAML frontmatter (используйте `.speckeep/templates/verify.md` как формат). Модели часто забывают блок `---`, а он обязателен для определения archive_readiness.
 - Начинайте с `tasks.md`: каждая `[x]` задача должна иметь observable proof в репо (файл/тест/выход команды).
 - Если доступен `./.speckeep/scripts/verify-task-state.*` — запустите (slug первым аргументом) как cheap first pass.
-- Если нужен контекст конституции, сначала загрузите `.speckeep/constitution.summary.md`, если файл существует; только при его отсутствии переходите к `project.constitution_file`.
+- Конституция: см. AGENTS.md (`.speckeep/constitution.summary.md` предпочтительнее полной конституции).
 - Если сохраняете отчёт в файл, используйте `.speckeep/templates/verify.md` как формат и пишите в `<specs_dir>/<slug>/verify.md`. Не ищите «примеры» verify-отчётов в других slug ради формы.
 - Соберите traceability как дешёвую проверку целостности: используйте `./.speckeep/scripts/trace.* <slug>` (и при необходимости `./.speckeep/scripts/trace.* <slug> --tests`). Это не заменяет proof, но помогает быстро найти пробелы/осиротевшие метки.
 - Отсутствующие или явно неполные trace-маркеры — это пробелы в evidence, а не косметика: если завершённая задача не имеет ожидаемых `@sk-task` / `@sk-test`, не игнорируйте это молча.

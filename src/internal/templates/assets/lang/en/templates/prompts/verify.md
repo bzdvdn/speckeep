@@ -6,16 +6,17 @@ Follow base rules in `AGENTS.md`.
 
 ## Phase Contract
 
-Inputs: `<specs_dir>/<slug>/tasks.md` (entrypoint), optionally `.speckeep/constitution.summary.md` (preferred when constitution context is needed) or `project.constitution_file`, `spec.md` when AC context is needed, `plan.md` when design surfaces must be confirmed.
+Inputs: `<specs_dir>/<slug>/tasks.md` (entrypoint), constitution per AGENTS.md (`.speckeep/constitution.summary.md` preferred), `spec.md` when AC context is needed, `plan.md` when design surfaces must be confirmed.
 Outputs: `<specs_dir>/<slug>/verify.md` (or a chat report) + `tasks.md` status fixes when a checkbox is wrong.
 Stop if: `tasks.md` missing or slug ambiguous.
 
 ## Rules
 
 - Treat verify as an evidence log (task/AC → proof), not a reassurance ritual.
+- When writing `<specs_dir>/<slug>/verify.md`, always include YAML frontmatter (use `.speckeep/templates/verify.md` as the format). Models commonly forget the `---` block — it is mandatory for archive readiness detection.
 - Start from `tasks.md`: every `[x]` task must have observable proof in the repo (file/test/command output).
 - If `./.speckeep/scripts/verify-task-state.*` exists, run it (slug first) as a cheap first pass.
-- When constitution context is needed, load `.speckeep/constitution.summary.md` first if it exists; only fall back to `project.constitution_file` when the summary is absent.
+- Constitution: see AGENTS.md (`.speckeep/constitution.summary.md` preferred over full constitution).
 - If you persist the report to a file, use `.speckeep/templates/verify.md` as the format and write to `<specs_dir>/<slug>/verify.md`. Do not look for “examples” in other slugs’ verify reports for shape.
 - Collect traceability as a cheap integrity check: use `./.speckeep/scripts/trace.* <slug>` (and `./.speckeep/scripts/trace.* <slug> --tests` when needed). This does not replace proof, but quickly highlights gaps/orphaned annotations.
 - Missing or clearly incomplete trace markers are evidence gaps, not cosmetic issues: if a completed task lacks expected `@sk-task` / `@sk-test` coverage, do not silently overlook it.

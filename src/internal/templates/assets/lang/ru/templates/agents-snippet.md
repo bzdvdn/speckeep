@@ -6,7 +6,7 @@
 
 Базовые правила:
 - Пути/конфиг: читайте `.speckeep/speckeep.yaml` ≤ 1 раза за сессию; если конфига нет, defaults: `<specs_dir>=specs/active`, `<archive_dir>=specs/archived`, constitution=`CONSTITUTION.md`.
-- Конституция: в любой фазе предпочитайте `.speckeep/constitution.summary.md` вместо `CONSTITUTION.md` если файл есть.
+- Конституция: загружайте `.speckeep/constitution.summary.md` сначала, если файл существует; только при его отсутствии переходите к `project.constitution_file` (по умолчанию `CONSTITUTION.md`).
 - Ветки: только `/speckeep.spec` может переключать/создавать `feature/<slug>` (или `--branch`). Остальные фазы должны уже быть на нужной ветке.
 - Скрипты: запускайте readiness scripts; доверяйте stdout/exit code; исходники `.speckeep/scripts/*` не читать.
 - Scope/load: по умолчанию только текущий slug; без широких репо-сканов; предпочитайте surfaces из `Touches:`.
