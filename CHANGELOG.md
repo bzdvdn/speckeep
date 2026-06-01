@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.5.0] - 2026-06-01
+
+### Added
+
+- **`context.Context` + Service interfaces across all internal packages**:
+  - all I/O-bound functions now accept `context.Context` as the first parameter
+  - `Service` interfaces introduced for `config`, `gitutil`, `trace`, `skills`, `specs`, `workflow`, `doctor`, `status` — enables clean test mocking
+  - `exec.Command` replaced with `exec.CommandContext` in `gitutil` for cancellation support
+  - all top-level Cobra handlers pass `context.Background()`
+- **Sentinel errors** across the entire internal package surface:
+  - defined `ErrUnsupportedTarget`, `ErrUnsupportedShell`, `ErrSpecNotFound`, `ErrNotInitialized`, `ErrSlugEmpty`, `ErrVerifyMissing`, `ErrInputEmpty`, `ErrSlugInvalid`, `ErrSpecExists`, `ErrGitRefRequired`, `ErrSkillExists`, `ErrUnsupportedSrc`, `ErrManifestVersion`, `ErrCheckoutNotFound`
+  - all support `errors.Is` / `errors.As` wrapping
+- **New `/speckeep.repo-map` command**:
+  - dedicated command definition and prompt template (en/ru)
+  - agents-snippet now references repo-map with its own trigger checklist
+
+### Changed
+
+- **Go 1.26 migration** (`go 1.23.5` → `go 1.26`):
+  - removed `GOROOT`-probe fallbacks used with older Go install layouts
+  - removed deprecated `sort` import aliases
+  - removed unused `service.go` shim (replaced by proper Service interfaces)
+  - cleaned up stale `go.sum` entries
+  - `go build`, `go vet`, `go test ./...` pass cleanly on Go 1.26
+  - CI uses `go-version-file: go.mod` — auto-picks Go 1.26
+- **Project package decomposed**: `AddAgents`, `RemoveAgents`, `ListAgents`, `CleanupAgents` extracted from `init.go` into `project/agents.go`
+- **Agent prompt templates refined** (all phases):
+  - handoff, hotfix, scope, inspect, and verify prompts tightened
+  - hotfix now requires a short summary block (`Slug`, `Status`, `Artifacts`, `Blockers`)
+  - implement prompt streamlined (removed redundant per-task bullet)
+  - agents-snippet end block clarified: `speckeep archive` only after `verify: pass` (was ambiguous "when done")
+
+### Fixed
+
+- Agents no longer suggest `speckeep archive` immediately after implement — the end block rule now explicitly says `only after verify: pass`
+
+### Documentation
+
+- README, README.ru: Go 1.26+ requirement noted in Development section
+- docs/en/index.md, docs/ru/index.md: Go 1.26+ noted
+
 ## [v0.4.0] - 2026-05-14
 
 ### Added
@@ -173,8 +214,10 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Package-level tests for `featurepaths` (17 tests) and `gitutil` (7 tests)
 - Full workflow integration test (`TestFullWorkflowCycle`) covering the complete lifecycle from `init` through archive-readiness in a temporary directory
 
-[0.2.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.2.0
 [0.1.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.1.0
-[0.3.1]: https://github.com/bzdvdn/speckeep/releases/tag/v0.3.1
+[0.2.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.2.0
 [0.3.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.3.0
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/bzdvdn/speckeep/releases/tag/v0.3.1
+[0.4.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.4.0
+[0.5.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.5.0
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.5.0...HEAD
