@@ -10,7 +10,7 @@ Core rules:
 - Branching: only `/speckeep.spec` may switch/create `feature/<slug>` (or `--branch`). Other phases must already be on the correct branch.
 - Scripts: before each phase, run `check-<phase>-ready.* <slug>` (and any extras from Commands); trust stdout/exit code; never read `.speckeep/scripts/*` source.
 - Scope/load: default to the current slug only; avoid broad repo scans; prefer `Touches:` surfaces.
-- Repository map first: if `REPOSITORY_MAP.md` exists, read it before any broad file discovery. Read it once per session and reuse notes; re-read only if you updated the map in the same session.
+- ⚠️ **CRITICAL — Repository map first**: **DO NOT** use `ls`, `find`, or glob for primary navigation. Read `REPOSITORY_MAP.md` first — it contains the complete repo map. This saves tokens and maintains workflow discipline. Read it once per session and reuse notes; re-read only if you updated the map in the same session.
 - Git safety: no `git commit/push/tag` and no PRs unless explicitly asked.
 - Done: never mark a task done without observable proof (file path, test output, or command result).
 - Traceability: for every non-trivial completed task, trace markers are mandatory. No `@sk-task` in changed code or no `@sk-test` in changed tests for that task means the task is not done yet.

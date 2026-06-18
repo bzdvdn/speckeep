@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.5.1] - 2026-06-19
+
+### Changed
+
+- **Agent templates (`agents-snippet.md`) — repository map rule strengthened**:
+  - added `⚠️ CRITICAL` prefix and explicit `DO NOT use ls/find/glob` prohibition
+  - rule is now an unconditional imperative (was conditional "if REPOSITORY_MAP.md exists")
+  - rationale included: saves tokens and maintains workflow discipline
+  - applied to both EN and RU templates
+
 ## [v0.5.0] - 2026-06-01
 
 ### Added
@@ -220,4 +230,5 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [0.3.1]: https://github.com/bzdvdn/speckeep/releases/tag/v0.3.1
 [0.4.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.4.0
 [0.5.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.5.0
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.5.0...HEAD
+[0.5.1]: https://github.com/bzdvdn/speckeep/releases/tag/v0.5.1
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.5.1...HEAD
