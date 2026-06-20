@@ -34,32 +34,25 @@ function Detect-Arch {
 if (-not $BinDir -or $BinDir.Trim().Length -eq 0) {
   if ($env:SPECKEEP_INSTALL_DIR) {
     $BinDir = $env:SPECKEEP_INSTALL_DIR
-  } elseif ($env:DRAFTSPEC_INSTALL_DIR) {
-    $BinDir = $env:DRAFTSPEC_INSTALL_DIR
   } else {
-    $BinDir = Join-Path $env:LOCALAPPDATA "Programs\\speckeep\\bin"
+    $BinDir = Join-Path $env:LOCALAPPDATA "Programs\speckeep\bin"
   }
 }
 
 if (-not $AddToPath -and $env:SPECKEEP_ADD_TO_PATH) {
   $v = [string]$env:SPECKEEP_ADD_TO_PATH
   if ($v -match "^(1|true|yes|y|on)$") { $AddToPath = $true }
-} elseif (-not $AddToPath -and $env:DRAFTSPEC_ADD_TO_PATH) {
-  $v = [string]$env:DRAFTSPEC_ADD_TO_PATH
-  if ($v -match "^(1|true|yes|y|on)$") { $AddToPath = $true }
 }
 
 if ($Version -eq "latest" -and $env:SPECKEEP_VERSION) {
   $Version = [string]$env:SPECKEEP_VERSION
-} elseif ($Version -eq "latest" -and $env:DRAFTSPEC_VERSION) {
-  $Version = [string]$env:DRAFTSPEC_VERSION
 }
 
 if ($Version -eq "latest") {
   $Version = Resolve-LatestTag
 }
 
-$arch = if ($env:SPECKEEP_ARCH) { $env:SPECKEEP_ARCH } elseif ($env:DRAFTSPEC_ARCH) { $env:DRAFTSPEC_ARCH } else { Detect-Arch }
+$arch = if ($env:SPECKEEP_ARCH) { $env:SPECKEEP_ARCH } else { Detect-Arch }
 $asset = "speckeep_{0}_windows_{1}.zip" -f $Version, $arch
 $url = "https://github.com/$RepoOwner/$RepoName/releases/download/$Version/$asset"
 

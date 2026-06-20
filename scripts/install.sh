@@ -19,9 +19,9 @@ Options:
 
 Examples:
   ./install.sh
-  ./install.sh --version v0.3.1 --bin-dir ~/.local/bin
-  ./install.sh --version v0.3.1 --add-to-path
-  sudo ./install.sh --version v0.3.1 --bin-dir /usr/local/bin
+  ./install.sh --version v0.5.1 --bin-dir ~/.local/bin
+  ./install.sh --version v0.5.1 --add-to-path
+  sudo ./install.sh --version v0.5.1 --bin-dir /usr/local/bin
 EOF
 }
 
@@ -53,19 +53,19 @@ resolve_latest_tag() {
   json="$(http_get "$api")"
 
   if command -v python3 >/dev/null 2>&1; then
-    python3 - <<'PY' <<<"$json"
+    python3 -c '
 import json, sys
 data = json.load(sys.stdin)
 print(data["tag_name"])
-PY
+' <<< "$json"
     return 0
   fi
   if command -v python >/dev/null 2>&1; then
-    python - <<'PY' <<<"$json"
+    python -c '
 import json, sys
 data = json.load(sys.stdin)
 print(data["tag_name"])
-PY
+' <<< "$json"
     return 0
   fi
 
@@ -119,7 +119,7 @@ add_to_path_if_needed() {
 
 main() {
   local version="latest"
-  local bin_dir="${SPECKEEP_INSTALL_DIR:-${DRAFTSPEC_INSTALL_DIR:-$HOME/.local/bin}}"
+  local bin_dir="${SPECKEEP_INSTALL_DIR:-$HOME/.local/bin}"
   local add_to_path="0"
 
   while [[ $# -gt 0 ]]; do
@@ -160,17 +160,13 @@ main() {
   need_cmd uname
 
   local arch
-  arch="${SPECKEEP_ARCH:-${DRAFTSPEC_ARCH:-$(detect_arch)}}"
+  arch="${SPECKEEP_ARCH:-$(detect_arch)}"
 
   if [[ "$version" == "latest" && -n "${SPECKEEP_VERSION:-}" ]]; then
     version="$SPECKEEP_VERSION"
-  elif [[ "$version" == "latest" && -n "${DRAFTSPEC_VERSION:-}" ]]; then
-    version="$DRAFTSPEC_VERSION"
   fi
 
   if [[ "$add_to_path" != "1" ]] && truthy "${SPECKEEP_ADD_TO_PATH:-}"; then
-    add_to_path="1"
-  elif [[ "$add_to_path" != "1" ]] && truthy "${DRAFTSPEC_ADD_TO_PATH:-}"; then
     add_to_path="1"
   fi
 
@@ -190,7 +186,7 @@ main() {
   if command -v curl >/dev/null 2>&1; then
     curl -fL --retry 3 --retry-delay 1 -o "$archive" "$url" || fail "download failed: $url"
   else
-    wget -qO "$archive" "$url" || fail "download failed: $url"
+    wget -qO "$archive" --retry-connrefused --tries=3 "$url" || fail "download failed: $url"
   fi
 
   tar -C "$tmpdir" -xzf "$archive" || fail "failed to extract archive"

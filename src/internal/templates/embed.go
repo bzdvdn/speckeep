@@ -262,7 +262,7 @@ func DemoFiles() ([]File, error) {
 		assetPath  string
 		targetPath string
 	}{
-		{"assets/demo/constitution.md", "constitution.md"},
+		{"assets/demo/constitution.md", "CONSTITUTION.md"},
 		{"assets/demo/specs/export-report.md", "specs/active/export-report/spec.md"},
 		{"assets/demo/specs/export-report.inspect.md", "specs/active/export-report/inspect.md"},
 		{"assets/demo/specs/export-report/plan.md", "specs/active/export-report/plan.md"},
