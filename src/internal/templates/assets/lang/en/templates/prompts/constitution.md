@@ -23,8 +23,8 @@ Stop if: rules remain `TBD`/placeholder or contradict repo reality without an ex
   - `Purpose:` one line
   - `Non-negotiables:` 3-6 bullets (`MUST` / `MUST NOT`)
   - `Stack/Architecture:` 2-5 bullets
-  - `Workflow/DoD:` 3-6 bullets (include traceability and proof requirements)
-  - `Repo Map Policy:` 2-4 bullets
+  - `Workflow/DoD:` 4-7 bullets (include traceability, proof requirements, scope discipline, and repo map policy)
+  - `Branching:` 1-2 bullets (branch naming convention, which phase creates branches)
   - `Languages:` one line (`docs=...`, `agent=...`, `comments=...`)
   - hard limit: ≤200 words total
 - Summarize the key rules and what changed.

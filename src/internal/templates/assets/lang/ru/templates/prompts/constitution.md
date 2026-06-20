@@ -23,8 +23,8 @@ Stop if: правила остаются `TBD`/placeholder или конфлик
   - `Purpose:` одна строка
   - `Non-negotiables:` 3-6 bullets (`MUST` / `MUST NOT`)
   - `Stack/Architecture:` 2-5 bullets
-  - `Workflow/DoD:` 3-6 bullets (обязательно traceability и proof-требования)
-  - `Repo Map Policy:` 2-4 bullets
+  - `Workflow/DoD:` 4-7 bullets (traceability, proof-требования, scope discipline и repo map policy)
+  - `Branching:` 1-2 bullets (соглашение о нейминге веток, какая фаза создаёт ветки)
   - `Languages:` одна строка (`docs=...`, `agent=...`, `comments=...`)
   - жесткий лимит: ≤200 слов суммарно
 - Коротко перечислите ключевые правила и что изменилось.

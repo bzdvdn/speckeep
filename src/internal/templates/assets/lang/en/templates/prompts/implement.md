@@ -15,7 +15,7 @@ Follow base rules in `AGENTS.md` (paths, git, load discipline, readiness scripts
 
 Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/tasks.md`.
 Outputs: repo changes limited to the active task `Touches:` + updated checkboxes in `tasks.md`.
-Stop if: `tasks.md` is missing, the next task is not concrete, or execution requires inventing new tasks/AC.
+Stop if: `tasks.md` is missing, the next task is not concrete, execution requires inventing new tasks/AC, or you cannot produce observable proof for the active task before closing.
 
 ## Execution Rules
 

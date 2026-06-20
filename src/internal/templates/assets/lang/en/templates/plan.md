@@ -26,6 +26,13 @@ Describe the implementation shape without restating the full spec. Make clear wh
 - In-scope implementation area 2
 - Call out the important boundary that remains untouched
 
+## Performance Budget
+
+- P99 / p95 latency target for critical paths (e.g., "query < 50ms p99", "index < 200ms p95")
+- Memory: peak RSS or per-operation allocation budget (e.g., "peak RSS < 64 MB", "no alloc > 1 KB per chunk")
+- Allocations: `alloc/op` ceiling for hot paths when relevant
+- State `none` when there are no meaningful performance constraints for this feature
+
 ## Implementation Surfaces
 
 - Package/module/file/boundary expected to change, plus why it is involved and whether new or existing

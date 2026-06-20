@@ -12,7 +12,7 @@ Core rules:
 - Scope/load: default to the current slug only; avoid broad repo scans; prefer `Touches:` surfaces.
 - ⚠️ **CRITICAL — Repository map first**: **DO NOT** use `ls`, `find`, or glob for primary navigation. Read `REPOSITORY_MAP.md` first — it contains the complete repo map. This saves tokens and maintains workflow discipline. Read it once per session and reuse notes; re-read only if you updated the map in the same session.
 - Git safety: no `git commit/push/tag` and no PRs unless explicitly asked.
-- Done: never mark a task done without observable proof (file path, test output, or command result).
+- Done: never mark a task done without observable proof (file path, test output, or command result). Every artifact must be reviewable by a peer without extra explanation.
 - Traceability: for every non-trivial completed task, trace markers are mandatory. No `@sk-task` in changed code or no `@sk-test` in changed tests for that task means the task is not done yet.
 - Placement: trace markers must not live at `package`, `import`, or file-header comment level; place them above the owning function/method/test/type declaration.
 - End block: every phase output ends with compact summary: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for` (or `Return to` when blocked / `speckeep archive` only after `verify: pass`).
@@ -20,6 +20,7 @@ Core rules:
 - CLI: use `./.speckeep/scripts/run-speckeep.sh` (PowerShell: `./.speckeep/scripts/run-speckeep.ps1`) only for actual CLI commands (e.g. `doctor`, `check`, `trace`, `export`, `refresh`). Do not run `run-speckeep.* <phase>` like `spec`/`plan`/`tasks` — phases are slash-commands that write artifacts directly.
 - Chat output: do not paste large `git diff`s/full files/long logs. Provide a concise change summary + the list of touched files; if details are needed, show only a small snippet around the edit.
 - Scope: do not read or modify artifacts from other slugs/specs unless the current task explicitly requires it (otherwise it’s a scope violation).
+- Don't invent: do not introduce requirements, dependencies, scope, or passing criteria absent from current phase inputs.
 
 Commands:
 - `/speckeep.constitution` → update constitution
@@ -29,6 +30,8 @@ Commands:
 - `/speckeep.tasks` → write tasks
 - `/speckeep.implement` → implement tasks
 - `/speckeep.verify` → verify tasks/AC
+- `/speckeep.challenge` → adversarial review of spec/plan (blind spots, untestable AC)
+- `/speckeep.recap` → project overview: active features, phase, next step
 - `speckeep archive <slug> .` → CLI-only archive after `verify: pass`
 - `/speckeep.repo-map` → update `REPOSITORY_MAP.md` (see dedicated prompt for policy + template)
 

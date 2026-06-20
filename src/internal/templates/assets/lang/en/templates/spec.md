@@ -45,6 +45,12 @@ One concise paragraph covering who benefits, what changes for them, and how succ
 - Existing user workflow or system behavior this feature must preserve or extend
 - Assumption that must remain true for the feature to be valid
 
+## Dependencies
+
+- Cross-spec dependencies this feature relies on (e.g., "depends on VectorStore interface from domain/retrieval")
+- External service, library, or platform dependency required by the feature
+- State `none` when the feature has no cross-spec or external dependencies
+
 ## Requirements
 
 - RQ-001 Clear, testable requirement written as expected behavior or capability
