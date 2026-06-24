@@ -22,7 +22,7 @@ Core rules:
 - Scope: do not read or modify artifacts from other slugs/specs unless the current task explicitly requires it (otherwise it’s a scope violation).
 - Don't invent: do not introduce requirements, dependencies, scope, or passing criteria absent from current phase inputs.
 
-Commands:
+Commands (⚠️ prefix is **speckeep** with a **p**, NOT speckeek with a k):
 - `/speckeep.constitution` → update constitution
 - `/speckeep.spec` → write spec (branch-first)
 - `/speckeep.inspect` → optional deep quality review
