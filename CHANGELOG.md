@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.6.0] - 2026-06-28
+
+### Added
+
+- **Templates: new spec/plan sections**:
+  - `spec.md` — `## Dependencies` section for cross-spec and external reference linking
+  - `plan.md` — `## Performance Budget` section for latency/memory/allocation limits
+  - `agents-snippet.md` — `recap` and `challenge` commands added to command list
+  - quality bar merged into `## Done` checklist
+  - prompts optimized: redundant "don't invent" removed from per-phase prompts (now lives in agents-snippet only)
+  - spec prompt requires explicit AC section before writing acceptance criteria
+- **Base roles**: added base role guidance to system prompt templates (en/ru)
+
+### Changed
+
+- **Checks package refactored**: `checks.go` (1375 lines) split into 8 focused files:
+  - `check_constitution.go`, `check_spec.go`, `check_inspect.go`, `check_plan.go`, `check_tasks.go`, `check_implement.go`, `check_verify.go`, `check_archive.go`
+  - `check_helpers.go` — common path resolution, heading checks, pattern matching
+  - `checks.go` — type definitions, constants, regex patterns, `CheckResult` methods, `checkConstitutionLanguagePolicy`
+  - all methods and types preserved; `go build`, `go test`, `go vet` clean
+- **Lifecycle: archive only after `StatusPass`**:
+  - `inferLifecycle` now separates `concerns` from `pass` — only `StatusPass` leads to `ReadyFor = "archive"`
+  - `CheckArchiveReady` only accepts `StatusPass` (was `StatusPass` or `StatusConcerns`)
+  - unused imports cleaned up across all check files
+
+### Fixed
+
+- **Agent command typo**: agents-snippet now spells `speckeep` (with **p**), not `speckeek` (with **k**)
+- **Install scripts**: PowerShell detection, bash compatibility, v0.5.1 download URLs
+
+### Documentation
+
+- README.md / README.ru.md: updated prompts, commands, and workflow guidance
+
 ## [v0.5.1] - 2026-06-19
 
 ### Changed
@@ -231,4 +265,5 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [0.4.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.4.0
 [0.5.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.5.0
 [0.5.1]: https://github.com/bzdvdn/speckeep/releases/tag/v0.5.1
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.5.1...HEAD
+[0.6.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.6.0
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.6.0...HEAD
