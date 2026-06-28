@@ -33,7 +33,7 @@ Stop if: spec отсутствует, slug неоднозначен, или verd
 - Если есть `<specs_dir>/<slug>/tasks.md`: проверьте `plan <-> tasks` и покрытие AC (каждый `AC-*` покрыт ≥ 1 задачей).
 - Если есть `<specs_dir>/<slug>/tasks.md`: отсутствие `Touches:` — Warning (дефект token-discipline, который провоцирует широкие чтения на implement).
 
-Если есть `./.speckeep/scripts/check-inspect-ready.*` — запустите (slug первым аргументом) и используйте вывод как baseline. Исходники `./.speckeep/scripts/*` не читать.
+Если есть `./.speckeep/scripts/check-ready.* inspect <slug>` — запустите и используйте вывод как baseline. Исходники `./.speckeep/scripts/*` не читать.
 
 ## Output expectations
 

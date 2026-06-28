@@ -115,13 +115,7 @@ func Check(ctx context.Context, root string) (Result, error) {
 		filepath.Join(templatesDir, cfg.Templates.VerifyPrompt),
 		filepath.Join(scriptsDir, cfg.Scripts.RunSpeckeep),
 		filepath.Join(scriptsDir, cfg.Scripts.CheckConstitution),
-		filepath.Join(scriptsDir, cfg.Scripts.CheckSpecReady),
-		filepath.Join(scriptsDir, cfg.Scripts.CheckInspectReady),
-		filepath.Join(scriptsDir, cfg.Scripts.CheckPlanReady),
-		filepath.Join(scriptsDir, cfg.Scripts.CheckTasksReady),
-		filepath.Join(scriptsDir, cfg.Scripts.CheckImplementReady),
-		filepath.Join(scriptsDir, cfg.Scripts.CheckArchiveReady),
-		filepath.Join(scriptsDir, cfg.Scripts.CheckVerifyReady),
+		filepath.Join(scriptsDir, cfg.Scripts.CheckReady),
 		filepath.Join(scriptsDir, cfg.Scripts.VerifyTaskState),
 	} {
 		checkPath(&findings, path, false)

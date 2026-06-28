@@ -151,7 +151,7 @@ func TestInitializeWithPowerShellGeneratesPS1Scripts(t *testing.T) {
 
 	required := []string{
 		filepath.Join(root, ".speckeep", "scripts", "run-speckeep.ps1"),
-		filepath.Join(root, ".speckeep", "scripts", "check-spec-ready.ps1"),
+		filepath.Join(root, ".speckeep", "scripts", "check-ready.ps1"),
 		filepath.Join(root, ".speckeep", "scripts", "verify-task-state.ps1"),
 	}
 	for _, path := range required {
@@ -178,24 +178,10 @@ func TestInitializeGeneratesReadinessScriptsWithTraceabilityChecks(t *testing.T)
 		want []string
 	}{
 		{
-			path: filepath.Join(root, ".speckeep", "scripts", "check-spec-ready.sh"),
+			path: filepath.Join(root, ".speckeep", "scripts", "check-ready.sh"),
 			want: []string{
 				"run-speckeep.sh",
-				"__internal check-spec-ready --root \"$ROOT_DIR\"",
-			},
-		},
-		{
-			path: filepath.Join(root, ".speckeep", "scripts", "check-implement-ready.sh"),
-			want: []string{
-				"run-speckeep.sh",
-				"__internal check-implement-ready --root \"$ROOT_DIR\"",
-			},
-		},
-		{
-			path: filepath.Join(root, ".speckeep", "scripts", "check-verify-ready.sh"),
-			want: []string{
-				"run-speckeep.sh",
-				"__internal check-verify-ready --root \"$ROOT_DIR\"",
+				"check-$PHASE-ready",
 			},
 		},
 	}
@@ -307,7 +293,7 @@ func TestRefreshUpdatesManagedFilesWithoutTouchingAuthoredArtifacts(t *testing.T
 		t.Fatal("expected refresh to overwrite managed prompt file")
 	}
 
-	if _, err := os.Stat(filepath.Join(root, ".speckeep", "scripts", "check-spec-ready.ps1")); err != nil {
+	if _, err := os.Stat(filepath.Join(root, ".speckeep", "scripts", "check-ready.ps1")); err != nil {
 		t.Fatalf("expected refreshed powershell script to exist: %v", err)
 	}
 

@@ -32,10 +32,23 @@ Stop if: запрос неоднозначен/мульти-фича или пр
 - Вместо догадок — refinement: если запрос подразумевает несколько feature slug или несколько независимых спецификаций, остановитесь и попросите выбрать одну фичу.
 - Запустите readiness script фазы (см. AGENTS.md: Скрипты).
 
+## Self-Check (обязательно перед завершением)
+
+Проверьте `spec.md` по чеклисту — не пропускайте:
+- [ ] Нет `TODO`, `???`, `<placeholder>`, `TKTK`, `[NEEDS CLARIFICATION]`
+- [ ] Каждый AC-* содержит `Given`, `When`, `Then` с observable proof в Then
+- [ ] Секции `Out of Scope`, `Допущения`, `Открытые вопросы` существуют (или `none`)
+- [ ] Нет implementation steps или декомпозиции — spec только про intent
+- [ ] Технологии/версии не зафиксированы, если это не жёсткий repo/contract constraint
+- [ ] Spec описывает ровно одну фичу — без multi-feature scope creep
+- [ ] Goal и RQ-* ID согласованы с AC-* критериями
+- [ ] Каждый AC-* ведёт к уникальному observable outcome (нет непроверяемых критериев)
+
+Если хоть один пункт не пройден — исправьте перед продолжением.
+
 ## Output expectations
 
 - Запишите/patch `spec.md` (patch > переписывание).
-- Самопроверка перед завершением: в spec.md нет `TODO`/`???`/`<placeholder>`; каждый AC содержит Given/When/Then с observable proof; секции Out of Scope, Assumptions, Open Questions существуют.
 - Коротко суммируйте цель, scope, список AC, открытые вопросы/блокеры в ответе, не создавая отдельные derived-файлы только ради recap.
 - Завершите стандартным end block (см. AGENTS.md).
 - Следующие шаги (предложите оба варианта):

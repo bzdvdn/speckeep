@@ -118,9 +118,7 @@ func TestFilesBuildForSupportedLanguages(t *testing.T) {
 			}
 			requiredFiles = append(requiredFiles,
 				"scripts/run-speckeep"+ext,
-				"scripts/check-inspect-ready"+ext,
-				"scripts/check-archive-ready"+ext,
-				"scripts/check-verify-ready"+ext,
+				"scripts/check-ready"+ext,
 				"scripts/verify-task-state"+ext,
 				"scripts/inspect-spec"+ext,
 				"scripts/trace"+ext,
@@ -187,7 +185,7 @@ func TestInspectPromptDefinesCheapScopeAndVerdictRules(t *testing.T) {
 	requiredSnippets := []string{
 		"## Phase Contract",
 		"pass|concerns|blocked",
-		"check-inspect-ready",
+		"check-ready.* inspect",
 		".speckeep/constitution.summary.md",
 		"Return to: /speckeep.spec <slug>",
 	}
@@ -784,48 +782,12 @@ func TestReadinessScriptsDelegateToInternalCLI(t *testing.T) {
 		want   []string
 	}{
 		{
-			name:   "sh spec ready",
+			name:   "sh check ready",
 			shell:  "sh",
-			target: "scripts/check-spec-ready.sh",
+			target: "scripts/check-ready.sh",
 			want: []string{
 				"run-speckeep.sh",
-				"__internal check-spec-ready --root \"$ROOT_DIR\"",
-			},
-		},
-		{
-			name:   "sh plan ready",
-			shell:  "sh",
-			target: "scripts/check-plan-ready.sh",
-			want: []string{
-				"run-speckeep.sh",
-				"__internal check-plan-ready --root \"$ROOT_DIR\"",
-			},
-		},
-		{
-			name:   "sh tasks ready",
-			shell:  "sh",
-			target: "scripts/check-tasks-ready.sh",
-			want: []string{
-				"run-speckeep.sh",
-				"__internal check-tasks-ready --root \"$ROOT_DIR\"",
-			},
-		},
-		{
-			name:   "sh implement ready",
-			shell:  "sh",
-			target: "scripts/check-implement-ready.sh",
-			want: []string{
-				"run-speckeep.sh",
-				"__internal check-implement-ready --root \"$ROOT_DIR\"",
-			},
-		},
-		{
-			name:   "sh verify ready",
-			shell:  "sh",
-			target: "scripts/check-verify-ready.sh",
-			want: []string{
-				"run-speckeep.sh",
-				"__internal check-verify-ready --root \"$ROOT_DIR\"",
+				"__internal \"check-$PHASE-ready\" --root \"$ROOT_DIR\"",
 			},
 		},
 		{

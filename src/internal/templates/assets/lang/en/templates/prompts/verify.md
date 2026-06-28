@@ -40,6 +40,16 @@ Stop if: `tasks.md` missing or slug ambiguous.
 
 ## Output expectations
 
+- Include a **Verification Matrix** table in `verify.md`:
+  ```
+  | AC-ID | Task IDs | Evidence | Verdict |
+  |-------|----------|----------|---------|
+  | AC-001 | T1.1, T2.1 | test_export_downloads_file: pass | pass |
+  | AC-002 | T1.2 | test_export_empty_state: pass | pass |
+  ```
+  - Every AC-* in spec.md must have a row in the matrix.
+  - Evidence column must cite specific test names, command output, or file paths.
+  - Verdict: `pass` | `concerns` | `fail` | `not-verified`.
 - Verdict: `pass|concerns|blocked` + concrete mismatches (task/AC → evidence).
 - Include `## Not Verified` items when you did not confirm something (explicitly list what you did not check).
 - Explicitly call out traceability gaps when `@sk-task` / `@sk-test` evidence is missing or partial for completed tasks.

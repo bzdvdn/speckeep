@@ -33,7 +33,7 @@ Stop if: spec missing, slug ambiguous, or the verdict would require inventing pr
 - If `<specs_dir>/<slug>/tasks.md` exists: verify `plan <-> tasks` and AC coverage (each `AC-*` covered by ≥ 1 task).
 - If `<specs_dir>/<slug>/tasks.md` exists: treat missing `Touches:` as a Warning (token-discipline defect) because it forces broad reads during implement.
 
-If `./.speckeep/scripts/check-inspect-ready.*` exists, run it (slug first) and use its output as a baseline. Do not read `./.speckeep/scripts/*` source.
+If `./.speckeep/scripts/check-ready.* inspect <slug>` exists, run it and use its output as a baseline. Do not read `./.speckeep/scripts/*` source.
 
 ## Output expectations
 

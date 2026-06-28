@@ -28,6 +28,7 @@ Optional commands (any phase):
   /speckeep.challenge <slug> [--spec|--plan]    — adversarial review
   /speckeep.handoff [slug]                      — session handoff doc
   /speckeep.hotfix <slug>                       — emergency fix
+  /speckeep.rollback <slug>                     — roll back completed tasks
   /speckeep.scope <slug>                        — scope boundary check
   /speckeep.recap                               — recap active features
 

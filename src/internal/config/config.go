@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -136,21 +137,16 @@ type Scripts struct {
 
 	// RunDraftspec is a deprecated alias for RunSpeckeep kept for legacy configs.
 	// It is ignored when RunSpeckeep is set and is cleared on Save().
-	RunDraftspec        string `yaml:"run_draftspec,omitempty"`
-	InspectSpec         string `yaml:"inspect_spec"`
-	CheckConstitution   string `yaml:"check_constitution"`
-	CheckSpecReady      string `yaml:"check_spec_ready"`
-	CheckInspectReady   string `yaml:"check_inspect_ready"`
-	CheckPlanReady      string `yaml:"check_plan_ready"`
-	CheckTasksReady     string `yaml:"check_tasks_ready"`
-	CheckImplementReady string `yaml:"check_implement_ready"`
-	CheckArchiveReady   string `yaml:"check_archive_ready"`
-	CheckVerifyReady    string `yaml:"check_verify_ready"`
-	VerifyTaskState     string `yaml:"verify_task_state"`
-	ListOpenTasks       string `yaml:"list_open_tasks"`
-	LinkAgents          string `yaml:"link_agents"`
-	ListSpecs           string `yaml:"list_specs"`
-	ShowSpec            string `yaml:"show_spec"`
+	RunDraftspec string `yaml:"run_draftspec,omitempty"`
+
+	CheckReady        string `yaml:"check_ready"`
+	InspectSpec       string `yaml:"inspect_spec"`
+	CheckConstitution string `yaml:"check_constitution"`
+	VerifyTaskState   string `yaml:"verify_task_state"`
+	ListOpenTasks     string `yaml:"list_open_tasks"`
+	LinkAgents        string `yaml:"link_agents"`
+	ListSpecs         string `yaml:"list_specs"`
+	ShowSpec          string `yaml:"show_spec"`
 }
 
 func NormalizeShell(shell string) (string, error) {
@@ -175,21 +171,15 @@ func ScriptDefaultsForShell(shell string) Scripts {
 	}
 
 	return Scripts{
-		RunSpeckeep:         "run-speckeep" + ext,
-		InspectSpec:         "inspect-spec" + ext,
-		CheckConstitution:   "check-constitution" + ext,
-		CheckSpecReady:      "check-spec-ready" + ext,
-		CheckInspectReady:   "check-inspect-ready" + ext,
-		CheckPlanReady:      "check-plan-ready" + ext,
-		CheckTasksReady:     "check-tasks-ready" + ext,
-		CheckImplementReady: "check-implement-ready" + ext,
-		CheckArchiveReady:   "check-archive-ready" + ext,
-		CheckVerifyReady:    "check-verify-ready" + ext,
-		VerifyTaskState:     "verify-task-state" + ext,
-		ListOpenTasks:       "list-open-tasks" + ext,
-		LinkAgents:          "link-agents" + ext,
-		ListSpecs:           "list-specs" + ext,
-		ShowSpec:            "show-spec" + ext,
+		RunSpeckeep:       "run-speckeep" + ext,
+		CheckReady:        "check-ready" + ext,
+		InspectSpec:       "inspect-spec" + ext,
+		CheckConstitution: "check-constitution" + ext,
+		VerifyTaskState:   "verify-task-state" + ext,
+		ListOpenTasks:     "list-open-tasks" + ext,
+		LinkAgents:        "link-agents" + ext,
+		ListSpecs:         "list-specs" + ext,
+		ShowSpec:          "show-spec" + ext,
 	}
 }
 
@@ -279,27 +269,8 @@ func (c *Config) applyDefaults() {
 	if c.Version == 0 {
 		c.Version = defaultConfig.Version
 	}
-	if c.Project.Name == "" {
-		c.Project.Name = defaultConfig.Project.Name
-	}
-	if c.Project.ConstitutionFile == "" {
-		c.Project.ConstitutionFile = defaultConfig.Project.ConstitutionFile
-	}
-	if c.Runtime.Shell == "" {
-		c.Runtime.Shell = defaultConfig.Runtime.Shell
-	}
-	if c.Paths.SpecsDir == "" {
-		c.Paths.SpecsDir = defaultConfig.Paths.SpecsDir
-	}
-	if c.Paths.ArchiveDir == "" {
-		c.Paths.ArchiveDir = defaultConfig.Paths.ArchiveDir
-	}
-	if c.Paths.TemplatesDir == "" {
-		c.Paths.TemplatesDir = defaultConfig.Paths.TemplatesDir
-	}
-	if c.Paths.ScriptsDir == "" {
-		c.Paths.ScriptsDir = defaultConfig.Paths.ScriptsDir
-	}
+
+	// Language: fallback chain (Default -> Docs/Agent/Comments)
 	if c.Language.Default == "" {
 		c.Language.Default = defaultConfig.Language.Default
 	}
@@ -312,112 +283,48 @@ func (c *Config) applyDefaults() {
 	if c.Language.Comments == "" {
 		c.Language.Comments = c.Language.Default
 	}
-	if c.Agents.AgentsFile == "" {
-		c.Agents.AgentsFile = defaultConfig.Agents.AgentsFile
-	}
-	if !c.Agents.UpdateAgentsMD {
-		c.Agents.UpdateAgentsMD = defaultConfig.Agents.UpdateAgentsMD
-	}
-	if c.Templates.Spec == "" {
-		c.Templates.Spec = defaultConfig.Templates.Spec
-	}
-	if c.Templates.Plan == "" {
-		c.Templates.Plan = defaultConfig.Templates.Plan
-	}
-	if c.Templates.Tasks == "" {
-		c.Templates.Tasks = defaultConfig.Templates.Tasks
-	}
-	if c.Templates.DataModel == "" {
-		c.Templates.DataModel = defaultConfig.Templates.DataModel
-	}
-	if c.Templates.ContractsAPI == "" {
-		c.Templates.ContractsAPI = defaultConfig.Templates.ContractsAPI
-	}
-	if c.Templates.ContractsEvents == "" {
-		c.Templates.ContractsEvents = defaultConfig.Templates.ContractsEvents
-	}
-	if c.Templates.ArchiveSummary == "" {
-		c.Templates.ArchiveSummary = defaultConfig.Templates.ArchiveSummary
-	}
-	if c.Templates.InspectReport == "" {
-		c.Templates.InspectReport = defaultConfig.Templates.InspectReport
-	}
-	if c.Templates.VerifyReport == "" {
-		c.Templates.VerifyReport = defaultConfig.Templates.VerifyReport
-	}
-	if c.Templates.Constitution == "" {
-		c.Templates.Constitution = defaultConfig.Templates.Constitution
-	}
-	if c.Templates.ConstitutionPrompt == "" {
-		c.Templates.ConstitutionPrompt = defaultConfig.Templates.ConstitutionPrompt
-	}
-	if c.Templates.SpecPrompt == "" {
-		c.Templates.SpecPrompt = defaultConfig.Templates.SpecPrompt
-	}
-	if c.Templates.InspectPrompt == "" {
-		c.Templates.InspectPrompt = defaultConfig.Templates.InspectPrompt
-	}
-	if c.Templates.PlanPrompt == "" {
-		c.Templates.PlanPrompt = defaultConfig.Templates.PlanPrompt
-	}
-	if c.Templates.TasksPrompt == "" {
-		c.Templates.TasksPrompt = defaultConfig.Templates.TasksPrompt
-	}
-	if c.Templates.ImplementPrompt == "" {
-		c.Templates.ImplementPrompt = defaultConfig.Templates.ImplementPrompt
-	}
-	if c.Templates.VerifyPrompt == "" {
-		c.Templates.VerifyPrompt = defaultConfig.Templates.VerifyPrompt
-	}
-	defaultScripts := ScriptDefaultsForShell(c.Runtime.Shell)
+
+	// Scripts: migrate deprecated RunDraftspec before reflection defaults
 	if c.Scripts.RunSpeckeep == "" && c.Scripts.RunDraftspec != "" {
 		c.Scripts.RunSpeckeep = c.Scripts.RunDraftspec
 		c.Scripts.RunDraftspec = ""
 	}
-	if c.Scripts.RunSpeckeep == "" {
-		c.Scripts.RunSpeckeep = defaultScripts.RunSpeckeep
-	}
-	if c.Scripts.InspectSpec == "" {
-		c.Scripts.InspectSpec = defaultScripts.InspectSpec
-	}
-	if c.Scripts.CheckConstitution == "" {
-		c.Scripts.CheckConstitution = defaultScripts.CheckConstitution
-	}
-	if c.Scripts.CheckSpecReady == "" {
-		c.Scripts.CheckSpecReady = defaultScripts.CheckSpecReady
-	}
-	if c.Scripts.CheckInspectReady == "" {
-		c.Scripts.CheckInspectReady = defaultScripts.CheckInspectReady
-	}
-	if c.Scripts.CheckPlanReady == "" {
-		c.Scripts.CheckPlanReady = defaultScripts.CheckPlanReady
-	}
-	if c.Scripts.CheckTasksReady == "" {
-		c.Scripts.CheckTasksReady = defaultScripts.CheckTasksReady
-	}
-	if c.Scripts.CheckImplementReady == "" {
-		c.Scripts.CheckImplementReady = defaultScripts.CheckImplementReady
-	}
-	if c.Scripts.CheckArchiveReady == "" {
-		c.Scripts.CheckArchiveReady = defaultScripts.CheckArchiveReady
-	}
-	if c.Scripts.CheckVerifyReady == "" {
-		c.Scripts.CheckVerifyReady = defaultScripts.CheckVerifyReady
-	}
-	if c.Scripts.VerifyTaskState == "" {
-		c.Scripts.VerifyTaskState = defaultScripts.VerifyTaskState
-	}
-	if c.Scripts.ListOpenTasks == "" {
-		c.Scripts.ListOpenTasks = defaultScripts.ListOpenTasks
-	}
-	if c.Scripts.LinkAgents == "" {
-		c.Scripts.LinkAgents = defaultScripts.LinkAgents
-	}
-	if c.Scripts.ListSpecs == "" {
-		c.Scripts.ListSpecs = defaultScripts.ListSpecs
-	}
-	if c.Scripts.ShowSpec == "" {
-		c.Scripts.ShowSpec = defaultScripts.ShowSpec
+
+	// Reflection-based defaulting for all remaining string fields
+	applyDefaultsReflect(reflect.ValueOf(c).Elem(), reflect.ValueOf(defaultConfig))
+}
+
+// applyDefaultsReflect recursively sets empty exported string fields from defaults.
+// Fields with yaml:"...,omitempty" tags, int fields, bool fields, and slice fields
+// are skipped to preserve explicit zero-values and optional/legacy configuration.
+func applyDefaultsReflect(target, defaultVal reflect.Value) {
+	t := target.Type()
+	for i := 0; i < t.NumField(); i++ {
+		ft := t.Field(i)
+		if !ft.IsExported() {
+			continue
+		}
+
+		tag := ft.Tag.Get("yaml")
+		if strings.Contains(tag, "omitempty") {
+			continue
+		}
+
+		tf := target.Field(i)
+		df := defaultVal.Field(i)
+
+		if !tf.CanSet() {
+			continue
+		}
+
+		switch tf.Kind() {
+		case reflect.String:
+			if tf.String() == "" {
+				tf.SetString(df.String())
+			}
+		case reflect.Struct:
+			applyDefaultsReflect(tf, df)
+		}
 	}
 }
 

@@ -32,10 +32,23 @@ Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 - Refine instead of guessing: if the request implies multiple feature slugs or multiple independent specs, stop and ask for one concrete feature.
 - Run the pre-phase readiness script (see AGENTS.md: Scripts).
 
+## Self-Check (mandatory before finishing)
+
+Run this checklist against `spec.md` — do not skip or treat as optional:
+- [ ] No `TODO`, `???`, `<placeholder>`, `TKTK`, or `[NEEDS CLARIFICATION]` markers remain
+- [ ] Every AC-* has `Given`, `When`, `Then` with observable proof in Then
+- [ ] Sections `Out of Scope`, `Assumptions`, `Open Questions` exist (or state `none`)
+- [ ] No implementation steps or task decomposition — spec captures intent only
+- [ ] Technology/library/version pins are absent unless they are hard repo/contract constraints
+- [ ] The spec describes exactly one feature — no multi-feature scope creep
+- [ ] Goal and RQ-* IDs are consistent with the AC-* criteria
+- [ ] Every AC-* maps to a unique observable outcome (no untestable criteria)
+
+If any check fails, fix before proceeding.
+
 ## Output expectations
 
 - Write/patch `spec.md` (patch > rewrite).
-- Self-check before finishing: no `TODO`/`???`/`<placeholder>` in spec.md; every AC has Given/When/Then with observable proof; Out of Scope + Assumptions + Open Questions sections exist.
 - Summarize: goal, scope, AC list, open questions/blockers in the response; do not create extra derived recap files just for this summary.
 - End with standard end block (see AGENTS.md).
 - Next steps (offer both):

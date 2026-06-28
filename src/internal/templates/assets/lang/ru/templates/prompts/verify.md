@@ -40,6 +40,16 @@ Stop if: `tasks.md` отсутствует или slug неоднозначен.
 
 ## Output expectations
 
+- Включите таблицу **Verification Matrix** в `verify.md`:
+  ```
+  | AC-ID | Task IDs | Evidence | Verdict |
+  |-------|----------|----------|---------|
+  | AC-001 | T1.1, T2.1 | test_export_downloads_file: pass | pass |
+  | AC-002 | T1.2 | test_export_empty_state: pass | pass |
+  ```
+  - Каждый AC-* из spec.md должен иметь строку в матрице.
+  - Evidence: конкретные имена тестов, вывод команд или пути файлов.
+  - Verdict: `pass` | `concerns` | `fail` | `not-verified`.
 - Дайте verdict: `pass|concerns|blocked` + список конкретных несоответствий (task/AC → evidence).
 - Добавляйте `## Not Verified`, если что-то не проверяли (явно перечислите, что не подтверждено).
 - Явно перечисляйте пробелы traceability, если для завершённых задач отсутствует или частично отсутствует `@sk-task` / `@sk-test` evidence.

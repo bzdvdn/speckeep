@@ -205,9 +205,12 @@ func inferLifecycle(state *FeatureState) {
 		state.Phase = "verify"
 		state.ReadyFor = "verify"
 		state.Blocked = true
-	default:
+	case state.VerifyStatus == StatusPass:
 		state.Phase = "verify"
 		state.ReadyFor = "archive"
+	default:
+		state.Phase = "verify"
+		state.ReadyFor = "verify"
 	}
 
 	if state.BranchMismatch && !state.Archived {

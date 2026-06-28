@@ -275,20 +275,8 @@ func scriptListBlock(items []string, lang string) string {
 	for _, item := range items {
 		display := item
 		switch {
-		case strings.Contains(item, "check-spec-ready"):
-			display = item + " <slug>"
-		case strings.Contains(item, "check-inspect-ready"):
-			display = item + " <slug>"
-		case strings.Contains(item, "check-plan-ready"):
-			display = item + " <slug>"
-		case strings.Contains(item, "check-tasks-ready"):
-			display = item + " <slug>"
-		case strings.Contains(item, "check-implement-ready"):
-			display = item + " <slug>"
-		case strings.Contains(item, "check-verify-ready"):
-			display = item + " <slug>"
-		case strings.Contains(item, "check-archive-ready"):
-			display = item + " <slug> completed"
+		case strings.Contains(item, "check-ready"):
+		// check-ready already includes phase hint in the item itself
 		case strings.Contains(item, "archive-feature"):
 			display = item + " <slug> . --status completed"
 		case strings.Contains(item, "verify-task-state"):

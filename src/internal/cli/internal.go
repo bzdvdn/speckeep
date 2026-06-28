@@ -19,6 +19,7 @@ func newInternalCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(newInternalCheckConstitutionCmd())
+	cmd.AddCommand(newInternalCheckReadyCmd())
 	cmd.AddCommand(newInternalCheckSpecReadyCmd())
 	cmd.AddCommand(newInternalCheckInspectReadyCmd())
 	cmd.AddCommand(newInternalCheckPlanReadyCmd())
@@ -55,6 +56,102 @@ func newInternalCheckConstitutionCmd() *cobra.Command {
 			}
 			result, err := workflow.CheckConstitution(context.Background(), cfg, root, constitutionPath)
 			return renderCheckResult(cmd, result, err)
+		},
+	}
+	cmd.Flags().StringVar(&root, "root", ".", "SpecKeep project root")
+	return cmd
+}
+
+func newInternalCheckConstitutionReadyCmd() *cobra.Command {
+	var root string
+	cmd := &cobra.Command{
+		Use:           "check-constitution-ready [constitution-file]",
+		Hidden:        true,
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		Args:          cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(context.Background(), root)
+			if err != nil {
+				return err
+			}
+			result, err := workflow.CheckConstitutionReady(context.Background(), cfg, root)
+			return renderCheckResult(cmd, result, err)
+		},
+	}
+	cmd.Flags().StringVar(&root, "root", ".", "SpecKeep project root")
+	return cmd
+}
+
+func newInternalCheckReadyCmd() *cobra.Command {
+	var root string
+	cmd := &cobra.Command{
+		Use:           "check-ready <phase> [args...]",
+		Hidden:        true,
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		Args:          cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			phase := args[0]
+			phaseArgs := args[1:]
+			cfg, err := config.Load(context.Background(), root)
+			if err != nil {
+				return err
+			}
+			switch phase {
+			case "constitution":
+				result, err := workflow.CheckConstitutionReady(context.Background(), cfg, root)
+				return renderCheckResult(cmd, result, err)
+			case "spec":
+				slug := ""
+				if len(phaseArgs) >= 1 {
+					slug = phaseArgs[0]
+				}
+				result, err := workflow.CheckSpecReadyForSlug(context.Background(), cfg, root, slug)
+				return renderCheckResult(cmd, result, err)
+			case "inspect":
+				if len(phaseArgs) < 1 {
+					return fmt.Errorf("slug required for inspect")
+				}
+				result, err := workflow.CheckInspectReady(context.Background(), cfg, root, phaseArgs[0])
+				return renderCheckResult(cmd, result, err)
+			case "plan":
+				if len(phaseArgs) < 1 {
+					return fmt.Errorf("slug required for plan")
+				}
+				result, err := workflow.CheckPlanReady(context.Background(), cfg, root, phaseArgs[0])
+				return renderCheckResult(cmd, result, err)
+			case "tasks":
+				if len(phaseArgs) < 1 {
+					return fmt.Errorf("slug required for tasks")
+				}
+				result, err := workflow.CheckTasksReady(context.Background(), cfg, root, phaseArgs[0])
+				return renderCheckResult(cmd, result, err)
+			case "implement":
+				if len(phaseArgs) < 1 {
+					return fmt.Errorf("slug required for implement")
+				}
+				result, err := workflow.CheckImplementReady(context.Background(), cfg, root, phaseArgs[0])
+				return renderCheckResult(cmd, result, err)
+			case "verify":
+				if len(phaseArgs) < 1 {
+					return fmt.Errorf("slug required for verify")
+				}
+				result, err := workflow.CheckVerifyReady(context.Background(), cfg, root, phaseArgs[0])
+				return renderCheckResult(cmd, result, err)
+			case "archive":
+				if len(phaseArgs) < 2 {
+					return fmt.Errorf("usage: check-ready archive <slug> <status> [reason]")
+				}
+				reason := ""
+				if len(phaseArgs) >= 3 {
+					reason = phaseArgs[2]
+				}
+				result, err := workflow.CheckArchiveReady(context.Background(), cfg, root, phaseArgs[0], phaseArgs[1], reason)
+				return renderCheckResult(cmd, result, err)
+			default:
+				return fmt.Errorf("unknown phase %q, expected: constitution, spec, inspect, plan, tasks, implement, verify, archive", phase)
+			}
 		},
 	}
 	cmd.Flags().StringVar(&root, "root", ".", "SpecKeep project root")

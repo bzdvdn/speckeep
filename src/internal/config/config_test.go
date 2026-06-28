@@ -27,8 +27,8 @@ func TestDefaultAppliesExpectedDefaults(t *testing.T) {
 	if cfg.Templates.SpecPrompt != "prompts/spec.md" {
 		t.Fatalf("SpecPrompt = %q, want %q", cfg.Templates.SpecPrompt, "prompts/spec.md")
 	}
-	if cfg.Scripts.CheckInspectReady != "check-inspect-ready.sh" {
-		t.Fatalf("CheckInspectReady = %q, want %q", cfg.Scripts.CheckInspectReady, "check-inspect-ready.sh")
+	if cfg.Scripts.CheckReady != "check-ready.sh" {
+		t.Fatalf("CheckReady = %q, want %q", cfg.Scripts.CheckReady, "check-ready.sh")
 	}
 	if cfg.Scripts.RunSpeckeep != "run-speckeep.sh" {
 		t.Fatalf("RunSpeckeep = %q, want %q", cfg.Scripts.RunSpeckeep, "run-speckeep.sh")
@@ -98,8 +98,8 @@ func TestSaveAndLoadPreserveConfigAndApplyDefaults(t *testing.T) {
 
 func TestScriptDefaultsForShell(t *testing.T) {
 	ps := ScriptDefaultsForShell("powershell")
-	if ps.CheckSpecReady != "check-spec-ready.ps1" {
-		t.Fatalf("CheckSpecReady = %q, want check-spec-ready.ps1", ps.CheckSpecReady)
+	if ps.CheckReady != "check-ready.ps1" {
+		t.Fatalf("CheckReady = %q, want check-ready.ps1", ps.CheckReady)
 	}
 	if ps.RunSpeckeep != "run-speckeep.ps1" {
 		t.Fatalf("RunSpeckeep = %q, want run-speckeep.ps1", ps.RunSpeckeep)

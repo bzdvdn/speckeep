@@ -29,6 +29,7 @@ Stop if: `tasks.md` is missing, the next task is not concrete, execution require
 - Do not re-read already opened files end-to-end “for reassurance”: keep short notes and use targeted slices (`rg`, `sed -n`) and `git diff` to verify changes.
 - If `tasks.md` lists “Inputs” at the top (e.g., `plan.md`/`spec.md`/`data-model.md`), do not treat them as mandatory re-reads during implement: open them only when a concrete active task explicitly requires it, or when `tasks.md` is missing critical context.
 - Editing a file outside the active task `Touches:` is a **scope violation** → stop and explain.
+- **Touches drift protection**: before closing, run `git diff --name-only` and cross-check each changed file against the active task's `Touches:` list. If any changed file is not in `Touches:` and not explicitly listed as a side effect (e.g., auto-generated lockfiles), treat it as a scope violation and revert or explain.
 - Tests: run only targeted package/tests. Do not run `go test ./...` unless explicitly requested. Do not paste long logs; summarize and include only the last lines when needed.
 - Constitution: see AGENTS.md (`.speckeep/constitution.summary.md` preferred over full constitution).
 - Do not assume `research.md` should exist; only read it if a task explicitly depends on it.

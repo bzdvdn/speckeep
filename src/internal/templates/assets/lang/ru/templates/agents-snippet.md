@@ -9,7 +9,7 @@
 - Пути/конфиг: читайте `.speckeep/speckeep.yaml` ≤ 1 раза за сессию; если конфига нет, defaults: `<specs_dir>=specs/active`, `<archive_dir>=specs/archived`, constitution=`CONSTITUTION.md`.
 - Конституция: загружайте `.speckeep/constitution.summary.md` сначала, если файл существует; только при его отсутствии переходите к `project.constitution_file` (по умолчанию `CONSTITUTION.md`).
 - Ветки: только `/speckeep.spec` может переключать/создавать `feature/<slug>` (или `--branch`). Остальные фазы должны уже быть на нужной ветке.
-- Скрипты: перед каждой фазой запускайте `check-<phase>-ready.* <sug>` (и любые extras из секции Команды); доверяйте stdout/exit code; исходники `.speckeep/scripts/*` не читать.
+- Скрипты: перед каждой фазой запускайте `check-ready.* <phase> <slug>` (и любые extras из секции Команды); доверяйте stdout/exit code; исходники `.speckeep/scripts/*` не читать.
 - Scope/load: по умолчанию только текущий slug; без широких репо-сканов; предпочитайте surfaces из `Touches:`.
 - ⚠️ **CRITICAL — Repository map first**: **НЕ** используйте `ls`, `find`, glob для первичной навигации. Прочитайте `REPOSITORY_MAP.md` в первую очередь — он содержит полную карту репозитория. Это экономит токены и соблюдает workflow discipline. Читайте карту один раз за сессию, переиспользуйте заметки; перечитывайте только если сами обновили карту в этой же сессии.
 - Git safety: не делать `git commit/push/tag` и PR без явной просьбы.
@@ -33,6 +33,7 @@
 - `/speckeep.implement` → implement
 - `/speckeep.verify` → verify
 - `/speckeep.challenge` → адверсариальная проверка spec/plan (слепые зоны, непроверяемые AC)
+- `/speckeep.rollback` → откат выполненных задач фичи, возврат в незавершённое состояние
 - `/speckeep.recap` → обзор проекта: активные фичи, фаза, следующий шаг
 - `speckeep archive <slug> .` → CLI-only архив после `verify: pass`
 - `/speckeep.repo-map` → обновить `REPOSITORY_MAP.md` (см. выделенный prompt для политики + шаблона)
@@ -44,4 +45,3 @@
 - Добавлены/удалены runtime/service/CLI entrypoints.
 - Существенно изменены границы подсистем (заметно поменялись where-to-edit пути).
 - Пользователь явно попросил обновить repo map.
-  l

@@ -33,8 +33,8 @@ func TestFiles(t *testing.T) {
 		t.Fatalf("Files returned error: %v", err)
 	}
 
-	if len(files) != 118 {
-		t.Fatalf("expected 118 generated agent files, got %d", len(files))
+	if len(files) != 127 {
+		t.Fatalf("expected 127 generated agent files, got %d", len(files))
 	}
 
 	required := map[string]bool{
@@ -56,6 +56,7 @@ func TestFiles(t *testing.T) {
 		".windsurf/workflows/speckeep.verify.md":    false,
 		".claude/commands/speckeep.recap.md":        false,
 		".claude/commands/speckeep.hotfix.md":       false,
+		".claude/commands/speckeep.rollback.md":     false,
 		".cursor/rules/speckeep-recap.mdc":          false,
 		".opencode/commands/speckeep.recap.md":      false,
 	}

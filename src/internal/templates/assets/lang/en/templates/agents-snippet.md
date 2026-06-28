@@ -8,7 +8,7 @@ Core rules:
 - Paths/config: read `.speckeep/speckeep.yaml` ≤ 1 time per session; if missing, defaults: `<specs_dir>=specs/active`, `<archive_dir>=specs/archived`, constitution=`CONSTITUTION.md`.
 - Constitution: load `.speckeep/constitution.summary.md` first if it exists; fall back to `project.constitution_file` (default: `CONSTITUTION.md`) only when the summary is absent.
 - Branching: only `/speckeep.spec` may switch/create `feature/<slug>` (or `--branch`). Other phases must already be on the correct branch.
-- Scripts: before each phase, run `check-<phase>-ready.* <slug>` (and any extras from Commands); trust stdout/exit code; never read `.speckeep/scripts/*` source.
+- Scripts: before each phase, run `check-ready.* <phase> <slug>` (and any extras from Commands); trust stdout/exit code; never read `.speckeep/scripts/*` source.
 - Scope/load: default to the current slug only; avoid broad repo scans; prefer `Touches:` surfaces.
 - ⚠️ **CRITICAL — Repository map first**: **DO NOT** use `ls`, `find`, or glob for primary navigation. Read `REPOSITORY_MAP.md` first — it contains the complete repo map. This saves tokens and maintains workflow discipline. Read it once per session and reuse notes; re-read only if you updated the map in the same session.
 - Git safety: no `git commit/push/tag` and no PRs unless explicitly asked.
@@ -31,6 +31,7 @@ Commands (⚠️ prefix is **speckeep** with a **p**, NOT speckeek with a k):
 - `/speckeep.implement` → implement tasks
 - `/speckeep.verify` → verify tasks/AC
 - `/speckeep.challenge` → adversarial review of spec/plan (blind spots, untestable AC)
+- `/speckeep.rollback` → roll back completed tasks for a feature, returning them to unfinished state
 - `/speckeep.recap` → project overview: active features, phase, next step
 - `speckeep archive <slug> .` → CLI-only archive after `verify: pass`
 - `/speckeep.repo-map` → update `REPOSITORY_MAP.md` (see dedicated prompt for policy + template)

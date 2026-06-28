@@ -1485,7 +1485,7 @@ func TestRefreshCommandUpdatesManagedArtifacts(t *testing.T) {
 		t.Fatalf("unexpected refresh output: %s", stdout)
 	}
 
-	if _, err := os.Stat(filepath.Join(root, ".speckeep", "scripts", "check-spec-ready.ps1")); err != nil {
+	if _, err := os.Stat(filepath.Join(root, ".speckeep", "scripts", "check-ready.ps1")); err != nil {
 		t.Fatalf("expected refreshed powershell script to exist: %v", err)
 	}
 }
