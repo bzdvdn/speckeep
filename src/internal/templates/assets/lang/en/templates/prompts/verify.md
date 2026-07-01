@@ -53,6 +53,6 @@ Stop if: `tasks.md` missing or slug ambiguous.
 - Verdict: `pass|concerns|blocked` + concrete mismatches (task/AC → evidence).
 - Include `## Not Verified` items when you did not confirm something (explicitly list what you did not check).
 - Explicitly call out traceability gaps when `@sk-task` / `@sk-test` evidence is missing or partial for completed tasks.
-- If `blocked`, end with `Return to: /speckeep.<phase> <slug>`.
+- If `blocked`, end with `Return to: /spk.<phase> <slug>`.
 - End with standard end block (see AGENTS.md).
 - If `pass`, final line: `Ready for: speckeep archive <slug> .`

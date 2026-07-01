@@ -14,7 +14,7 @@ func (copilotAdapter) Render(commands []CommandDefinition, language string) ([]F
 	files := make([]File, 0, len(commands))
 	for _, command := range commands {
 		files = append(files, File{
-			Path:    filepath.ToSlash(filepath.Join(".github", "prompts", fmt.Sprintf("speckeep-%s.prompt.md", command.Name))),
+			Path:    filepath.ToSlash(filepath.Join(".github", "prompts", fmt.Sprintf("spk-%s.prompt.md", command.Name))),
 			Content: renderCopilot(command, lang),
 			Mode:    0o644,
 		})

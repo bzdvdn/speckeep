@@ -81,9 +81,9 @@ Examples:
 			fmt.Fprintf(cmd.OutOrStdout(), "  Slug: %s\n", slug)
 			fmt.Fprintf(cmd.OutOrStdout(), "  File: %s\n", relPath(root, explorePath))
 			fmt.Fprintf(cmd.OutOrStdout(), "\nNext steps:\n")
-			fmt.Fprintf(cmd.OutOrStdout(), "  1. Use /speckeep.explore %s to investigate\n", slug)
-			fmt.Fprintf(cmd.OutOrStdout(), "  2. When ready, call /speckeep.spec %s to write the spec\n", slug)
-			fmt.Fprintf(cmd.OutOrStdout(), "  3. Or call /speckeep.spec %s --from-explore to convert exploration to spec\n", slug)
+			fmt.Fprintf(cmd.OutOrStdout(), "  1. Use /spk.explore %s to investigate\n", slug)
+			fmt.Fprintf(cmd.OutOrStdout(), "  2. When ready, call /spk.spec %s to write the spec\n", slug)
+			fmt.Fprintf(cmd.OutOrStdout(), "  3. Or call /spk.spec %s --from-explore to convert exploration to spec\n", slug)
 
 			return nil
 		},
@@ -159,7 +159,7 @@ func generateExploreTemplate(name, slug, language string) string {
 - [ ] Ключевые вопросы исследованы
 - [ ] Варианты реализации оценены
 - [ ] Рекомендация сформулирована
-- [ ] Готов перейти к /speckeep.spec
+- [ ] Готов перейти к /spk.spec
 
 ## Связанные артефакты
 
@@ -229,7 +229,7 @@ Which option is preferred and why:
 - [ ] Key questions investigated
 - [ ] Implementation options evaluated
 - [ ] Recommendation formulated
-- [ ] Ready to proceed to /speckeep.spec
+- [ ] Ready to proceed to /spk.spec
 
 ## Related Artifacts
 

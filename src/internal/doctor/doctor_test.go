@@ -114,7 +114,7 @@ func TestCheckWarnsAboutOrphanedAgentArtifact(t *testing.T) {
 
 	var foundWarning bool
 	for _, finding := range result.Findings {
-		if finding.Level == "warning" && strings.Contains(finding.Message, "orphaned agent artifact") {
+		if finding.Level == "warning" && (strings.Contains(finding.Message, "deprecated /speckeep.* agent artifact") || strings.Contains(finding.Message, "orphaned agent artifact") || strings.Contains(finding.Message, "AGENTS.md still references deprecated")) {
 			foundWarning = true
 			break
 		}

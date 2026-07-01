@@ -43,8 +43,8 @@ func TestInitializeCreatesWorkspaceAndAgentTargets(t *testing.T) {
 		filepath.Join(root, "CONSTITUTION.md"),
 		filepath.Join(root, ".speckeep", "scripts", "run-speckeep.sh"),
 		filepath.Join(root, "AGENTS.md"),
-		filepath.Join(root, ".claude", "commands", "speckeep.inspect.md"),
-		filepath.Join(root, ".cursor", "rules", "speckeep-inspect.mdc"),
+		filepath.Join(root, ".claude", "commands", "spk.inspect.md"),
+		filepath.Join(root, ".cursor", "rules", "spk-inspect.mdc"),
 	}
 	for _, path := range required {
 		if _, err := os.Stat(path); err != nil {
@@ -79,7 +79,7 @@ func TestAddRemoveAndCleanupAgents(t *testing.T) {
 		t.Fatalf("AddAgents returned error: %v", err)
 	}
 
-	cursorPath := filepath.Join(root, ".cursor", "rules", "speckeep-inspect.mdc")
+	cursorPath := filepath.Join(root, ".cursor", "rules", "spk-inspect.mdc")
 	if _, err := os.Stat(cursorPath); err != nil {
 		t.Fatalf("expected cursor agent file after AddAgents: %v", err)
 	}
@@ -248,7 +248,7 @@ func TestRefreshUpdatesManagedFilesWithoutTouchingAuthoredArtifacts(t *testing.T
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
-	agentPath := filepath.Join(root, ".claude", "commands", "speckeep.inspect.md")
+	agentPath := filepath.Join(root, ".claude", "commands", "spk.inspect.md")
 	if err := os.WriteFile(agentPath, []byte("stale agent file"), 0o644); err != nil {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}

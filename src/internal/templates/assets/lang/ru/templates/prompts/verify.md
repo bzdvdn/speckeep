@@ -53,6 +53,6 @@ Stop if: `tasks.md` отсутствует или slug неоднозначен.
 - Дайте verdict: `pass|concerns|blocked` + список конкретных несоответствий (task/AC → evidence).
 - Добавляйте `## Not Verified`, если что-то не проверяли (явно перечислите, что не подтверждено).
 - Явно перечисляйте пробелы traceability, если для завершённых задач отсутствует или частично отсутствует `@sk-task` / `@sk-test` evidence.
-- Если `blocked` — завершите: `Вернуться к: /speckeep.<phase> <slug>`.
+- Если `blocked` — завершите: `Вернуться к: /spk.<phase> <slug>`.
 - Завершите стандартным end block (см. AGENTS.md).
 - Если `pass` — финальная строка: `Готово к: speckeep archive <slug> .`

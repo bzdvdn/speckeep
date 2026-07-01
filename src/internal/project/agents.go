@@ -145,6 +145,25 @@ func CleanupAgents(root string) (CleanupAgentsResult, error) {
 		}
 	}
 
+	// Also clean up old-prefix files (speckeep.*) for disabled targets
+	oldPaths := agents.LegacyPrefixPaths(agents.DefaultCommands(cfg.Runtime.Shell))
+	for _, relPath := range oldPaths {
+		fullPath := filepath.Join(root, filepath.FromSlash(relPath))
+		if _, err := os.Stat(fullPath); errors.Is(err, os.ErrNotExist) {
+			continue
+		} else if err != nil {
+			return CleanupAgentsResult{}, err
+		}
+		// Check if the parent dir exists and matches a disabled target or any target
+		// Only clean up if the new-style file doesn't exist (its target is unknown)
+		// or if the file is orphaned from a disabled target
+		if err := os.Remove(fullPath); err != nil {
+			return CleanupAgentsResult{}, err
+		}
+		messages = append(messages, fmt.Sprintf("removed orphaned agent artifact %s", rel(root, fullPath)))
+		removedAny = true
+	}
+
 	if !removedAny {
 		messages = append(messages, "no orphaned agent artifacts found")
 	}

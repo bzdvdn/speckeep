@@ -124,16 +124,16 @@ func Check(ctx context.Context, root string) (Result, error) {
 	agentsPath := filepath.Join(root, cfg.Agents.AgentsFile)
 	if content, err := os.ReadFile(agentsPath); err == nil {
 		text := string(content)
-		if !strings.Contains(text, "/speckeep.repo-map") {
+		if !strings.Contains(text, "/spk.repo-map") {
 			findings = append(findings, Finding{
 				Level:   "warning",
-				Message: "AGENTS.md is missing /speckeep.repo-map guidance — run `speckeep refresh .` to sync the managed SpecKeep block",
+				Message: "AGENTS.md is missing /spk.repo-map guidance — run `speckeep refresh .` to sync the managed SpecKeep block",
 			})
 		}
-		if strings.Contains(text, "/speckeep.archive") {
+		if strings.Contains(text, "/speckeep.archive") || strings.Contains(text, "/speckeep.") {
 			findings = append(findings, Finding{
 				Level:   "warning",
-				Message: "AGENTS.md still references deprecated /speckeep.archive guidance — archive is CLI-only now; run `speckeep refresh .`",
+				Message: "AGENTS.md still references deprecated /speckeep.* commands — run `speckeep refresh .` to update to /spk.*",
 			})
 		}
 	}
@@ -151,7 +151,7 @@ func Check(ctx context.Context, root string) (Result, error) {
 		if placeholderPattern.Match(content) {
 			findings = append(findings, Finding{
 				Level:   "warning",
-				Message: "constitution.md contains unfilled placeholder content — run /speckeep.constitution to complete setup",
+				Message: "constitution.md contains unfilled placeholder content — run /spk.constitution to complete setup",
 			})
 		}
 		summaryPath := filepath.Join(draftspecDir, "constitution.summary.md")
@@ -162,7 +162,7 @@ func Check(ctx context.Context, root string) (Result, error) {
 			if _, err := os.Stat(summaryPath); os.IsNotExist(err) {
 				findings = append(findings, Finding{
 					Level:   "warning",
-					Message: "constitution.summary.md not found — run /speckeep.constitution to generate the compact summary used by spec, inspect, plan, tasks, implement, verify, and hotfix phases",
+					Message: "constitution.summary.md not found — run /spk.constitution to generate the compact summary used by spec, inspect, plan, tasks, implement, verify, and hotfix phases",
 				})
 			}
 		}
@@ -221,6 +221,24 @@ func Check(ctx context.Context, root string) (Result, error) {
 			findings = append(findings, Finding{
 				Level:   "warning",
 				Message: fmt.Sprintf("legacy archive agent artifact is no longer needed: %s (run `speckeep refresh .`)", fullPath),
+			})
+		}
+	}
+
+	shell := cfg.Runtime.Shell
+	oldPrefixPaths := agents.LegacyPrefixPaths(agents.DefaultCommands(shell))
+	oldPrefixSeen := make(map[string]struct{})
+	for _, relPath := range oldPrefixPaths {
+		normalized := filepath.FromSlash(relPath)
+		if _, seen := oldPrefixSeen[normalized]; seen {
+			continue
+		}
+		oldPrefixSeen[normalized] = struct{}{}
+		fullPath := filepath.Join(root, normalized)
+		if _, err := os.Stat(fullPath); err == nil {
+			findings = append(findings, Finding{
+				Level:   "warning",
+				Message: fmt.Sprintf("deprecated /speckeep.* agent artifact found, rename to /spk.*; run `speckeep refresh .`: %s", fullPath),
 			})
 		}
 	}

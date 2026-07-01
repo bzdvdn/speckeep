@@ -65,7 +65,7 @@ Includes phase, task progress, readiness, and branch mismatch hints.`,
 					return nil
 				}
 				printPanel(w, "No Features Found", []string{
-					"Create your first spec with " + styleCmd(w, "/speckeep.spec") + ".",
+					"Create your first spec with " + styleCmd(w, "/spk.spec") + ".",
 					"Or run " + styleCmd(w, "speckeep demo") + " to explore an example workspace.",
 				})
 				return nil

@@ -49,7 +49,7 @@ Results in practice: agents produce correct code on first try more often, handof
 constitution → spec → [inspect] → plan → tasks → implement → verify → archive
 ```
 
-Each phase loads only the minimum context. Optional workflow commands available at any phase: `/speckeep.challenge`, `/speckeep.handoff`, `/speckeep.hotfix`, `/speckeep.scope`, `/speckeep.recap`.
+Each phase loads only the minimum context. Optional workflow commands available at any phase: `/spk.challenge`, `/spk.handoff`, `/spk.hotfix`, `/spk.scope`, `/spk.recap`.
 
 ---
 
@@ -137,7 +137,7 @@ speckeep init . --lang en --shell sh --agents claude
 
 ### 2. Spec
 
-Call `/speckeep.spec --name "CSV export for reports"` in your agent.
+Call `/spk.spec --name "CSV export for reports"` in your agent.
 
 `specs/active/csv-export-for-reports/spec.md`:
 
@@ -160,15 +160,15 @@ Then a .csv with headers only downloads — no error shown
 
 ### 3. Inspect
 
-Call `/speckeep.inspect csv-export-for-reports`. Produces `inspect.md` with verdict.
+Call `/spk.inspect csv-export-for-reports`. Produces `inspect.md` with verdict.
 
 ### 4. Plan
 
-Call `/speckeep.plan csv-export-for-reports`. Surfaces: `ReportsPage.tsx`, `useReportExport.ts`, `reports.test.ts`.
+Call `/spk.plan csv-export-for-reports`. Surfaces: `ReportsPage.tsx`, `useReportExport.ts`, `reports.test.ts`.
 
 ### 5. Tasks
 
-Call `/speckeep.tasks csv-export-for-reports`. Produces `tasks.md`:
+Call `/spk.tasks csv-export-for-reports`. Produces `tasks.md`:
 
 | Surface | Tasks |
 |---|---|
@@ -179,8 +179,8 @@ Call `/speckeep.tasks csv-export-for-reports`. Produces `tasks.md`:
 ### 6. Implement, verify, archive
 
 ```
-/speckeep.implement csv-export-for-reports
-/speckeep.verify    csv-export-for-reports   # verdict: pass
+/spk.implement csv-export-for-reports
+/spk.verify    csv-export-for-reports   # verdict: pass
 speckeep archive    csv-export-for-reports .
 ```
 
@@ -190,7 +190,7 @@ speckeep archive    csv-export-for-reports .
 speckeep check csv-export-for-reports
 # Phase:  tasks → implement
 # Tasks:  0 / 3 done
-# Next:   /speckeep.implement csv-export-for-reports
+# Next:   /spk.implement csv-export-for-reports
 ```
 
 </details>

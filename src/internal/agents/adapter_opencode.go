@@ -14,7 +14,7 @@ func (opencodeAdapter) Render(commands []CommandDefinition, language string) ([]
 	files := make([]File, 0, len(commands))
 	for _, command := range commands {
 		files = append(files, File{
-			Path:    filepath.ToSlash(filepath.Join(".opencode", "commands", fmt.Sprintf("speckeep.%s.md", command.Name))),
+			Path:    filepath.ToSlash(filepath.Join(".opencode", "commands", fmt.Sprintf("spk.%s.md", command.Name))),
 			Content: renderOpencode(command, lang),
 			Mode:    0o644,
 		})

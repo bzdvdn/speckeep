@@ -1,6 +1,6 @@
 # My Project Constitution (Demo)
 
-This constitution is a filled example used by `speckeep demo`. Adjust it for your real project after running `/speckeep.constitution`.
+This constitution is a filled example used by `speckeep demo`. Adjust it for your real project after running `/spk.constitution`.
 
 ## Purpose
 

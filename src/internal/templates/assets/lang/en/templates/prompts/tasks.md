@@ -45,4 +45,4 @@ Stop if: `plan.md` is missing/vague or any `AC-*` cannot be mapped to executable
 - Write/patch `tasks.md` (avoid full rewrites for small changes).
 - Summarize: phases, main surfaces, AC coverage, blockers.
 - End with standard end block (see AGENTS.md).
-- Final line: `Ready for: /speckeep.implement <slug>`
+- Final line: `Ready for: /spk.implement <slug>`

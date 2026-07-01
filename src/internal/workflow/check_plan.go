@@ -39,7 +39,7 @@ func CheckPlanReady(ctx context.Context, cfg config.Config, root, slug string) (
 			inspectDisplayPath = legacyInspectDisplay
 			inspectAbs = legacyAbs
 		} else {
-			result.AddWarn(fmt.Sprintf("no inspect report %s — inspect is optional; run /speckeep.inspect for a deep quality review", inspectDisplay))
+			result.AddWarn(fmt.Sprintf("no inspect report %s — inspect is optional; run /spk.inspect for a deep quality review", inspectDisplay))
 		}
 	}
 	if fileExists(inspectAbs) {

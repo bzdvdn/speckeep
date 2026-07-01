@@ -38,27 +38,27 @@ func TestFiles(t *testing.T) {
 	}
 
 	required := map[string]bool{
-		".aider/CONVENTIONS.md":                     false,
-		".claude/commands/speckeep.inspect.md":      false,
-		".claude/commands/speckeep.verify.md":       false,
-		".codex/prompts/speckeep.plan.md":           false,
-		".github/prompts/speckeep-spec.prompt.md":   false,
-		".github/prompts/speckeep-verify.prompt.md": false,
-		".cursor/rules/speckeep-implement.mdc":      false,
-		".cursor/rules/speckeep-verify.mdc":         false,
-		".kilocode/workflows/speckeep.verify.md":    false,
-		".opencode/commands/speckeep.verify.md":     false,
-		".roo/rules/speckeep-spec.md":               false,
-		".roo/rules/speckeep-plan.md":               false,
-		".trae/rules/speckeep.plan.md":              false,
-		".trae/rules/speckeep.verify.md":            false,
-		".windsurf/workflows/speckeep.implement.md": false,
-		".windsurf/workflows/speckeep.verify.md":    false,
-		".claude/commands/speckeep.recap.md":        false,
-		".claude/commands/speckeep.hotfix.md":       false,
-		".claude/commands/speckeep.rollback.md":     false,
-		".cursor/rules/speckeep-recap.mdc":          false,
-		".opencode/commands/speckeep.recap.md":      false,
+		".aider/CONVENTIONS.md":                false,
+		".claude/commands/spk.inspect.md":      false,
+		".claude/commands/spk.verify.md":       false,
+		".codex/prompts/spk.plan.md":           false,
+		".github/prompts/spk-spec.prompt.md":   false,
+		".github/prompts/spk-verify.prompt.md": false,
+		".cursor/rules/spk-implement.mdc":      false,
+		".cursor/rules/spk-verify.mdc":         false,
+		".kilocode/workflows/spk.verify.md":    false,
+		".opencode/commands/spk.verify.md":     false,
+		".roo/rules/spk-spec.md":               false,
+		".roo/rules/spk-plan.md":               false,
+		".trae/rules/spk.plan.md":              false,
+		".trae/rules/spk.verify.md":            false,
+		".windsurf/workflows/spk.implement.md": false,
+		".windsurf/workflows/spk.verify.md":    false,
+		".claude/commands/spk.recap.md":        false,
+		".claude/commands/spk.hotfix.md":       false,
+		".claude/commands/spk.rollback.md":     false,
+		".cursor/rules/spk-recap.mdc":          false,
+		".opencode/commands/spk.recap.md":      false,
 	}
 
 	for _, file := range files {
@@ -168,10 +168,10 @@ func TestRenderIncludesCommandHints(t *testing.T) {
 		spec   string
 		want   string
 	}{
-		{name: "claude spec en", target: "claude", lang: "en", spec: "spec", want: "Command: `/speckeep.spec [request]`"},
-		{name: "codex tasks en", target: "codex", lang: "en", spec: "tasks", want: "Command: `/speckeep.tasks [request]`"},
-		{name: "copilot implement ru", target: "copilot", lang: "ru", spec: "implement", want: "Команда: `/speckeep.implement [request]`"},
-		{name: "cursor verify en", target: "cursor", lang: "en", spec: "verify", want: "Command: `/speckeep.verify [request]`"},
+		{name: "claude spec en", target: "claude", lang: "en", spec: "spec", want: "Command: `/spk.spec [request]`"},
+		{name: "codex tasks en", target: "codex", lang: "en", spec: "tasks", want: "Command: `/spk.tasks [request]`"},
+		{name: "copilot implement ru", target: "copilot", lang: "ru", spec: "implement", want: "Команда: `/spk.implement [request]`"},
+		{name: "cursor verify en", target: "cursor", lang: "en", spec: "verify", want: "Command: `/spk.verify [request]`"},
 	}
 
 	for _, tt := range tests {
@@ -190,8 +190,8 @@ func TestRenderTraeIncludesCommandHints(t *testing.T) {
 		lang string
 		want string
 	}{
-		{name: "en", lang: "en", want: "Command: `/speckeep.verify [request]`"},
-		{name: "ru", lang: "ru", want: "Команда: `/speckeep.verify [request]`"},
+		{name: "en", lang: "en", want: "Command: `/spk.verify [request]`"},
+		{name: "ru", lang: "ru", want: "Команда: `/spk.verify [request]`"},
 	}
 
 	for _, tt := range tests {

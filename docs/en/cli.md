@@ -58,7 +58,7 @@ Refreshes only SpecKeep-managed generated artifacts in an existing project.
 
 This command updates:
 
-- `.speckeep/speckeep.yaml`
+- `.speckeep/spk.yaml`
 - `.speckeep/skills/manifest.yaml`
 - `.speckeep/templates/**`
 - `.speckeep/scripts/**`
@@ -103,7 +103,7 @@ speckeep add-agent my-project --agents claude --agents codex
 
 ### `speckeep list-agents [path]`
 
-Lists enabled agent targets from `.speckeep/speckeep.yaml`.
+Lists enabled agent targets from `.speckeep/spk.yaml`.
 
 ### `speckeep remove-agent [path]`
 
@@ -146,7 +146,7 @@ Use `--no-install` to skip immediate reconciliation of installed skills in agent
 
 Installs enabled skills from `.speckeep/skills/manifest.yaml` into target agent skill folders.
 
-By default, uses enabled targets from `.speckeep/speckeep.yaml`. Override with `--targets codex,opencode`.
+By default, uses enabled targets from `.speckeep/spk.yaml`. Override with `--targets codex,opencode`.
 
 For git-backed skills, this command can rehydrate missing `.speckeep/skills/checkouts/<id>` from manifest data (`location` + `ref`) before installation. This helps when a checkout was deleted locally. If the upstream git source is unavailable, the manifest alone is not enough to reconstruct the skill contents.
 
@@ -336,7 +336,7 @@ speckeep trace export-report my-project --json
 
 Creates a demo workspace at the given path (default: `./speckeep-demo`).
 
-The workspace is pre-populated with an example feature (`export-report`) at the implement phase — spec, inspect report, plan, tasks, and data model are all present. Suggests `/speckeep.scope`, `/speckeep.challenge`, and `/speckeep.handoff` to try immediately.
+The workspace is pre-populated with an example feature (`export-report`) at the implement phase — spec, inspect report, plan, tasks, and data model are all present. Suggests `/spk.scope`, `/spk.challenge`, and `/spk.handoff` to try immediately.
 
 ```bash
 speckeep demo

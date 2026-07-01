@@ -16,6 +16,6 @@ Stop if: tasks.md отсутствует.
 
 - `Slug`, `Phase`, `What changed`, `Open tasks`, `Blockers`, `Next command`.
 - Финальная строка (определите по состоянию фазы):
-  - Если blocked: `Вернуться к: /speckeep.<phase> <slug>`
-  - Если готово к следующей фазе: `Готово к: /speckeep.<next> <slug>`
+  - Если blocked: `Вернуться к: /spk.<phase> <slug>`
+  - Если готово к следующей фазе: `Готово к: /spk.<next> <slug>`
   - Если всё готово: `Готово к: speckeep archive <slug> .`

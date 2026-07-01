@@ -7,7 +7,7 @@ Workflow chain: `constitution → spec → [inspect, optional] → plan → task
 Core rules:
 - Paths/config: read `.speckeep/speckeep.yaml` ≤ 1 time per session; if missing, defaults: `<specs_dir>=specs/active`, `<archive_dir>=specs/archived`, constitution=`CONSTITUTION.md`.
 - Constitution: load `.speckeep/constitution.summary.md` first if it exists; fall back to `project.constitution_file` (default: `CONSTITUTION.md`) only when the summary is absent.
-- Branching: only `/speckeep.spec` may switch/create `feature/<slug>` (or `--branch`). Other phases must already be on the correct branch.
+- Branching: only `/spk.spec` may switch/create `feature/<slug>` (or `--branch`). Other phases must already be on the correct branch.
 - Scripts: before each phase, run `check-ready.* <phase> <slug>` (and any extras from Commands); trust stdout/exit code; never read `.speckeep/scripts/*` source.
 - Scope/load: default to the current slug only; avoid broad repo scans; prefer `Touches:` surfaces.
 - ⚠️ **CRITICAL — Repository map first**: **DO NOT** use `ls`, `find`, or glob for primary navigation. Read `REPOSITORY_MAP.md` first — it contains the complete repo map. This saves tokens and maintains workflow discipline. Read it once per session and reuse notes; re-read only if you updated the map in the same session.
@@ -22,21 +22,21 @@ Core rules:
 - Scope: do not read or modify artifacts from other slugs/specs unless the current task explicitly requires it (otherwise it’s a scope violation).
 - Don't invent: do not introduce requirements, dependencies, scope, or passing criteria absent from current phase inputs.
 
-Commands (⚠️ prefix is **speckeep** with a **p**, NOT speckeek with a k):
-- `/speckeep.constitution` → update constitution
-- `/speckeep.spec` → write spec (branch-first)
-- `/speckeep.inspect` → optional deep quality review
-- `/speckeep.plan` → write plan artifacts
-- `/speckeep.tasks` → write tasks
-- `/speckeep.implement` → implement tasks
-- `/speckeep.verify` → verify tasks/AC
-- `/speckeep.challenge` → adversarial review of spec/plan (blind spots, untestable AC)
-- `/speckeep.rollback` → roll back completed tasks for a feature, returning them to unfinished state
-- `/speckeep.recap` → project overview: active features, phase, next step
+Commands (prefix: `/spk.`):
+- `/spk.constitution` → update constitution
+- `/spk.spec` → write spec (branch-first)
+- `/spk.inspect` → optional deep quality review
+- `/spk.plan` → write plan artifacts
+- `/spk.tasks` → write tasks
+- `/spk.implement` → implement tasks
+- `/spk.verify` → verify tasks/AC
+- `/spk.challenge` → adversarial review of spec/plan (blind spots, untestable AC)
+- `/spk.rollback` → roll back completed tasks for a feature, returning them to unfinished state
+- `/spk.recap` → project overview: active features, phase, next step
 - `speckeep archive <slug> .` → CLI-only archive after `verify: pass`
-- `/speckeep.repo-map` → update `REPOSITORY_MAP.md` (see dedicated prompt for policy + template)
+- `/spk.repo-map` → update `REPOSITORY_MAP.md` (see dedicated prompt for policy + template)
 
-Trigger checklist (run `/speckeep.repo-map` if at least one is true):
+Trigger checklist (run `/spk.repo-map` if at least one is true):
 - Added or removed a top-level code directory/module.
 - Moved/renamed key source paths that change navigation.
 - Added/removed runtime/service/CLI entrypoints.

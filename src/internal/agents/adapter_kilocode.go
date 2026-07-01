@@ -14,7 +14,7 @@ func (kilocodeAdapter) Render(commands []CommandDefinition, language string) ([]
 	files := make([]File, 0, len(commands))
 	for _, command := range commands {
 		files = append(files, File{
-			Path:    filepath.ToSlash(filepath.Join(".kilocode", "workflows", fmt.Sprintf("speckeep.%s.md", command.Name))),
+			Path:    filepath.ToSlash(filepath.Join(".kilocode", "workflows", fmt.Sprintf("spk.%s.md", command.Name))),
 			Content: renderKilo(command, lang),
 			Mode:    0o644,
 		})
@@ -50,7 +50,7 @@ func renderKilo(spec CommandDefinition, lang string) string {
 %s
 %s
 %s
-`, spec.Name, spec.PromptPath, "/speckeep."+spec.Name+".md", commandHint(spec.Name, lang), spec.Name, constitutionSummaryHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, spec.Name, spec.PromptPath, "/spk."+spec.Name+".md", commandHint(spec.Name, lang), spec.Name, constitutionSummaryHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`# SpecKeep %s
@@ -67,5 +67,5 @@ Use this workflow when the request maps to the %q phase.
 %s
 %s
 %s
-`, spec.Name, spec.PromptPath, "/speckeep."+spec.Name+".md", commandHint(spec.Name, lang), spec.Name, constitutionSummaryHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, spec.Name, spec.PromptPath, "/spk."+spec.Name+".md", commandHint(spec.Name, lang), spec.Name, constitutionSummaryHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

@@ -14,7 +14,7 @@ func (claudeAdapter) Render(commands []CommandDefinition, language string) ([]Fi
 	files := make([]File, 0, len(commands))
 	for _, command := range commands {
 		files = append(files, File{
-			Path:    filepath.ToSlash(filepath.Join(".claude", "commands", fmt.Sprintf("speckeep.%s.md", command.Name))),
+			Path:    filepath.ToSlash(filepath.Join(".claude", "commands", fmt.Sprintf("spk.%s.md", command.Name))),
 			Content: renderClaude(command, lang),
 			Mode:    0o644,
 		})

@@ -16,21 +16,21 @@ Quick start:
   speckeep list-specs .
 
 For agents (Kilocode/Claude/Cursor):
-  /speckeep.constitution                        — create a constitution
-  /speckeep.spec --name "feature name"          — create a spec
-  /speckeep.spec --amend                        — targeted spec edit
-  /speckeep.plan <slug> [--research|--update]   — create a plan
-  /speckeep.tasks <slug>                        — decompose into tasks
-  /speckeep.implement <slug>                    — implement tasks
-  /speckeep.verify <slug> [--deep]              — verify AC coverage
+  /spk.constitution                        — create a constitution
+  /spk.spec --name "feature name"          — create a spec
+  /spk.spec --amend                        — targeted spec edit
+  /spk.plan <slug> [--research|--update]   — create a plan
+  /spk.tasks <slug>                        — decompose into tasks
+  /spk.implement <slug>                    — implement tasks
+  /spk.verify <slug> [--deep]              — verify AC coverage
 
 Optional commands (any phase):
-  /speckeep.challenge <slug> [--spec|--plan]    — adversarial review
-  /speckeep.handoff [slug]                      — session handoff doc
-  /speckeep.hotfix <slug>                       — emergency fix
-  /speckeep.rollback <slug>                     — roll back completed tasks
-  /speckeep.scope <slug>                        — scope boundary check
-  /speckeep.recap                               — recap active features
+  /spk.challenge <slug> [--spec|--plan]    — adversarial review
+  /spk.handoff [slug]                      — session handoff doc
+  /spk.hotfix <slug>                       — emergency fix
+  /spk.rollback <slug>                     — roll back completed tasks
+  /spk.scope <slug>                        — scope boundary check
+  /spk.recap                               — recap active features
 
 CLI commands:
   speckeep doctor .                      — workspace health check

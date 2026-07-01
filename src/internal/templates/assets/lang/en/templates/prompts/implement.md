@@ -55,8 +55,8 @@ Stop if: `tasks.md` is missing, the next task is not concrete, execution require
 
 - Update code/files and mark completed tasks `[x]` in `tasks.md`.
 - Include a short `Trace plan:` block before the result summary for the tasks you touched.
-- Before finalizing, make an explicit map decision line: `Map update: yes|no` + reason (based on `/speckeep.repo-map` trigger checklist in `AGENTS.md`).
-- If `Map update: yes`, run `/speckeep.repo-map` and include `REPOSITORY_MAP.md` in changed files.
+- Before finalizing, make an explicit map decision line: `Map update: yes|no` + reason (based on `/spk.repo-map` trigger checklist in `AGENTS.md`).
+- If `Map update: yes`, run `/spk.repo-map` and include `REPOSITORY_MAP.md` in changed files.
 - If repository structure/navigation changed (new/moved modules, new entrypoints, major path reshaping), `Map update` must be `yes`.
 - If changes are local and do not affect structure/navigation, do not touch `REPOSITORY_MAP.md`.
 - Report: closed task IDs, changed files, and the observable proof.
@@ -64,4 +64,4 @@ Stop if: `tasks.md` is missing, the next task is not concrete, execution require
 - Do not finish without explicit `Trace proof:` lines in the form: `<TASK_ID> -> <file>:<line> (@sk-task|@sk-test)`.
 - If a closed task has no valid `Trace proof:` line, treat the task as still open and do not mark it `[x]`.
 - End with standard end block (see AGENTS.md).
-- Final line (mandatory): `Ready for: /speckeep.verify <slug>`
+- Final line (mandatory): `Ready for: /spk.verify <slug>`
