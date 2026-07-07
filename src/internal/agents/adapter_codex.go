@@ -14,7 +14,7 @@ func (codexAdapter) Render(commands []CommandDefinition, language string) ([]Fil
 	files := make([]File, 0, len(commands))
 	for _, command := range commands {
 		files = append(files, File{
-			Path:    filepath.ToSlash(filepath.Join(".codex", "prompts", fmt.Sprintf("speckeep.%s.md", command.Name))),
+			Path:    filepath.ToSlash(filepath.Join(".codex", "prompts", fmt.Sprintf("spk.%s.md", command.Name))),
 			Content: renderCodex(command, lang),
 			Mode:    0o644,
 		})

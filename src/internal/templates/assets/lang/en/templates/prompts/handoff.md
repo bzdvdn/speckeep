@@ -16,6 +16,6 @@ Stop if: tasks.md is missing.
 
 - `Slug`, `Phase`, `What changed`, `Open tasks`, `Blockers`, `Next command`.
 - Final line (detect phase from state):
-  - If blocked: `Return to: /speckeep.<phase> <slug>`
-  - If ready for next phase: `Ready for: /speckeep.<next> <slug>`
+  - If blocked: `Return to: /spk.<phase> <slug>`
+  - If ready for next phase: `Ready for: /spk.<next> <slug>`
   - If all done: `Ready for: speckeep archive <slug> .`

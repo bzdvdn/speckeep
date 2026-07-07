@@ -26,7 +26,7 @@ Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 - Every `AC-*` is Given/When/Then with observable proof in Then.
 - Required sections: Out of Scope, Assumptions, Open Questions (or `none`).
 - Clarify with 1–3 targeted questions only if otherwise you must guess AC or scope boundaries.
-- If invoked with `--name` but without enough description, ask for it and treat the next non-command user message as the continuation. If the next message starts with `/speckeep.`, staged mode is canceled.
+- If invoked with `--name` but without enough description, ask for it and treat the next non-command user message as the continuation. If the next message starts with `/spk.`, staged mode is canceled.
 - Constitution: see AGENTS.md (`.speckeep/constitution.summary.md` preferred over full constitution).
 - Do not pin technologies/versions unless required by the user or a hard repo/contract constraint. If a technology choice is an implementation preference, record it in `plan`, not in `spec`.
 - Refine instead of guessing: if the request implies multiple feature slugs or multiple independent specs, stop and ask for one concrete feature.
@@ -52,6 +52,6 @@ If any check fails, fix before proceeding.
 - Summarize: goal, scope, AC list, open questions/blockers in the response; do not create extra derived recap files just for this summary.
 - End with standard end block (see AGENTS.md).
 - Next steps (offer both):
-  - Deep quality review: `/speckeep.inspect <slug>` — checks constitution alignment, AC completeness, ambiguity
-  - Skip to planning if spec looks solid: `/speckeep.plan <slug>`
-- Final line (mandatory): `Ready for: /speckeep.inspect <slug>` or `Ready for: /speckeep.plan <slug>`. Prefer `/speckeep.inspect` when ambiguity, risk, or open questions remain.
+  - Deep quality review: `/spk.inspect <slug>` — checks constitution alignment, AC completeness, ambiguity
+  - Skip to planning if spec looks solid: `/spk.plan <slug>`
+- Final line (mandatory): `Ready for: /spk.inspect <slug>` or `Ready for: /spk.plan <slug>`. Prefer `/spk.inspect` when ambiguity, risk, or open questions remain.

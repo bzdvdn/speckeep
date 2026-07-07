@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.7.0] - 2026-07-08
+
+### Changed
+
+- **Agent slash commands shortened: `/speckeep.*` → `/spk.*`**:
+  - All agent file paths renamed (e.g. `.claude/commands/speckeep.inspect.md` → `.claude/commands/spk.inspect.md`)
+  - All adapter implementations updated (Claude, Codex, Copilot, Cursor, Kilocode, OpenCode, Roocode, Trae, Windsurf, Aider)
+  - All prompt templates (EN/RU) for every phase: constitution, spec, inspect, plan, tasks, implement, verify, handoff, hotfix, rollback
+  - CLI output: root help, `check`, `dashboard`, `demo`, `explore`, `init`, `status`, `archive`
+  - README (EN/RU) and CLI docs (EN/RU) updated
+  - `agents-snippet.md` simplified — removed the "⚠️ prefix is speckeep with a p" warning since `/spk` is unambiguous
+  - `LegacyPrefixPaths()` function in `agents/files.go` enables discovery of stale `speckeep.*` artifacts
+  - `doctor` warns about remaining old-prefix agent files
+  - `refresh` auto-removes old-prefix files and regenerates with `/spk.*` naming
+  - `CleanupAgents` also removes orphaned old-prefix artifacts
+
+- **`speckeep init` now syncs skills manifest and `.gitignore`** — previously only `refresh` handled this; init was missing the skills setup step
+
+- **Doctor: stronger deprecated command detection** — `/speckeep.*` detection now catches any remaining old-style references (was limited to `/speckeep.archive`)
+
+### Fixed
+
+- **Init: missing skills bootstrap** — `Initialize` now calls `syncSkillsManifest` and `syncSkillsGitignore`, matching `refresh` behavior
+
 ## [v0.6.0] - 2026-06-28
 
 ### Added
@@ -266,4 +290,5 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [0.5.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.5.0
 [0.5.1]: https://github.com/bzdvdn/speckeep/releases/tag/v0.5.1
 [0.6.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.6.0
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.6.0...HEAD
+[0.7.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.7.0
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.7.0...HEAD

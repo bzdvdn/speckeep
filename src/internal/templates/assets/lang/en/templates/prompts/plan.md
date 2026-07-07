@@ -34,4 +34,4 @@ Stop if: inspect.md is present and not `pass`, the goal is ambiguous, or plannin
 - Inside `plan.md`, keep compact sections for `DEC-*`, surfaces, risks, and data-model/contract impact; do not move that recap into separate digest files.
 - Summarize key `DEC-*`, surfaces, sequencing constraints, and risks.
 - End with standard end block (see AGENTS.md).
-- Final line: `Ready for: /speckeep.tasks <slug>`
+- Final line: `Ready for: /spk.tasks <slug>`

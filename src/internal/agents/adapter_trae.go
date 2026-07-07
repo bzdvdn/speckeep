@@ -14,7 +14,7 @@ func (traeAdapter) Render(commands []CommandDefinition, language string) ([]File
 	files := make([]File, 0, len(commands))
 	for _, command := range commands {
 		files = append(files, File{
-			Path:    filepath.ToSlash(filepath.Join(".trae", "rules", fmt.Sprintf("speckeep.%s.md", command.Name))),
+			Path:    filepath.ToSlash(filepath.Join(".trae", "rules", fmt.Sprintf("spk.%s.md", command.Name))),
 			Content: renderTrae(command, lang),
 			Mode:    0o644,
 		})
@@ -44,7 +44,7 @@ func renderTrae(spec CommandDefinition, lang string) string {
 
 %s
 
-Используйте это rule, когда запрос явно относится к фазе %q или к команде /speckeep.%s.
+Используйте это rule, когда запрос явно относится к фазе %q или к команде /spk.%s.
 
 Правила:
 - %s
@@ -67,7 +67,7 @@ Follow %q.
 
 %s
 
-Use this rule when the request clearly maps to the %q phase or the /speckeep.%s command.
+Use this rule when the request clearly maps to the %q phase or the /spk.%s command.
 
 Rules:
 - %s

@@ -58,7 +58,7 @@ speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --she
 
 Эта команда обновляет:
 
-- `.speckeep/speckeep.yaml`
+- `.speckeep/spk.yaml`
 - `.speckeep/skills/manifest.yaml`
 - `.speckeep/templates/**`
 - `.speckeep/scripts/**`
@@ -103,7 +103,7 @@ speckeep add-agent my-project --agents claude --agents codex
 
 ### `speckeep list-agents [path]`
 
-Показывает включенные agent targets из `.speckeep/speckeep.yaml`.
+Показывает включенные agent targets из `.speckeep/spk.yaml`.
 
 ### `speckeep remove-agent [path]`
 
@@ -146,7 +146,7 @@ speckeep add-skill my-project --id openai-docs --from-git https://example.com/sk
 
 Устанавливает включенные skills из `.speckeep/skills/manifest.yaml` в skill-папки выбранных агентов.
 
-По умолчанию используются targets из `.speckeep/speckeep.yaml`. Можно переопределить через `--targets codex,opencode`.
+По умолчанию используются targets из `.speckeep/spk.yaml`. Можно переопределить через `--targets codex,opencode`.
 
 Для git-backed skills команда умеет rehydrate отсутствующие `.speckeep/skills/checkouts/<id>` из данных manifest (`location` + `ref`) перед установкой. Это помогает, если checkout был удален локально. Если исходный git source недоступен, одного manifest недостаточно для восстановления содержимого.
 
@@ -336,7 +336,7 @@ speckeep trace export-report my-project --json
 
 Создаёт демо-workspace по указанному пути (по умолчанию: `./speckeep-demo`).
 
-Workspace заполнен примером фичи (`export-report`) на фазе implement — spec, inspect report, plan, tasks и data model уже присутствуют. После создания предлагает попробовать `/speckeep.scope`, `/speckeep.challenge` и `/speckeep.handoff`.
+Workspace заполнен примером фичи (`export-report`) на фазе implement — spec, inspect report, plan, tasks и data model уже присутствуют. После создания предлагает попробовать `/spk.scope`, `/spk.challenge` и `/spk.handoff`.
 
 ```bash
 speckeep demo

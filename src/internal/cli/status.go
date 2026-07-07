@@ -42,7 +42,7 @@ func newStatusCmd() *cobra.Command {
 			w := cmd.OutOrStdout()
 			next := "-"
 			if result.ReadyFor != "" {
-				next = styleCmd(w, "/speckeep."+result.ReadyFor+" "+result.Slug)
+				next = styleCmd(w, "/spk."+result.ReadyFor+" "+result.Slug)
 			}
 			blocked := styleOK(w, "false")
 			if result.Blocked {

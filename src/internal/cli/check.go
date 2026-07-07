@@ -224,17 +224,17 @@ func buildCheckResult(ctx context.Context, cfg config.Config, root string, state
 func nextCommand(state workflow.FeatureState) string {
 	switch state.ReadyFor {
 	case "spec":
-		return "/speckeep.spec " + state.Slug
+		return "/spk.spec " + state.Slug
 	case "inspect":
-		return "/speckeep.inspect " + state.Slug
+		return "/spk.inspect " + state.Slug
 	case "plan":
-		return "/speckeep.plan " + state.Slug
+		return "/spk.plan " + state.Slug
 	case "tasks":
-		return "/speckeep.tasks " + state.Slug
+		return "/spk.tasks " + state.Slug
 	case "implement":
-		return "/speckeep.implement " + state.Slug
+		return "/spk.implement " + state.Slug
 	case "verify":
-		return "/speckeep.verify " + state.Slug
+		return "/spk.verify " + state.Slug
 	case "archive":
 		return "speckeep archive " + state.Slug + " ."
 	default:

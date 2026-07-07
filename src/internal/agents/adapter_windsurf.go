@@ -14,7 +14,7 @@ func (windsurfAdapter) Render(commands []CommandDefinition, language string) ([]
 	files := make([]File, 0, len(commands))
 	for _, command := range commands {
 		files = append(files, File{
-			Path:    filepath.ToSlash(filepath.Join(".windsurf", "workflows", fmt.Sprintf("speckeep.%s.md", command.Name))),
+			Path:    filepath.ToSlash(filepath.Join(".windsurf", "workflows", fmt.Sprintf("spk.%s.md", command.Name))),
 			Content: renderWindsurf(command, lang),
 			Mode:    0o644,
 		})
@@ -44,7 +44,7 @@ trigger: manual
 
 %s
 
-Используйте этот workflow, когда запрос явно относится к фазе %q или команде /speckeep.%s.
+Используйте этот workflow, когда запрос явно относится к фазе %q или команде /spk.%s.
 
 Важно: readiness scripts почти всегда требуют `+"`<slug>`"+` первым аргументом. Пример: `+"`bash ./.speckeep/scripts/check-ready.sh tasks <slug>`"+`.
 
@@ -64,7 +64,7 @@ First, open and read %q (mandatory). Then follow its "Output expectations" secti
 
 %s
 
-Use this workflow when the request clearly maps to the %q phase or the /speckeep.%s command.
+Use this workflow when the request clearly maps to the %q phase or the /spk.%s command.
 
 Important: readiness scripts almost always require `+"`<slug>`"+` as the first argument. Example: `+"`bash ./.speckeep/scripts/check-ready.sh tasks <slug>`"+`.
 

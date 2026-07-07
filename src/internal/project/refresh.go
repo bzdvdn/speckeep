@@ -154,6 +154,9 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 	if err := removeDisabledAgentArtifacts(root, agentTargets, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
 	}
+	if err := removeOldPrefixAgentArtifacts(root, shell, options.DryRun, &result); err != nil {
+		return RefreshResult{}, err
+	}
 	if err := removeLegacyManagedArtifacts(root, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
 	}
@@ -668,6 +671,33 @@ func syncAgentFiles(root string, targets []string, language string, shell string
 	for _, file := range files {
 		target := filepath.Join(root, filepath.FromSlash(file.Path))
 		if err := syncManagedFile(root, target, file.Content, file.Mode, dryRun, result); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func removeOldPrefixAgentArtifacts(root, shell string, dryRun bool, result *RefreshResult) error {
+	commands := agents.DefaultCommands(shell)
+	oldPaths := agents.LegacyPrefixPaths(commands)
+	seen := make(map[string]struct{})
+	for _, relPath := range oldPaths {
+		normalized := filepath.FromSlash(relPath)
+		if _, dup := seen[normalized]; dup {
+			continue
+		}
+		seen[normalized] = struct{}{}
+		fullPath := filepath.Join(root, normalized)
+		if _, err := os.Stat(fullPath); errors.Is(err, os.ErrNotExist) {
+			continue
+		} else if err != nil {
+			return err
+		}
+		recordRefreshAction(result, "removed", rel(root, fullPath))
+		if dryRun {
+			continue
+		}
+		if err := os.Remove(fullPath); err != nil {
 			return err
 		}
 	}

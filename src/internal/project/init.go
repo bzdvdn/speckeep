@@ -233,6 +233,19 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 	} else {
 		messages = append(messages, "enabled agent targets: none")
 	}
+
+	var sr RefreshResult
+	if err := syncSkillsManifest(root, false, &sr); err != nil {
+		return InitResult{}, err
+	}
+	if err := syncSkillsGitignore(root, false, &sr); err != nil {
+		return InitResult{}, err
+	}
+	for _, path := range sr.Created {
+		result.Created = append(result.Created, path)
+		messages = append(messages, "created "+path)
+	}
+
 	result.Messages = messages
 
 	return result, nil

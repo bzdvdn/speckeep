@@ -18,4 +18,4 @@ Stop if: changes exceed 3 files, or require a design change — return to standa
 
 - List changed files, what was fixed, and how to verify.
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`.
-- Final line: `Ready for: /speckeep.verify <slug>` (or `/speckeep.implement <slug>` if hotfix implements known scope without verify).
+- Final line: `Ready for: /spk.verify <slug>` (or `/spk.implement <slug>` if hotfix implements known scope without verify).

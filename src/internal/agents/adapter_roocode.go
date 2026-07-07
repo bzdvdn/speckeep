@@ -14,7 +14,7 @@ func (roocodeAdapter) Render(commands []CommandDefinition, language string) ([]F
 	files := make([]File, 0, len(commands))
 	for _, command := range commands {
 		files = append(files, File{
-			Path:    filepath.ToSlash(filepath.Join(".roo", "rules", fmt.Sprintf("speckeep-%s.md", command.Name))),
+			Path:    filepath.ToSlash(filepath.Join(".roo", "rules", fmt.Sprintf("spk-%s.md", command.Name))),
 			Content: renderRoocode(command, lang),
 			Mode:    0o644,
 		})

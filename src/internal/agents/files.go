@@ -117,6 +117,46 @@ func LegacyArchivePaths() []string {
 	}
 }
 
+// LegacyPrefixPaths returns old-style agent file paths with the deprecated
+// "speckeep." prefix. Used by doctor and refresh for migration cleanup.
+func LegacyPrefixPaths(commands []CommandDefinition) []string {
+	var paths []string
+	patterns := []struct {
+		dir    string
+		fmtStr string
+		sep    string // "." or "-"
+	}{
+		{dir: ".claude/commands", sep: "."},
+		{dir: ".opencode/commands", sep: "."},
+		{dir: ".kilocode/workflows", sep: "."},
+		{dir: ".windsurf/workflows", sep: "."},
+		{dir: ".trae/rules", sep: "."},
+		{dir: ".codex/prompts", sep: "."},
+		{dir: ".cursor/rules", sep: "-"},
+		{dir: ".roo/rules", sep: "-"},
+		{dir: ".github/prompts", sep: "-"},
+	}
+	extensions := map[string]string{
+		".claude/commands":    ".md",
+		".opencode/commands":  ".md",
+		".kilocode/workflows": ".md",
+		".windsurf/workflows": ".md",
+		".trae/rules":         ".md",
+		".codex/prompts":      ".md",
+		".cursor/rules":       ".mdc",
+		".roo/rules":          ".md",
+		".github/prompts":     ".prompt.md",
+	}
+	for _, cmd := range commands {
+		for _, p := range patterns {
+			ext := extensions[p.dir]
+			name := "speckeep" + p.sep + cmd.Name
+			paths = append(paths, p.dir+"/"+name+ext)
+		}
+	}
+	return paths
+}
+
 // commandSpec and commandSpecs are kept as compatibility shims while tests and
 // callers continue to use the previous names.
 type commandSpec = CommandDefinition
@@ -166,9 +206,9 @@ func scriptPath(name, shell string) string {
 
 func commandHint(name, lang string) string {
 	if lang == "ru" {
-		return fmt.Sprintf("Команда: `/speckeep.%s [request]`", name)
+		return fmt.Sprintf("Команда: `/spk.%s [request]`", name)
 	}
-	return fmt.Sprintf("Command: `/speckeep.%s [request]`", name)
+	return fmt.Sprintf("Command: `/spk.%s [request]`", name)
 }
 
 func toolInvocationHint(lang string) string {
@@ -211,9 +251,9 @@ func specBranchFirstBullet(commandName, lang string) string {
 		return ""
 	}
 	if lang == "ru" {
-		return "- Для `/speckeep.spec`: до записи любого файла обязательно переключиться/создать feature-ветку `feature/<slug>` (или явное значение `--branch`). Если git недоступен или вы в detached HEAD — остановитесь и сообщите причину."
+		return "- Для `/spk.spec`: до записи любого файла обязательно переключиться/создать feature-ветку `feature/<slug>` (или явное значение `--branch`). Если git недоступен или вы в detached HEAD — остановитесь и сообщите причину."
 	}
-	return "- For `/speckeep.spec`: before writing any file, you must switch/create the feature branch `feature/<slug>` (or the explicit `--branch` value). If git is unavailable or you are in detached HEAD, stop and report the reason."
+	return "- For `/spk.spec`: before writing any file, you must switch/create the feature branch `feature/<slug>` (or the explicit `--branch` value). If git is unavailable or you are in detached HEAD, stop and report the reason."
 }
 
 func titleCase(value string) string {
@@ -225,9 +265,9 @@ func titleCase(value string) string {
 
 func workflowChainHint(lang string) string {
 	if lang == "ru" {
-		return "Цепочка workflow: constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive (CLI-only). Не пропускайте обязательные фазы и не забегайте вперёд. После verify используйте `speckeep archive <slug> .`; не придумывайте и не вызывайте `/speckeep.archive`."
+		return "Цепочка workflow: constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive (CLI-only). Не пропускайте обязательные фазы и не забегайте вперёд. После verify используйте `speckeep archive <slug> .`; не придумывайте и не вызывайте `/spk.archive`."
 	}
-	return "Workflow chain: constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive (CLI-only). Do not skip required phases or jump ahead. After verify, use `speckeep archive <slug> .`; do not invent or call `/speckeep.archive`."
+	return "Workflow chain: constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive (CLI-only). Do not skip required phases or jump ahead. After verify, use `speckeep archive <slug> .`; do not invent or call `/spk.archive`."
 }
 
 func antiPatternHint(lang string) string {

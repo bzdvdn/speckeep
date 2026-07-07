@@ -114,7 +114,7 @@ func TestInitCommandCreatesWorkspace(t *testing.T) {
 	required := []string{
 		filepath.Join(root, ".speckeep", "speckeep.yaml"),
 		filepath.Join(root, "CONSTITUTION.md"),
-		filepath.Join(root, ".claude", "commands", "speckeep.inspect.md"),
+		filepath.Join(root, ".claude", "commands", "spk.inspect.md"),
 	}
 	for _, path := range required {
 		if _, err := os.Stat(path); err != nil {
@@ -875,7 +875,7 @@ func TestCheckCommandBlocksWhenReadinessErrorsPresent(t *testing.T) {
 	if !payload.Blocked || payload.Verdict != "blocked" {
 		t.Fatalf("expected blocked verdict in json output, got %q", stdout)
 	}
-	if payload.NextCommand != "/speckeep.plan demo" {
+	if payload.NextCommand != "/spk.plan demo" {
 		t.Fatalf("expected next_command plan, got %q", payload.NextCommand)
 	}
 	if payload.CheckSummary.Errors == 0 {
@@ -924,7 +924,7 @@ func TestCheckCommandResolvesCustomSpecsDir(t *testing.T) {
 	if payload.Artifacts.Inspect.Present {
 		t.Fatalf("expected inspect present=false in json output, got %q", stdout)
 	}
-	if payload.NextCommand != "/speckeep.plan demo" {
+	if payload.NextCommand != "/spk.plan demo" {
 		t.Fatalf("expected next_command plan, got %q", payload.NextCommand)
 	}
 }

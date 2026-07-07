@@ -47,17 +47,17 @@ func printInitOutput(w io.Writer, result project.InitResult) {
 	printPanel(w, "Next Steps", []string{
 		"1. You're already in the project directory.",
 		"2. Start using slash commands with your AI agent:",
-		"   2.1 " + styleCmd(w, "/speckeep.constitution") + "  - Establish project principles",
-		"   2.2 " + styleCmd(w, "/speckeep.spec") + "          - Create a baseline specification",
-		"   2.3 " + styleCmd(w, "/speckeep.plan") + "          - Create an implementation plan",
-		"   2.4 " + styleCmd(w, "/speckeep.tasks") + "         - Generate actionable tasks",
-		"   2.5 " + styleCmd(w, "/speckeep.implement") + "     - Execute implementation",
+		"   2.1 " + styleCmd(w, "/spk.constitution") + "  - Establish project principles",
+		"   2.2 " + styleCmd(w, "/spk.spec") + "          - Create a baseline specification",
+		"   2.3 " + styleCmd(w, "/spk.plan") + "          - Create an implementation plan",
+		"   2.4 " + styleCmd(w, "/spk.tasks") + "         - Generate actionable tasks",
+		"   2.5 " + styleCmd(w, "/spk.implement") + "     - Execute implementation",
 	})
 
 	printPanel(w, "Enhancement Commands", []string{
-		styleCmd(w, "/speckeep.challenge") + " (optional) - adversarial review of spec/plan",
-		styleCmd(w, "/speckeep.scope") + " (optional)     - scope boundary check",
-		styleCmd(w, "/speckeep.recap") + " (optional)     - recap active features",
+		styleCmd(w, "/spk.challenge") + " (optional) - adversarial review of spec/plan",
+		styleCmd(w, "/spk.scope") + " (optional)     - scope boundary check",
+		styleCmd(w, "/spk.recap") + " (optional)     - recap active features",
 	})
 
 	printPanel(w, "Useful CLI Commands", []string{

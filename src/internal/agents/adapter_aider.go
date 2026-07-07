@@ -35,7 +35,7 @@ func renderAiderCommands(commands []CommandDefinition, language string) string {
 		sections = append(sections, "")
 		sections = append(sections, "Команды:")
 		for _, cmd := range commands {
-			sections = append(sections, fmt.Sprintf("- `/speckeep.%s` → %s", cmd.Name, cmd.PromptPath))
+			sections = append(sections, fmt.Sprintf("- `/spk.%s` → %s", cmd.Name, cmd.PromptPath))
 		}
 		sections = append(sections, "- `speckeep archive <slug> .` → CLI-only archive after verify")
 		sections = append(sections, "")
@@ -62,7 +62,7 @@ func renderAiderCommands(commands []CommandDefinition, language string) string {
 	sections = append(sections, "")
 	sections = append(sections, "Commands:")
 	for _, cmd := range commands {
-		sections = append(sections, fmt.Sprintf("- `/speckeep.%s` → %s", cmd.Name, cmd.PromptPath))
+		sections = append(sections, fmt.Sprintf("- `/spk.%s` → %s", cmd.Name, cmd.PromptPath))
 	}
 	sections = append(sections, "- `speckeep archive <slug> .` → CLI-only archive after verify")
 	sections = append(sections, "")

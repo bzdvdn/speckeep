@@ -28,4 +28,4 @@ Stop if: rules remain `TBD`/placeholder or contradict repo reality without an ex
   - `Languages:` one line (`docs=...`, `agent=...`, `comments=...`)
   - hard limit: ≤200 words total
 - Summarize the key rules and what changed.
-- Final line: `Ready for: /speckeep.spec <slug>`
+- Final line: `Ready for: /spk.spec <slug>`

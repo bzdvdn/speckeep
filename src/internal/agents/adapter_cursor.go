@@ -14,7 +14,7 @@ func (cursorAdapter) Render(commands []CommandDefinition, language string) ([]Fi
 	files := make([]File, 0, len(commands))
 	for _, command := range commands {
 		files = append(files, File{
-			Path:    filepath.ToSlash(filepath.Join(".cursor", "rules", fmt.Sprintf("speckeep-%s.mdc", command.Name))),
+			Path:    filepath.ToSlash(filepath.Join(".cursor", "rules", fmt.Sprintf("spk-%s.mdc", command.Name))),
 			Content: renderCursor(command, lang),
 			Mode:    0o644,
 		})
@@ -45,7 +45,7 @@ alwaysApply: false
 
 %s
 
-Используйте эту rule, когда запрос явно относится к фазе %q или к команде /speckeep.%s.
+Используйте эту rule, когда запрос явно относится к фазе %q или к команде /spk.%s.
 
 - %s
 - %s
@@ -63,7 +63,7 @@ Follow %q.
 
 %s
 
-Use this rule when the request clearly maps to the %q phase or the /speckeep.%s command.
+Use this rule when the request clearly maps to the %q phase or the /spk.%s command.
 
 - %s
 - %s

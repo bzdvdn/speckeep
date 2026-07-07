@@ -24,4 +24,4 @@ Stop if: slug is missing, tasks.md does not exist, or no completed tasks exist.
 - List affected tasks per task ID: whether checkbox was reverted and/or code was reverted.
 - Show updated task state: `completed=<n>`, `open=<n>`.
 - If code was reverted, list the git-checkout commands run.
-- Final line: `Ready for: /speckeep.implement <slug>`
+- Final line: `Ready for: /spk.implement <slug>`
