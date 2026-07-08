@@ -55,14 +55,14 @@ Each phase loads only the minimum context. Optional workflow commands available 
 
 ## Positioning
 
-| Dimension | speckeep | OpenSpec | Spec Kit |
-|---|---|---|---|
-| Workflow style | Strict phase chain, narrow context | Fluid artifact-guided | Thorough multi-step SDD |
-| Default context | Smallest | Moderate | Largest |
-| Artifact overhead | Low | Medium | High |
-| Brownfield | High | High | Medium |
-| Collaboration | Branch-first, feature-local | Change-folder oriented | Branch-heavy |
-| Best fit | Lean strict SDD on real codebases | Flexible SDD-lite | Full-featured rigorous SDD |
+| Dimension         | speckeep                           | OpenSpec               | Spec Kit                   |
+| ----------------- | ---------------------------------- | ---------------------- | -------------------------- |
+| Workflow style    | Strict phase chain, narrow context | Fluid artifact-guided  | Thorough multi-step SDD    |
+| Default context   | Smallest                           | Moderate               | Largest                    |
+| Artifact overhead | Low                                | Medium                 | High                       |
+| Brownfield        | High                               | High                   | Medium                     |
+| Collaboration     | Branch-first, feature-local        | Change-folder oriented | Branch-heavy               |
+| Best fit          | Lean strict SDD on real codebases  | Flexible SDD-lite      | Full-featured rigorous SDD |
 
 ---
 
@@ -96,14 +96,14 @@ speckeep add-skill | list-skills | remove-skill | install-skills | skills-restor
 **Linux / macOS:**
 
 ```bash
-VERSION=v0.7.0
+VERSION=v0.7.1
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$version="v0.7.0"
+$version="v0.7.1"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -143,6 +143,7 @@ Call `/spk.spec --name "CSV export for reports"` in your agent.
 
 ```markdown
 ## Goal
+
 Allow users to download the reports table as a CSV file.
 
 ## Acceptance Criteria
@@ -170,11 +171,11 @@ Call `/spk.plan csv-export-for-reports`. Surfaces: `ReportsPage.tsx`, `useReport
 
 Call `/spk.tasks csv-export-for-reports`. Produces `tasks.md`:
 
-| Surface | Tasks |
-|---|---|
-| hooks/useReportExport.ts | T1.1 |
-| components/ReportsPage.tsx | T1.2 |
-| tests/reports.test.ts | T2.1 |
+| Surface                    | Tasks |
+| -------------------------- | ----- |
+| hooks/useReportExport.ts   | T1.1  |
+| components/ReportsPage.tsx | T1.2  |
+| tests/reports.test.ts      | T2.1  |
 
 ### 6. Implement, verify, archive
 

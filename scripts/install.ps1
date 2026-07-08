@@ -1,3 +1,9 @@
+param(
+  [string]$Version = "latest",
+  [string]$BinDir = "",
+  [switch]$NoPath
+)
+
 $ErrorActionPreference = "Stop"
 
 # GitHub requires TLS 1.2+ — older PowerShell defaults to SSL 3.0 / TLS 1.0
@@ -5,12 +11,6 @@ $ErrorActionPreference = "Stop"
 
 $RepoOwner = "bzdvdn"
 $RepoName = "speckeep"
-
-param(
-  [string]$Version = "latest",
-  [string]$BinDir = "",
-  [switch]$NoPath
-)
 
 function Fail([string]$Message) {
   throw $Message

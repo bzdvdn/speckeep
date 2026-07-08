@@ -55,14 +55,14 @@ constitution → spec → [inspect] → plan → tasks → implement → verify 
 
 ## Позиционирование
 
-| Dimension | speckeep | OpenSpec | Spec Kit |
-|---|---|---|---|
-| Стиль workflow | Строгая цепочка фаз, узкий контекст | Гибкий, вокруг артефактов | Полный многошаговый SDD |
-| Контекст по умолчанию | Минимальный | Средний | Максимальный |
-| Накладные расходы | Низкие | Средние | Высокие |
-| Brownfield | Высокие | Высокие | Средние |
-| Коллаборация | Branch-first, feature-local | Change-folder oriented | Тяжёлые ветки |
-| Подходит для | Лёгкий строгий SDD | Гибкий SDD-lite | Полноценный строгий SDD |
+| Dimension             | speckeep                            | OpenSpec                  | Spec Kit                |
+| --------------------- | ----------------------------------- | ------------------------- | ----------------------- |
+| Стиль workflow        | Строгая цепочка фаз, узкий контекст | Гибкий, вокруг артефактов | Полный многошаговый SDD |
+| Контекст по умолчанию | Минимальный                         | Средний                   | Максимальный            |
+| Накладные расходы     | Низкие                              | Средние                   | Высокие                 |
+| Brownfield            | Высокие                             | Высокие                   | Средние                 |
+| Коллаборация          | Branch-first, feature-local         | Change-folder oriented    | Тяжёлые ветки           |
+| Подходит для          | Лёгкий строгий SDD                  | Гибкий SDD-lite           | Полноценный строгий SDD |
 
 ---
 
@@ -96,14 +96,14 @@ speckeep add-skill | list-skills | remove-skill | install-skills | skills-restor
 **Linux / macOS:**
 
 ```bash
-VERSION=v0.7.0
+VERSION=v0.7.1
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$version="v0.7.0"
+$version="v0.7.1"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -119,7 +119,7 @@ go install speckeep@latest
 **Сборка из исходников:**
 
 ```bash
-go build -ldflags "-X speckeep/src/internal/cli.Version=v0.7.0" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v0.7.1" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 ---
@@ -143,6 +143,7 @@ speckeep init . --lang ru --shell sh --agents claude
 
 ```markdown
 ## Цель
+
 Позволить пользователю скачать таблицу отчётов в виде CSV-файла.
 
 ## Критерии приемки
@@ -170,11 +171,11 @@ Then скачивается .csv только с заголовками — бе
 
 Вызовите `/spk.tasks eksport-otchetov-v-csv`. Результат:
 
-| Surface | Задачи |
-|---|---|
-| hooks/useReportExport.ts | T1.1 |
-| components/ReportsPage.tsx | T1.2 |
-| tests/reports.test.ts | T2.1 |
+| Surface                    | Задачи |
+| -------------------------- | ------ |
+| hooks/useReportExport.ts   | T1.1   |
+| components/ReportsPage.tsx | T1.2   |
+| tests/reports.test.ts      | T2.1   |
 
 ### 6. Implement, verify, archive
 
