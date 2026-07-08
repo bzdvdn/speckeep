@@ -1,5 +1,8 @@
 $ErrorActionPreference = "Stop"
 
+# GitHub requires TLS 1.2+ — older PowerShell defaults to SSL 3.0 / TLS 1.0
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 $RepoOwner = "bzdvdn"
 $RepoName = "speckeep"
 
