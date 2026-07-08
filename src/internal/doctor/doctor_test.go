@@ -462,7 +462,6 @@ func TestCheckDoesNotWarnOrphanedTraceabilityWhenTaskIsInArchive(t *testing.T) {
 func TestCheckWarnsWhenSpecgateEntrypointCannotBeResolved(t *testing.T) {
 	root := t.TempDir()
 	t.Setenv("PATH", "")
-	t.Setenv("DRAFTSPEC_BIN", "")
 	t.Setenv("SPECKEEP_BIN", "")
 
 	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})

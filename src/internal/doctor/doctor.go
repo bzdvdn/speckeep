@@ -512,21 +512,10 @@ func speckeepEntrypointWarning(root string) string {
 		return ""
 	}
 
-	legacyConfigured := strings.TrimSpace(os.Getenv("DRAFTSPEC_BIN"))
-	if legacyConfigured != "" {
-		if _, err := resolveSpecgateBinary(root, legacyConfigured); err != nil {
-			return fmt.Sprintf("DRAFTSPEC_BIN could not be resolved: %s", legacyConfigured)
-		}
-		return ""
-	}
-
 	if _, err := exec.LookPath("speckeep"); err == nil {
 		return ""
 	}
-	if _, err := exec.LookPath("draftspec"); err == nil {
-		return ""
-	}
-	return "speckeep CLI entrypoint not found; set SPECKEEP_BIN (or legacy DRAFTSPEC_BIN) or add speckeep to PATH"
+	return "speckeep CLI entrypoint not found; set SPECKEEP_BIN or add speckeep to PATH"
 }
 
 func resolveSpecgateBinary(root, value string) (string, error) {

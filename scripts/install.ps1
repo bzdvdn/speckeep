@@ -6,7 +6,7 @@ $RepoName = "speckeep"
 param(
   [string]$Version = "latest",
   [string]$BinDir = "",
-  [switch]$AddToPath
+  [switch]$NoPath
 )
 
 function Fail([string]$Message) {
@@ -39,9 +39,9 @@ if (-not $BinDir -or $BinDir.Trim().Length -eq 0) {
   }
 }
 
-if (-not $AddToPath -and $env:SPECKEEP_ADD_TO_PATH) {
+if (-not $NoPath -and $env:SPECKEEP_ADD_TO_PATH) {
   $v = [string]$env:SPECKEEP_ADD_TO_PATH
-  if ($v -match "^(1|true|yes|y|on)$") { $AddToPath = $true }
+  if ($v -match "^(0|false|no|off)$") { $NoPath = $true }
 }
 
 if ($Version -eq "latest" -and $env:SPECKEEP_VERSION) {
@@ -74,14 +74,14 @@ try {
 
   Write-Host ("installed: {0}" -f (Join-Path $BinDir "speckeep.exe"))
 
-  if ($AddToPath) {
+  if (-not $NoPath) {
     $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
     $parts = @()
     if ($userPath) { $parts = $userPath -split ";" }
     if (-not ($parts | Where-Object { $_ -eq $BinDir })) {
       $newPath = @($parts + $BinDir | Where-Object { $_ -and $_.Trim().Length -gt 0 } | Select-Object -Unique) -join ";"
       [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
-      Write-Host ("updated user PATH to include: {0}" -f $BinDir)
+      Write-Host ("added to user PATH: {0}" -f $BinDir)
     }
     if (-not ($env:PATH -split ";" | Where-Object { $_ -eq $BinDir })) {
       $env:PATH = "$env:PATH;$BinDir"
@@ -90,11 +90,15 @@ try {
   } else {
     if (-not ($env:PATH -split ";" | Where-Object { $_ -eq $BinDir })) {
       Write-Host ("note: '{0}' is not on PATH for this session" -f $BinDir)
-      Write-Host "note: rerun with -AddToPath (or set SPECKEEP_ADD_TO_PATH=1) to update PATH"
+      Write-Host "note: rerun without -NoPath (or set SPECKEEP_ADD_TO_PATH=1) to update PATH automatically"
     }
   }
 
-  & (Join-Path $BinDir "speckeep.exe") --version 2>$null
+  try {
+    & (Join-Path $BinDir "speckeep.exe") --version
+  } catch {
+    Write-Host "note: installed, but version check failed ($($_.Exception.Message))"
+  }
 } finally {
   Remove-Item -Recurse -Force $tmpDir -ErrorAction SilentlyContinue
 }

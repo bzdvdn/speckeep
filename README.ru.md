@@ -96,19 +96,19 @@ speckeep add-skill | list-skills | remove-skill | install-skills | skills-restor
 **Linux / macOS:**
 
 ```bash
-VERSION=v0.5.1
+VERSION=v0.7.0
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$version="v0.5.1"
+$version="v0.7.0"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
 
-Добавьте `--add-to-path` (Linux) или `-AddToPath` (Windows) чтобы добавить папку установки в `PATH`.
+На Windows бинарник добавляется в PATH автоматически. На Linux используйте `--add-to-path`, если директория установки ещё не в вашем PATH.
 
 **Go:**
 
@@ -119,7 +119,7 @@ go install speckeep@latest
 **Сборка из исходников:**
 
 ```bash
-go build -ldflags "-X speckeep/src/internal/cli.Version=v0.5.1" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v0.7.0" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 ---

@@ -96,19 +96,19 @@ speckeep add-skill | list-skills | remove-skill | install-skills | skills-restor
 **Linux / macOS:**
 
 ```bash
-VERSION=v0.5.1
+VERSION=v0.7.0
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$version="v0.5.1"
+$version="v0.7.0"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
 
-Add `--add-to-path` (Linux) or `-AddToPath` (Windows) to add the install directory to `PATH`.
+The binary is automatically added to PATH on Windows. On Linux, use `--add-to-path` if the install directory is not already on your PATH.
 
 **Go users:**
 
@@ -119,7 +119,7 @@ go install speckeep@latest
 **Build from source:**
 
 ```bash
-go build -ldflags "-X speckeep/src/internal/cli.Version=v0.5.1" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v0.7.0" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 ---

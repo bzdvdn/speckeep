@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v0.7.0] - 2026-07-08
+## [v0.7.1] - 2026-07-08
+
+### Fixed
+
+- **Install scripts: stale versions, fragile `--version` check, legacy `draftspec` references**:
+  - `scripts/install.sh`: example versions updated from `v0.5.1` to `v0.7.0`
+  - `scripts/install.ps1`: `--version` call wrapped in try/catch — no longer crashes on success if the binary fails to run after install; `-AddToPath` flag inverted to default-on (`-NoPath` to opt out) — speckeep now automatically added to User PATH
+  - `run-speckeep.ps1` / `run-speckeep.sh`: removed legacy `DRAFTSPEC_BIN` env var and `draftspec` binary fallbacks
+  - `doctor`: removed `DRAFTSPEC_BIN` / `draftspec` checks from `speckeepEntrypointWarning`
+
+## [v0.7.0] - 2026-07-07
 
 ### Changed
 
@@ -291,4 +301,5 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [0.5.1]: https://github.com/bzdvdn/speckeep/releases/tag/v0.5.1
 [0.6.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.6.0
 [0.7.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.7.0
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.7.0...HEAD
+[0.7.1]: https://github.com/bzdvdn/speckeep/releases/tag/v0.7.1
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v0.7.1...HEAD
