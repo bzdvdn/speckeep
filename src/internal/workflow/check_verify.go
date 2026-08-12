@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"speckeep/src/internal/config"
+	"speckeep/src/internal/trace"
 )
 
 func CheckVerifyReady(ctx context.Context, cfg config.Config, root, slug string) (CheckResult, error) {
@@ -48,6 +49,11 @@ func CheckVerifyReady(ctx context.Context, cfg config.Config, root, slug string)
 			return CheckResult{}, err
 		}
 		result.Merge(taskStateResult)
+		proofResult, err := CheckProofs(ctx, cfg, root, slug)
+		if err != nil {
+			return CheckResult{}, err
+		}
+		result.Merge(proofResult)
 		if tasksContent, readErr := os.ReadFile(tasksAbs); readErr == nil {
 			checkTouchesFilesExist(&result, root, tasksDisplay, string(tasksContent))
 		}
@@ -58,6 +64,56 @@ func CheckVerifyReady(ctx context.Context, cfg config.Config, root, slug string)
 			checkPlanContent(&result, slug, specAbs, planDisplay, string(planContent))
 		}
 	}
+	return result, nil
+}
+
+func CheckProofs(ctx context.Context, cfg config.Config, root, slug string) (CheckResult, error) {
+	root, err := filepath.Abs(root)
+	if err != nil {
+		return CheckResult{}, err
+	}
+	result := CheckResult{}
+	tasksDisplay, tasksAbs := resolveTasksDisplayPath(root, cfg.Paths.SpecsDir, slug)
+	if !fileExists(tasksAbs) {
+		return result, nil
+	}
+	content, err := os.ReadFile(tasksAbs)
+	if err != nil {
+		return CheckResult{}, fmt.Errorf("read tasks %s: %w", tasksDisplay, err)
+	}
+
+	ids, withProof := trace.CompletedTaskLines(string(content))
+	var missing []string
+	for _, id := range ids {
+		if !withProof[id] {
+			missing = append(missing, id)
+		}
+	}
+	if len(missing) > 0 {
+		result.AddError(fmt.Sprintf("closed task(s) without Proof in %s: %s — add a Proof: line to tasks.md", tasksDisplay, strings.Join(missing, ", ")))
+	}
+
+	if !result.Failed {
+		entries, err := trace.ParseTasks(ctx, root, slug)
+		if err != nil {
+			return CheckResult{}, err
+		}
+		for _, e := range entries {
+			if !trace.FileExists(root, e) {
+				result.AddError(fmt.Sprintf("proof of %s#%s references missing file: %s", slug, e.TaskID, e.File))
+			}
+		}
+		for _, e := range entries {
+			for _, problem := range trace.CheckEntry(root, e) {
+				if problem.Kind == "anchor-missing" {
+					result.AddWarn(problem.Message)
+				}
+			}
+		}
+	}
+
+	result.AddRaw(fmt.Sprintf("PROOFS_TOTAL=%d", len(ids)))
+	result.AddRaw(fmt.Sprintf("PROOFS_MISSING=%d", len(missing)))
 	return result, nil
 }
 

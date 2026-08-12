@@ -307,22 +307,16 @@ speckeep check my-project --all --json
 
 ### `speckeep trace [slug] [path]`
 
-Scans for traceability annotations in the codebase.
+Parses `Proof:` entries from `tasks.md` to map completed tasks to implementation evidence. It does not scan source code.
 
-Annotations follow the format:
-- `// @sk-task <TASK_ID>: <Description> (<AC_ID>)` for implementation code.
-- `// @sk-test <TASK_ID>: <TestName> (<AC_ID>)` for test evidence.
+The `Proof:` line directly under each completed `[x]` task follows the format:
+- `Proof: <kind> <path> [<anchor>]`, where `kind` is `code|test|docs|chore`, `path` is a repo-root-relative path, and `anchor` is the owning function/test/type name (optional but recommended).
+- examples: `Proof: code src/handlers/export.go ExportHandler`, `Proof: test src/tests/export_test.go TestExportFlow`, `Proof: docs docs/export.md`.
 
-Placement rule:
-- a trace marker must sit above a concrete owning declaration or behavior block, not at file level.
-- do not place it above `package`, `import`, a file-header comment, or any line that does not belong to a concrete function/method/type/test.
-- if multiple tests/cases verify the same task, `@sk-test <slug>#<TASK_ID>` must appear on each such test/case.
-- stack guide: Go `//` above `func/type/Test...`; Python `#` as the first line inside `def/class/test_*`; JS/TS `//` above declarations and as the first line inside `test()/it()` callbacks; Java/C#/C/C++ comments above method/class/test blocks.
-
-This command identifies links between implementation code, task IDs from `tasks.md`, and acceptance criteria from `spec.md`.
+This command reports orphaned/duplicate/missing proof, missing files, and warns on missing anchors.
 
 Use `slug` to filter findings for a specific feature.
-Use `--tests` to show only test evidence.
+Use `--tests` to show only `test`-kind proof entries.
 Use `--json` for machine-readable output.
 
 ```bash

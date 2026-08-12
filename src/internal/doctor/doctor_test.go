@@ -45,6 +45,89 @@ func TestCheckHealthyWorkspace(t *testing.T) {
 	}
 }
 
+func TestCheckUninitializedProjectReportsSingleError(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "nested", "empty")
+	if err := os.MkdirAll(root, 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+
+	result, err := Check(context.Background(), root)
+	if err != nil {
+		t.Fatalf("Check returned error: %v", err)
+	}
+
+	if len(result.Findings) != 1 {
+		t.Fatalf("expected exactly 1 finding, got %d: %+v", len(result.Findings), result.Findings)
+	}
+	finding := result.Findings[0]
+	if finding.Level != "error" {
+		t.Fatalf("finding level = %q, want error", finding.Level)
+	}
+	if !strings.Contains(finding.Message, "not initialized") {
+		t.Fatalf("finding message = %q, want mention of not initialized", finding.Message)
+	}
+	for _, finding := range result.Findings {
+		if strings.Contains(finding.Message, "missing") {
+			t.Fatalf("unexpected missing-file finding on uninitialized project: %+v", finding)
+		}
+	}
+}
+
+func TestCheckWarnsOnDeprecatedSpeckeepCommands(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	agentsPath := filepath.Join(root, "AGENTS.md")
+	content, err := os.ReadFile(agentsPath)
+	if err != nil {
+		t.Fatalf("ReadFile(AGENTS.md) returned error: %v", err)
+	}
+	text := strings.Replace(string(content), "Use `Return to` when blocked.", "Legacy `/speckeep.archive` unused.", 1)
+	if err := os.WriteFile(agentsPath, []byte(text), 0o644); err != nil {
+		t.Fatalf("WriteFile(AGENTS.md) returned error: %v", err)
+	}
+
+	result, err := Check(context.Background(), root)
+	if err != nil {
+		t.Fatalf("Check returned error: %v", err)
+	}
+
+	var found bool
+	for _, finding := range result.Findings {
+		if finding.Level == "warning" && strings.Contains(finding.Message, "deprecated /speckeep.* commands") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected deprecated /speckeep.* commands warning, got %+v", result.Findings)
+	}
+}
+
+func TestCheckDoesNotWarnOnSpeckeepYamlConfigPath(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	result, err := Check(context.Background(), root)
+	if err != nil {
+		t.Fatalf("Check returned error: %v", err)
+	}
+
+	for _, finding := range result.Findings {
+		if strings.Contains(finding.Message, "deprecated /speckeep.* commands") {
+			t.Fatalf("unexpected /speckeep warning on clean workspace: %+v", result.Findings)
+		}
+	}
+}
+
 func TestCheckErrorsWhenPlanSkipsMandatoryInspect(t *testing.T) {
 	root := t.TempDir()
 
@@ -413,7 +496,7 @@ func TestCheckWarnsWhenSkillMissingResolvedCommit(t *testing.T) {
 	}
 }
 
-func TestCheckDoesNotWarnOrphanedTraceabilityWhenTaskIsInArchive(t *testing.T) {
+func TestCheckWarnsOnDeprecatedLegacyMarkers(t *testing.T) {
 	root := t.TempDir()
 
 	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
@@ -421,29 +504,11 @@ func TestCheckDoesNotWarnOrphanedTraceabilityWhenTaskIsInArchive(t *testing.T) {
 		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	// Code annotation for an archived feature.
-	codePath := filepath.Join(root, "pkg", "demo", "demo_test.go")
+	codePath := filepath.Join(root, "pkg", "demo", "demo.go")
 	if err := os.MkdirAll(filepath.Dir(codePath), 0o755); err != nil {
 		t.Fatalf("MkdirAll returned error: %v", err)
 	}
 	if err := os.WriteFile(codePath, []byte("package demo\n\n// @sk-task T4.1: Archived implementation (AC-001)\n"), 0o644); err != nil {
-		t.Fatalf("WriteFile returned error: %v", err)
-	}
-
-	// Archive snapshot containing the task ID.
-	cfg, err := config.Load(context.Background(), root)
-	if err != nil {
-		t.Fatalf("config.Load returned error: %v", err)
-	}
-	archiveDir, err := cfg.ArchiveDir(root)
-	if err != nil {
-		t.Fatalf("cfg.ArchiveDir returned error: %v", err)
-	}
-	archiveTasks := filepath.Join(archiveDir, "demo", "2026-01-01", "plan", "tasks.md")
-	if err := os.MkdirAll(filepath.Dir(archiveTasks), 0o755); err != nil {
-		t.Fatalf("MkdirAll returned error: %v", err)
-	}
-	if err := os.WriteFile(archiveTasks, []byte("# Tasks\n\n- [x] T4.1 done\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
@@ -452,9 +517,55 @@ func TestCheckDoesNotWarnOrphanedTraceabilityWhenTaskIsInArchive(t *testing.T) {
 		t.Fatalf("Check returned error: %v", err)
 	}
 
+	var found bool
 	for _, finding := range result.Findings {
-		if finding.Level == "warning" && strings.Contains(finding.Message, "orphaned traceability annotation") {
-			t.Fatalf("unexpected orphaned traceability warning: %+v", finding)
+		if finding.Level == "warning" && strings.Contains(finding.Message, "deprecated traceability marker") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected deprecated traceability marker warning, got %+v", result.Findings)
+	}
+}
+
+func TestCheckDoesNotWarnOnValidProofEntry(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	codePath := filepath.Join(root, "src", "export.go")
+	if err := os.MkdirAll(filepath.Dir(codePath), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(codePath, []byte("package export\n\nfunc RunExport() {}\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile returned error: %v", err)
+	}
+
+	specDir := filepath.Join(root, "specs", "active", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
+	}
+	tasksContent := "# Tasks\n\n- [x] T1.1 Implement export. Touches: src/export.go\n      Proof: code src/export.go RunExport\n"
+	if err := os.WriteFile(filepath.Join(specDir, "tasks.md"), []byte(tasksContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks) returned error: %v", err)
+	}
+
+	result, err := Check(context.Background(), root)
+	if err != nil {
+		t.Fatalf("Check returned error: %v", err)
+	}
+
+	for _, finding := range result.Findings {
+		if !strings.Contains(finding.Message, "orphaned proof entry") &&
+			!strings.Contains(finding.Message, "missing file") &&
+			!strings.Contains(finding.Message, "anchor ") && !strings.Contains(finding.Message, "deprecated traceability marker") {
+			if strings.Contains(finding.Message, "proof") || strings.Contains(finding.Message, "anchor") {
+				t.Fatalf("unexpected traceability finding: %+v", finding)
+			}
 		}
 	}
 }

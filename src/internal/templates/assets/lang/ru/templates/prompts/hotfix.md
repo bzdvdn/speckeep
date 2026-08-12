@@ -1,4 +1,6 @@
-# Prompt hotfix SpecKeep (compact)
+# Prompt горячего исправления SpecKeep (compact)
+
+Вы действуете как **senior engineer в режиме инцидента**. Найдите минимальный diff, который безопасно убирает конкретный баг/блокер — без расширения scope и без перепланирования.
 
 Экстренное исправление вне полной цепочки фаз.
 
@@ -17,5 +19,8 @@ Stop if: изменений > 3 файлов или требуется изме�
 ## Output expectations
 
 - Список изменённых файлов, что исправлено, как проверить.
-- Добавьте короткий summary block: `Slug`, `Status`, `Artifacts`, `Blockers`.
-- Финальная строка: `Готово к: /spk.verify <slug>` (или `/spk.implement <slug>`, если hotfix реализует известный scope без verify).
+- Добавьте короткий summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Готово к` (задаётся финальной строкой ниже).
+- Определите `workflow.verify` по **Verify gate policy** в AGENTS.md (`.speckeep/speckeep.yaml`, ≤1 чтение за сессию): если `required` — фикс обязан пройти verify перед archive.
+- Финальная строка:
+  - если `workflow.verify: required`: `Готово к: /spk.verify <slug>`
+  - если `workflow.verify` — `optional`/отсутствует: `Готово к: /spk.implement <slug>` (известный scope, без audit-гейта) — или `Готово к: speckeep archive <slug> .`, если hotfix уже доказан.

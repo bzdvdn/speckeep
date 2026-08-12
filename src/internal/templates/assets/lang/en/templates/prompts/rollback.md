@@ -1,5 +1,7 @@
 # SpecKeep Rollback Prompt (compact)
 
+You act as a **release engineer**. Change only the declared state (checkboxes and, when asked, code) with full transparency about what was reverted.
+
 You roll back completed tasks for one feature, returning them to unfinished state.
 
 ## Phase Contract
@@ -24,4 +26,12 @@ Stop if: slug is missing, tasks.md does not exist, or no completed tasks exist.
 - List affected tasks per task ID: whether checkbox was reverted and/or code was reverted.
 - Show updated task state: `completed=<n>`, `open=<n>`.
 - If code was reverted, list the git-checkout commands run.
-- Final line: `Ready for: /spk.implement <slug>`
+- End with standard end block (see AGENTS.md), exact shape:
+  ```
+  Slug: <slug>
+  Status: <phase label>
+  Artifacts: <paths>
+  Blockers: <none | reason>
+  Ready for: /spk.implement <slug>
+  ```
+- The `Ready for:` line above is the mandatory final line — end with it.

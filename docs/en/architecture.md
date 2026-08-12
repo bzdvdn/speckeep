@@ -13,7 +13,7 @@ SpecKeep is split into a few practical layers:
 - `src/internal/templates/` for localized generated assets and file generation
 - `src/internal/agents/` for project-local command or prompt file generation
 - `src/internal/specs/` for reading spec files used by the public CLI
-- `src/internal/trace/` for scanning traceability annotations in code
+- `src/internal/trace/` for parsing `Proof:` entries from `tasks.md`
 - `src/internal/doctor/` for workspace health checks
 
 ## CLI Layer
@@ -108,11 +108,12 @@ This layer is responsible for:
 
 `src/internal/trace/trace.go` handles the core logic for linking code to requirements:
 
-- scans files for `@sk-task` and `@sk-test` annotations
+- parses `Proof:` entries from `tasks.md`, mapping each completed task to its implementation evidence (kind, path, optional anchor)
+- reports orphaned/duplicate/missing proof, missing files, and warns on missing anchors
 - filters findings by feature slug
 - supports JSON output for integration with verification workflows
 
-This layer allows the `verify` phase to remain token-efficient by replacing manual code review with deterministic metadata scanning.
+This layer allows the `verify` phase to remain token-efficient by replacing manual code review with deterministic metadata parsing.
 
 ## Health and Maintenance Layer
 
@@ -125,7 +126,7 @@ It verifies:
 - enabled agent targets have their generated files
 - disabled targets do not leave stale artifacts behind unnoticed
 - **Smart Branching**: checks if the current Git branch matches the feature slug (expected `feature/<slug>`)
-- **Traceability Integrity**: warns about orphaned `@sk-task` annotations or invalid `AC-*` references
+- **Traceability Integrity**: warns about orphaned/missing `Proof:` entries or invalid `AC-*` references
 
 Related maintenance commands:
 

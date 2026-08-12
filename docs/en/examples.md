@@ -61,7 +61,7 @@ Why this helps:
 
 ### Prompt File Input
 
-When `/speckeep.spec` starts from a local prompt file, prefer explicit metadata instead of relying on a generic filename such as `spec_prompt.md`.
+When `/spk.spec` starts from a local prompt file, prefer explicit metadata instead of relying on a generic filename such as `spec_prompt.md`.
 
 Example prompt file:
 
@@ -80,12 +80,12 @@ This lets SpecKeep:
 
 ### Staged Input Via `--name`
 
-When the feature name is already clear but the detailed description is easier to send in the next message, `/speckeep.spec` can start in staged mode.
+When the feature name is already clear but the detailed description is easier to send in the next message, `/spk.spec` can start in staged mode.
 
 Example:
 
 ```text
-/speckeep.spec --name "Dependency Dashboard"
+/spk.spec --name "Dependency Dashboard"
 ```
 
 Next message:
@@ -103,13 +103,13 @@ This allows SpecKeep to:
 If you need an explicit slug:
 
 ```text
-/speckeep.spec --name "Dependency Dashboard" --slug frontend-layout-rework
+/spk.spec --name "Dependency Dashboard" --slug frontend-layout-rework
 ```
 
 If you need a repository-specific branch override:
 
 ```text
-/speckeep.spec --name "Dependency Dashboard" --slug frontend-layout-rework --branch FEAT-142
+/spk.spec --name "Dependency Dashboard" --slug frontend-layout-rework --branch FEAT-142
 ```
 
 ## 1. Create a Constitution for a Brownfield Project
@@ -117,7 +117,7 @@ If you need a repository-specific branch override:
 User request:
 
 ```text
-/speckeep.constitution Python project, DDD style, split into API and workers, Kafka for asynchronous integration, ClickHouse as the analytical sink.
+/spk.constitution Python project, DDD style, split into API and workers, Kafka for asynchronous integration, ClickHouse as the analytical sink.
 ```
 
 Expected agent behavior:
@@ -138,7 +138,7 @@ Expected outcome:
 User request:
 
 ```text
-/speckeep.spec Add partner-specific ingestion scheduling with retry policy overrides.
+/spk.spec Add partner-specific ingestion scheduling with retry policy overrides.
 ```
 
 Expected agent behavior:
@@ -162,7 +162,7 @@ Example acceptance criterion:
 Example with an explicit branch override:
 
 ```text
-/speckeep.spec Add partner-specific ingestion scheduling with retry policy overrides --branch NRD-11
+/spk.spec Add partner-specific ingestion scheduling with retry policy overrides --branch NRD-11
 ```
 
 In that case, the spec slug can still stay `partner-scheduling` while the working branch follows the repository's branch convention, for example `NRD-11`.
@@ -170,12 +170,12 @@ In that case, the spec slug can still stay `partner-scheduling` while the workin
 ## 3. Inspect the Spec
 
 Use this step when the feature is ambiguous, high-risk, or you want a formal quality gate.  
-If the spec is already clear and low-risk, you may proceed directly to `/speckeep.plan <slug>`.
+If the spec is already clear and low-risk, you may proceed directly to `/spk.plan <slug>`.
 
 User request:
 
 ```text
-/speckeep.inspect partner-scheduling
+/spk.inspect partner-scheduling
 ```
 
 Expected agent behavior:
@@ -199,7 +199,7 @@ Typical findings:
 User request:
 
 ```text
-/speckeep.plan partner-scheduling
+/spk.plan partner-scheduling
 ```
 
 Expected agent behavior:
@@ -222,7 +222,7 @@ Typical outputs:
 User request:
 
 ```text
-/speckeep.tasks partner-scheduling
+/spk.tasks partner-scheduling
 ```
 
 Expected agent behavior:
@@ -250,70 +250,61 @@ Example task structure:
 User request:
 
 ```text
-/speckeep.implement partner-scheduling
+/spk.implement partner-scheduling
 ```
 
 Expected agent behavior:
 
 - read `tasks.md` and use it as the execution manifest
 - perform **In-place Decomposition** if a task is too complex, adding indented sub-tasks (e.g., `T1.1.1`)
-- annotate every non-trivial code change with a trace marker in the idiomatic style of the language
+- record a `Proof:` line in `tasks.md` under each completed task
 - mark completed tasks in `tasks.md`
 - stay within the `Touches:` list defined for each task
 
-Example Go code annotation:
+Example `tasks.md` proof entries after implementing `T1.1`:
 
-```go
-// @sk-task partner-scheduling#T1.1: Add partner scheduling override model (AC-001)
-func SavePartnerSchedule(p Partner) {
-    // ...
-}
+```md
+## Phase 1: Data Model
+
+- [x] T1.1 Add partner scheduling override model — override fields are persisted
+      Proof: code src/models/partner_schedule.go PartnerSchedule
+      Proof: test src/tests/partner_schedule_test.go TestSavePartnerSchedule
+- [ ] T1.2 Persist retry window fields — retry windows are available to scheduling logic
+
+## Acceptance Coverage
+
+- AC-001 -> T1.1, T1.2
 ```
 
-Other languages may differ in style:
-- Python: `# @sk-task ...` as the first line inside a `def` / `class`
-- JS/TS: `// @sk-task ...` above the declaration, and for `test()/it()` as the first line inside the callback
-
 ## 7. Verify the Implementation
+
+Verify is an optional on-demand audit: it is always available but skipped by default in the normal workflow.
 
 User request:
 
 ```text
-/speckeep.verify partner-scheduling
+/spk.verify partner-scheduling
 ```
 
 Expected agent behavior:
 
 - use `.speckeep/scripts/trace.sh partner-scheduling` to collect implementation evidence
-- look for `// @sk-task` and `// @sk-test` annotations in the code
+- read the `Proof:` lines from `tasks.md` and confirm the referenced files exist
 - confirm that implementation matches task descriptions and acceptance criteria
 - provide a clear verdict (`pass`, `concerns`, or `blocked`)
 - include concrete evidence in the `## Checks` section
-- if multiple tests verify the same task, expect `@sk-test` on each such test
 
-Example Go test annotations:
+The trace helper reads `Proof:` entries under each completed task, for example:
 
-```go
-// @sk-test partner-scheduling#T1.1: TestSavePartnerSchedule (AC-001)
-func TestSavePartnerSchedule(t *testing.T) {
-    // ...
-}
+```md
+## Phase 1: Data Model
 
-// @sk-test partner-scheduling#T1.1: TestSavePartnerScheduleDefaults (AC-001)
-func TestSavePartnerScheduleDefaults(t *testing.T) {
-    // ...
-}
+- [x] T1.1 Add partner scheduling override model — override fields are persisted
+      Proof: code src/models/partner_schedule.go PartnerSchedule
+      Proof: test src/tests/partner_schedule_test.go TestSavePartnerSchedule
 ```
 
-The same rule in Python looks like this:
-
-```python
-def test_save_partner_schedule():
-    # @sk-test partner-scheduling#T1.1: test_save_partner_schedule (AC-001)
-    ...
-```
-
-If the feature is older and lacks annotations, the agent falls back to manual inspection of the files listed in `Touches:` and running tests manually.
+A `[x]` task without at least one `Proof:` entry is not considered done.
 
 Expected agent behavior:
 
@@ -328,8 +319,8 @@ This phase should avoid broad repository reads unless the active task actually r
 Example scoped requests:
 
 ```text
-/speckeep.implement partner-scheduling --phase 2
-/speckeep.implement partner-scheduling --tasks T1.1,T2.1
+/spk.implement partner-scheduling --phase 2
+/spk.implement partner-scheduling --tasks T1.1,T2.1
 ```
 
 Expected scoped behavior:
@@ -350,7 +341,7 @@ Typical runtime updates:
 User request:
 
 ```text
-/speckeep.verify partner-scheduling
+/spk.verify partner-scheduling
 ```
 
 Expected agent behavior:

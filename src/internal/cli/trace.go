@@ -5,11 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"regexp"
 
 	"github.com/spf13/cobra"
-	"speckeep/src/internal/config"
-	"speckeep/src/internal/featurepaths"
 	"speckeep/src/internal/trace"
 )
 
@@ -19,7 +16,7 @@ func newTraceCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "trace [slug] [path]",
-		Short: "Trace requirements and tasks to code annotations",
+		Short: "Trace requirements and tasks to Proof entries in tasks.md",
 		Args:  cobra.MaximumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			root := "."
@@ -38,31 +35,29 @@ func newTraceCmd() *cobra.Command {
 				}
 			}
 
-			traceResult, err := trace.Scan(context.Background(), root)
+			var entries []trace.Entry
+			var err error
+			if slug != "" {
+				entries, err = trace.ParseTasks(context.Background(), root, slug)
+			} else {
+				entries, err = trace.ParseAll(context.Background(), root)
+			}
 			if err != nil {
 				return err
 			}
 
 			if testsOnly {
-				var filtered []trace.Finding
-				for _, f := range traceResult.Findings {
-					if f.Type == "test" {
-						filtered = append(filtered, f)
+				var filtered []trace.Entry
+				for _, e := range entries {
+					if e.Kind == "test" {
+						filtered = append(filtered, e)
 					}
 				}
-				traceResult.Findings = filtered
-			}
-
-			if slug != "" {
-				taskIDs, err := getTaskIDsForSlug(root, slug)
-				if err != nil {
-					return err
-				}
-				traceResult.Findings = trace.FilterBySlug(traceResult.Findings, taskIDs)
+				entries = filtered
 			}
 
 			if jsonOutput {
-				payload, err := json.MarshalIndent(traceResult, "", "  ")
+				payload, err := json.MarshalIndent(entries, "", "  ")
 				if err != nil {
 					return err
 				}
@@ -70,22 +65,26 @@ func newTraceCmd() *cobra.Command {
 				return nil
 			}
 
-			if len(traceResult.Findings) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No traceability annotations found.")
+			if len(entries) == 0 {
+				fmt.Fprintln(cmd.OutOrStdout(), "No Proof entries found in tasks.md files.")
 				return nil
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Found %d traceability annotations:\n\n", len(traceResult.Findings))
-			for _, f := range traceResult.Findings {
+			fmt.Fprintf(cmd.OutOrStdout(), "Found %d Proof entries:\n\n", len(entries))
+			for _, e := range entries {
+				anchorPart := ""
+				if e.Anchor != "" {
+					anchorPart = ":" + e.Anchor
+				}
 				acPart := ""
-				if f.ACID != "" {
-					acPart = fmt.Sprintf(" (%s)", f.ACID)
+				if e.ACID != "" {
+					acPart = fmt.Sprintf(" (%s)", e.ACID)
 				}
-				typePart := ""
-				if f.Type == "test" {
-					typePart = "[TEST] "
+				slugPart := ""
+				if slug == "" {
+					slugPart = e.Slug + "#"
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "- %s:%d: %s%s%s %s\n", f.File, f.Line, typePart, f.TaskID, acPart, f.Description)
+				fmt.Fprintf(cmd.OutOrStdout(), "- %s%s%s -> %s%s [%s]%s\n", slugPart, e.TaskID, acPart, e.File, anchorPart, e.Kind, traceProblemsSuffix(cmd, root, e))
 			}
 
 			return nil
@@ -93,36 +92,22 @@ func newTraceCmd() *cobra.Command {
 	}
 
 	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output results in JSON format")
-	cmd.Flags().BoolVar(&testsOnly, "tests", false, "Show only test-related annotations (@sk-test)")
+	cmd.Flags().BoolVar(&testsOnly, "tests", false, "Show only test-kind Proof entries")
 
 	return cmd
 }
 
-func getTaskIDsForSlug(root, slug string) (map[string]struct{}, error) {
-	cfg, err := config.Load(context.Background(), root)
-	if err != nil {
-		return nil, err
+func traceProblemsSuffix(cmd *cobra.Command, root string, e trace.Entry) string {
+	if !trace.FileExists(root, e) {
+		return " (file missing)"
 	}
-
-	specsDir, err := cfg.SpecsDir(root)
-	if err != nil {
-		return nil, err
+	if e.Anchor == "" {
+		return ""
 	}
-
-	tasksPath, _ := featurepaths.ResolveTasks(specsDir, slug)
-	content, err := os.ReadFile(tasksPath)
-	if err != nil {
-		return nil, fmt.Errorf("could not read tasks file for slug %s: %w", slug, err)
+	for _, problem := range trace.CheckEntry(root, e) {
+		if problem.Kind == "anchor-missing" {
+			return " (anchor missing)"
+		}
 	}
-
-	taskIDs := make(map[string]struct{})
-	// Match task IDs like T1.1, T2.2, etc.
-	re := regexp.MustCompile(`(T[0-9]+(?:\.[0-9]+)*)`)
-	matches := re.FindAllString(string(content), -1)
-	for _, m := range matches {
-		taskIDs[m] = struct{}{}
-		taskIDs[slug+"#"+m] = struct{}{}
-	}
-
-	return taskIDs, nil
+	return ""
 }

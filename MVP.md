@@ -108,8 +108,9 @@ The intended agent workflow is strict:
 4. `plan`
 5. `tasks`
 6. `implement`
-7. `verify`
-8. `archive`
+7. `archive`
+
+`inspect` and `verify` are optional on-demand audits (always available, skipped by default).
 
 Dependency rules:
 
@@ -119,18 +120,18 @@ Dependency rules:
 - `plan` depends on the constitution, one spec, and the persisted inspect report
 - `tasks` depends on the constitution and one feature artifact set with a plan
 - `implement` depends on the constitution and one task list
-- `verify` depends on the constitution and one task list
-- `archive` depends on one existing spec and archives the related feature artifacts
+- `verify` (optional audit) depends on the constitution and one task list
+- `archive` depends on one existing spec and archives the related feature artifacts; allowed once all `[x]` tasks carry a `Proof:` entry, or after `verify: pass`
 
 ## Optional workflow commands
 
 Available at any phase:
 
-- `/speckeep.challenge`: adversarial review of spec or plan — finds weak assumptions, untestable AC, scope drift
-- `/speckeep.handoff`: compact session handoff document for new sessions
-- `/speckeep.hotfix`: emergency fix outside standard chain (≤3 files, known root cause)
-- `/speckeep.scope`: quick scope boundary check (inline only, no file)
-- `/speckeep.recap`: project-level overview of all active features
+- `/spk.challenge`: adversarial review of spec or plan — finds weak assumptions, untestable AC, scope drift
+- `/spk.handoff`: compact session handoff document for new sessions
+- `/spk.hotfix`: emergency fix outside standard chain (≤3 files, known root cause)
+- `/spk.scope`: quick scope boundary check (inline only, no file)
+- `/spk.recap`: project-level overview of all active features
 
 ## Language model
 
@@ -236,7 +237,7 @@ Outputs:
 
 ## Verify workflow
 
-`verify` is agent-driven.
+`verify` is an **optional on-demand audit** (agent-driven).
 
 Inputs:
 
@@ -253,9 +254,10 @@ Outputs:
 The verify phase must:
 
 - treat task list as entrypoint
-- confirm completed task state against implementation evidence
-- use `speckeep trace` as primary evidence
+- confirm completed task state against implementation evidence (`Proof:` entries in `tasks.md`)
+- use `speckeep trace` as primary evidence (reads `Proof:` from `tasks.md`)
 - prefer `concerns` over `pass` when evidence is partial
+- a persisted `verify.md` with status ≠ `pass` vetoes `archive`
 
 ## Archive workflow
 
@@ -275,14 +277,13 @@ Outputs:
 
 ## Traceability
 
-`speckeep trace <slug> [path]` scans for `@sk-task` and `@sk-test` annotations in code.
+`speckeep trace <slug> [path]` reads `Proof:` entries from `tasks.md` (no source-code scan; evidence is never recorded as inline source markers).
 
 Provides verifiable traceability between:
 
 - requirements (AC-*)
 - tasks (T*)
-- implementation (code annotations)
-- tests (@sk-test)
+- implementation (Proof entries in `tasks.md` — code/test/docs paths)
 
 ## CLI entrypoint contract
 
@@ -420,7 +421,6 @@ Safe repair scope:
 - cross-spec ID collisions (warning)
 - unfilled constitution placeholders (warning)
 - branch name mismatches (warning)
-- orphaned `@sk-task` annotations (warning)
 - invalid `AC-*` references (warning)
 
 ## Configuration file

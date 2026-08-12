@@ -260,7 +260,7 @@ func TestInferLifecycleBranchMismatchBlocks(t *testing.T) {
 		BranchMismatch: true,
 		Archived:       false,
 	}
-	inferLifecycle(&state)
+	inferLifecycle(&state, false)
 	if !state.Blocked {
 		t.Fatalf("expected Blocked=true when BranchMismatch=true, got Blocked=%v", state)
 	}
@@ -273,7 +273,7 @@ func TestInferLifecycleBranchMismatchDoesNotBlockArchived(t *testing.T) {
 		Archived:       true,
 		BranchMismatch: true,
 	}
-	inferLifecycle(&state)
+	inferLifecycle(&state, false)
 	if state.Blocked {
 		t.Fatalf("expected Blocked=false for archived feature, got Blocked=%v", state)
 	}

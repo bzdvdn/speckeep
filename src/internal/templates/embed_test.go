@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -346,8 +347,10 @@ func TestImplementPromptSupportsFullRunAndScopedExecution(t *testing.T) {
 		"Do not use `--phase` and `--tasks` together.",
 		"`Touches:`",
 		"Do not assume `research.md` should exist;",
-		"Ready for: /spk.verify <slug>",
-		"End with standard end block (see AGENTS.md).",
+		"Proof plan:",
+		"Proof: <kind> <path> [<anchor>]",
+		"Ready for: speckeep archive <slug> .",
+		"End with standard end block (see AGENTS.md), exact shape:",
 	}
 	for _, snippet := range requiredSnippets {
 		if !strings.Contains(content, snippet) {
@@ -377,7 +380,7 @@ func TestSpecPromptDefinesDeterministicStagedMode(t *testing.T) {
 		"/spk.inspect <slug>",
 		"/spk.plan <slug>",
 		"Final line (mandatory): `Ready for:",
-		"End with standard end block (see AGENTS.md).",
+		"End with standard end block (see AGENTS.md), exact shape:",
 	}
 	for _, snippet := range requiredSnippets {
 		if !strings.Contains(content, snippet) {
@@ -404,7 +407,7 @@ func TestPlanPromptDefinesConcreteResearchTriggers(t *testing.T) {
 		"Do not create `research.md` for generic brainstorming",
 		".speckeep/constitution.summary.md",
 		"Ready for: /spk.tasks <slug>",
-		"End with standard end block (see AGENTS.md).",
+		"End with standard end block (see AGENTS.md), exact shape:",
 	}
 	for _, snippet := range requiredSnippets {
 		if !strings.Contains(content, snippet) {
@@ -625,7 +628,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 				"/spk.inspect <slug>",
 				"/spk.plan <slug>",
 				"Final line (mandatory): `Ready for:",
-				"End with standard end block (see AGENTS.md).",
+				"End with standard end block (see AGENTS.md), exact shape:",
 			},
 		},
 		{
@@ -633,7 +636,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			want: []string{
 				".speckeep/constitution.summary.md",
 				"Ready for: /spk.tasks <slug>",
-				"End with standard end block (see AGENTS.md).",
+				"End with standard end block (see AGENTS.md), exact shape:",
 			},
 		},
 		{
@@ -641,7 +644,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			want: []string{
 				".speckeep/constitution.summary.md",
 				"Ready for: /spk.implement <slug>",
-				"End with standard end block (see AGENTS.md).",
+				"End with standard end block (see AGENTS.md), exact shape:",
 			},
 		},
 		{
@@ -649,15 +652,16 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			want: []string{
 				"Default scope: only the **first unfinished phase**",
 				".speckeep/constitution.summary.md",
-				"End with standard end block (see AGENTS.md).",
-				"Ready for: /spk.verify <slug>",
+				"End with standard end block (see AGENTS.md), exact shape:",
+				"Proof: <kind> <path> [<anchor>]",
+				"Ready for: speckeep archive <slug> .",
 			},
 		},
 		{
 			target: "templates/prompts/verify.md",
 			want: []string{
 				".speckeep/constitution.summary.md",
-				"End with standard end block (see AGENTS.md).",
+				"End with standard end block (see AGENTS.md), exact shape:",
 				"Return to: /spk.<phase> <slug>",
 				"Ready for: speckeep archive <slug> .",
 			},
@@ -723,7 +727,7 @@ func TestPromptsEnforcePhaseBoundaries(t *testing.T) {
 		{
 			target: "templates/prompts/verify.md",
 			want: []string{
-				"If `blocked`, end with `Return to: /spk.<phase> <slug>`.",
+				"If `blocked`, final line: `Return to: /spk.<phase> <slug>`",
 			},
 		},
 	}
@@ -883,6 +887,108 @@ func TestUtilityScriptsDelegateToCLIBackends(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestPromptReferencesToTemplatesExist(t *testing.T) {
+	files, err := Files(LanguageSettings{
+		Default:  "en",
+		Docs:     "en",
+		Agent:    "en",
+		Comments: "en",
+		Shell:    "sh",
+	})
+	if err != nil {
+		t.Fatalf("Files() returned error: %v", err)
+	}
+
+	existing := make(map[string]bool, len(files))
+	for _, f := range files {
+		existing[f.TargetPath] = true
+	}
+
+	// Prompts point at the artifact skeleton via `.speckeep/templates/<name>.md`;
+	// that reference must resolve to a real embedded template or the phase has no
+	// format authority and silently degrades. Keep this contract in sync on rename.
+	refRe := regexp.MustCompile(`\.speckeep/templates/([A-Za-z0-9_.\-/]+\.md)`)
+	for _, f := range files {
+		if !strings.HasPrefix(f.TargetPath, "templates/prompts/") {
+			continue
+		}
+		for _, m := range refRe.FindAllStringSubmatch(f.Content, -1) {
+			target := "templates/" + m[1]
+			if !existing[target] {
+				t.Errorf("%s references missing template %s", f.TargetPath, target)
+			}
+		}
+	}
+}
+
+func TestRepoAgentsMdTracksSnippetCanon(t *testing.T) {
+	files, err := Files(LanguageSettings{
+		Default:  "en",
+		Docs:     "en",
+		Agent:    "en",
+		Comments: "en",
+		Shell:    "sh",
+	})
+	if err != nil {
+		t.Fatalf("Files() returned error: %v", err)
+	}
+	snippet := fileContentByTarget(t, files, "templates/agents-snippet.md")
+
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("failed to resolve caller information")
+	}
+	repoRoot := filepath.Join(filepath.Dir(filename), "..", "..", "..")
+	agentsBytes, err := os.ReadFile(filepath.Join(repoRoot, "AGENTS.md"))
+	if err != nil {
+		t.Fatalf("read repo AGENTS.md: %v", err)
+	}
+	agentsMd := string(agentsBytes)
+
+	// AGENTS.md locates the cross-phase canon inside the snippet; that pointer
+	// must resolve to a snippet that really carries the claimed canonical topics.
+	if !strings.Contains(agentsMd, ".speckeep/templates/agents-snippet.md") {
+		t.Error("repo AGENTS.md must point to .speckeep/templates/agents-snippet.md as the single source of truth")
+	}
+	for _, topic := range []string{"End block", "Verify gate policy"} {
+		if !strings.Contains(snippet, topic) {
+			t.Errorf("agents-snippet.md no longer carries the canonical %q that AGENTS.md points to", topic)
+		}
+	}
+
+	// Hard invariants both top-level rule sources must agree on; drift here means
+	// agent guidance and human-facing rules silently diverge.
+	for _, invariant := range []string{"workflow.verify", "feature/<slug>"} {
+		if !strings.Contains(agentsMd, invariant) {
+			t.Errorf("repo AGENTS.md lost shared invariant %q", invariant)
+		}
+		if !strings.Contains(snippet, invariant) {
+			t.Errorf("agents-snippet.md lost shared invariant %q", invariant)
+		}
+	}
+
+	// Phase chain core tokens must appear in the same order in both sources
+	// (optional inspect/verify may differ between them).
+	coreChain := []string{"constitution", "spec", "plan", "tasks", "implement", "archive"}
+	for _, src := range []struct {
+		name string
+		text string
+	}{
+		{name: "repo AGENTS.md", text: agentsMd},
+		{name: "agents-snippet.md", text: snippet},
+	} {
+		pos := 0
+		for _, token := range coreChain {
+			idx := strings.Index(src.text[pos:], token)
+			if idx < 0 {
+				t.Errorf("%s phase chain lost token %q", src.name, token)
+				break
+			}
+			pos += idx + len(token)
+		}
 	}
 }
 

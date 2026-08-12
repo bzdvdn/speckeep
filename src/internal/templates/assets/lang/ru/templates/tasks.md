@@ -36,7 +36,9 @@ Stop if: задачи получаются расплывчатыми или cov
 Цель: поставить минимальную независимо демонстрируемую продуктовую ценность до расширения scope.
 
 - [ ] T2.1 Реализовать MVP acceptance path — первое полезное поведение работает end to end. Touches: src/handlers/feature.ts, src/models/feature.ts
-- [ ] T2.2 Подтвердить MVP path — точечные tests или checks делают срез reviewable. Touches: src/tests/feature.test.ts
+- [x] T2.2 Подтвердить MVP path — точечные tests или checks делают срез reviewable. Touches: src/tests/feature.test.ts
+      Proof: test src/tests/feature.test.ts testFeatureMvpPath
+- [ ] T2.3 … (открытая задача: без `[x]` Proof не требуется)
 
 ## Фаза 3: Основная реализация
 
@@ -67,5 +69,6 @@ Stop if: задачи получаются расплывчатыми или cov
 - По возможности ссылайтесь в тексте задач на 1-2 стабильных ID (`AC-*`, `RQ-*`, `DEC-*`)
 - Не прячьте proof внутри большой implementation-задачи, а выносите validation отдельно
 - Отмечайте задачи выполненными по мере реализации и не оставляйте критерии приемки без покрытия задачами
+- Каждая закрытая задача (`[x]`) обязана иметь строку `Proof:` на следующей строке: `Proof: <kind> <path> [<anchor>]`, где `kind` — `code|test|docs|chore`, `path` — путь от корня репо, `anchor` — имя функции/теста/типа (опционально). Без `Proof` задача считается незавершённой, а `check`/`archive` её заблокируют
 - Явно укажите, если какая-то фаза осознанно пропущена, потому что фиче она не нужна
 - Держите `Implementation Context` коротким, но достаточным, чтобы implement и verify редко перечитывали `spec.md` или `plan.md`

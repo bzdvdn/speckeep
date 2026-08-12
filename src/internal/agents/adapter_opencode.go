@@ -56,7 +56,7 @@ argument-hint: [request]
 - %s
 %s
 %s
-`, spec.Description, spec.PromptPath, commandHint(spec.Name, lang), constitutionSummaryHint(lang), tracePlacementHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, spec.Description, spec.PromptPath, commandHint(spec.Name, lang), constitutionSummaryHint(lang), proofHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 	}
 
 	return fmt.Sprintf(`---
@@ -79,5 +79,5 @@ Requirements:
 - %s
 %s
 %s
-`, spec.Description, spec.PromptPath, commandHint(spec.Name, lang), constitutionSummaryHint(lang), tracePlacementHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
+`, spec.Description, spec.PromptPath, commandHint(spec.Name, lang), constitutionSummaryHint(lang), proofHint(lang), finalLineHint(lang), specBranchFirstBullet(spec.Name, lang), scriptListBlock(spec.Extras, lang))
 }

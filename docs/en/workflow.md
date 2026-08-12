@@ -3,8 +3,10 @@
 ## Strict Phase Chain
 
 ```text
-constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> verify -> archive
+constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> archive
 ```
+
+`verify` is an optional on-demand audit: it is always available but skipped by default in the normal workflow.
 
 For new projects (Greenfield), work begins with an extended **Constitution** phase (using the `--foundation` flag) that codifies both the process rules and the project's technical foundation.
 
@@ -36,7 +38,7 @@ After updating the constitution, the agent checks whether any active specs confl
 
 Captures one feature request as a concrete spec. Acceptance criteria should use canonical `Given / When / Then` markers even when the surrounding document language is Russian.
 
-For agent-facing `/speckeep.spec`, SpecKeep should support optional arguments:
+For agent-facing `/spk.spec`, SpecKeep should support optional arguments:
 
 - `--name <feature name>`
 - `--slug <feature-slug>`
@@ -48,12 +50,12 @@ Argument semantics:
 - `--slug` overrides the spec slug
 - `--branch` overrides only the working branch and does not change the spec slug
 
-`/speckeep.spec` should support two input modes:
+`/spk.spec` should support two input modes:
 
 - inline mode: the feature name and description are provided in the same message
-- staged mode: the user first sends `/speckeep.spec --name ...` and then sends the feature description in the next message
+- staged mode: the user first sends `/spk.spec --name ...` and then sends the feature description in the next message
 
-When `/speckeep.spec` starts from a prompt file, SpecKeep should prefer top-of-file metadata such as:
+When `/spk.spec` starts from a prompt file, SpecKeep should prefer top-of-file metadata such as:
 
 ```text
 name: Add dark mode
@@ -74,7 +76,7 @@ Priority rules for the feature name:
 2. `name:`
 3. a concise feature name safely derived from the user request
 
-If `/speckeep.spec` is invoked with `--name` but the feature description is still not detailed enough for a valid spec, SpecKeep should not lose the request context: it should ask for the missing description or treat the next user message as the continuation of the same spec request.
+If `/spk.spec` is invoked with `--name` but the feature description is still not detailed enough for a valid spec, SpecKeep should not lose the request context: it should ask for the missing description or treat the next user message as the continuation of the same spec request.
 
 By default, the feature branch should be `feature/<slug>`. If the user explicitly provides `--branch <name>`, SpecKeep should use that branch name instead without changing the spec slug.
 
@@ -175,7 +177,7 @@ Acceptance coverage should reference those task IDs directly:
 AC-001 -> T1.1, T2.1
 ```
 
-`--repair <task-id-list>`: targeted repair mode. Fixes specific tasks identified by verify or review (e.g. `--repair T2.3,T3.1`) without rewriting the full task list. If the repair reveals a plan-level flaw, suggests `/speckeep.plan --update` instead.
+`--repair <task-id-list>`: targeted repair mode. Fixes specific tasks identified by verify or review (e.g. `--repair T2.3,T3.1`) without rewriting the full task list. If the repair reveals a plan-level flaw, suggests `/spk.plan --update` instead.
 
 ### `implement`
 
@@ -202,21 +204,22 @@ When selective execution skips unfinished earlier work, SpecKeep should warn abo
 
 During implementation, SpecKeep should emit short runtime progress updates whenever it starts or completes a phase in the active execution scope.
 
-Every non-trivial code change should include a **traceability annotation** linking it back to the task ID and the primary acceptance criterion (AC).
-Preferred format: `@sk-task <slug>#<TASK_ID>: <Description> (<AC_ID>)`
-- For tests: `@sk-test <slug>#<TASK_ID>: <TestName> (<AC_ID>)`
-- If multiple tests/cases verify the same task, `@sk-test` must appear on each such test/case.
-- Placement style depends on the language: Go/Java/C#/C/C++ usually use a comment above the declaration; Python uses `# @sk-*` as the first line inside `def/class/test`; JS/TS for `test()/it()` uses the first line inside the callback.
+Evidence for completed work is recorded as `Proof:` entries in `tasks.md` — that is what `speckeep trace`, `speckeep doctor`, and archive gates read; there are no trace markers in source code.
+
+For every completed task (`[x]`) in `tasks.md`, write a `Proof:` line directly under the checked task:
+
+- format: `Proof: <kind> <path> [<anchor>]`, where `kind` is `code|test|docs|chore`, `path` is a repo-root-relative path, and `anchor` is the owning function/test/type name (optional but recommended)
+- examples: `Proof: code src/handlers/export.go ExportHandler`, `Proof: test src/tests/export_test.go TestExportFlow`, `Proof: docs docs/export.md`
+- a `[x]` task without at least one `Proof:` entry is NOT done; `speckeep check` and `speckeep archive` block it
+- `Proof:` entries MUST point to existing files (missing file is a hardened error); anchors SHOULD resolve to owning symbols (missing anchor is a warning)
 
 Those phase-status updates should follow the project's configured agent language rather than defaulting to English.
 
 ### `verify`
 
-Runs a lightweight post-implementation check to confirm that completed work is aligned enough with tasks and project rules to move forward safely.
+Optional on-demand audit: verify runs a lightweight post-implementation check to confirm that completed work is aligned enough with tasks and project rules to move forward safely. It is always available but skipped by default — the normal workflow proceeds from `implement` straight to `archive`.
 
-Verification uses **traceability data** collected via `./.speckeep/scripts/trace.* <slug>` to confirm that implementation matches task claims and acceptance criteria (including `@sk-test` annotations).
-
-**Legacy Fallback**: For features without annotations, the agent falls back to manual inspection of the files listed in `Touches:` and running relevant tests. This ensures SpecKeep remains compatible with older features while encouraging token-efficient verification for new ones.
+Verification uses **traceability data** collected via `./.speckeep/scripts/trace.* <slug>`, which reads `Proof:` lines from `tasks.md` to confirm that implementation matches task claims and acceptance criteria. The verify phase never scans source code for annotations.
 
 A full verification report should use a stable structure:
 
@@ -271,7 +274,7 @@ Note: generated `.speckeep/scripts/*` wrappers compute the project root from the
 
 Copies a completed, superseded, rejected, abandoned, or deferred feature package into `specs/archived/<slug>/<YYYY-MM-DD>/`.
 
-The archive script validates verify status and open tasks internally — it returns a clear error if prerequisites are not met. Default archive status is `completed`; other statuses (`superseded`, `abandoned`, `rejected`, `deferred`) require an explicit `--reason`.
+Archive is CLI-only and allowed when the feature is deterministically proven — every `[x]` task has at least one `Proof:` entry — or after `verify: pass`. A `verify.md` present with status other than `pass` vetoes archiving. The archive script validates task and proof state internally and returns a clear error if prerequisites are not met. Default archive status is `completed`; other statuses (`superseded`, `abandoned`, `rejected`, `deferred`) require an explicit `--reason`.
 
 ## Why This Chain Exists
 
@@ -281,5 +284,5 @@ The chain keeps the product strict without becoming bureaucratic:
 - user intent becomes a spec before technical planning starts
 - technical planning happens before task breakdown
 - implementation follows tasks instead of improvisation
-- lightweight verification closes the gap between implementation and archive
+- deterministic `Proof:` evidence (and optional verification when a full audit is desired) confirms readiness before archive
 - completed feature packages can be archived without bloating the active workspace

@@ -78,7 +78,7 @@ A stable identifier for an acceptance criterion, such as `AC-001`. It helps keep
 
 ## Traceability
 
-The practice of linking implementation code and tests back to tasks and acceptance criteria using stable IDs. In SpecKeep, this is achieved via `@sk-task` and `@sk-test` annotations.
+The practice of linking implementation evidence (files and tests) back to tasks and acceptance criteria using stable IDs. In SpecKeep, this is achieved via `Proof:` entries recorded in `tasks.md` under each completed task — evidence lives there, not in source-code markers.
 
 ## Lazy Decomposition
 

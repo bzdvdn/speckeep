@@ -109,7 +109,7 @@ func State(ctx context.Context, root, slug string) (FeatureState, error) {
 		}
 	}
 
-	inferLifecycle(&state)
+	inferLifecycle(&state, cfg.Workflow.VerifyRequired())
 
 	return state, nil
 }
@@ -151,7 +151,7 @@ func States(ctx context.Context, root string) ([]FeatureState, error) {
 	return results, nil
 }
 
-func inferLifecycle(state *FeatureState) {
+func inferLifecycle(state *FeatureState, verifyRequired bool) {
 	hasValidInspect := state.InspectExists && ValidStatus(state.InspectStatus)
 	hasValidVerify := state.VerifyExists && ValidStatus(state.VerifyStatus)
 
@@ -198,16 +198,27 @@ func inferLifecycle(state *FeatureState) {
 	case state.TasksOpen > 0:
 		state.Phase = "implement"
 		state.ReadyFor = "implement"
-	case !hasValidVerify:
-		state.Phase = "verify"
-		state.ReadyFor = "verify"
-	case state.VerifyStatus == StatusBlocked:
+	case state.VerifyExists && state.VerifyStatus == StatusBlocked:
 		state.Phase = "verify"
 		state.ReadyFor = "verify"
 		state.Blocked = true
-	case state.VerifyStatus == StatusPass:
+	case state.VerifyExists && state.VerifyStatus == StatusConcerns:
+		state.Phase = "verify"
+		state.ReadyFor = "verify"
+	case state.VerifyExists && state.VerifyStatus == StatusPass:
 		state.Phase = "verify"
 		state.ReadyFor = "archive"
+	case state.VerifyExists && !hasValidVerify:
+		state.Phase = "verify"
+		state.ReadyFor = "verify"
+	case !verifyRequired:
+		// Verify is optional: a complete task set is ready to archive,
+		// unless a (non-pass) verify report explicitly vetoes it.
+		state.Phase = "implement"
+		state.ReadyFor = "archive"
+	case !hasValidVerify:
+		state.Phase = "verify"
+		state.ReadyFor = "verify"
 	default:
 		state.Phase = "verify"
 		state.ReadyFor = "verify"

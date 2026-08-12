@@ -30,7 +30,6 @@ type RefreshOptions struct {
 	Shell            string
 	AgentTargets     []string
 	DryRun           bool
-	RewriteTrace     bool
 	ConstitutionFile string
 	SpecsDir         string
 	ArchiveDir       string
@@ -159,12 +158,6 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 	}
 	if err := removeLegacyManagedArtifacts(root, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
-	}
-
-	if options.RewriteTrace {
-		if err := rewriteTraceAnnotations(root, options.DryRun, &result); err != nil {
-			return RefreshResult{}, err
-		}
 	}
 
 	result.Messages = buildRefreshMessages(result)
@@ -798,66 +791,6 @@ func buildRefreshMessages(result RefreshResult) []string {
 		messages = append(messages, "unchanged "+path)
 	}
 	return messages
-}
-
-func rewriteTraceAnnotations(root string, dryRun bool, result *RefreshResult) error {
-	return filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
-		if err != nil {
-			return nil
-		}
-		if shouldSkipTraceRewrite(path, entry) {
-			if entry.IsDir() {
-				return filepath.SkipDir
-			}
-			return nil
-		}
-		if entry.IsDir() {
-			return nil
-		}
-
-		content, err := os.ReadFile(path)
-		if err != nil {
-			return nil
-		}
-		if bytes.IndexByte(content, 0) >= 0 {
-			return nil
-		}
-		if !bytes.Contains(content, []byte("@ds-")) {
-			return nil
-		}
-
-		updated := bytes.ReplaceAll(content, []byte("@ds-task"), []byte("@sk-task"))
-		updated = bytes.ReplaceAll(updated, []byte("@ds-test"), []byte("@sk-test"))
-		if bytes.Equal(updated, content) {
-			return nil
-		}
-
-		recordRefreshAction(result, "rewritten", rel(root, path))
-		if dryRun {
-			return nil
-		}
-
-		info, err := entry.Info()
-		if err != nil {
-			return nil
-		}
-		mode := info.Mode() & os.ModePerm
-		return os.WriteFile(path, updated, mode)
-	})
-}
-
-func shouldSkipTraceRewrite(path string, entry os.DirEntry) bool {
-	base := filepath.Base(path)
-	if strings.HasPrefix(base, ".") && base != "." {
-		return true
-	}
-	if entry.IsDir() {
-		switch base {
-		case "node_modules", "vendor", "dist", "bin", "obj", ".git", ".speckeep":
-			return true
-		}
-	}
-	return false
 }
 
 func (r RefreshResult) MarshalJSON() ([]byte, error) {

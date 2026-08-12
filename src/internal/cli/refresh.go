@@ -19,7 +19,6 @@ func newRefreshCmd() *cobra.Command {
 	var archiveDir string
 	var jsonOutput bool
 	var dryRun bool
-	var rewriteTrace bool
 	var agentTargets []string
 	var legacyAgentTargets []string
 
@@ -66,7 +65,6 @@ Synchronizes:
 				ArchiveDir:       archiveDir,
 				AgentTargets:     append(agentTargets, legacyAgentTargets...),
 				DryRun:           dryRun,
-				RewriteTrace:     rewriteTrace,
 			})
 			if err != nil {
 				return err
@@ -109,7 +107,6 @@ Synchronizes:
 	cmd.Flags().StringSliceVar(&legacyAgentTargets, "agent", nil, "deprecated alias for --agents")
 	cmd.Flags().MarkHidden("agent")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show which managed files would change without writing them")
-	cmd.Flags().BoolVar(&rewriteTrace, "rewrite-trace", false, "Rewrite legacy trace annotations in code: @ds-task/@ds-test → @sk-task/@sk-test")
 	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output refresh results as JSON")
 
 	return cmd

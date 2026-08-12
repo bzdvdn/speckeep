@@ -43,6 +43,10 @@ When working on speckeep features:
 6. **Implement tasks in order**, marking them complete
 7. **Verify**: ensure all ACs are covered
 
+### Single Source of Truth
+
+The cross-phase operational rules (canonical **end block** shape and the **Verify gate policy** for `workflow.verify`) are defined once in `.speckeep/templates/agents-snippet.md`, which is injected into agent profiles as its `AGENTS.md`. Phase prompts reference them by name (e.g. `see AGENTS.md`, `**Verify gate policy**`). When a prompt says "canonical in AGENTS.md", treat `.speckeep/templates/agents-snippet.md` as that canonical; do not fork private copies in prompts or docs.
+
 ## Development Rules
 
 ### Go Standards

@@ -1,4 +1,6 @@
-# Prompt handoff SpecKeep (compact)
+# Prompt передачи SpecKeep (compact)
+
+Вы действуете как **senior engineer, передающий работу новой сессии**. Пишите настолько точно, чтобы следующая сессия продолжила без догадок.
 
 Сформируйте короткий handoff по одной фиче.
 
@@ -15,7 +17,8 @@ Stop if: tasks.md отсутствует.
 ## Output expectations
 
 - `Slug`, `Phase`, `What changed`, `Open tasks`, `Blockers`, `Next command`.
-- Финальная строка (определите по состоянию фазы):
+- Финальная строка (определите фазу по состоянию; `workflow.verify` — по **Verify gate policy** в AGENTS.md):
   - Если blocked: `Вернуться к: /spk.<phase> <slug>`
   - Если готово к следующей фазе: `Готово к: /spk.<next> <slug>`
-  - Если всё готово: `Готово к: speckeep archive <slug> .`
+  - Если всё готово и `workflow.verify: required`: `Готово к: /spk.verify <slug>`
+  - Если всё готово и `workflow.verify` — `optional`/отсутствует: `Готово к: speckeep archive <slug> .`

@@ -23,7 +23,7 @@ Stop if: `tasks.md` is missing, the next task is not concrete, execution require
 - Default scope: only the **first unfinished phase** (unless the user restricts otherwise).
 - Before reading any other file, explicitly state `Active phase: T<N>` and list the active task IDs you will execute in this run (only `T<N>.*` from the first unfinished phase). Do not proceed until this is clear.
 - Do not read or edit anything before selecting the active tasks, except `tasks.md` itself.
-- Before editing code, explicitly list a `Trace plan:` for each active task: where you expect to place `@sk-task`, and if tests are part of the task, where you expect to place `@sk-test`.
+- Before editing code, explicitly list a `Proof plan:` for each active task: what file/test/docs you will produce as observable evidence (see `Proof:` format in `tasks.md`).
 - Do not move to phase `T(N+1).*` until all `T(N).*` tasks are checked `[x]` in `tasks.md` and you list observable proof per task (files/tests/trace/command output).
 - Read discipline: at session start, batch-read surfaces from `Touches:` for in-scope tasks; read each file ≤ 1 time per session.
 - Do not re-read already opened files end-to-end “for reassurance”: keep short notes and use targeted slices (`rg`, `sed -n`) and `git diff` to verify changes.
@@ -31,19 +31,16 @@ Stop if: `tasks.md` is missing, the next task is not concrete, execution require
 - Editing a file outside the active task `Touches:` is a **scope violation** → stop and explain.
 - **Touches drift protection**: before closing, run `git diff --name-only` and cross-check each changed file against the active task's `Touches:` list. If any changed file is not in `Touches:` and not explicitly listed as a side effect (e.g., auto-generated lockfiles), treat it as a scope violation and revert or explain.
 - Tests: run only targeted package/tests. Do not run `go test ./...` unless explicitly requested. Do not paste long logs; summarize and include only the last lines when needed.
-- Constitution: see AGENTS.md (`.speckeep/constitution.summary.md` preferred over full constitution).
+- Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
 - Do not assume `research.md` should exist; only read it if a task explicitly depends on it.
 - No redesign / re-planning. If the task cannot be implemented safely from current artifacts → stop and request refinement.
 - Prefer minimal patches over full-file rewrites. Do not rewrite a whole file “for simplicity” unless strictly necessary.
-- Annotate every non-trivial change:
-  - code: `// @sk-task <slug>#<TASK_ID>: <short> (<AC_ID>)`
-  - tests: `// @sk-test <slug>#<TASK_ID>: <TestName> (<AC_ID>)`
-  - legacy (slug unknown): `// @sk-task <TASK_ID> ...` / `// @sk-test <TASK_ID> ...`
-- Placement per AGENTS.md (above owning declaration, never at package/import/file-header).
-- If markers can't be placed cleanly → stop and explain before closing.
-- Before closing: self-check with `git diff --name-only` + `rg` for markers.
-- Append new markers; never replace. Multiple tests for one task → marker on each.
-- One method/test covering multiple tasks → carry all markers on it.
+- Record evidence for every closed task directly in `tasks.md` as a `Proof:` line under the checked task:
+  - format: `Proof: <kind> <path> [<anchor>]`, `kind` = `code|test|docs|chore`, `path` = repo-root-relative file, `anchor` = owning symbol name (optional, recommended).
+  - examples: `Proof: code src/export.go ExportHandler`, `Proof: test src/export_test.go TestExportFlow`, `Proof: docs docs/export.md`.
+- A `[x]` task without any `Proof:` line is not done: do not close the task, `speckeep check` and `speckeep archive` will reject it.
+- If proof cannot reference an existing file → stop and explain before closing.
+- Config mode (final line): follow the **Verify gate policy** in AGENTS.md — resolve `workflow.verify` from `.speckeep/speckeep.yaml` (already read once per session). If `required`, the archive gate demands a `verify: pass` report — do NOT offer archive directly; end with `/spk.verify`. If `optional` (or absent), archive is allowed once all `[x]` tasks carry `Proof:` entries.
 
 ## Modes
 
@@ -54,14 +51,22 @@ Stop if: `tasks.md` is missing, the next task is not concrete, execution require
 ## Output expectations
 
 - Update code/files and mark completed tasks `[x]` in `tasks.md`.
-- Include a short `Trace plan:` block before the result summary for the tasks you touched.
+- Include a short `Proof plan:` block before the result summary for the tasks you touched.
 - Before finalizing, make an explicit map decision line: `Map update: yes|no` + reason (based on `/spk.repo-map` trigger checklist in `AGENTS.md`).
 - If `Map update: yes`, run `/spk.repo-map` and include `REPOSITORY_MAP.md` in changed files.
 - If repository structure/navigation changed (new/moved modules, new entrypoints, major path reshaping), `Map update` must be `yes`.
 - If changes are local and do not affect structure/navigation, do not touch `REPOSITORY_MAP.md`.
 - Report: closed task IDs, changed files, and the observable proof.
-- Include a short traceability proof line (which files contain `@sk-task` / `@sk-test` for the closed tasks).
-- Do not finish without explicit `Trace proof:` lines in the form: `<TASK_ID> -> <file>:<line> (@sk-task|@sk-test)`.
-- If a closed task has no valid `Trace proof:` line, treat the task as still open and do not mark it `[x]`.
-- End with standard end block (see AGENTS.md).
-- Final line (mandatory): `Ready for: /spk.verify <slug>`
+- Ensure every closed task has its `Proof:` line written into `tasks.md`.
+- If a closed task has no valid `Proof:` line, treat the task as still open and do not mark it `[x]`.
+- End with standard end block (see AGENTS.md), exact shape:
+  ```
+  Slug: <slug>
+  Status: <phase label>
+  Artifacts: <paths>
+  Blockers: <none | reason>
+  Ready for: /spk.verify <slug>   (or "speckeep archive <slug> ." when optional)
+  ```
+- Once all `[x]` tasks carry `Proof:` entries, final line (mandatory) depends on `workflow.verify`:
+  - if `required`: `Ready for: /spk.verify <slug>`
+  - if `optional` (default/absent): `Ready for: speckeep archive <slug> .` (optional full audit remains available via `/spk.verify <slug>`)

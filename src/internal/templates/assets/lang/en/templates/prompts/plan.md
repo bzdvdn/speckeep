@@ -21,17 +21,38 @@ Stop if: inspect.md is present and not `pass`, the goal is ambiguous, or plannin
 
 - Plan must preserve spec intent: no new major workstreams outside `spec.md`.
 - Record only implementation-critical decisions: surfaces, sequencing, risks, trade-offs (`DEC-*`).
+- `DEC-*` shape (keep each ≤ 3 lines): `DEC-001 Wrap export behind an interface → Why: isolates I/O for tests, keeps the future s3-backend option open; Not: interfaces for every symbol. Tradeoff: one extra seam to maintain. Affects: src/export.go, src/export_test.go. Validation: unit tests + speckeep trace.`
 - Always use `.speckeep/templates/plan.md` as the skeleton and output format (and `.speckeep/templates/data-model.md` when needed). Do not look for “examples” in neighboring feature artifacts from other slugs: reading other plans for shape is wasted tokens and scope drift.
 - If the data model does not change, still create `data-model.md` with an explicit `status: no-change` + rationale.
 - Create `research.md` only when needed (e.g., external dependency/integration boundary, multiple realistic implementation options, or a high-risk unknown). Do not create `research.md` for generic brainstorming.
-- Constitution: see AGENTS.md (`.speckeep/constitution.summary.md` preferred over full constitution).
+- Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
 - Minimum context: current slug only; narrow repo reads (no full-repo scans).
+- Size discipline: target `plan.md` ≤ ~200 lines; when it grows, push detail into `data-model.md`/`contracts/*` instead of padding prose.
 - Run the pre-phase readiness script (see AGENTS.md: Scripts).
+
+## Self-Check (mandatory before finishing)
+
+Run this checklist against `plan.md` — do not skip or treat as optional:
+- [ ] Spec intent preserved: no new major workstreams, goals, or AC outside `spec.md`
+- [ ] Every `DEC-*` answers “why this, why not that” (Why / Tradeoff / Affects / Validation)
+- [ ] Every `AC-*` has an `Acceptance Approach` row (approach, touched surfaces, observable proof)
+- [ ] Incremental delivery is sequenced MVP-first; risks have mitigations
+- [ ] `data-model.md` exists with real changes or an explicit `status: no-change` stub
+- [ ] No placeholders (`TODO`, `???`, `TKTK`) and no workstreams that require inventing requirements
+
+If any check fails: fix it and re-run the checklist. After **2 fix rounds** that still fail, stop and return to the narrowest honest earlier phase (usually `spec`) with the remaining gaps instead of inventing requirements to pass.
 
 ## Output expectations
 
 - Write/patch `<specs_dir>/<slug>/plan.md` (create additional artifacts only when justified).
 - Inside `plan.md`, keep compact sections for `DEC-*`, surfaces, risks, and data-model/contract impact; do not move that recap into separate digest files.
 - Summarize key `DEC-*`, surfaces, sequencing constraints, and risks.
-- End with standard end block (see AGENTS.md).
+- End with standard end block (see AGENTS.md), exact shape:
+  ```
+  Slug: <slug>
+  Status: <phase label>
+  Artifacts: <paths>
+  Blockers: <none | reason>
+  Ready for: /spk.tasks <slug>
+  ```
 - Final line: `Ready for: /spk.tasks <slug>`

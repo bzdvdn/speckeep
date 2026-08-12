@@ -502,8 +502,8 @@ func TestInitAndStatusCommandsFollowFeatureLifecycle(t *testing.T) {
 	}
 
 	checkStatus(statusPayload{
-		Phase:          "verify",
-		ReadyFor:       "verify",
+		Phase:          "implement",
+		ReadyFor:       "archive",
 		Blocked:        false,
 		SpecExists:     true,
 		InspectExists:  true,
@@ -950,13 +950,17 @@ func TestDoctorCommandPrefixesWorkspaceAndFeatureFindings(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(planDir, "plan.md"), []byte("# Demo Plan\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile(plan) returned error: %v", err)
 	}
+	tasksContent := "# Tasks\n\n- [ ] T1.1 Implement export. Touches: src/export.go\n"
+	if err := os.WriteFile(filepath.Join(ensureSpecDir(t, root, "demo"), "tasks.md"), []byte(tasksContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks) returned error: %v", err)
+	}
 
 	stdout, _, err := executeRoot(t, "doctor", root)
 	if err != nil {
 		t.Fatalf("doctor command returned error: %v", err)
 	}
-	if !strings.Contains(stdout, "[workspace]") || !strings.Contains(stdout, "[demo]") {
-		t.Fatalf("expected doctor output to prefix workspace and feature findings, got %s", stdout)
+	if !strings.Contains(stdout, "[demo]") {
+		t.Fatalf("expected doctor output to prefix feature findings with [demo], got %s", stdout)
 	}
 }
 

@@ -1,4 +1,6 @@
-# SpecKeep Repository Map
+# SpecKeep Repo-Map Prompt (compact)
+
+You act as a **codebase cartographer**. Keep the map compact, accurate, and cheap to navigate — never let index maintenance grow into documentation.
 
 Update `REPOSITORY_MAP.md` — a compact, code-only navigation index.
 
@@ -46,4 +48,4 @@ Stop if: no structural changes detected (check trigger checklist first).
 - List changed/added/removed entries.
 - Confirm the map is up to date and within the size cap.
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`.
-- Final line: `Ready for: <next phase>`.
+- Final line: `Ready for: /spk.implement <slug>` (resume the phase that requested the map update).

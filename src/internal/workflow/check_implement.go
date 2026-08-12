@@ -41,6 +41,11 @@ func CheckImplementReady(ctx context.Context, cfg config.Config, root, slug stri
 		checkPattern(&result, string(content), `(?m)^## (Implementation Context|Контекст реализации)$`, "tasks include implementation context section")
 		checkPattern(&result, string(content), taskIDPattern.String(), "tasks include phase-scoped task IDs")
 		checkPattern(&result, string(content), coverageLinePattern.String(), "tasks include AC-to-task coverage lines")
+		proofResult, err := CheckProofs(ctx, cfg, root, slug)
+		if err != nil {
+			return CheckResult{}, err
+		}
+		result.Merge(proofResult)
 	}
 	if fileExists(specAbs) && fileExists(tasksAbs) {
 		inspectResult, err := InspectSpec(ctx, cfg, root, specDisplay, tasksDisplay)

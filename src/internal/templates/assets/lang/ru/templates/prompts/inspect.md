@@ -23,7 +23,7 @@ Stop if: spec отсутствует, slug неоднозначен, или verd
 - Не делайте повторных full-file чтений «для спокойствия»: держите краткие заметки и переоткрывайте только нужные секции.
 - Формат отчёта берите из `.speckeep/templates/inspect.md`. Не ищите «примеры» inspect-отчётов в других slug ради формы: это лишний токен‑расход и scope drift.
 - Constitution ↔ spec: нет конфликтов с конституцией, workflow-правилами и language policy.
-- Конституция: см. AGENTS.md (`.speckeep/constitution.summary.md` предпочтительнее полной конституции).
+- Конституция: AGENTS.md (`.speckeep/constitution.summary.md` предпочтительнее).
 - `AC-*`: каждый AC в Given/When/Then; нет placeholder; нет незакрытых `[NEEDS CLARIFICATION: ...]`.
 - Scope: строго одна фича; явные `Вне scope`, `Допущения`, `Открытые вопросы` (или `none`).
 - Упоминания технологий: technology names/frameworks/library lists/version pins в spec — это Warning, если это не требование пользователя, не repo-constraint и не внешний contract.
@@ -35,6 +35,17 @@ Stop if: spec отсутствует, slug неоднозначен, или verd
 
 Если есть `./.speckeep/scripts/check-ready.* inspect <slug>` — запустите и используйте вывод как baseline. Исходники `./.speckeep/scripts/*` не читать.
 
+## Self-Check (обязательно перед завершением)
+
+Прогоните этот чеклист по `inspect.md` до финального вердикта — не пропускайте и не считайте опциональным:
+- [ ] Каждый Error — реальный блокер с конкретной правкой, а не предпочтение
+- [ ] Каждый Warning привязан к секции/ID (`AC-*`, `DEC-*`) и конкретной правке
+- [ ] Непроверяемые утверждения помечены как непроверяемые, а не как «passed»
+- [ ] Вердикт соответствует находкам: блокеры → `blocked`; только предпочтения → не `blocked`
+- [ ] При `blocked` не предложена следующая фаза — указан требуемый refinement
+
+Если хоть один пункт не прошёл: исправьте и прогоните чеклист заново. После **2 раундов** правок, которые всё ещё не проходят, остановитесь и явно укажите требуемый refinement (не решайте остатки блокеров понижением их до предпочтений).
+
 ## Output expectations
 
 - Запишите `inspect.md`.
@@ -42,6 +53,14 @@ Stop if: spec отсутствует, slug неоднозначен, или verd
 - В `inspect.md` обязательно: verdict, Errors, Warnings и Next step (если не blocked).
 - Для `blocked` не предлагайте следующую фазу; явно укажите, какой refinement нужен.
 - В разговоре дайте компактный verdict + непустые Errors/Warnings + Next step.
+- Завершите стандартным end block (см. AGENTS.md), точная форма:
+  ```
+  Slug: <slug>
+  Status: <pass|concerns|blocked>
+  Artifacts: <пути>
+  Blockers: <none | причина>
+  Готово к: /spk.plan <slug>   (или "Вернуться к: /spk.spec <slug>" при blocked)
+  ```
 - Финальная строка:
   - если `pass|concerns`: `Готово к: /spk.plan <slug>`
   - если `blocked`: `Вернуться к: /spk.spec <slug>`

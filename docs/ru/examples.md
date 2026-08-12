@@ -61,7 +61,7 @@ speckeep doctor .
 
 ### Вход Через Prompt-Файл
 
-Когда `/speckeep.spec` запускается от локального prompt-файла, лучше использовать явные метаданные, а не полагаться на generic filename вроде `spec_prompt.md`.
+Когда `/spk.spec` запускается от локального prompt-файла, лучше использовать явные метаданные, а не полагаться на generic filename вроде `spec_prompt.md`.
 
 Пример prompt-файла:
 
@@ -80,12 +80,12 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 ### Поэтапный Ввод Через `--name`
 
-Когда имя фичи уже понятно, а подробное описание удобнее прислать следующим сообщением, `/speckeep.spec` может стартовать в staged mode.
+Когда имя фичи уже понятно, а подробное описание удобнее прислать следующим сообщением, `/spk.spec` может стартовать в staged mode.
 
 Пример:
 
 ```text
-/speckeep.spec --name "Dependency Dashboard"
+/spk.spec --name "Dependency Dashboard"
 ```
 
 Следующее сообщение:
@@ -103,13 +103,13 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Если нужен явный slug:
 
 ```text
-/speckeep.spec --name "Dependency Dashboard" --slug frontend-layout-rework
+/spk.spec --name "Dependency Dashboard" --slug frontend-layout-rework
 ```
 
 Если нужен repository-specific branch override:
 
 ```text
-/speckeep.spec --name "Dependency Dashboard" --slug frontend-layout-rework --branch FEAT-142
+/spk.spec --name "Dependency Dashboard" --slug frontend-layout-rework --branch FEAT-142
 ```
 
 ## 1. Создание Конституции для Brownfield-проекта
@@ -117,7 +117,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример запроса:
 
 ```text
-/speckeep.constitution Python-проект в стиле DDD, разделен на API и workers, Kafka для асинхронной интеграции, ClickHouse как аналитический sink.
+/spk.constitution Python-проект в стиле DDD, разделен на API и workers, Kafka для асинхронной интеграции, ClickHouse как аналитический sink.
 ```
 
 Ожидаемое поведение агента:
@@ -138,7 +138,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример запроса:
 
 ```text
-/speckeep.spec Добавить partner-specific расписание ingestion с override для retry policy.
+/spk.spec Добавить partner-specific расписание ingestion с override для retry policy.
 ```
 
 Ожидаемое поведение агента:
@@ -162,7 +162,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример с явным branch override:
 
 ```text
-/speckeep.spec Добавить partner-specific расписание ingestion с override для retry policy --branch NRD-11
+/spk.spec Добавить partner-specific расписание ingestion с override для retry policy --branch NRD-11
 ```
 
 В этом случае slug спецификации может по-прежнему оставаться `partner-scheduling`, а рабочая ветка будет следовать branch convention репозитория, например `NRD-11`.
@@ -170,12 +170,12 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 ## 3. Проверка Spec через Inspect
 
 Используйте этот шаг, когда фича неоднозначная, рискованная или нужен формальный quality gate.  
-Если спецификация уже ясная и низкорисковая, можно сразу переходить к `/speckeep.plan <slug>`.
+Если спецификация уже ясная и низкорисковая, можно сразу переходить к `/spk.plan <slug>`.
 
 Пример запроса:
 
 ```text
-/speckeep.inspect partner-scheduling
+/spk.inspect partner-scheduling
 ```
 
 Ожидаемое поведение агента:
@@ -199,7 +199,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример запроса:
 
 ```text
-/speckeep.plan partner-scheduling
+/spk.plan partner-scheduling
 ```
 
 Ожидаемое поведение агента:
@@ -222,7 +222,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример запроса:
 
 ```text
-/speckeep.tasks partner-scheduling
+/spk.tasks partner-scheduling
 ```
 
 Ожидаемое поведение агента:
@@ -250,70 +250,50 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример запроса:
 
 ```text
-/speckeep.implement partner-scheduling
+/spk.implement partner-scheduling
 ```
 
 Ожидаемое поведение агента:
 
 - прочитать `tasks.md` и использовать его как манифест выполнения
 - выполнять **In-place Декомпозицию**, если задача слишком сложная, добавляя вложенные подзадачи (напр., `T1.1.1`)
-- аннотировать каждое нетривиальное изменение кода trace-маркером в idiomatic style языка
+- фиксировать доказательство выполненной задачи записью `Proof:` в `tasks.md`
 - отмечать завершенные задачи в `tasks.md`
 - оставаться в рамках списка `Touches:`, определенного для каждой задачи
 
-Пример аннотации в коде для Go:
+Пример записей `Proof:` в `tasks.md` под завершенными задачами:
 
-```go
-// @sk-task partner-scheduling#T1.1: Добавить модель расписания партнера (AC-001)
-func SavePartnerSchedule(p Partner) {
-    // ...
-}
+```text
+- [x] T1.1 Add partner scheduling override model — override fields are persisted
+    Proof: code src/models/partner.go SavePartnerSchedule
+    Proof: test src/tests/partner_test.go TestSaveOverride
+
+- [x] T1.2 Persist retry window fields — retry windows are available to scheduling logic
+    Proof: code src/storage/retry.go PersistRetryWindow
+    Proof: docs docs/scheduling.md
 ```
 
-Для других языков стиль может отличаться:
-- Python: `# @sk-task ...` первой строкой внутри `def` / `class`
-- JS/TS: `// @sk-task ...` над declaration, а для `test()/it()` первой строкой внутри callback
+Формат записи: `Proof: <kind> <path> [<anchor>]`, где `kind` — одно из `code|test|docs|chore`, `path` — путь относительно корня репозитория, `anchor` — owning-функция/тест/тип (опционален, но рекомендуется). Задача `[x]` без хотя бы одной записи `Proof:` не считается выполненной.
 
 ## 7. Верификация реализации
+
+`verify` — это **опциональный аудит по требованию**: всегда доступен, но по умолчанию пропускается. Он запускается как audit + отчет на уровне AC (вторая оценка). Готовность фичи к архивации можно подтвердить и детерминированно — через `speckeep check` или `speckeep archive`.
 
 Пример запроса:
 
 ```text
-/speckeep.verify partner-scheduling
+/spk.verify partner-scheduling
 ```
 
 Ожидаемое поведение агента:
 
-- использовать `.speckeep/scripts/trace.sh partner-scheduling` для сбора доказательств реализации
-- искать аннотации `// @sk-task` и `// @sk-test` в коде
+- использовать `.speckeep/scripts/trace.sh partner-scheduling` для сбора доказательств реализации — скрипт читает записи `Proof:` из `tasks.md`
 - подтверждать соответствие реализации описанию задач и критериям приемки
 - предоставить четкий вердикт (`pass`, `concerns` или `blocked`)
 - включить конкретные доказательства в секцию `## Checks`
-- если одну задачу проверяют несколько тестов, ожидать `@sk-test` на каждом таком тесте
+- если одной задаче соответствует несколько файлов/тестов, ожидать отдельную запись `Proof:` для каждого доказательства
 
-Пример аннотаций в тестах для Go:
-
-```go
-// @sk-test partner-scheduling#T1.1: TestSavePartnerSchedule (AC-001)
-func TestSavePartnerSchedule(t *testing.T) {
-    // ...
-}
-
-// @sk-test partner-scheduling#T1.1: TestSavePartnerScheduleDefaults (AC-001)
-func TestSavePartnerScheduleDefaults(t *testing.T) {
-    // ...
-}
-```
-
-Для Python тот же принцип выглядит так:
-
-```python
-def test_save_partner_schedule():
-    # @sk-test partner-scheduling#T1.1: test_save_partner_schedule (AC-001)
-    ...
-```
-
-Если фича создана давно и не содержит аннотаций, агент переходит к ручной проверке файлов из `Touches:` и ручному запуску тестов.
+Проверка проходит по записям `Proof:` из `tasks.md`, без сканирования исходного кода на аннотации.
 
 Ожидаемое поведение агента:
 
@@ -328,8 +308,8 @@ def test_save_partner_schedule():
 Примеры выборочных запросов:
 
 ```text
-/speckeep.implement partner-scheduling --phase 2
-/speckeep.implement partner-scheduling --tasks T1.1,T2.1
+/spk.implement partner-scheduling --phase 2
+/spk.implement partner-scheduling --tasks T1.1,T2.1
 ```
 
 Ожидаемое поведение в scoped mode:
@@ -347,10 +327,12 @@ def test_save_partner_schedule():
 
 ## 7. Verify Фичи
 
+`verify` — опциональный аудит по требованию; по умолчанию фаза пропускается.
+
 Пример запроса:
 
 ```text
-/speckeep.verify partner-scheduling
+/spk.verify partner-scheduling
 ```
 
 Ожидаемое поведение агента:
@@ -364,7 +346,7 @@ def test_save_partner_schedule():
 
 ## 8. Архивация Фичи
 
-CLI-шаг после `verify: pass`:
+CLI-шаг, разрешенный при детерминированной доказанности фичи (все задачи `[x]` имеют записи `Proof:`) или после `verify: pass`:
 
 ```bash
 speckeep archive partner-scheduling .
@@ -372,7 +354,7 @@ speckeep archive partner-scheduling .
 
 Ожидаемое поведение CLI:
 
-- для статуса `completed` провалидировать prerequisites verify/tasks и остановиться с понятной ошибкой, если открытые задачи еще остались
+- для статуса `completed` провалидировать prerequisites verify/tasks и остановиться с понятной ошибкой, если открытые задачи остались или у задач `[x]` нет записей `Proof:`
 - скопировать feature package в `specs/archived/partner-scheduling/<YYYY-MM-DD>/`
 - записать `summary.md`
 

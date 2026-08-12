@@ -232,11 +232,11 @@ func finalLineHint(lang string) string {
 	return "Preserve the exact final line from the prompt file: `Ready for: ...` or `Return to: ...` with no paraphrase and no omission."
 }
 
-func tracePlacementHint(lang string) string {
+func proofHint(lang string) string {
 	if lang == "ru" {
-		return "Trace placement: никогда не ставьте `@sk-task`/`@sk-test` на уровень `package`, `import` или file-header comment; размещайте маркер непосредственно над owning function/method/test/type declaration (или над явным behavioral block header, если в языке нет таких объявлений)."
+		return "Доказанность: каждая закрытая задача в `tasks.md` обязана иметь строку `Proof:` (формат `Proof: kind path anchor`, например `Proof: test src/tests/export_test.go TestRunExport`). Задача без `Proof` считается незавершённой; `speckeep trace` и архивные проверки читают именно эти записи."
 	}
-	return "Trace placement: never put `@sk-task`/`@sk-test` at `package`, `import`, or file-header level; place the marker directly above the owning function/method/test/type declaration (or an explicit behavioral block header when the language has no such declarations)."
+	return "Evidence: every completed task in `tasks.md` must carry a `Proof:` line (format `Proof: kind path anchor`, e.g. `Proof: test src/tests/export_test.go TestRunExport`). A task without `Proof` is not complete; `speckeep trace` and archive gates read exactly these records."
 }
 
 func helpDiscoveryHint(lang string) string {
@@ -265,9 +265,9 @@ func titleCase(value string) string {
 
 func workflowChainHint(lang string) string {
 	if lang == "ru" {
-		return "Цепочка workflow: constitution → spec → [inspect, опционально] → plan → tasks → implement → verify → archive (CLI-only). Не пропускайте обязательные фазы и не забегайте вперёд. После verify используйте `speckeep archive <slug> .`; не придумывайте и не вызывайте `/spk.archive`."
+		return "Цепочка workflow: constitution → spec → [inspect, опционально] → plan → tasks → implement → archive; verify — опциональный on-demand аудит (всегда доступен, по умолчанию пропускается). Уважайте `workflow.verify` в `.speckeep/speckeep.yaml`: `required` возвращает verify как обязательный гейт перед archive. Не пропускайте обязательные фазы и не забегайте вперёд. Archive — CLI-only: `speckeep archive <slug> .`, не выдумывайте и не вызывайте `/spk.archive`."
 	}
-	return "Workflow chain: constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive (CLI-only). Do not skip required phases or jump ahead. After verify, use `speckeep archive <slug> .`; do not invent or call `/spk.archive`."
+	return "Workflow chain: constitution → spec → [inspect, optional] → plan → tasks → implement → archive; verify is an optional on-demand audit (always available, skipped by default). Respect `workflow.verify` in `.speckeep/speckeep.yaml`: `required` restores verify as a mandatory pre-archive gate. Do not skip required phases or jump ahead. Archive is CLI-only: use `speckeep archive <slug> .`; do not invent or call `/spk.archive`."
 }
 
 func antiPatternHint(lang string) string {

@@ -36,7 +36,7 @@ speckeep solves this with **discipline per token** — minimal file-based struct
 
 - **Specs** with stable IDs (`AC-*`, `RQ-*`) — agents know exactly what to build and verify
 - **Tasks** with surface maps and phase grouping — agents execute in order, one phase at a time
-- **Traceability** (`@sk-task` annotations) — verify that every requirement is implemented and tested
+- **Traceability** (`Proof:` entries in `tasks.md`) — prove that every requirement is implemented and tested
 - **10 agent adapters** — Claude Code, Cursor, Copilot, OpenCode, aider, Windsurf, and more
 
 Results in practice: agents produce correct code on first try more often, handoffs between sessions cost less context, and requirements stay reviewable by humans.
@@ -46,8 +46,9 @@ Results in practice: agents produce correct code on first try more often, handof
 ## Workflow
 
 ```
-constitution → spec → [inspect] → plan → tasks → implement → verify → archive
+constitution → spec → [inspect] → plan → tasks → implement → archive
 ```
+`verify` is an optional on-demand audit; archive is allowed once every `[x]` task carries a `Proof:` entry (or after `verify: pass`).
 
 Each phase loads only the minimum context. Optional workflow commands available at any phase: `/spk.challenge`, `/spk.handoff`, `/spk.hotfix`, `/spk.scope`, `/spk.recap`.
 
@@ -96,14 +97,14 @@ speckeep add-skill | list-skills | remove-skill | install-skills | skills-restor
 **Linux / macOS:**
 
 ```bash
-VERSION=v0.7.1
+VERSION=v0.8.0
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$version="v0.7.1"
+$version="v0.8.0"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -119,7 +120,7 @@ go install speckeep@latest
 **Build from source:**
 
 ```bash
-go build -ldflags "-X speckeep/src/internal/cli.Version=v0.7.0" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v0.8.0" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 ---
@@ -214,13 +215,17 @@ Each feature lives under `specs/<slug>/` with:
 
 ### Traceability
 
-Annotate code during implementation:
+During implementation, record evidence for each completed task as a `Proof:` line directly below the `[x]` checkbox in `tasks.md`:
 
-```go
-// @sk-task T1.1 (AC-001)
+```
+- [x] T1.1 Add export handler
+  Proof: code src/handlers/export.go ExportHandler
+  Proof: test src/tests/export_test.go TestExportFlow
 ```
 
-Then verify with:
+`Proof: <kind> <path> [<anchor>]`, where `kind` is `code|test|docs|chore`. A checked task without a `Proof:` entry is not done — `speckeep check` and `speckeep archive` block it. Evidence is read only from `tasks.md`; there are no trace markers in source code.
+
+Verify with:
 
 ```bash
 speckeep trace <slug> .

@@ -112,7 +112,7 @@ func TestCheckInfersPhaseAcrossFeatureLifecycle(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(planDir, "tasks.md"), []byte("# Demo Tasks\n\n- [x] T1.1 Done\n- [x] T1.2 Done\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile(tasks complete) returned error: %v", err)
 	}
-	check("verify", "verify", false)
+	check("implement", "archive", false)
 
 	verifyContent := "---\nreport_type: verify\nslug: demo\nstatus: pass\ndocs_language: en\ngenerated_at: 2026-03-30\n---\n# Verify Report: demo\n\n## Verdict\n\n- status: pass\n"
 	if err := os.WriteFile(filepath.Join(planDir, "verify.md"), []byte(verifyContent), 0o644); err != nil {

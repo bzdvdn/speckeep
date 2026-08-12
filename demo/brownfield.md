@@ -37,17 +37,17 @@ Do not try to spec the whole repository.
 
 Pick one active feature and drive only that scope through the workflow:
 
-1. `/speckeep.constitution`
-2. `/speckeep.spec`
-3. `/speckeep.inspect`
-4. `/speckeep.plan`
-5. `/speckeep.tasks`
-6. `/speckeep.implement`
+1. `/spk.constitution`
+2. `/spk.spec`
+3. `/spk.inspect`
+4. `/spk.plan`
+5. `/spk.tasks`
+6. `/spk.implement`
 
 Example feature request:
 
 ```text
-/speckeep.spec Add partner-specific ingestion scheduling with retry policy overrides.
+/spk.spec Add partner-specific ingestion scheduling with retry policy overrides.
 ```
 
 Expected artifact growth:

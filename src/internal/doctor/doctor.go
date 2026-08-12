@@ -23,6 +23,12 @@ import (
 
 var placeholderPattern = regexp.MustCompile(`\[[A-Z][A-Z0-9_]*\]`)
 
+// deprecatedCommandPattern matches deprecated /speckeep.* slash-command references
+// without matching the config path ".speckeep/speckeep.yaml" (the /speckeep. there is
+// a path separator, not a command). Commands are slash-command-like tokens such as
+// /speckeep.archive /speckeep.spec; looking for a known command suffix keeps the check precise.
+var deprecatedCommandPattern = regexp.MustCompile(`/?speckeep\.(?:archive|spec|plan|tasks|inspect|implement|verify|constitution|rollback|recap|repo-map|challenge)\b`)
+
 type Finding struct {
 	Level   string
 	Message string
@@ -35,6 +41,15 @@ type Result struct {
 func Check(ctx context.Context, root string) (Result, error) {
 	root, err := filepath.Abs(root)
 	if err != nil {
+		return Result{}, err
+	}
+
+	if _, err := os.Stat(filepath.Join(root, ".speckeep", "speckeep.yaml")); err != nil {
+		if os.IsNotExist(err) {
+			return Result{Findings: []Finding{
+				{Level: "error", Message: "speckeep project is not initialized — run `speckeep init` in this directory first"},
+			}}, nil
+		}
 		return Result{}, err
 	}
 
@@ -54,11 +69,14 @@ func Check(ctx context.Context, root string) (Result, error) {
 			findings = append(findings, Finding{Level: "ok", Message: action})
 		}
 		for _, warning := range repair.Warnings {
+			if warning == "no safe migrations were needed" || strings.HasPrefix(warning, "no safe migrations were needed for slug ") {
+				continue
+			}
 			findings = append(findings, Finding{Level: "warning", Message: warning})
 		}
 	}
 	for _, warning := range migrationResult.Warnings {
-		if warning == "no safe migrations were needed" {
+		if warning == "no safe migrations were needed" || strings.HasPrefix(warning, "no safe migrations were needed for slug ") {
 			continue
 		}
 		findings = append(findings, Finding{Level: "warning", Message: warning})
@@ -130,7 +148,7 @@ func Check(ctx context.Context, root string) (Result, error) {
 				Message: "AGENTS.md is missing /spk.repo-map guidance — run `speckeep refresh .` to sync the managed SpecKeep block",
 			})
 		}
-		if strings.Contains(text, "/speckeep.archive") || strings.Contains(text, "/speckeep.") {
+		if deprecatedCommandPattern.MatchString(text) {
 			findings = append(findings, Finding{
 				Level:   "warning",
 				Message: "AGENTS.md still references deprecated /speckeep.* commands — run `speckeep refresh .` to update to /spk.*",
@@ -397,13 +415,23 @@ func legacyNestedPlanFindings(specsDir string) []Finding {
 func traceabilityChecks(ctx context.Context, root string) ([]Finding, error) {
 	var findings []Finding
 
-	traceResult, err := trace.Scan(ctx, root)
+	markers, err := trace.FindLegacyMarkers(ctx, root)
 	if err != nil {
 		return nil, err
 	}
+	if len(markers) > 0 {
+		findings = append(findings, Finding{
+			Level:   "warning",
+			Message: fmt.Sprintf("%d deprecated traceability marker(s) found in code — remove @sk-task/@sk-test/@ds-* and record evidence as tasks.md Proof entries (speckeep trace reads Proof)", len(markers)),
+		})
+	}
 
-	if len(traceResult.Findings) == 0 {
-		return []Finding{{Level: "error", Message: "no traceability annotations (@sk-task / @sk-test) found in codebase"}}, nil
+	entries, err := trace.ParseAll(ctx, root)
+	if err != nil {
+		return nil, err
+	}
+	if len(entries) == 0 {
+		return findings, nil
 	}
 
 	cfg, err := config.Load(ctx, root)
@@ -414,57 +442,44 @@ func traceabilityChecks(ctx context.Context, root string) ([]Finding, error) {
 	if err != nil {
 		return nil, err
 	}
-	archiveDir, err := cfg.ArchiveDir(root)
-	if err != nil {
-		return nil, err
-	}
 
-	states, err := workflow.States(ctx, root)
-	if err != nil {
-		return nil, err
+	grouped := map[string][]trace.Entry{}
+	for _, entry := range entries {
+		grouped[entry.Slug] = append(grouped[entry.Slug], entry)
 	}
+	slugs := make([]string, 0, len(grouped))
+	for slug := range grouped {
+		slugs = append(slugs, slug)
+	}
+	sort.Strings(slugs)
 
-	allTaskIDs := make(map[string]string) // taskID -> slug
-	for _, state := range states {
-		if state.TasksExists {
-			tasksPath, _ := featurepaths.ResolveTasks(specsDir, state.Slug)
-			taskIDs, err := taskIDsFromFile(tasksPath)
-			if err == nil {
-				for _, id := range taskIDs {
-					allTaskIDs[id] = state.Slug
-				}
+	for _, slug := range slugs {
+		tasksPath, _ := featurepaths.ResolveTasks(specsDir, slug)
+		taskIDs := map[string]struct{}{}
+		if content, err := os.ReadFile(tasksPath); err == nil {
+			for _, id := range taskIDsFromFile(string(content)) {
+				taskIDs[id] = struct{}{}
 			}
 		}
-		if state.Archived {
-			taskIDs, err := taskIDsFromLatestArchive(archiveDir, state.Slug)
-			if err == nil {
-				for _, id := range taskIDs {
-					allTaskIDs[id] = state.Slug
-				}
+		specPath, _ := featurepaths.ResolveSpec(specsDir, slug)
+		specContent, _ := os.ReadFile(specPath)
+
+		for _, entry := range grouped[slug] {
+			name := slug + "#" + entry.TaskID
+			if _, ok := taskIDs[entry.TaskID]; !ok {
+				findings = append(findings, Finding{
+					Level:   "warning",
+					Message: fmt.Sprintf("orphaned proof entry %s: task not found in tasks.md", name),
+				})
 			}
-		}
-	}
-
-	for _, f := range traceResult.Findings {
-		slug, ok := allTaskIDs[f.TaskID]
-		if !ok {
-			findings = append(findings, Finding{
-				Level:   "warning",
-				Message: fmt.Sprintf("orphaned traceability annotation in %s:%d: task %s not found in any tasks.md", f.File, f.Line, f.TaskID),
-			})
-			continue
-		}
-
-		if f.ACID != "" {
-			// Check if AC ID exists in the spec for this slug
-			specPath, _ := featurepaths.ResolveSpec(specsDir, slug)
-			if content, err := os.ReadFile(specPath); err == nil {
-				if !strings.Contains(string(content), f.ACID) {
-					findings = append(findings, Finding{
-						Level:   "warning",
-						Message: fmt.Sprintf("invalid traceability annotation in %s:%d: AC %s not found in spec for slug %s", f.File, f.Line, f.ACID, slug),
-					})
-				}
+			if entry.ACID != "" && !strings.Contains(string(specContent), entry.ACID) {
+				findings = append(findings, Finding{
+					Level:   "warning",
+					Message: fmt.Sprintf("invalid proof entry %s: AC %s not found in spec for slug %s", name, entry.ACID, slug),
+				})
+			}
+			for _, problem := range trace.CheckEntry(root, entry) {
+				findings = append(findings, Finding{Level: "warning", Message: problem.Message})
 			}
 		}
 	}
@@ -474,33 +489,8 @@ func traceabilityChecks(ctx context.Context, root string) ([]Finding, error) {
 
 var taskIDRegex = regexp.MustCompile(`(T[0-9]+(?:\.[0-9]+)*)`)
 
-func taskIDsFromFile(path string) ([]string, error) {
-	content, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	return taskIDRegex.FindAllString(string(content), -1), nil
-}
-
-func taskIDsFromLatestArchive(archiveDir, slug string) ([]string, error) {
-	slugDir := filepath.Join(archiveDir, slug)
-	entries, err := os.ReadDir(slugDir)
-	if err != nil {
-		return nil, err
-	}
-
-	latest := ""
-	for _, entry := range entries {
-		if entry.IsDir() && entry.Name() > latest {
-			latest = entry.Name()
-		}
-	}
-	if latest == "" {
-		return nil, os.ErrNotExist
-	}
-
-	tasksPath := filepath.Join(slugDir, latest, "plan", "tasks.md")
-	return taskIDsFromFile(tasksPath)
+func taskIDsFromFile(content string) []string {
+	return taskIDRegex.FindAllString(content, -1)
 }
 
 func speckeepEntrypointWarning(root string) string {

@@ -108,10 +108,10 @@ func TestFullWorkflowCycle(t *testing.T) {
 		return CheckImplementReady(context.Background(), config.Default(), root, slug)
 	})
 
-	// ── tasks (all done — verify phase) ───────────────────────────────────
+	// ── tasks (all done — ready to archive when verify is optional) ───────
 	writeFile(t, filepath.Join(planDir, "tasks.md"), tasksMDDone)
 
-	assertState(t, root, slug, "verify", "verify")
+	assertState(t, root, slug, "archive", "implement")
 	assertCheckPasses(t, "CheckVerifyReady", func() (CheckResult, error) {
 		return CheckVerifyReady(context.Background(), config.Default(), root, slug)
 	})
@@ -277,6 +277,7 @@ const tasksMDOpen = `# Demo Tasks
 
 - [ ] T1.1 Add export endpoint. Touches: src/handlers/export.go
 - [x] T1.2 Verify auth middleware coverage. Touches: src/middleware/auth.go
+      Proof: code src/middleware/auth.go
 
 ## Acceptance Coverage
 - AC-001 -> T1.1
@@ -305,7 +306,9 @@ const tasksMDDone = `# Demo Tasks
 ## Phase 1: Implementation
 
 - [x] T1.1 Add export endpoint. Touches: src/handlers/export.go
+      Proof: code src/handlers/export.go
 - [x] T1.2 Verify auth middleware coverage. Touches: src/middleware/auth.go
+      Proof: code src/middleware/auth.go
 
 ## Acceptance Coverage
 - AC-001 -> T1.1

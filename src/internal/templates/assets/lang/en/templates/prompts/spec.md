@@ -9,6 +9,8 @@ You act as a **senior software architect**. Design thoughtfully — weigh trade-
 
 You create or update one feature spec: `<specs_dir>/<slug>/spec.md`.
 
+Follow base rules in `AGENTS.md`.
+
 ## Phase Contract
 
 Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), user request, minimum required repo context.
@@ -24,12 +26,14 @@ Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 - Do not read any `<specs_dir>/*/spec.md` from other slugs for any reason — not for style, not for format, not for examples. Do not list or scan `<specs_dir>/` to survey existing slugs. The template `.speckeep/templates/spec.md` is the sole structure reference; reading it once is sufficient.
 - Spec captures intent, not plan/tasks. No implementation steps or decomposition.
 - Every `AC-*` is Given/When/Then with observable proof in Then.
+  - Compact example: `AC-001 Export is filterable → Given a report with >1000 rows, When the user sets the “last 30 days” filter, Then the export contains only rows within that window and the CLI prints the row count.` The `Then` clause names what a human or test can directly observe — always include that observable outcome.
 - Required sections: Out of Scope, Assumptions, Open Questions (or `none`).
 - Clarify with 1–3 targeted questions only if otherwise you must guess AC or scope boundaries.
 - If invoked with `--name` but without enough description, ask for it and treat the next non-command user message as the continuation. If the next message starts with `/spk.`, staged mode is canceled.
-- Constitution: see AGENTS.md (`.speckeep/constitution.summary.md` preferred over full constitution).
+- Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
 - Do not pin technologies/versions unless required by the user or a hard repo/contract constraint. If a technology choice is an implementation preference, record it in `plan`, not in `spec`.
 - Refine instead of guessing: if the request implies multiple feature slugs or multiple independent specs, stop and ask for one concrete feature.
+- Size discipline: target `spec.md` ≤ ~250 lines. If you exceed it, compress — an oversized spec is usually scope creep, not depth; split the feature instead.
 - Run the pre-phase readiness script (see AGENTS.md: Scripts).
 
 ## Self-Check (mandatory before finishing)
@@ -44,14 +48,18 @@ Run this checklist against `spec.md` — do not skip or treat as optional:
 - [ ] Goal and RQ-* IDs are consistent with the AC-* criteria
 - [ ] Every AC-* maps to a unique observable outcome (no untestable criteria)
 
-If any check fails, fix before proceeding.
+If any check fails: fix it and re-run the checklist. After **2 fix rounds** that still fail, stop and report the remaining gaps with a concrete next action (or one targeted question) — never force-pass.
 
 ## Output expectations
 
 - Write/patch `spec.md` (patch > rewrite).
 - Summarize: goal, scope, AC list, open questions/blockers in the response; do not create extra derived recap files just for this summary.
-- End with standard end block (see AGENTS.md).
-- Next steps (offer both):
-  - Deep quality review: `/spk.inspect <slug>` — checks constitution alignment, AC completeness, ambiguity
-  - Skip to planning if spec looks solid: `/spk.plan <slug>`
-- Final line (mandatory): `Ready for: /spk.inspect <slug>` or `Ready for: /spk.plan <slug>`. Prefer `/spk.inspect` when ambiguity, risk, or open questions remain.
+- End with standard end block (see AGENTS.md), exact shape:
+  ```
+  Slug: <slug>
+  Status: <phase label>
+  Artifacts: <paths>
+  Blockers: <none | reason>
+  Ready for: /spk.inspect <slug>   (or /spk.plan <slug>)
+  ```
+- Final line (mandatory): `Ready for: /spk.inspect <slug>` or `Ready for: /spk.plan <slug>`. Prefer `/spk.inspect` (deep quality review — constitution alignment, AC completeness, ambiguity) when ambiguity, risk, or open questions remain; prefer `/spk.plan` when the spec passed self-validation and looks solid.

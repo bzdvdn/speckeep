@@ -4,185 +4,122 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
+
+	"speckeep/src/internal/project"
 )
 
-func TestTracePattern(t *testing.T) {
-	tests := []struct {
-		name     string
-		line     string
-		wantType string
-		wantTask string
-		wantAC   string
-		wantDesc string
-	}{
-		{
-			name:     "task with description and AC",
-			line:     "// @sk-task T1.1: Add something (AC-001)",
-			wantType: "task",
-			wantTask: "T1.1",
-			wantAC:   "AC-001",
-			wantDesc: "Add something",
-		},
-		{
-			name:     "test with name and AC",
-			line:     "// @sk-test T1.1: TestSomething (AC-002)",
-			wantType: "test",
-			wantTask: "T1.1",
-			wantAC:   "AC-002",
-			wantDesc: "TestSomething",
-		},
-		{
-			name:     "task without AC",
-			line:     "// @sk-task T2.2: Simple description",
-			wantType: "task",
-			wantTask: "T2.2",
-			wantAC:   "",
-			wantDesc: "Simple description",
-		},
-		{
-			name:     "task with no colon",
-			line:     "// @sk-task T3.3 (AC-003)",
-			wantType: "task",
-			wantTask: "T3.3",
-			wantAC:   "AC-003",
-			wantDesc: "",
-		},
-		{
-			name:     "multiline comment style",
-			line:     "/* @sk-task T4.4: In block comment (AC-004) */",
-			wantType: "task",
-			wantTask: "T4.4",
-			wantAC:   "AC-004",
-			wantDesc: "In block comment",
-		},
-		{
-			name:     "shell comment style",
-			line:     "# @sk-task T5.5: In shell script (AC-005)",
-			wantType: "task",
-			wantTask: "T5.5",
-			wantAC:   "AC-005",
-			wantDesc: "In shell script",
-		},
-		{
-			name:     "legacy task format accepted",
-			line:     "// @ds-task T6.6: Legacy annotation (AC-006)",
-			wantType: "task",
-			wantTask: "T6.6",
-			wantAC:   "AC-006",
-			wantDesc: "Legacy annotation",
-		},
-		{
-			name:     "namespaced task id accepted",
-			line:     "// @sk-task my-spec#T7.1: Namespaced (AC-007)",
-			wantType: "task",
-			wantTask: "my-spec#T7.1",
-			wantAC:   "AC-007",
-			wantDesc: "Namespaced",
-		},
-	}
+const tasksContent = `# Tasks
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			matches := tracePattern.FindStringSubmatch(tt.line)
-			if len(matches) == 0 {
-				t.Errorf("tracePattern.FindStringSubmatch() did not match line: %s", tt.line)
-				return
-			}
-			if matches[1] != tt.wantType {
-				t.Errorf("match type = %v, want %v", matches[1], tt.wantType)
-			}
-			if matches[2] != tt.wantTask {
-				t.Errorf("match task = %v, want %v", matches[2], tt.wantTask)
-			}
-			if matches[4] != tt.wantAC {
-				t.Errorf("match AC = %v, want %v", matches[4], tt.wantAC)
-			}
-		})
-	}
-}
+## Phase 1
 
-func TestScan(t *testing.T) {
-	// Create temporary directory for testing
-	tmpDir, err := os.MkdirTemp("", "trace-test-*")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(tmpDir)
-
-	// Create a mock file with annotations
-	mockFile := filepath.Join(tmpDir, "service.go")
-	content := `package mock
-// @sk-task T1.1: Implementation (AC-001)
-func Do() {}
-
-// @sk-test T1.1: TestDo (AC-001)
-func TestDo() {}
+- [x] T1.1 Implement export (AC-001). Touches: src/internal/export.go
+      Proof: code src/internal/export.go RunExport
+- [x] T1.2 Add test (AC-001). Touches: src/tests/export_test.go
+      Proof: test src/tests/export_test.go TestRunExport
+- [ ] T2.1 Open task without proof. Touches: src/internal/export.go
+- [x] T3.1 Docs note
+      Proof: docs docs/export.md
 `
-	if err := os.WriteFile(mockFile, []byte(content), 0o644); err != nil {
-		t.Fatal(err)
-	}
 
-	// Create a file to skip
-	skipDir := filepath.Join(tmpDir, "node_modules")
-	if err := os.Mkdir(skipDir, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	skipFile := filepath.Join(skipDir, "skipped.js")
-	if err := os.WriteFile(skipFile, []byte("// @sk-task T9.9: Should skip"), 0o644); err != nil {
-		t.Fatal(err)
-	}
+func TestParseTasks(t *testing.T) {
+	root := t.TempDir()
 
-	result, err := Scan(context.Background(), tmpDir)
+	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
 	if err != nil {
-		t.Errorf("Scan() error = %v", err)
-		return
+		t.Fatalf("Initialize returned error: %v", err)
 	}
 
-	if len(result.Findings) != 2 {
-		t.Errorf("Scan() found %d findings, want 2", len(result.Findings))
+	specDir := filepath.Join(root, "specs", "active", "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	tasksPath := filepath.Join(specDir, "tasks.md")
+	if err := os.WriteFile(tasksPath, []byte(tasksContent), 0o644); err != nil {
+		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
-	foundTask := false
-	foundTest := false
-	for _, f := range result.Findings {
-		if f.Type == "task" && f.TaskID == "T1.1" && f.ACID == "AC-001" {
-			foundTask = true
-		}
-		if f.Type == "test" && f.TaskID == "T1.1" && f.ACID == "AC-001" {
-			foundTest = true
-		}
+	entries, err := ParseTasks(context.Background(), root, "demo")
+	if err != nil {
+		t.Fatalf("ParseTasks returned error: %v", err)
 	}
 
-	if !foundTask {
-		t.Errorf("Scan() did not find the task annotation")
+	// Only closed tasks carry Proof entries: T1.1, T1.2, T3.1.
+	want := []Entry{
+		{Slug: "demo", TaskID: "T1.1", ACID: "AC-001", Kind: "code", File: "src/internal/export.go", Anchor: "RunExport"},
+		{Slug: "demo", TaskID: "T1.2", ACID: "AC-001", Kind: "test", File: "src/tests/export_test.go", Anchor: "TestRunExport"},
+		{Slug: "demo", TaskID: "T3.1", ACID: "", Kind: "docs", File: "docs/export.md"},
 	}
-	if !foundTest {
-		t.Errorf("Scan() did not find the test annotation")
+	if !reflect.DeepEqual(entries, want) {
+		t.Errorf("ParseTasks() = %+v, want %+v", entries, want)
 	}
 }
 
-func TestFilterBySlug(t *testing.T) {
-	findings := []Finding{
-		{Type: "task", TaskID: "T1.1", ACID: "AC-001"},
-		{Type: "task", TaskID: "T2.1", ACID: "AC-002"},
-		{Type: "test", TaskID: "T1.1", ACID: "AC-001"},
+func TestCompletedTaskLines(t *testing.T) {
+	ids, withProof := CompletedTaskLines(tasksContent)
+
+	if len(ids) != 3 {
+		t.Fatalf("CompletedTaskLines() ids = %v, want 3", ids)
 	}
-
-	taskIDs := map[string]struct{}{
-		"T1.1": {},
+	if !withProof["T1.1"] || !withProof["T1.2"] || !withProof["T3.1"] {
+		t.Errorf("CompletedTaskLines() withProof = %v", withProof)
 	}
-
-	filtered := FilterBySlug(findings, taskIDs)
-
-	if len(filtered) != 2 {
-		t.Errorf("FilterBySlug() len = %d, want 2", len(filtered))
-	}
-
-	for _, f := range filtered {
-		if f.TaskID != "T1.1" {
-			t.Errorf("FilterBySlug() included wrong task ID: %s", f.TaskID)
+	for _, id := range []string{"T1.1", "T1.2", "T3.1"} {
+		found := false
+		for _, got := range ids {
+			if got == id {
+				found = true
+			}
 		}
+		if !found {
+			t.Errorf("CompletedTaskLines() missing id %s", id)
+		}
+	}
+}
+
+func TestCheckEntry(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "src", "internal"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "src", "internal", "export.go"), []byte("package export\n\nfunc RunExport() {}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	ok := Entry{TaskID: "T1.1", Kind: "code", File: "src/internal/export.go", Anchor: "RunExport"}
+	if problems := CheckEntry(root, ok); len(problems) != 0 {
+		t.Errorf("CheckEntry(ok) = %v, want none", problems)
+	}
+
+	missingAnchor := Entry{TaskID: "T1.1", Kind: "code", File: "src/internal/export.go", Anchor: "DoesNotExist"}
+	problems := CheckEntry(root, missingAnchor)
+	if len(problems) != 1 || problems[0].Kind != "anchor-missing" {
+		t.Errorf("CheckEntry(missing anchor) = %v, want anchor-missing", problems)
+	}
+
+	missingFile := Entry{TaskID: "T1.1", Kind: "code", File: "src/internal/gone.go", Anchor: "RunExport"}
+	problems = CheckEntry(root, missingFile)
+	if len(problems) != 1 || problems[0].Kind != "file-missing" {
+		t.Errorf("CheckEntry(missing file) = %v, want file-missing", problems)
+	}
+}
+
+func TestFindLegacyMarkers(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "src"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "src", "service.go"), []byte("package service\n\n// @sk-task T1.1: Legacy\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	markers, err := FindLegacyMarkers(context.Background(), root)
+	if err != nil {
+		t.Fatalf("FindLegacyMarkers returned error: %v", err)
+	}
+	if len(markers) != 1 {
+		t.Errorf("FindLegacyMarkers() len = %d, want 1", len(markers))
 	}
 }
 
@@ -200,7 +137,7 @@ func TestShouldSkip(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if got := shouldSkip(tt.path); got != tt.want {
+		if got := shouldSkip(tt.path, nil); got != tt.want {
 			t.Errorf("shouldSkip(%q) = %v, want %v", tt.path, got, tt.want)
 		}
 	}

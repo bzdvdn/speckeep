@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`workflow.verify` config (`optional|required`, default `optional`)**: the `verify` phase is now an optional on-demand audit. Archive is CLI-only and allowed once the feature is deterministically proven (every `[x]` task in `tasks.md` has a `Proof:` entry) or after `verify: pass`. A persisted `verify.md` with status ≠ `pass` vetoes archive. Only `required` mode enforces a passing verify report before archive.
+- **Prompt↔CLI consistency tests**: template references from `templates/prompts/*.md` are resolved against the embedded templates (no dead pointers); the `Ready for:`/`Return to:` final lines of the phase prompts are verified against the CLI state machine; and the single-source contract between the repo `AGENTS.md` and `agents-snippet.md` (canonical end block, verify gate policy, phase chain, branch-first, `workflow.verify`) is enforced.
+
+### Changed
+
+- **Traceability moved from code markers to `Proof:` entries in `tasks.md`**: inline `@sk-task` / `@sk-test` / `@ds-*` annotations are deprecated and no longer read. Completed tasks (`[x]`) must carry at least one `Proof:` line (`Proof: <kind> <path> [<anchor>]`, `kind` = `code|test|docs|chore`) directly below the checkbox. New enforcement: a checked task without `Proof:` fails `speckeep check`, `speckeep archive`, and `speckeep doctor` traceability checks.
+- **`speckeep trace` rewritten**: now parses `Proof:` entries from `tasks.md` instead of scanning source files. Reports orphaned/duplicate/missing proof, missing files, and warns on missing anchors. `--tests` filters to `kind = test` entries. Legacy marker scanning removed.
+- **`speckeep doctor`**: added deprecation warning for stray `@sk-task`/`@sk-test`/`@ds-*` markers found in source code (they are ignored, not read); orphaned/missing `Proof:` entries are hardened errors.
+- **`speckeep refresh`**: removed `--rewrite-trace` and the `@ds-* → @sk-*` annotation rewrite logic.
+- **Templates (EN/RU)**: `constitution.md` Definition of Done, `tasks.md`, `agents-snippet.md`, and `implement`/`verify` prompts updated to the `Proof:` model; workflow chain in prompts/snippets is now `constitution → spec → [inspect] → plan → tasks → implement → archive` with `verify` as an optional audit.
+- **Prompt engineering pass (EN/RU)**: agent prompts now respect the `workflow.verify` mode when choosing the final `Ready for:` line (`required` → `/spk.verify`, `optional` → `speckeep archive`); mandatory Self-Check checklists added to `plan`, `tasks`, and `inspect` prompts (previously only `spec` had one); compact Given/When/Then example added to the `spec` prompt; persona roles added to `constitution`, `hotfix`, `rollback`, `scope`, `recap`, `repo-map`, and `handoff` prompts; a global escalation rule added to `agents-snippet.md` (stop with a precise reason instead of inventing a pass or a next step).
+- **Legacy trace markers fully removed from generated guidance (EN/RU)**: templates (`agents-snippet.md`, `implement`, `tasks`, `constitution` prompts) and docs no longer mention `@sk-task`/`@sk-test`/`@ds-*` — fresh workspaces contain zero marker references, so `speckeep doctor` no longer flags its own generated AGENTS.md. `trace`/`doctor` continue to detect stray markers in pre-existing user code.
+- **Docs (EN/RU)**: glossary, workflow, cli, examples, architecture, README, and MVP updated to the `Proof:` model and optional-verify semantics.
+- **Prompt polish round 2 (EN/RU)**: `workflowChainHint` in `agents/files.go` aligned with the template chain (archive CLI-only, `[inspect, optional]`, verify on-demand); repo-map-first rule moved to the top of `agents-snippet.md` core rules (primacy); phase prompts (`spec`, `plan`, `tasks`, `inspect`, `implement`, `verify`) now carry an inline end-block format sample instead of referencing AGENTS.md; `hotfix` and `handoff` final lines resolve against `workflow.verify`; `repo-map` final line is now concrete (`Ready for: /spk.implement <slug>`) instead of the `<next phase>` placeholder; duplicate map-decision bullet removed from `implement` (RU).
+- **Prompt engineering round 3 (EN/RU)**: the `verify` prompt gained a mandatory Self-Check tying the overall verdict to the acceptance-criteria matrix (evidence per row, `pass` only on confirmed evidence, `blocked` states the required refinement); cross-phase rules (canonical end block shape, verify gate policy) centralized once in `agents-snippet.md` and referenced by name from phase prompts; all self-checks (`spec`, `inspect`, `plan`, `tasks`, `verify`) gained a 2-round fix limit before stop; `spec`/`plan`/`tasks` gained size caps; inline `DEC-*`, task-row, and Surface-Map examples added; `challenge` and `scope` explicitly separated from `inspect` (findings/inventory only, no `pass|concerns|blocked` verdict); duplicated verify-policy and constitution-resolution pointers deduplicated; `/spk.handoff`, `/spk.scope`, and `/spk.hotfix` added to the snippet command list; repo `AGENTS.md` now documents `agents-snippet.md` as the single source of truth.
+
+### Fixed
+
+- **Doctor: false positives and uninitialized-project noise** — `speckeep doctor` on an uninitialized directory now fails with a single actionable message (run `speckeep init`) instead of 20+ misleading findings; markdown files are excluded from stray-marker scanning (docs legitimately describe the deprecated markers, so AGENTS.md was self-flagging); the deprecated-command check no longer matches the `.speckeep/speckeep.yaml` config path; per-slug "no safe migrations were needed" notices no longer surface as `connect` warnings.
+
 ## [v0.7.1] - 2026-07-08
 
 ### Fixed

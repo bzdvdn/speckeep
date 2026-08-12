@@ -114,7 +114,7 @@ func newCheckCmd() *cobra.Command {
 				return nil
 			}
 
-			printCheck(cmd, state, result)
+			printCheck(cmd, state, result, cfg.Workflow.VerifyRequired())
 			if result.Blocked {
 				return newExitError(1, "")
 			}
@@ -242,7 +242,7 @@ func nextCommand(state workflow.FeatureState) string {
 	}
 }
 
-func printCheck(cmd *cobra.Command, state workflow.FeatureState, result checkResult) {
+func printCheck(cmd *cobra.Command, state workflow.FeatureState, result checkResult, verifyRequired bool) {
 	w := cmd.OutOrStdout()
 
 	nextLine := "-"
@@ -266,7 +266,7 @@ func printCheck(cmd *cobra.Command, state workflow.FeatureState, result checkRes
 		"inspect: " + artifactLine(w, state.InspectExists, state.InspectStatus),
 		"plan: " + artifactLine(w, state.PlanExists, ""),
 		"tasks: " + artifactLine(w, state.TasksExists, taskDetail(state)),
-		"verify: " + artifactLine(w, state.VerifyExists, state.VerifyStatus),
+		"verify: " + verifyArtifactLine(w, state.VerifyExists, state.VerifyStatus, verifyRequired),
 	})
 
 	if state.BranchMismatch {
@@ -318,6 +318,16 @@ func artifactLine(w io.Writer, present bool, detail string) string {
 		parts = append(parts, " ", styleMuted(w, detail))
 	}
 	return strings.Join(parts, "")
+}
+
+func verifyArtifactLine(w io.Writer, present bool, detail string, verifyRequired bool) string {
+	if !present {
+		if !verifyRequired {
+			return styleMuted(w, "optional")
+		}
+		return styleError(w, "missing")
+	}
+	return artifactLine(w, true, detail)
 }
 
 func printCheckAll(cmd *cobra.Command, states []workflow.FeatureState, results []checkResult) {

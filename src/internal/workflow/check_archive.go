@@ -42,7 +42,9 @@ func CheckArchiveReady(ctx context.Context, cfg config.Config, root, slug, statu
 		return CheckResult{}, err
 	}
 	if !state.VerifyExists {
-		result.AddError(ErrVerifyMissing.Error())
+		if cfg.Workflow.VerifyRequired() {
+			result.AddError(ErrVerifyMissing.Error())
+		}
 	} else if state.VerifyStatus != StatusPass {
 		result.AddError(fmt.Sprintf("verify status is %s - fix before archiving", state.VerifyStatus))
 	}
@@ -55,6 +57,11 @@ func CheckArchiveReady(ctx context.Context, cfg config.Config, root, slug, statu
 		if summary.Open > 0 {
 			result.AddError("open tasks remain - complete before archiving")
 		}
+		proofResult, err := CheckProofs(ctx, cfg, root, slug)
+		if err != nil {
+			return CheckResult{}, err
+		}
+		result.Merge(proofResult)
 	}
 	if result.Failed {
 		return result, nil

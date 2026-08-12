@@ -36,7 +36,7 @@ speckeep решает это через **discipline per token** — миним�
 
 - **Specs** со стабильными ID (`AC-*`, `RQ-*`) — агенты точно знают, что строить и проверять
 - **Tasks** с surface map и группировкой по фазам — агенты выполняют по порядку, одну фазу за раз
-- **Traceability** (`@sk-task` аннотации) — проверка, что каждое требование реализовано и протестировано
+- **Traceability** (записи `Proof:` в `tasks.md`) — доказательство, что каждое требование реализовано и протестировано
 - **10 адаптеров агентов** — Claude Code, Cursor, Copilot, OpenCode, aider, Windsurf и другие
 
 Результат на практике: агенты реже ошибаются с первого раза, хендоффы между сессиями требуют меньше контекста, а требования остаются читаемыми для человека.
@@ -46,8 +46,9 @@ speckeep решает это через **discipline per token** — миним�
 ## Workflow
 
 ```
-constitution → spec → [inspect] → plan → tasks → implement → verify → archive
+constitution → spec → [inspect] → plan → tasks → implement → archive
 ```
+`verify` — опциональный on-demand аудит; archive разрешён, когда каждая задача `[x]` имеет `Proof:` (или после `verify: pass`).
 
 Каждая фаза загружает только минимум контекста. Опциональные команды на любой фазе: `/spk.challenge`, `/spk.handoff`, `/spk.hotfix`, `/spk.scope`, `/spk.recap`.
 
@@ -96,14 +97,14 @@ speckeep add-skill | list-skills | remove-skill | install-skills | skills-restor
 **Linux / macOS:**
 
 ```bash
-VERSION=v0.7.1
+VERSION=v0.8.0
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$version="v0.7.1"
+$version="v0.8.0"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -119,7 +120,7 @@ go install speckeep@latest
 **Сборка из исходников:**
 
 ```bash
-go build -ldflags "-X speckeep/src/internal/cli.Version=v0.7.1" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v0.8.0" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 ---
@@ -214,11 +215,15 @@ speckeep check eksport-otchetov-v-csv
 
 ### Traceability
 
-Аннотируйте код во время реализации:
+Во время реализации фиксируйте доказательство каждой завершённой задачи строкой `Proof:` сразу под чекбоксом `[x]` в `tasks.md`:
 
-```go
-// @sk-task T1.1 (AC-001)
 ```
+- [x] T1.1 Добавить обработчик экспорта
+  Proof: code src/handlers/export.go ExportHandler
+  Proof: test src/tests/export_test.go TestExportFlow
+```
+
+`Proof: <kind> <path> [<anchor>]`, где `kind` — `code|test|docs|chore`. Отмеченная задача без записи `Proof:` не завершена — `speckeep check` и `speckeep archive` блокируют её. Evidence читается только из `tasks.md`; trace-маркеров в исходном коде нет.
 
 Проверьте:
 

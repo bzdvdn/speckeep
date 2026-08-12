@@ -36,7 +36,9 @@ Goal: establish the minimum structure, contracts, or data prerequisites so later
 Goal: deliver the smallest independently demonstrable product value before broader expansion.
 
 - [ ] T2.1 Implement the MVP acceptance path — the first usable behavior works end to end. Touches: src/handlers/feature.ts, src/models/feature.ts
-- [ ] T2.2 Prove the MVP path — focused checks or tests confirm the slice is reviewable. Touches: src/tests/feature.test.ts
+- [x] T2.2 Prove the MVP path — focused checks or tests confirm the slice is reviewable. Touches: src/tests/feature.test.ts
+      Proof: test src/tests/feature.test.ts testFeatureMvpPath
+- [ ] T2.3 … (open task: no `Proof` required until `[x]`)
 
 ## Phase 3: Core Implementation
 
@@ -67,5 +69,6 @@ Goal: prove the feature works and leave the package in a reviewable state.
 - Reference 1-2 stable IDs in task text when useful (`AC-*`, `RQ-*`, `DEC-*`)
 - Separate validation work from broad implementation work instead of hiding proof inside a large task
 - Mark tasks complete as implementation progresses and do not leave acceptance criteria without task coverage
+- Every completed task (`[x]`) must carry a `Proof:` line on the following line: `Proof: <kind> <path> [<anchor>]`, where `kind` is `code|test|docs|chore`, `path` is a repo-root-relative path, and `anchor` is the function/test/type name (optional). Without `Proof` the task is not complete and `check`/`archive` will block it
 - State explicitly when a phase is intentionally omitted because the feature does not need it
 - Keep `Implementation Context` short but sufficient so implement and verify rarely need to re-read `spec.md` or `plan.md`

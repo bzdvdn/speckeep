@@ -270,7 +270,7 @@ func TestRenderOpencodeDeclaresArgumentHint(t *testing.T) {
 	}
 }
 
-func TestRenderOpencodeIncludesTracePlacementHint(t *testing.T) {
+func TestRenderOpencodeIncludesProofHint(t *testing.T) {
 	specs := map[string]commandSpec{}
 	for _, spec := range commandSpecs("sh") {
 		specs[spec.Name] = spec
@@ -284,12 +284,12 @@ func TestRenderOpencodeIncludesTracePlacementHint(t *testing.T) {
 		{
 			name: "en",
 			lang: "en",
-			want: "never put `@sk-task`/`@sk-test` at `package`, `import`, or file-header level",
+			want: "every completed task in `tasks.md` must carry a `Proof:` line",
 		},
 		{
 			name: "ru",
 			lang: "ru",
-			want: "никогда не ставьте `@sk-task`/`@sk-test` на уровень `package`, `import` или file-header comment",
+			want: "каждая закрытая задача в `tasks.md` обязана иметь строку `Proof:`",
 		},
 	}
 
@@ -303,7 +303,7 @@ func TestRenderOpencodeIncludesTracePlacementHint(t *testing.T) {
 	}
 }
 
-func TestRenderWindsurfIncludesTracePlacementHint(t *testing.T) {
+func TestRenderWindsurfIncludesProofHint(t *testing.T) {
 	specs := map[string]commandSpec{}
 	for _, spec := range commandSpecs("sh") {
 		specs[spec.Name] = spec
@@ -317,12 +317,12 @@ func TestRenderWindsurfIncludesTracePlacementHint(t *testing.T) {
 		{
 			name: "en",
 			lang: "en",
-			want: "never put `@sk-task`/`@sk-test` at `package`, `import`, or file-header level",
+			want: "every completed task in `tasks.md` must carry a `Proof:` line",
 		},
 		{
 			name: "ru",
 			lang: "ru",
-			want: "никогда не ставьте `@sk-task`/`@sk-test` на уровень `package`, `import` или file-header comment",
+			want: "каждая закрытая задача в `tasks.md` обязана иметь строку `Proof:`",
 		},
 	}
 

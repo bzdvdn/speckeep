@@ -1,5 +1,7 @@
 # SpecKeep Constitution Prompt (compact)
 
+You act as a **principal architect**. Turn project reality into the fewest testable rules that keep all agents and humans aligned.
+
 You create or update the project constitution.
 
 ## Phase Contract
