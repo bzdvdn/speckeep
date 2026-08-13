@@ -7,6 +7,15 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v0.8.1] - 2026-08-13
+
+### Fixed
+
+- **`speckeep archive` now respects the `workflow.verify` gate**: `verify.md` is no longer hard-required for archiving — when verify is `optional` (the default), a feature with all tasks complete can be archived without a verify report; a persisted `verify.md` with status ≠ `pass` still vetoes the archive, and `workflow.verify: required` keeps the mandatory pre-archive gate. The generated `summary.md` no longer references a missing `verify.md` (it reports `verify: skipped (optional)`).
+- **Archive tests**: added coverage for the optional-verify path (`archive` succeeds without `verify.md`), the `required` mode (`verify.md` must exist), and the non-pass veto (`verify.md` with status `concerns` blocks archiving).
+
+## [v0.8.0] - 2026-08-12
+
 ### Added
 
 - **`workflow.verify` config (`optional|required`, default `optional`)**: the `verify` phase is now an optional on-demand audit. Archive is CLI-only and allowed once the feature is deterministically proven (every `[x]` task in `tasks.md` has a `Proof:` entry) or after `verify: pass`. A persisted `verify.md` with status ≠ `pass` vetoes archive. Only `required` mode enforces a passing verify report before archive.

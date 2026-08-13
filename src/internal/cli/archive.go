@@ -134,10 +134,10 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 	}
 
 	if !state.VerifyExists {
-		return result, fmt.Errorf("verify.md not found - run verify before archiving")
-	}
-
-	if state.VerifyStatus != workflow.StatusPass && state.VerifyStatus != workflow.StatusConcerns {
+		if cfg.Workflow.VerifyRequired() {
+			return result, fmt.Errorf("verify.md not found - run verify before archiving")
+		}
+	} else if state.VerifyStatus != workflow.StatusPass {
 		return result, fmt.Errorf("verify status is %s - fix before archiving", state.VerifyStatus)
 	}
 
@@ -398,7 +398,11 @@ func generateArchiveSummary(path, slug, status, reason string, state workflow.Fe
 		sb.WriteString(fmt.Sprintf("- reason: %s\n", reason))
 	}
 	sb.WriteString(fmt.Sprintf("- tasks: %d/%d completed\n", state.TasksCompleted, state.TasksTotal))
-	sb.WriteString(fmt.Sprintf("- verify: %s\n", state.VerifyStatus))
+	if state.VerifyExists {
+		sb.WriteString(fmt.Sprintf("- verify: %s\n", state.VerifyStatus))
+	} else {
+		sb.WriteString("- verify: skipped (optional)\n")
+	}
 	sb.WriteString("\n")
 
 	sb.WriteString("## Snapshot\n\n")
@@ -413,7 +417,11 @@ func generateArchiveSummary(path, slug, status, reason string, state workflow.Fe
 	sb.WriteString("\n")
 
 	sb.WriteString("## Evidence\n\n")
-	sb.WriteString("See verify.md for detailed verification evidence.\n")
+	if state.VerifyExists {
+		sb.WriteString("See verify.md for detailed verification evidence.\n")
+	} else {
+		sb.WriteString("Verify phase skipped (optional); evidence is in the `Proof:` lines of tasks.md.\n")
+	}
 	sb.WriteString("\n")
 
 	return os.WriteFile(path, []byte(sb.String()), 0644)
