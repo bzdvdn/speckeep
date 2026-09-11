@@ -61,7 +61,8 @@ Describe the implementation shape without restating the full spec. Make clear wh
 - Call out which data-model updates are required and which are intentionally unnecessary
 - Call out which API/event contracts are affected and how compatibility is preserved
 - State explicitly when no extra contract expansion is needed
-- `data-model.md` is always required: either document the model changes or point to the explicit no-change stub
+- `data-model.md` is optional on-demand: create it only when the feature really changes data model/state/persistence; otherwise record `Data model: no change` inline here
+- `plan.md` itself is optional for tiny/low-risk changes — close such features from `spec.md` + `tasks.md` (express mode)
 
 ## Implementation Strategy
 

@@ -59,10 +59,9 @@ Refreshes only SpecKeep-managed generated artifacts in an existing project.
 This command updates:
 
 - `.speckeep/spk.yaml`
-- `.speckeep/skills/manifest.yaml`
 - `.speckeep/templates/**`
 - `.speckeep/scripts/**`
-- project-local agent command files
+- project-local agent skill packs
 - the managed SpecKeep guidance block inside `AGENTS.md`
 
 This command does not update:
@@ -112,90 +111,6 @@ Disables one or more agent targets and removes their generated files.
 ### `speckeep cleanup-agents [path]`
 
 Removes orphaned agent artifacts that no longer match enabled targets in config.
-
-### `speckeep add-skill [path]`
-
-Adds or updates one skill in `.speckeep/skills/manifest.yaml`.
-
-For git sources, `--ref` is required to keep installs reproducible and avoid floating branch drift.
-
-For git sources, SpecKeep materializes a checkout under `.speckeep/skills/checkouts/<id>`. This is a runtime cache of the skill source, and SpecKeep maintains a managed block for it in the root `.gitignore`.
-
-Use `--no-install` to update only manifest/AGENTS and skip immediate install into agent skill folders.
-
-Examples:
-
-```bash
-speckeep add-skill my-project --id architecture --from-local skills/architecture
-speckeep add-skill my-project --id openai-docs --from-git https://example.com/skills.git --ref v1.2.3 --path skills/openai-docs
-```
-
-### `speckeep list-skills [path]`
-
-Lists configured skills from `.speckeep/skills/manifest.yaml`.
-
-Use `--json` for machine-readable output.
-
-### `speckeep remove-skill [path]`
-
-Removes one skill from `.speckeep/skills/manifest.yaml`.
-
-Use `--no-install` to skip immediate reconciliation of installed skills in agent folders.
-
-### `speckeep install-skills [path]`
-
-Installs enabled skills from `.speckeep/skills/manifest.yaml` into target agent skill folders.
-
-By default, uses enabled targets from `.speckeep/spk.yaml`. Override with `--targets codex,opencode`.
-
-For git-backed skills, this command can rehydrate missing `.speckeep/skills/checkouts/<id>` from manifest data (`location` + `ref`) before installation. This helps when a checkout was deleted locally. If the upstream git source is unavailable, the manifest alone is not enough to reconstruct the skill contents.
-
-Important flags:
-
-- `--dry-run` reports pending changes without writing them
-- `--json` outputs install results as JSON
-- `--include-disabled` installs disabled skills too
-
-Equivalent subcommand:
-
-```bash
-speckeep skills install my-project
-```
-
-### `speckeep skills-restore [path]`
-
-Restores git-backed checkouts in `.speckeep/skills/checkouts/` from `.speckeep/skills/manifest.yaml` without installing skills into agent folders.
-
-Useful when the local checkouts were deleted but `manifest.yaml` still has the `location` and pinned `ref`.
-
-If the upstream git source is unavailable, the command cannot reconstruct the contents from the manifest alone.
-
-Use `--json` for machine-readable output.
-
-Equivalent subcommand:
-
-```bash
-speckeep skills restore my-project
-```
-
-### `speckeep sync-skills [path]`
-
-Synchronizes skill-managed artifacts only:
-
-- `.speckeep/skills/manifest.yaml`
-- managed root `.gitignore` block for `.speckeep/skills/checkouts/`
-- managed SpecKeep block in `AGENTS.md` (including skills section)
-
-Important flags:
-
-- `--dry-run` reports pending changes without writing them
-- `--json` outputs sync results as JSON
-
-Equivalent subcommand:
-
-```bash
-speckeep skills sync my-project
-```
 
 ## Migrating Existing Feature Packages
 
@@ -324,6 +239,59 @@ speckeep trace
 speckeep trace export-report
 speckeep trace export-report --tests
 speckeep trace export-report my-project --json
+```
+
+### `speckeep converge <slug> [path]`
+
+The cheap closing loop for "almost done" features: confirms every completed task carries a valid `Proof:` entry (existing file, resolvable anchor), every touched surface exists, and `AC-*` coverage holds.
+
+It is **lighter than verify** — no report file is produced. When gaps remain it lists them as structured findings and exits with code 1; the agent appends follow-up tasks (`## Converge Follow-ups` in `tasks.md`) and re-runs until `converged`, with a hard stop after 2 fix rounds.
+
+Use `--json` for machine-readable output. Exits with code 1 when the feature is not converged.
+
+```bash
+speckeep converge export-report
+speckeep converge export-report my-project --json
+```
+
+### `speckeep guard [path]`
+
+The deterministic CI gate for closing features: fails (exit 1) when at least one active feature is not archive-ready — open tasks, missing `Proof:`, blocked inspect/verify state, or a branch mismatch.
+
+Pass `--slug <slug>` to limit the check to one feature. Use `--json` for CI logs.
+
+```bash
+speckeep guard my-project
+speckeep guard my-project --slug export-report
+speckeep guard my-project --json
+```
+
+### `speckeep import <openspec|speckit> [path]`
+
+Migrates feature packages from another spec system into the current speckeep workspace.
+
+- **openspec**: reads `openspec/changes/<slug>/` and rebuilds `spec.md` (`RQ-*`/`AC-*` from `### Requirement:` and `#### Scenario:` blocks), `plan.md` from `design.md`, and copies `tasks.md` best-effort (with a note to regenerate via `/spk.tasks`).
+- **speckit**: reads `specs/<slug>/` and copies `spec.md` / `plan.md` / `tasks.md`.
+
+Existing speckeep feature directories are never overwritten — they are reported as skipped. Use `--json` for machine-readable output.
+
+```bash
+speckeep import openspec ./
+speckeep import speckit ./spec-kit-project
+speckeep import openspec . --json
+```
+
+### `speckeep self check` / `speckeep self upgrade`
+
+Manages the installed binary.
+
+- `speckeep self check`: reports the installed version vs the latest GitHub release (`--json` for machine output). Read-only — exits 0.
+- `speckeep self upgrade`: downloads the latest release archive, verifies its sha256 checksum against `sha256sum.txt`, and replaces the running binary in place. On Windows or when the install directory is not writable it prints a manual-install hint instead of failing silently.
+
+```bash
+speckeep self check
+speckeep self check --json
+speckeep self upgrade
 ```
 
 ### `speckeep demo [path]`

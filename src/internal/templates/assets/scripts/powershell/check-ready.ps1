@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 if ($args.Count -lt 1) {
   Write-Host "Usage: check-ready.ps1 <phase> [slug]" -ForegroundColor Red
-  Write-Host "Phases: constitution, spec, inspect, plan, tasks, implement, verify, archive" -ForegroundColor Red
+  Write-Host "Phases: constitution, spec, propose, inspect, plan, tasks, implement, converge, verify, archive" -ForegroundColor Red
   exit 2
 }
 

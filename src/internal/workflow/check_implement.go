@@ -23,9 +23,9 @@ func CheckImplementReady(ctx context.Context, cfg config.Config, root, slug stri
 	contractsDisplay, contractsAbs := resolveContractsDisplayPath(root, cfg.Paths.SpecsDir, slug)
 	checkFile(&result, cfg.Project.ConstitutionFile, absFromRoot(root, cfg.Project.ConstitutionFile))
 	checkFile(&result, specDisplay, specAbs)
-	checkFile(&result, planDisplay, planAbs)
+	checkOptionalFile(&result, planDisplay, planAbs, "no plan.md — express mode: tiny/low-risk feature closed from spec.md + tasks.md")
 	checkFile(&result, tasksDisplay, tasksAbs)
-	checkFile(&result, dataModelDisplay, dataModelAbs)
+	checkOptionalFile(&result, dataModelDisplay, dataModelAbs, "no data-model.md — optional on-demand: needed only when the feature changes data model/state")
 	checkFile(&result, promptDisplay, absFromRoot(root, promptDisplay))
 	if isDir(contractsAbs) {
 		result.AddOK(contractsDisplay)

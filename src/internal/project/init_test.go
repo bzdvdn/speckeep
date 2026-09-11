@@ -43,8 +43,8 @@ func TestInitializeCreatesWorkspaceAndAgentTargets(t *testing.T) {
 		filepath.Join(root, "CONSTITUTION.md"),
 		filepath.Join(root, ".speckeep", "scripts", "run-speckeep.sh"),
 		filepath.Join(root, "AGENTS.md"),
-		filepath.Join(root, ".claude", "commands", "spk.inspect.md"),
-		filepath.Join(root, ".cursor", "rules", "spk-inspect.mdc"),
+		filepath.Join(root, ".claude", "skills", "spk-inspect", "SKILL.md"),
+		filepath.Join(root, ".cursor", "skills", "spk-inspect", "SKILL.md"),
 	}
 	for _, path := range required {
 		if _, err := os.Stat(path); err != nil {
@@ -79,7 +79,7 @@ func TestAddRemoveAndCleanupAgents(t *testing.T) {
 		t.Fatalf("AddAgents returned error: %v", err)
 	}
 
-	cursorPath := filepath.Join(root, ".cursor", "rules", "spk-inspect.mdc")
+	cursorPath := filepath.Join(root, ".cursor", "skills", "spk-inspect", "SKILL.md")
 	if _, err := os.Stat(cursorPath); err != nil {
 		t.Fatalf("expected cursor agent file after AddAgents: %v", err)
 	}
@@ -248,7 +248,10 @@ func TestRefreshUpdatesManagedFilesWithoutTouchingAuthoredArtifacts(t *testing.T
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
 
-	agentPath := filepath.Join(root, ".claude", "commands", "spk.inspect.md")
+	agentPath := filepath.Join(root, ".claude", "skills", "spk-inspect", "SKILL.md")
+	if err := os.MkdirAll(filepath.Dir(agentPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
 	if err := os.WriteFile(agentPath, []byte("stale agent file"), 0o644); err != nil {
 		t.Fatalf("WriteFile returned error: %v", err)
 	}
@@ -311,6 +314,57 @@ func TestRefreshUpdatesManagedFilesWithoutTouchingAuthoredArtifacts(t *testing.T
 	}
 	if !strings.Contains(string(agentsContent), "<!-- speckeep:start -->") {
 		t.Fatalf("expected AGENTS.md to contain managed speckeep block, got %q", string(agentsContent))
+	}
+}
+
+func TestRefreshSelfHealsDeprecatedContinueTarget(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:      false,
+		DefaultLang:  "en",
+		Shell:        "sh",
+		AgentTargets: []string{"claude"},
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	// Simulate a project whose speckeep.yaml predates "continue" being
+	// dropped as a supported target.
+	cfg, err := config.Load(context.Background(), root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	cfg.Agents.Targets = append(cfg.Agents.Targets, "continue")
+	if err := config.Save(context.Background(), root, cfg); err != nil {
+		t.Fatalf("config.Save returned error: %v", err)
+	}
+
+	stalePath := filepath.Join(root, ".continue", "skills", "sdd", "SKILL.md")
+	if err := os.MkdirAll(filepath.Dir(stalePath), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(stalePath, []byte("stale"), 0o644); err != nil {
+		t.Fatalf("WriteFile returned error: %v", err)
+	}
+
+	if _, err := Refresh(root, RefreshOptions{}); err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+
+	if _, err := os.Stat(stalePath); !os.IsNotExist(err) {
+		t.Fatalf("expected stale .continue/skills file to be removed, stat err: %v", err)
+	}
+
+	after, err := config.Load(context.Background(), root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	for _, target := range after.Agents.Targets {
+		if target == "continue" {
+			t.Fatalf("expected \"continue\" to be dropped from saved config, got %#v", after.Agents.Targets)
+		}
 	}
 }
 

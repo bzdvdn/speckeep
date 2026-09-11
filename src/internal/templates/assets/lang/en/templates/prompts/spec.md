@@ -17,6 +17,22 @@ Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project
 Outputs: `<specs_dir>/<slug>/spec.md`.
 Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 
+## Alignment Pass (before drafting)
+
+Before writing any `AC-*`, decide: is the request precise enough to draft directly, or does it need one clarifying round first?
+
+Ask 1–3 targeted questions, in a single batch, when any of these is true:
+- the primary actor/consumer of the feature is not stated or inferable from the request or constitution
+- success cannot be stated as one observable outcome without guessing
+- the request could reasonably split into more than one feature/slug
+- an in/out-of-scope boundary is not derivable from the request or existing constraints
+
+Skip questions when the request already answers these. A spec with zero clarify rounds is a good outcome, not a shortcut — do not ask for the sake of asking.
+
+One round only: ask everything you need at once, then wait for the reply before drafting. Do not open a second round unless the reply itself introduces new ambiguity.
+
+If the user moves straight to another command instead of answering, draft best-effort and record every unresolved point under `Open Questions` — never invent an `AC-*` to fill the gap.
+
 ## Mandatory Rules
 
 - **Branch-first**: before writing any file, switch/create `feature/<slug>` (or `--branch`). If not possible → stop and report why.
@@ -28,8 +44,9 @@ Stop if: the request is ambiguous/multi-feature or would force inventing `AC-*`.
 - Every `AC-*` is Given/When/Then with observable proof in Then.
   - Compact example: `AC-001 Export is filterable → Given a report with >1000 rows, When the user sets the “last 30 days” filter, Then the export contains only rows within that window and the CLI prints the row count.` The `Then` clause names what a human or test can directly observe — always include that observable outcome.
 - Required sections: Out of Scope, Assumptions, Open Questions (or `none`).
-- Clarify with 1–3 targeted questions only if otherwise you must guess AC or scope boundaries.
+- Alignment pass: run it before drafting — see the dedicated section above.
 - If invoked with `--name` but without enough description, ask for it and treat the next non-command user message as the continuation. If the next message starts with `/spk.`, staged mode is canceled.
+- Domain language: if `.speckeep/glossary.md` exists, read it once and reuse its terms; do not introduce a new synonym for a term it already defines. Do not create/edit it here — that's `/spk.glossary`.
 - Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
 - Do not pin technologies/versions unless required by the user or a hard repo/contract constraint. If a technology choice is an implementation preference, record it in `plan`, not in `spec`.
 - Refine instead of guessing: if the request implies multiple feature slugs or multiple independent specs, stop and ask for one concrete feature.
@@ -47,6 +64,7 @@ Run this checklist against `spec.md` — do not skip or treat as optional:
 - [ ] The spec describes exactly one feature — no multi-feature scope creep
 - [ ] Goal and RQ-* IDs are consistent with the AC-* criteria
 - [ ] Every AC-* maps to a unique observable outcome (no untestable criteria)
+- [ ] The alignment pass happened for an ambiguous request, or was correctly skipped for a precise one — no guessed AC filled a gap a question should have closed
 
 If any check fails: fix it and re-run the checklist. After **2 fix rounds** that still fail, stop and report the remaining gaps with a concrete next action (or one targeted question) — never force-pass.
 

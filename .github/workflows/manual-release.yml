@@ -146,3 +146,42 @@ jobs:
           tag_name: ${{ inputs.tag }}
           files: release-assets/*
           generate_release_notes: true
+
+  npm-publish:
+    runs-on: ubuntu-latest
+    needs: release
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    steps:
+      - name: Check out tagged source
+        if: env.NPM_TOKEN != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Set up Node.js
+        if: env.NPM_TOKEN != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Sync package version to tag
+        if: env.NPM_TOKEN != ''
+        working-directory: contrib/packaging/npm
+        run: |
+          set -euo pipefail
+          tag="${{ inputs.tag }}"
+          npm pkg set version="${tag#v}"
+
+      - name: Publish to npm
+        if: env.NPM_TOKEN != ''
+        working-directory: contrib/packaging/npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Skipped (no NPM_TOKEN)
+        if: env.NPM_TOKEN == ''
+        run: echo "NPM_TOKEN secret not set — skipping npm publish. Add it in repo settings to enable."

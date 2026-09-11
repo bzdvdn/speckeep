@@ -28,6 +28,13 @@ func DefaultCommands(shell string) []CommandDefinition {
 			Category:    "workflow",
 		},
 		{
+			Name:        "propose",
+			Description: "One-shot: turn an idea into spec + tasks (plan optional) and go straight to implement",
+			PromptPath:  ".speckeep/templates/prompts/propose.md",
+			Extras:      []string{scriptPath("check-ready", normalizedShell) + " propose"},
+			Category:    "workflow",
+		},
+		{
 			Name:        "inspect",
 			Description: "Inspect one feature for consistency and quality",
 			PromptPath:  ".speckeep/templates/prompts/inspect.md",
@@ -72,6 +79,14 @@ func DefaultCommands(shell string) []CommandDefinition {
 			Category: "workflow",
 		},
 		{
+			Name:        "converge",
+			Description: "Close a feature fast: re-check tasks/proofs, append follow-up tasks, repeat until converged",
+			PromptPath:  ".speckeep/templates/prompts/converge.md",
+			Extras:      []string{scriptPath("check-ready", normalizedShell) + " converge"},
+			Optional:    true,
+			Category:    "workflow",
+		},
+		{
 			Name:        "handoff",
 			Description: "Generate a session handoff document for one feature",
 			PromptPath:  ".speckeep/templates/prompts/handoff.md",
@@ -90,6 +105,14 @@ func DefaultCommands(shell string) []CommandDefinition {
 			Name:        "scope",
 			Description: "Quick scope boundary check for a feature",
 			PromptPath:  ".speckeep/templates/prompts/scope.md",
+			Extras:      nil,
+			Optional:    true,
+			Category:    "workflow",
+		},
+		{
+			Name:        "glossary",
+			Description: "Create or update the shared domain-language glossary",
+			PromptPath:  ".speckeep/templates/prompts/glossary.md",
 			Extras:      nil,
 			Optional:    true,
 			Category:    "workflow",

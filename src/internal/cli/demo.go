@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"speckeep/src/internal/agents"
 	"speckeep/src/internal/project"
 )
 
@@ -66,7 +67,7 @@ commands immediately.`,
 	}
 
 	cmd.Flags().StringVar(&shell, "shell", "sh", "shell for generated workflow scripts: sh or powershell")
-	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "generate agent command files for one or more targets: claude, codex, copilot, cursor, kilocode, trae, windsurf, roocode, aider, all")
+	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "generate agent command files for one or more targets: "+agents.TargetOptionsText()+", all")
 
 	return cmd
 }

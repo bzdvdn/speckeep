@@ -35,6 +35,7 @@ Managed generated artifacts should remain refreshable without touching authored 
   speckeep.yaml
   constitution.md
   constitution.summary.md  (generated, optional)
+  glossary.md  (optional, created on demand via /spk.glossary)
   specs/
     <slug>/
       spec.md
@@ -87,6 +88,7 @@ Managed generated artifacts should remain refreshable without touching authored 
       hotfix.md
       recap.md
       scope.md
+      glossary.md
   scripts/
     run-speckeep.sh
     inspect-spec.sh
@@ -128,6 +130,8 @@ Dependency rules:
 Available at any phase:
 
 - `/spk.challenge`: adversarial review of spec or plan — finds weak assumptions, untestable AC, scope drift
+- `/spk.propose`: one-shot fast lane — idea → `spec.md` + `tasks.md` (plan optional), straight to implement; falls back to `/spk.spec` on ambiguity
+- `/spk.converge`: fast closing loop — re-checks an implemented feature cheaply, appends follow-up tasks, repeats until converged (lighter than verify)
 - `/spk.handoff`: compact session handoff document for new sessions
 - `/spk.hotfix`: emergency fix outside standard chain (≤3 files, known root cause)
 - `/spk.scope`: quick scope boundary check (inline only, no file)
@@ -191,9 +195,10 @@ Each feature keeps its phase artifacts under `specs/<slug>/`.
 
 Required artifacts:
 
-- `plan.md` (includes `## Incremental Delivery` section)
-- `tasks.md`
-- `data-model.md`
+- `spec.md` — always
+- `tasks.md` — for any feature that reaches implementation (or a `hotfix.md` for emergency fixes)
+- `plan.md` — required when the change is non-trivial; **optional for tiny/low-risk changes** (express lane closes from `spec.md` + `tasks.md`)
+- `data-model.md` — optional on-demand: create only when the feature actually changes data model/state/persistence; otherwise a `Data model: no change` note inside `plan.md` is enough
 - `verify.md` (when verify is persisted)
 
 Optional artifacts:
@@ -271,8 +276,8 @@ Inputs:
 Outputs:
 
 - `archive/<slug>/<YYYY-MM-DD>/summary.md`
-- archived copies of spec and feature artifacts
-- move-based by default (deletes originals after copy)
+- archived copies of spec and feature artifacts (default, move-based)
+- `--compact`: only `summary.md` + `snapshot.sha` git pointer (branch, commit, file list) — the rest lives in git; restore uses `git show`
 - supports `--restore` to reverse archive
 
 ## Traceability
@@ -387,6 +392,22 @@ Must:
 - report coverage in terms of completed task IDs and AC-* IDs
 - allow in-place decomposition for active task only
 
+## Converge workflow
+
+`converge` is the **fast closing loop** (agent-driven + CLI):
+
+- `speckeep converge <slug>` re-checks tasks, `Proof:` entries, touched surfaces, and `AC-*` coverage cheaply
+- when gaps remain it exits with code 1; the agent appends `## Converge Follow-ups` tasks to `tasks.md` and re-runs until `converged` (hard stop after 2 fix rounds)
+- lighter than verify: no report file, no verify template requirement
+
+## Guard workflow
+
+`speckeep guard` is the deterministic CI gate:
+
+- exit 0 only when every active feature (or `--slug <slug>`) is archive-ready
+- fails on open tasks, missing Proof, blocked inspect/verify, or branch mismatch
+- `--json` for CI logs
+
 ## Status and dashboard
 
 `speckeep check <slug>` shows:
@@ -411,6 +432,16 @@ Safe repair scope:
 - migrate legacy inspect reports to `specs/<slug>/inspect.md`
 - remove duplicate legacy copies when byte-identical
 - stop with warning when canonical and legacy copies differ
+
+`speckeep import <openspec|speckit>` migrates feature packages **from other spec
+systems**:
+
+- reads `openspec/changes/<slug>/` for OpenSpec (rebuilds `spec.md` RQ-*/AC-* from
+  Requirement/Scenario blocks, `plan.md` from design.md, copies tasks.md best-effort)
+- reads `specs/<slug>/` for Spec Kit (copies spec/plan/tasks)
+- never overwrites existing speckeep features (reported as skipped)
+- imported `tasks.md` should be regenerated via `/spk.tasks` to add `Touches:`,
+  Surface Map, and Acceptance Coverage
 
 ## Doctor checks
 

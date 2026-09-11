@@ -8,6 +8,14 @@ constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> arc
 
 `verify` is an optional on-demand audit: it is always available but skipped by default in the normal workflow.
 
+Two lighter lanes keep features closing fast without artifact bloat:
+
+- **One-shot propose** (`/spk.propose`): idea → `spec.md` + `tasks.md` in a single pass (plan optional), straight to `implement`. Falls back to `/spk.spec` when the idea is ambiguous or spans multiple features.
+- **Express lane**: tiny/low-risk changes skip `plan.md` (and `data-model.md`). `/spk.tasks` derives tasks straight from `spec.md`; plan-level decisions land in `tasks.md` → `## Implementation Context`. The lifecycle allows a feature with `spec.md + tasks.md` to reach `implement` and `archive` without a separate plan.
+- **Converge loop** (`/spk.converge` / `speckeep converge <slug>`): after `implement`, re-checks task/proof/surface/AC coverage cheaply and reports gaps. The agent appends follow-up tasks and repeats until `converged` (hard stop after 2 fix rounds). Lighter than `verify` — no report file.
+
+`speckeep guard .` is the machine gate variant: exit 0 only when every active feature is archive-ready. Features living in an OpenSpec or Spec Kit workspace can be brought in with `speckeep import openspec|speckit .`.
+
 For new projects (Greenfield), work begins with an extended **Constitution** phase (using the `--foundation` flag) that codifies both the process rules and the project's technical foundation.
 
 SpecKeep assumes branch-based delivery: each active feature should be developed in its own git branch, with the feature spec and artifact set acting as the shared source of truth instead of a mutable global memory file. The default branch naming convention is `feature/<slug>`.
@@ -275,6 +283,8 @@ Note: generated `.speckeep/scripts/*` wrappers compute the project root from the
 Copies a completed, superseded, rejected, abandoned, or deferred feature package into `specs/archived/<slug>/<YYYY-MM-DD>/`.
 
 Archive is CLI-only and allowed when the feature is deterministically proven — every `[x]` task has at least one `Proof:` entry — or after `verify: pass`. A `verify.md` present with status other than `pass` vetoes archiving. The archive script validates task and proof state internally and returns a clear error if prerequisites are not met. Default archive status is `completed`; other statuses (`superseded`, `abandoned`, `rejected`, `deferred`) require an explicit `--reason`.
+
+`--compact` archives lean: it stores only `summary.md` plus a `snapshot.sha` git pointer (branch + commit + file list) instead of copying every artifact — the full history already lives in git. Restore (`--restore`) re-creates the files via `git show`. Compact requires committed artifacts and a git repo.
 
 ## Why This Chain Exists
 

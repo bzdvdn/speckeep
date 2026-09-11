@@ -8,8 +8,10 @@ Core rules:
 - ⚠️ **CRITICAL — Repository map first**: **DO NOT** use `ls`, `find`, or glob for primary navigation. Read `REPOSITORY_MAP.md` first — it contains the complete repo map. This saves tokens and maintains workflow discipline. Read it once per session and reuse notes; re-read only if you updated the map in the same session.
 - Paths/config: read `.speckeep/speckeep.yaml` ≤ 1 time per session; if missing, defaults: `<specs_dir>=specs/active`, `<archive_dir>=specs/archived`, constitution=`CONSTITUTION.md`.
 - Constitution: load `.speckeep/constitution.summary.md` first if it exists; fall back to `project.constitution_file` (default: `CONSTITUTION.md`) only when the summary is absent.
-- Branching: only `/spk.spec` may switch/create `feature/<slug>` (or `--branch`). Other phases must already be on the correct branch.
+- Domain language: if `.speckeep/glossary.md` exists, read it once per session and reuse its terms in spec/plan/tasks; never introduce a synonym for a term it already defines. It is optional and created/updated only via `/spk.glossary` — do not generate it implicitly from another phase.
+- Branching: only `/spk.spec` and `/spk.propose` may switch/create `feature/<slug>` (or `--branch`). Other phases must already be on the correct branch.
 - Scripts: before each phase, run `check-ready.* <phase> <slug>` (and any extras from Commands); trust stdout/exit code; never read `.speckeep/scripts/*` source.
+- Skills: the SpecKeep workflow is provided as an `sdd` skill pack in your skills directory (`<tool>/skills/sdd/` — root `SKILL.md` + thin per-phase files under `phases/`). Prefer loading the matching phase skill; they delegate to the canonical prompts in `.speckeep/templates/prompts/*` and gate on `speckeep check`/`guard`.
 - Scope/load: default to the current slug only; avoid broad repo scans; prefer `Touches:` surfaces.
 - Git safety: no `git commit/push/tag` and no PRs unless explicitly asked.
 - Done: never mark a task done without observable proof (file path, test output, or command result). Every artifact must be reviewable by a peer without extra explanation.
@@ -35,14 +37,17 @@ Core rules:
 
 Commands (prefix: `/spk.`):
 - `/spk.constitution` → update constitution
+- `/spk.propose` → one-shot: idea → spec + tasks (plan optional), straight to implement
 - `/spk.spec` → write spec (branch-first)
 - `/spk.inspect` → optional deep quality review
 - `/spk.plan` → write plan artifacts
 - `/spk.tasks` → write tasks
 - `/spk.implement` → implement tasks
+- `/spk.converge` → fast closing loop: re-check tasks/proofs, append follow-up tasks, repeat until converged (lighter than verify)
 - `/spk.verify` → verify tasks/AC
 - `/spk.challenge` → adversarial review of spec/plan (blind spots, untestable AC)
 - `/spk.scope` → quick scope boundary check of a feature (in/out, risks)
+- `/spk.glossary` → create/update the shared domain-language glossary (`.speckeep/glossary.md`)
 - `/spk.rollback` → roll back completed tasks for a feature, returning them to unfinished state
 - `/spk.recap` → project overview: active features, phase, next step
 - `/spk.handoff` → session handoff doc for one feature (resume with zero guesswork)

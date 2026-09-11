@@ -13,9 +13,9 @@ Follow base rules in `AGENTS.md`.
 
 ## Phase Contract
 
-Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/plan.md`, optionally `spec.md` when needed to resolve `AC-*` boundaries.
+Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/plan.md` when present, otherwise `spec.md` directly (express mode). Optionally `spec.md` when needed to resolve `AC-*` boundaries.
 Outputs: `tasks.md` with phases, `Touches:` on every task, a `## Surface Map`, and `## Acceptance Coverage` (AC → tasks).
-Stop if: `plan.md` is missing/vague or any `AC-*` cannot be mapped to executable work without guessing.
+Stop if: both `plan.md` and a usable `spec.md` are missing/vague, or any `AC-*` cannot be mapped to executable work without guessing.
 
 ## Rules
 
@@ -24,7 +24,8 @@ Stop if: `plan.md` is missing/vague or any `AC-*` cannot be mapped to executable
   - Task row shape: `- [ ] T1.1 Add export size guard — outcome: oversized exports fail with a clear error; Touches: src/export.go, src/export_test.go`.
 - `## Surface Map` is mandatory (Surface | Tasks) to enable batch-reads in implement.
   - Surface Map row: `| src/export.go | T1.1, T2.1 |` (one row per surface, tasks comma-separated).
-- Do not look for “examples” in neighboring specs/tasks from other slugs: it’s usually wasted tokens and scope drift. Take structure from `.speckeep/templates/tasks.md` and the current `<specs_dir>/<slug>/plan.md`.
+- Do not look for “examples” in neighboring specs/tasks from other slugs: it’s usually wasted tokens and scope drift. Take structure from `.speckeep/templates/tasks.md` and (when present) the current `<specs_dir>/<slug>/plan.md`.
+- Express mode: when `plan.md` is absent, derive tasks straight from `spec.md`. Put any plan-level decisions (surfaces, risks, small `DEC-*` notes) into `## Implementation Context` instead of inventing a separate plan file.
 - Make `tasks.md` implement-self-contained: the implement agent should be able to execute tasks by reading only `tasks.md` + the active task `Touches:` (no mandatory re-read of `plan.md`/`spec.md`/`data-model.md`).
 - If execution depends on key plan/data-model decisions or invariants, include a short `## Implementation Context` section (≤ ~20 lines) and reference it from tasks (e.g., `DEC-*` / `DM`) so implement doesn’t re-read source artifacts end-to-end.
 - `## Implementation Context` is always required, even when short: it is the main operational bridge from spec/plan into implement/verify.
@@ -39,6 +40,7 @@ Stop if: `plan.md` is missing/vague or any `AC-*` cannot be mapped to executable
 - Every `AC-*` must be covered by ≥ 1 task: `AC-001 -> T1.1, T2.1`.
 - Do not implement or edit source code in the tasks phase.
 - Do not assume `research.md` should exist; only reference it when the plan explicitly depends on it.
+- Domain language: if `.speckeep/glossary.md` exists, read it once and reuse its terms; do not introduce a new synonym for a term it already defines.
 - Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
 - Size discipline: target `tasks.md` ≤ ~150 lines; a task list that overflows is usually scope creep — split phases or compress before proceeding.
 - Run the pre-phase readiness script (see AGENTS.md: Scripts).

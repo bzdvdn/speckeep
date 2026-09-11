@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"speckeep/src/internal/config"
 	"speckeep/src/internal/featurepaths"
+	"speckeep/src/internal/gitutil"
 	"speckeep/src/internal/workflow"
 )
 
@@ -32,6 +33,7 @@ func newArchiveCmd() *cobra.Command {
 		status     string
 		reason     string
 		copyMode   bool
+		compact    bool
 		restore    bool
 		jsonOutput bool
 	)
@@ -43,15 +45,22 @@ func newArchiveCmd() *cobra.Command {
 
 Archive mode (default):
   - Copies all feature artifacts to <archive_dir>/<slug>/<YYYY-MM-DD>/
-  - Generates archive summary.md from verify.md
+  - Generates archive summary.md from the feature state
   - Removes active files (unless --copy)
 
+Compact mode (--compact):
+  - Stores only summary.md + snapshot.sha (git branch + commit pointer)
+  - Keeps the archive lean: the full history already lives in git
+  - Restore re-creates artifacts from git with 'git show'
+  - Requires a git repository
+
 Restore mode (--restore):
-  - Copies latest archive snapshot back to the configured active specs directory
+  - Restores the latest archive snapshot back to the active specs directory
   - Removes the archive entry after successful restore`,
 		Example: `  speckeep archive my-feature .
   speckeep archive my-feature . --status completed --reason "AC covered"
   speckeep archive my-feature . --copy --status deferred
+  speckeep archive my-feature . --compact
   speckeep archive my-feature . --restore`,
 		Args: cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -69,7 +78,7 @@ Restore mode (--restore):
 				return outputArchiveResult(cmd, result, jsonOutput)
 			}
 
-			result, err := archiveFeature(root, slug, status, reason, copyMode)
+			result, err := archiveFeature(root, slug, status, reason, copyMode, compact)
 			if err != nil {
 				return err
 			}
@@ -80,13 +89,18 @@ Restore mode (--restore):
 	cmd.Flags().StringVar(&status, "status", "completed", "Archive status: completed, superseded, abandoned, rejected, deferred")
 	cmd.Flags().StringVar(&reason, "reason", "", "Reason for archiving")
 	cmd.Flags().BoolVar(&copyMode, "copy", false, "Keep originals after archiving (copy-only mode)")
+	cmd.Flags().BoolVar(&compact, "compact", false, "Store summary.md + git pointer only (requires a git repo)")
 	cmd.Flags().BoolVar(&restore, "restore", false, "Restore from archive instead of archiving")
 	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output as JSON")
 
 	return cmd
 }
 
-func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveResult, error) {
+func archiveFeature(root, slug, status, reason string, copyMode, compact bool) (ArchiveResult, error) {
+	root, err := filepath.Abs(root)
+	if err != nil {
+		return ArchiveResult{}, err
+	}
 	status = strings.ToLower(strings.TrimSpace(status))
 	reason = strings.TrimSpace(reason)
 
@@ -98,6 +112,9 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 	}
 	if copyMode {
 		result.Mode = "copy"
+	}
+	if compact {
+		result.Mode = "compact"
 	}
 
 	switch status {
@@ -152,6 +169,30 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 		return result, fmt.Errorf("create archive dir: %w", err)
 	}
 
+	var branch, headSHA string
+	var gitPaths []string
+	recordGitPath := func(src string) {
+		if rel, relErr := filepath.Rel(root, src); relErr == nil {
+			gitPaths = append(gitPaths, filepath.ToSlash(rel))
+		}
+	}
+	if compact {
+		if !gitutil.IsRepository(context.Background(), root) {
+			os.RemoveAll(slugArchiveDir)
+			return result, fmt.Errorf("--compact requires a git repository (full history is the archive)")
+		}
+		branch, err = gitutil.CurrentBranch(context.Background(), root)
+		if err != nil {
+			os.RemoveAll(slugArchiveDir)
+			return result, fmt.Errorf("resolve branch for compact archive: %w", err)
+		}
+		headSHA, err = gitutil.Head(context.Background(), root)
+		if err != nil {
+			os.RemoveAll(slugArchiveDir)
+			return result, fmt.Errorf("resolve HEAD for compact archive: %w", err)
+		}
+	}
+
 	// Copy spec artifacts
 	specFiles := []string{
 		featurepaths.Spec(specsDir, slug),
@@ -160,17 +201,22 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 	}
 
 	specArchiveDir := filepath.Join(slugArchiveDir, "specs", slug)
-	if err := os.MkdirAll(specArchiveDir, 0755); err != nil {
-		return result, err
+	if !compact {
+		if err := os.MkdirAll(specArchiveDir, 0755); err != nil {
+			return result, err
+		}
 	}
 
 	for _, src := range specFiles {
 		if _, err := os.Stat(src); err == nil {
-			dst := filepath.Join(specArchiveDir, filepath.Base(src))
-			if err := copyFile(src, dst); err != nil {
-				return result, fmt.Errorf("copy %s: %w", src, err)
-			}
 			result.Files = append(result.Files, "specs/"+slug+"/"+filepath.Base(src))
+			recordGitPath(src)
+			if !compact {
+				dst := filepath.Join(specArchiveDir, filepath.Base(src))
+				if err := copyFile(src, dst); err != nil {
+					return result, fmt.Errorf("copy %s: %w", src, err)
+				}
+			}
 		}
 	}
 
@@ -189,14 +235,17 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 	for _, name := range planFiles {
 		src := filepath.Join(planSourceDir, name)
 		if _, err := os.Stat(src); err == nil {
-			if err := os.MkdirAll(planArchiveDir, 0755); err != nil {
-				return result, err
-			}
-			dst := filepath.Join(planArchiveDir, name)
-			if err := copyFile(src, dst); err != nil {
-				return result, fmt.Errorf("copy %s: %w", src, err)
-			}
 			result.Files = append(result.Files, "plan/"+name)
+			recordGitPath(src)
+			if !compact {
+				if err := os.MkdirAll(planArchiveDir, 0755); err != nil {
+					return result, err
+				}
+				dst := filepath.Join(planArchiveDir, name)
+				if err := copyFile(src, dst); err != nil {
+					return result, fmt.Errorf("copy %s: %w", src, err)
+				}
+			}
 		}
 	}
 
@@ -204,27 +253,46 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 	contractsSourceDir, _ := featurepaths.ResolveContractsDir(specsDir, slug)
 	contractsArchiveDir := filepath.Join(planArchiveDir, "contracts")
 	if entries, err := os.ReadDir(contractsSourceDir); err == nil && len(entries) > 0 {
-		if err := os.MkdirAll(contractsArchiveDir, 0755); err != nil {
-			return result, err
-		}
 		for _, entry := range entries {
-			if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".md") {
-				src := filepath.Join(contractsSourceDir, entry.Name())
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
+				continue
+			}
+			src := filepath.Join(contractsSourceDir, entry.Name())
+			result.Files = append(result.Files, "plan/contracts/"+entry.Name())
+			recordGitPath(src)
+			if !compact {
+				if err := os.MkdirAll(contractsArchiveDir, 0755); err != nil {
+					return result, err
+				}
 				dst := filepath.Join(contractsArchiveDir, entry.Name())
 				if err := copyFile(src, dst); err != nil {
 					return result, fmt.Errorf("copy contracts/%s: %w", entry.Name(), err)
 				}
-				result.Files = append(result.Files, "plan/contracts/"+entry.Name())
 			}
 		}
 	}
 
 	// Generate summary.md
 	summaryPath := filepath.Join(slugArchiveDir, "summary.md")
-	if err := generateArchiveSummary(summaryPath, slug, status, reason, state, result.Files, cfg); err != nil {
+	if err := generateArchiveSummary(summaryPath, slug, status, reason, state, result.Files, cfg, compact, branch, headSHA); err != nil {
 		return result, fmt.Errorf("generate summary: %w", err)
 	}
 	result.Files = append([]string{"summary.md"}, result.Files...)
+
+	// Compact mode records a git pointer instead of artifact copies.
+	if compact {
+		// The pointer contract depends on committed artifacts: refuse to skip
+		// copies when any archived file is not in the recorded commit.
+		for _, gitPath := range gitPaths {
+			if _, err := gitutil.FileAt(context.Background(), root, headSHA, gitPath); err != nil {
+				os.RemoveAll(slugArchiveDir)
+				return result, fmt.Errorf("--compact requires committed artifacts (git show %s:%s failed) — commit feature files first or archive without --compact", headSHA, gitPath)
+			}
+		}
+		if err := writeSnapshotPointer(slugArchiveDir, branch, headSHA, gitPaths); err != nil {
+			return result, err
+		}
+	}
 
 	// Remove active files if not copy mode
 	if !copyMode {
@@ -250,6 +318,10 @@ func archiveFeature(root, slug, status, reason string, copyMode bool) (ArchiveRe
 }
 
 func restoreFeature(root, slug string) (ArchiveResult, error) {
+	root, err := filepath.Abs(root)
+	if err != nil {
+		return ArchiveResult{}, err
+	}
 	result := ArchiveResult{
 		Slug: slug,
 		Mode: "restore",
@@ -292,6 +364,11 @@ func restoreFeature(root, slug string) (ArchiveResult, error) {
 	}
 
 	snapshotDir := filepath.Join(slugArchiveDir, latestSnapshot)
+
+	// Compact snapshots store a git pointer instead of artifact copies.
+	if IsCompactSnapshot(snapshotDir) {
+		return restoreCompactSnapshot(root, slug, snapshotDir, specsDir, latestSnapshot)
+	}
 
 	// Check for existing active files
 	specPath := featurepaths.Spec(specsDir, slug)
@@ -376,7 +453,62 @@ func restoreFeature(root, slug string) (ArchiveResult, error) {
 	return result, nil
 }
 
-func generateArchiveSummary(path, slug, status, reason string, state workflow.FeatureState, files []string, cfg config.Config) error {
+// restoreCompactSnapshot re-creates a compact-archived feature from git using
+// the recorded branch/commit pointer and repo-relative file list.
+func restoreCompactSnapshot(root, slug, snapshotDir, specsDir, snapshotDate string) (ArchiveResult, error) {
+	_ = specsDir
+	result := ArchiveResult{
+		Slug:       slug,
+		Mode:       "restore",
+		ArchivedAt: snapshotDate,
+	}
+	content, err := os.ReadFile(filepath.Join(snapshotDir, "snapshot.sha"))
+	if err != nil {
+		return result, fmt.Errorf("read snapshot pointer: %w", err)
+	}
+	var sha string
+	var gitPaths []string
+	for _, line := range strings.Split(string(content), "\n") {
+		line = strings.TrimSpace(line)
+		switch {
+		case strings.HasPrefix(line, "sha:"):
+			sha = strings.TrimSpace(strings.TrimPrefix(line, "sha:"))
+		case strings.HasPrefix(line, "file:"):
+			gitPaths = append(gitPaths, strings.TrimSpace(strings.TrimPrefix(line, "file:")))
+		}
+	}
+	if sha == "" {
+		return result, fmt.Errorf("snapshot.sha has no commit pointer")
+	}
+	if len(gitPaths) == 0 {
+		return result, fmt.Errorf("snapshot.sha lists no files to restore")
+	}
+	for _, gitPath := range gitPaths {
+		data, err := gitutil.FileAt(context.Background(), root, sha, gitPath)
+		if err != nil {
+			return result, err
+		}
+		target := filepath.Join(root, filepath.FromSlash(gitPath))
+		if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
+			return result, err
+		}
+		if err := os.WriteFile(target, data, 0644); err != nil {
+			return result, fmt.Errorf("restore %s: %w", gitPath, err)
+		}
+		result.Restored = append(result.Restored, gitPath)
+	}
+	if err := os.RemoveAll(snapshotDir); err != nil {
+		return result, fmt.Errorf("remove compact snapshot: %w", err)
+	}
+	slugArchiveDir := filepath.Dir(snapshotDir)
+	remaining, _ := os.ReadDir(slugArchiveDir)
+	if len(remaining) == 0 {
+		os.Remove(slugArchiveDir)
+	}
+	return result, nil
+}
+
+func generateArchiveSummary(path, slug, status, reason string, state workflow.FeatureState, files []string, cfg config.Config, compact bool, branch, headSHA string) error {
 	var sb strings.Builder
 
 	sb.WriteString("---\n")
@@ -388,6 +520,9 @@ func generateArchiveSummary(path, slug, status, reason string, state workflow.Fe
 	}
 	sb.WriteString(fmt.Sprintf("docs_language: %s\n", cfg.Language.Docs))
 	sb.WriteString(fmt.Sprintf("archived_at: %s\n", time.Now().Format("2006-01-02T15:04:05Z")))
+	if compact {
+		sb.WriteString("mode: compact\n")
+	}
 	sb.WriteString("---\n\n")
 
 	sb.WriteString(fmt.Sprintf("# Archive Summary: %s\n\n", slug))
@@ -407,7 +542,18 @@ func generateArchiveSummary(path, slug, status, reason string, state workflow.Fe
 
 	sb.WriteString("## Snapshot\n\n")
 	sb.WriteString(fmt.Sprintf("- path: `%s`\n", filepath.Dir(path)))
-	sb.WriteString("- mode: move-based (active files removed after archive)\n")
+	if compact {
+		sb.WriteString("- mode: compact — summary.md + `snapshot.sha` git pointer\n")
+		if branch != "" {
+			sb.WriteString(fmt.Sprintf("- branch: `%s`\n", branch))
+		}
+		if headSHA != "" {
+			sb.WriteString(fmt.Sprintf("- sha: `%s`\n", headSHA))
+		}
+		sb.WriteString("- note: artifact history lives in git; restore uses `speckeep archive --restore` (git show)\n")
+	} else {
+		sb.WriteString("- mode: move-based (active files removed after archive)\n")
+	}
 	sb.WriteString("\n")
 
 	sb.WriteString("## Contents\n\n")
@@ -425,6 +571,28 @@ func generateArchiveSummary(path, slug, status, reason string, state workflow.Fe
 	sb.WriteString("\n")
 
 	return os.WriteFile(path, []byte(sb.String()), 0644)
+}
+
+// writeSnapshotPointer stores the git pointer for a compact archive so that
+// restore can re-create the artifacts from git instead of copies.
+func writeSnapshotPointer(slugArchiveDir, branch, sha string, files []string) error {
+	var sb strings.Builder
+	sb.WriteString("kind: compact\n")
+	sb.WriteString(fmt.Sprintf("branch: %s\n", branch))
+	sb.WriteString(fmt.Sprintf("sha: %s\n", sha))
+	for _, f := range files {
+		if f == "summary.md" || f == "snapshot.sha" {
+			continue
+		}
+		sb.WriteString(fmt.Sprintf("file: %s\n", f))
+	}
+	return os.WriteFile(filepath.Join(slugArchiveDir, "snapshot.sha"), []byte(sb.String()), 0644)
+}
+
+// IsCompactSnapshot reports whether an archive snapshot uses the git-pointer layout.
+func IsCompactSnapshot(snapshotDir string) bool {
+	_, err := os.Stat(filepath.Join(snapshotDir, "snapshot.sha"))
+	return err == nil
 }
 
 func copyFile(src, dst string) error {

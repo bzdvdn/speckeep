@@ -80,6 +80,7 @@ func Files(settings LanguageSettings) ([]File, error) {
 		{RelativePath: "templates/agents-snippet.md", TargetPath: "templates/agents-snippet.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/constitution.md", TargetPath: "templates/prompts/constitution.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/spec.md", TargetPath: "templates/prompts/spec.md", Mode: 0o644, Language: settings.Agent},
+		{RelativePath: "templates/prompts/propose.md", TargetPath: "templates/prompts/propose.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/inspect.md", TargetPath: "templates/prompts/inspect.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/plan.md", TargetPath: "templates/prompts/plan.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/tasks.md", TargetPath: "templates/prompts/tasks.md", Mode: 0o644, Language: settings.Agent},
@@ -88,10 +89,12 @@ func Files(settings LanguageSettings) ([]File, error) {
 		{RelativePath: "templates/prompts/handoff.md", TargetPath: "templates/prompts/handoff.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/challenge.md", TargetPath: "templates/prompts/challenge.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/scope.md", TargetPath: "templates/prompts/scope.md", Mode: 0o644, Language: settings.Agent},
+		{RelativePath: "templates/prompts/glossary.md", TargetPath: "templates/prompts/glossary.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/recap.md", TargetPath: "templates/prompts/recap.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/hotfix.md", TargetPath: "templates/prompts/hotfix.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/repo-map.md", TargetPath: "templates/prompts/repo-map.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/rollback.md", TargetPath: "templates/prompts/rollback.md", Mode: 0o644, Language: settings.Agent},
+		{RelativePath: "templates/prompts/converge.md", TargetPath: "templates/prompts/converge.md", Mode: 0o644, Language: settings.Agent},
 	}
 	files := make([]File, 0, len(definitions)+9)
 	configContent, err := generateConfig(settings)
@@ -163,6 +166,14 @@ func shellScriptDefinitions(shell string) []struct {
 		})
 	}
 	return definitions
+}
+
+// PromptContent returns the canonical phase-prompt body for the given
+// language and command name (e.g. "spec", "implement"). It is the single
+// source of truth for phase instructions — callers that inline it (such as
+// generated agent skill files) should not duplicate its content elsewhere.
+func PromptContent(language, commandName string) (string, error) {
+	return localizedFileContent(language, "templates/prompts/"+commandName+".md")
 }
 
 func FileContent(path string) (string, error) {

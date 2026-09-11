@@ -37,7 +37,13 @@ speckeep решает это через **discipline per token** — миним�
 - **Specs** со стабильными ID (`AC-*`, `RQ-*`) — агенты точно знают, что строить и проверять
 - **Tasks** с surface map и группировкой по фазам — агенты выполняют по порядку, одну фазу за раз
 - **Traceability** (записи `Proof:` в `tasks.md`) — доказательство, что каждое требование реализовано и протестировано
-- **10 адаптеров агентов** — Claude Code, Cursor, Copilot, OpenCode, aider, Windsurf и другие
+- **19 адаптеров агентов** — Claude Code, Codex, Cursor, Copilot, OpenCode, aider, Amazon Q, Gemini, Jules, Cline, Devin, Goose, Refact, Windsurf и другие ([уровни поддержки](docs/ru/agents.md#уровни-поддержки)) — поддержка Continue.dev снята после сообщений о свёртывании продукта
+- **Быстрый цикл закрытия** (`/spk.converge`) — превращает разрывы реализации в follow-up задачи и повторяет до сходимости
+- **CI-гейт** (`speckeep guard`) — машино-проверяемый ответ «можно ли прямо сейчас закрыть каждую фичу?»
+- **Express-полоса** — крошечные/низкорисковые фичи пропускают `plan.md`/`data-model.md` и закрываются через `spec.md` + `tasks.md`
+- **One-shot propose** (`/spk.propose`) — идея → `spec.md` + `tasks.md` за один проход, сразу к implement
+- **Миграция на лету** (`speckeep import openspec|speckit`) — конвертация feature packages из OpenSpec/Spec Kit в наш layout за секунды
+- **Компактный архив** (`--compact`) — хранит только `summary.md` + git-указатель вместо копий всех артефактов
 
 Результат на практике: агенты реже ошибаются с первого раза, хендоффы между сессиями требуют меньше контекста, а требования остаются читаемыми для человека.
 
@@ -82,13 +88,18 @@ speckeep list-specs [path]
 speckeep show-spec <name> [path]
 speckeep trace <slug> [path]
 speckeep export <slug> [path] [--output <file>]
+speckeep converge <slug> [path] [--json]
+speckeep guard [path] [--slug <slug>] [--json]
+speckeep import <openspec|speckit> [path] [--json]
 speckeep demo [path]
-speckeep archive <slug> [path]
+speckeep archive <slug> [path] [--compact]
 speckeep list-archive [path] [--status <status>] [--since <YYYY-MM-DD>] [--json]
+speckeep self check | self upgrade
 speckeep migrate [path]
 speckeep add-agent | list-agents | remove-agent | cleanup-agents [path]
-speckeep add-skill | list-skills | remove-skill | install-skills | skills-restore [path]
 ```
+
+Агентская поддержка **skills-first**: `speckeep init --agents opencode,claude` раскладывает композитный SpecKeep `sdd` skill-pack (корневой `SKILL.md` плюс самодостаточные скиллы по фазам, каждый со своими полными инструкциями) в стандартную skills-директорию таргета (`.opencode/skills/`, `.claude/skills/`, …). CLI остаётся детерминированным остовом, который скиллы зовут как гейты (`check`, `converge`, `guard`).
 
 ---
 
@@ -97,25 +108,41 @@ speckeep add-skill | list-skills | remove-skill | install-skills | skills-restor
 **Linux / macOS:**
 
 ```bash
-VERSION=v0.8.0
-curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
+curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.sh" | bash
+# --version v1.0.0 для пина версии; --add-to-path для регистрации PATH
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$version="v0.8.0"
-$env:SPECKEEP_VERSION=$version
-powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.ps1 | iex"
 ```
 
 На Windows бинарник добавляется в PATH автоматически. На Linux используйте `--add-to-path`, если директория установки ещё не в вашем PATH.
 
-**Go:**
+**Пакетные менеджеры:**
+
+- Homebrew: `brew install bzdvdn/speckeep/speckeep` (см. `contrib/packaging/brew/`)
+- Scoop: `scoop bucket add speckeep https://github.com/bzdvdn/speckeep && scoop install speckeep` (см. `contrib/packaging/scoop/`)
+- npm: `npx speckeep init` или `npm install -g speckeep` — тонкий launcher, который при установке скачивает подходящий нативный бинарник (см. `contrib/packaging/npm/`)
+- Go: `go install speckeep@latest`
+
+**Обновление установленного бинарника:**
 
 ```bash
-go install speckeep@latest
+speckeep self check     # текущая vs последняя версия (read-only)
+speckeep self upgrade   # скачивание, sha256-проверка и замена на месте
 ```
+
+**CI:**
+
+```yaml
+- uses: bzdvdn/speckeep/.github/actions/speckeep@main
+  with:
+    root: .
+```
+
+Экшен ставит speckeep, находит изменившиеся `specs/active/<slug>/` фичи относительно базы PR и прогоняет `speckeep guard` по каждой — PR падает, если затронутая фича не готова к закрытию. Готовый workflow — в [`contrib/ci/speckeep-guard.yml`](contrib/ci/speckeep-guard.yml).
 
 **Сборка из исходников:**
 
@@ -231,18 +258,28 @@ speckeep check eksport-otchetov-v-csv
 speckeep trace <slug> .
 ```
 
-### Адаптеры агентов
+### Адаптеры агентов (skills-first)
 
-Поддерживаются из коробки: `claude`, `codex`, `copilot`, `cursor`, `kilocode`, `opencode`, `trae`, `windsurf`, `roocode`, `aider`.
-
-### Skills
-
-Переиспользуемые пакеты guidance из локальных путей или git-репозиториев:
+Поддерживаются из коробки: `claude`, `codex`, `copilot`, `cursor`, `kilocode`, `opencode`, `trae`, `windsurf`, `roocode`, `aider`, `amazonq`, `gemini`, `jules`, `cline`, `devin`, `goose`, `refact`, `codiumate`, `qwen-code`.
 
 ```bash
-speckeep add-skill my-project --id architecture --from-local skills/architecture
-speckeep install-skills my-project
+speckeep init my-project --agents opencode,claude    # раскладка sdd skill-pack
 ```
+
+Скиллы лежат в skills-директории таргета: лёгкий обзорный скилл `sdd` плюс по одному независимому, напрямую слэш-вызываемому скиллу на фазу:
+
+```text
+.<target>/skills/
+  sdd/
+    SKILL.md          # обзор: цепочка workflow, гейты — сюда, когда фаза не очевидна
+  spk-spec/
+    SKILL.md           # каждая фаза — свой top-level скилл: /spk-spec, /spk-plan, /spk-implement, ...
+  spk-plan/
+    SKILL.md
+  ...
+```
+
+Каждый фазовый скилл — своя директория (не вложенный файл-ресурс), поэтому он напрямую слэш-вызываемый — например, набрать `/spk-spec` в Claude Code — а не доступен только через решение модели открыть связанный файл. Каждый инлайнит канонический промпт из `.speckeep/templates/prompts/` (синхронизируется автоматически), так что агент получает полные инструкции фазы из одного файла, и гейтится через `speckeep check`; закрытие — через `speckeep converge` / `speckeep guard`. Для `aider` дополнительно генерируется `.aider/CONVENTIONS.md`-указатель, т.к. у него нет загрузчика скиллов.
 
 ---
 

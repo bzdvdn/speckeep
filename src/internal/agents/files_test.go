@@ -16,51 +16,206 @@ func TestNormalizeTargets(t *testing.T) {
 	}
 }
 
+func TestNormalizeTargetsDropsDeprecatedSilently(t *testing.T) {
+	// "continue" (Continue.dev) is discontinued; a project whose
+	// speckeep.yaml still lists it should not hard-fail every command —
+	// it should just quietly stop being generated for.
+	targets, err := NormalizeTargets([]string{"claude", "continue", "cursor"})
+	if err != nil {
+		t.Fatalf("NormalizeTargets returned error: %v", err)
+	}
+	for _, target := range targets {
+		if target == "continue" {
+			t.Fatalf("expected \"continue\" to be dropped, got %#v", targets)
+		}
+	}
+	if len(targets) != 2 {
+		t.Fatalf("expected 2 targets after dropping continue, got %#v", targets)
+	}
+
+	if _, ok := targetSkillDirs["continue"]; ok {
+		t.Fatal("continue should no longer be a generated target")
+	}
+}
+
 func TestNormalizeTargetsAll(t *testing.T) {
 	targets, err := NormalizeTargets([]string{"all"})
 	if err != nil {
 		t.Fatalf("NormalizeTargets returned error: %v", err)
 	}
 
-	if len(targets) != 10 {
-		t.Fatalf("expected 10 targets for all, got %#v", targets)
+	if len(targets) != 19 {
+		t.Fatalf("expected 19 targets for all, got %#v", targets)
+	}
+}
+
+func TestFlatCommandTargetsGetCommandsAlongsideSkills(t *testing.T) {
+	// Windsurf, OpenCode, Cline, and Amazon Q Skills are model/tool-invoked
+	// only, never invocable by name there — real commands for those
+	// targets come from a flat file per phase in their own directory,
+	// generated in addition to the skill pack.
+	for target, flat := range targetFlatCommandDirs {
+		files, err := FilesForTarget(target, "en", "sh")
+		if err != nil {
+			t.Fatalf("FilesForTarget(%q) returned error: %v", target, err)
+		}
+		want := flat.dir + "/spk-spec.md"
+		wantInvoke := flat.invokePrefix + "spk-spec"
+		var found bool
+		for _, f := range files {
+			if f.Path != want {
+				continue
+			}
+			found = true
+			if strings.Contains(f.Content, "name:") && strings.HasPrefix(f.Content, "---") {
+				t.Fatalf("flat command %s should not carry skill YAML frontmatter, got: %s", f.Path, f.Content[:min(80, len(f.Content))])
+			}
+			if !strings.Contains(f.Content, wantInvoke) {
+				t.Fatalf("flat command %s missing its own invocation name %q", f.Path, wantInvoke)
+			}
+		}
+		if !found {
+			t.Fatalf("target %q missing flat command %s", target, want)
+		}
+	}
+}
+
+func TestGeminiGetsTomlCommandsAlongsideSkills(t *testing.T) {
+	// Gemini CLI Skills are auto-discovered but not slash-invocable; its
+	// real custom-command mechanism is TOML, not markdown.
+	files, err := FilesForTarget("gemini", "en", "sh")
+	if err != nil {
+		t.Fatalf("FilesForTarget(gemini) returned error: %v", err)
+	}
+	want := ".gemini/commands/spk-spec.toml"
+	var found bool
+	for _, f := range files {
+		if f.Path != want {
+			continue
+		}
+		found = true
+		if !strings.Contains(f.Content, "description = ") || !strings.Contains(f.Content, "prompt = ") {
+			t.Fatalf("gemini command %s missing required TOML fields, got: %s", f.Path, f.Content)
+		}
+	}
+	if !found {
+		t.Fatalf("gemini missing TOML command %s", want)
+	}
+}
+
+func TestAmazonQSkillsMovedOffQDir(t *testing.T) {
+	if got := targetSkillDirs["amazonq"]; got != ".amazonq/skills" {
+		t.Fatalf("amazonq skill dir = %q, want .amazonq/skills (the .q/ root was never confirmed read by Amazon Q)", got)
+	}
+
+	legacy := LegacyAmazonQSkillPaths(DefaultCommands("sh"))
+	if len(legacy) == 0 {
+		t.Fatal("expected legacy .q/skills paths for cleanup")
+	}
+	for _, p := range legacy {
+		if !strings.HasPrefix(p, ".q/skills/") {
+			t.Fatalf("unexpected legacy amazonq path %q, want .q/skills/ prefix", p)
+		}
+	}
+}
+
+func TestEveryTargetGetsCompositeSDDPack(t *testing.T) {
+	commands := DefaultCommands("sh")
+	wantFiles := len(commands) + 1 // root SKILL.md + one phase file per command
+
+	for _, target := range SupportedTargets() {
+		files, err := FilesForTarget(target, "en", "sh")
+		if err != nil {
+			t.Fatalf("FilesForTarget(%q) returned error: %v", target, err)
+		}
+		extra := 0
+		if target == "aider" {
+			extra = 1 // CONVENTIONS.md pointer
+		}
+		if _, ok := targetFlatCommandDirs[target]; ok {
+			extra += len(commands) // one flat command file per phase, since Skills aren't invocable-by-name there
+		}
+		if target == "gemini" {
+			extra += len(commands) // one TOML command file per phase
+		}
+		if len(files) != wantFiles+extra {
+			t.Fatalf("expected %d files for %q, got %d", wantFiles+extra, target, len(files))
+		}
+
+		base := targetSkillDirs[target]
+		flat, hasFlatDir := targetFlatCommandDirs[target]
+		rootSeen := false
+		for _, f := range files {
+			switch {
+			case f.Path == base+"/sdd/SKILL.md":
+				rootSeen = true
+				if !strings.Contains(f.Content, "speckeep check") {
+					t.Fatalf("root skill %s missing CLI gate guidance", f.Path)
+				}
+				if !strings.Contains(f.Content, "/spk-") {
+					t.Fatalf("root skill %s missing direct phase-skill invocation guidance", f.Path)
+				}
+			case strings.HasSuffix(f.Path, "/SKILL.md") && strings.Contains(f.Path, base+"/spk-"):
+				if f.Content == "" {
+					t.Fatalf("phase skill %s has no content", f.Path)
+				}
+				if !strings.Contains(f.Content, ".speckeep/templates/prompts/") {
+					t.Fatalf("phase skill %s must reference the canonical prompt", f.Path)
+				}
+			case hasFlatDir && strings.HasPrefix(f.Path, flat.dir+"/spk-"):
+				if f.Content == "" {
+					t.Fatalf("flat command %s has no content", f.Path)
+				}
+				if !strings.Contains(f.Content, ".speckeep/templates/prompts/") {
+					t.Fatalf("flat command %s must reference the canonical prompt", f.Path)
+				}
+			case target == "gemini" && strings.HasPrefix(f.Path, ".gemini/commands/spk-") && strings.HasSuffix(f.Path, ".toml"):
+				if f.Content == "" {
+					t.Fatalf("gemini command %s has no content", f.Path)
+				}
+			default:
+				// aider CONVENTIONS pointer is the only other file.
+				if f.Path != ".aider/CONVENTIONS.md" {
+					t.Fatalf("unexpected file %q for target %q", f.Path, target)
+				}
+			}
+		}
+		if !rootSeen {
+			t.Fatalf("target %q missing root SKILL.md", target)
+		}
 	}
 }
 
 func TestFiles(t *testing.T) {
-	files, err := Files([]string{"aider", "claude", "codex", "copilot", "cursor", "kilocode", "opencode", "roocode", "trae", "windsurf"}, "en", "sh")
+	files, err := Files(SupportedTargets(), "en", "sh")
 	if err != nil {
 		t.Fatalf("Files returned error: %v", err)
 	}
 
-	if len(files) != 127 {
-		t.Fatalf("expected 127 generated agent files, got %d", len(files))
+	commands := DefaultCommands("sh")
+	// +1 for aider CONVENTIONS pointer; +len(commands) per target with a flat
+	// command dir (windsurf, opencode — Skills aren't slash-invocable there).
+	want := len(SupportedTargets())*(len(commands)+1) + 1 + len(targetFlatCommandDirs)*len(commands) + len(commands) // +len(commands) for gemini's TOML commands
+	if len(files) != want {
+		t.Fatalf("expected %d generated files, got %d", want, len(files))
 	}
 
 	required := map[string]bool{
-		".aider/CONVENTIONS.md":                false,
-		".claude/commands/spk.inspect.md":      false,
-		".claude/commands/spk.verify.md":       false,
-		".codex/prompts/spk.plan.md":           false,
-		".github/prompts/spk-spec.prompt.md":   false,
-		".github/prompts/spk-verify.prompt.md": false,
-		".cursor/rules/spk-implement.mdc":      false,
-		".cursor/rules/spk-verify.mdc":         false,
-		".kilocode/workflows/spk.verify.md":    false,
-		".opencode/commands/spk.verify.md":     false,
-		".roo/rules/spk-spec.md":               false,
-		".roo/rules/spk-plan.md":               false,
-		".trae/rules/spk.plan.md":              false,
-		".trae/rules/spk.verify.md":            false,
-		".windsurf/workflows/spk.implement.md": false,
-		".windsurf/workflows/spk.verify.md":    false,
-		".claude/commands/spk.recap.md":        false,
-		".claude/commands/spk.hotfix.md":       false,
-		".claude/commands/spk.rollback.md":     false,
-		".cursor/rules/spk-recap.mdc":          false,
-		".opencode/commands/spk.recap.md":      false,
+		".claude/skills/sdd/SKILL.md":           false,
+		".claude/skills/spk-spec/SKILL.md":      false,
+		".claude/skills/spk-implement/SKILL.md": false,
+		".opencode/skills/spk-verify/SKILL.md":  false,
+		".cursor/skills/sdd/SKILL.md":           false,
+		".gemini/skills/spk-plan/SKILL.md":      false,
+		".amazonq/skills/spk-propose/SKILL.md":  false,
+		".github/skills/sdd/SKILL.md":           false,
+		".aider/CONVENTIONS.md":                 false,
+		".windsurf/workflows/spk-spec.md":       false,
+		".opencode/commands/spk-implement.md":   false,
+		".clinerules/workflows/spk-tasks.md":    false,
+		".amazonq/prompts/spk-verify.md":        false,
+		".gemini/commands/spk-plan.toml":        false,
 	}
-
 	for _, file := range files {
 		if _, ok := required[file.Path]; ok {
 			required[file.Path] = true
@@ -77,261 +232,73 @@ func TestFiles(t *testing.T) {
 	}
 }
 
-func TestRenderEmphasizesRunningScriptsFirst(t *testing.T) {
-	// trae and aider are standalone agents that do not load AGENTS.md,
-	// so script execution rules must appear in their generated files.
-	tests := []struct {
-		name string
-		lang string
-		want string
-	}{
-		{name: "en", lang: "en", want: "run it as a shell command"},
-		{name: "ru", lang: "ru", want: "выполните его как shell-команду"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, content, _ := render("trae", tt.lang, commandSpecs("sh")[0])
-			if !strings.Contains(content, tt.want) {
-				t.Fatalf("expected trae rules for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
-			}
-		})
-	}
-}
-
-func TestRenderWindsurfMentionsHiddenDirsAndRepoRoot(t *testing.T) {
-	spec := commandSpecs("sh")[3] // plan
-
-	_, content, err := render("windsurf", "en", spec)
+func TestPhaseSkillNamesCoverEveryCommand(t *testing.T) {
+	base := targetSkillDirs["claude"]
+	files, err := FilesForTarget("claude", "en", "sh")
 	if err != nil {
-		t.Fatalf("render returned error: %v", err)
+		t.Fatalf("FilesForTarget returned error: %v", err)
 	}
-
-	if !strings.Contains(content, "hidden/dotfiles") {
-		t.Fatalf("expected windsurf output to mention hidden/dotfiles\ncontent:\n%s", content)
-	}
-	if !strings.Contains(content, "git rev-parse --show-toplevel") {
-		t.Fatalf("expected windsurf output to mention git rev-parse --show-toplevel\ncontent:\n%s", content)
-	}
-	if !strings.Contains(content, "require `<slug>` as the first argument") {
-		t.Fatalf("expected windsurf output to mention passing slug to readiness scripts\ncontent:\n%s", content)
-	}
-}
-
-func TestRenderIncludesNoCommitRule(t *testing.T) {
-	// trae and aider are standalone agents that do not load AGENTS.md,
-	// so the no-commit rule must appear in their generated files.
-	_, content, _ := render("trae", "en", commandSpecs("sh")[0])
-	if !strings.Contains(content, "git commit") {
-		t.Fatalf("expected trae rules to contain no-commit rule\ncontent:\n%s", content)
-	}
-}
-
-func TestRenderTraeEmphasizesRunningScriptsFirst(t *testing.T) {
-	tests := []struct {
-		name string
-		lang string
-		want string
-	}{
-		{
-			name: "en",
-			lang: "en",
-			want: "run it as a shell command",
-		},
-		{
-			name: "ru",
-			lang: "ru",
-			want: "выполните его как shell-команду",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, content, _ := render("trae", tt.lang, commandSpecs("sh")[0])
-			if !strings.Contains(content, tt.want) {
-				t.Fatalf("expected trae rules for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
+	for _, cmd := range DefaultCommands("sh") {
+		want := base + "/spk-" + cmd.Name + "/SKILL.md"
+		var found bool
+		for _, f := range files {
+			if f.Path == want {
+				found = true
+				break
 			}
-		})
+		}
+		if !found {
+			t.Fatalf("missing phase skill %s", want)
+		}
 	}
 }
 
-func TestRenderIncludesCommandHints(t *testing.T) {
-	specs := map[string]commandSpec{}
-	for _, spec := range commandSpecs("sh") {
-		specs[spec.Name] = spec
+func TestAiderPointerReferencesSkillPack(t *testing.T) {
+	files, err := FilesForTarget("aider", "en", "sh")
+	if err != nil {
+		t.Fatalf("FilesForTarget(aider) returned error: %v", err)
 	}
-
-	tests := []struct {
-		name   string
-		target string
-		lang   string
-		spec   string
-		want   string
-	}{
-		{name: "claude spec en", target: "claude", lang: "en", spec: "spec", want: "Command: `/spk.spec [request]`"},
-		{name: "codex tasks en", target: "codex", lang: "en", spec: "tasks", want: "Command: `/spk.tasks [request]`"},
-		{name: "copilot implement ru", target: "copilot", lang: "ru", spec: "implement", want: "Команда: `/spk.implement [request]`"},
-		{name: "cursor verify en", target: "cursor", lang: "en", spec: "verify", want: "Command: `/spk.verify [request]`"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, content, _ := render(tt.target, tt.lang, specs[tt.spec])
-			if !strings.Contains(content, tt.want) {
-				t.Fatalf("expected rendered content for %s/%s/%s to contain %q\ncontent:\n%s", tt.target, tt.lang, tt.spec, tt.want, content)
+	for _, f := range files {
+		if f.Path == ".aider/CONVENTIONS.md" {
+			if !strings.Contains(f.Content, ".aider/skills/sdd/SKILL.md") {
+				t.Fatalf("aider CONVENTIONS must point at the skill pack")
 			}
-		})
+			return
+		}
+	}
+	t.Fatal("aider CONVENTIONS.md pointer not generated")
+}
+
+func TestEveryTargetHasASkillDir(t *testing.T) {
+	if len(targetSkillDirs) != 19 {
+		t.Fatalf("expected 19 targets with skill dirs, got %d", len(targetSkillDirs))
+	}
+	for target, dir := range targetSkillDirs {
+		if !strings.HasPrefix(dir, ".") || !strings.HasSuffix(dir, "skills") {
+			t.Fatalf("target %q has unexpected skill dir %q", target, dir)
+		}
 	}
 }
 
-func TestRenderTraeIncludesCommandHints(t *testing.T) {
-	tests := []struct {
-		name string
-		lang string
-		want string
-	}{
-		{name: "en", lang: "en", want: "Command: `/spk.verify [request]`"},
-		{name: "ru", lang: "ru", want: "Команда: `/spk.verify [request]`"},
+func TestLegacySkillPhasePathsCoverEveryTargetAndCommand(t *testing.T) {
+	commands := DefaultCommands("sh")
+	paths := LegacySkillPhasePaths(commands)
+
+	want := len(targetSkillDirs) * len(commands)
+	if len(paths) != want {
+		t.Fatalf("expected %d legacy skill phase paths, got %d", want, len(paths))
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, content, _ := render("trae", tt.lang, commandSpecs("sh")[6])
-			if !strings.Contains(content, tt.want) {
-				t.Fatalf("expected trae rules for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
-			}
-		})
-	}
-}
-
-func TestRenderCodexDisallowsRawToolPayloads(t *testing.T) {
-	specs := map[string]commandSpec{}
-	for _, spec := range commandSpecs("sh") {
-		specs[spec.Name] = spec
+	pathSet := make(map[string]bool, len(paths))
+	for _, p := range paths {
+		pathSet[p] = true
 	}
 
-	tests := []struct {
-		name string
-		lang string
-		want string
-	}{
-		{
-			name: "en",
-			lang: "en",
-			want: "Use tools directly through the agent runtime; do not print raw JSON/XML/tool-call payloads or expose internal reasoning about tool choice.",
-		},
-		{
-			name: "ru",
-			lang: "ru",
-			want: "Используйте инструменты напрямую через runtime агента; не печатайте raw JSON/XML/tool-call payloads и не выводите внутренние рассуждения о выборе инструмента.",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, content, _ := render("codex", tt.lang, specs["plan"])
-			if !strings.Contains(content, tt.want) {
-				t.Fatalf("expected codex rendered content for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
-			}
-		})
-	}
-}
-
-func TestRenderOpencodeDeclaresArgumentHint(t *testing.T) {
-	specs := map[string]commandSpec{}
-	for _, spec := range commandSpecs("sh") {
-		specs[spec.Name] = spec
-	}
-
-	tests := []struct {
-		name string
-		lang string
-		want string
-	}{
-		{
-			name: "en",
-			lang: "en",
-			want: "argument-hint: [request]",
-		},
-		{
-			name: "ru",
-			lang: "ru",
-			want: "argument-hint: [request]",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, content, _ := render("opencode", tt.lang, specs["spec"])
-			if !strings.Contains(content, tt.want) {
-				t.Fatalf("expected opencode rendered content for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
-			}
-		})
-	}
-}
-
-func TestRenderOpencodeIncludesProofHint(t *testing.T) {
-	specs := map[string]commandSpec{}
-	for _, spec := range commandSpecs("sh") {
-		specs[spec.Name] = spec
-	}
-
-	tests := []struct {
-		name string
-		lang string
-		want string
-	}{
-		{
-			name: "en",
-			lang: "en",
-			want: "every completed task in `tasks.md` must carry a `Proof:` line",
-		},
-		{
-			name: "ru",
-			lang: "ru",
-			want: "каждая закрытая задача в `tasks.md` обязана иметь строку `Proof:`",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, content, _ := render("opencode", tt.lang, specs["implement"])
-			if !strings.Contains(content, tt.want) {
-				t.Fatalf("expected opencode rendered content for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
-			}
-		})
-	}
-}
-
-func TestRenderWindsurfIncludesProofHint(t *testing.T) {
-	specs := map[string]commandSpec{}
-	for _, spec := range commandSpecs("sh") {
-		specs[spec.Name] = spec
-	}
-
-	tests := []struct {
-		name string
-		lang string
-		want string
-	}{
-		{
-			name: "en",
-			lang: "en",
-			want: "every completed task in `tasks.md` must carry a `Proof:` line",
-		},
-		{
-			name: "ru",
-			lang: "ru",
-			want: "каждая закрытая задача в `tasks.md` обязана иметь строку `Proof:`",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, content, _ := render("windsurf", tt.lang, specs["implement"])
-			if !strings.Contains(content, tt.want) {
-				t.Fatalf("expected windsurf rendered content for %s to contain %q\ncontent:\n%s", tt.lang, tt.want, content)
-			}
-		})
+	base := targetSkillDirs["claude"]
+	for _, cmd := range commands {
+		legacy := base + "/sdd/phases/" + cmd.Name + ".md"
+		if !pathSet[legacy] {
+			t.Fatalf("expected legacy path %s to be present", legacy)
+		}
 	}
 }

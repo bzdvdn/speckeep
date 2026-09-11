@@ -1,0 +1,25 @@
+name: speckeep-guard
+
+on:
+  pull_request:
+    paths:
+      - "specs/active/**"
+      - ".speckeep/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: speckeep guard
+        uses: bzdvdn/speckeep/.github/actions/speckeep@main
+        with:
+          root: .
+          base-ref: ${{ github.event.pull_request.base.sha }}

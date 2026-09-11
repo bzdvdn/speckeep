@@ -69,20 +69,16 @@ The `templates` package assembles these assets into the generated `.speckeep/` w
 
 ## Agent Generation Layer
 
-`src/internal/agents/files.go` generates project-local files for supported targets:
+`src/internal/agents/` generates a **composite skill pack** for every supported target:
 
-- `claude`
-- `codex`
-- `copilot`
-- `cursor`
-- `kilocode`
-- `opencode`
-- `trae`
-- `windsurf`
-- `roocode`
-- `aider`
+- `claude`, `codex`, `copilot`, `cursor`, `kilocode`
+- `opencode`, `trae`, `windsurf`, `roocode`, `aider`
+- `amazonq`, `gemini`, `jules`, `cline`, `continue`
+- `devin`, `goose`, `refact`, `codiumate`, `qwen-code`
 
-These generated files are wrappers that point back to canonical SpecKeep prompts inside `.speckeep/templates/prompts/`.
+All targets share one renderer (`skill_pack.go`): a lightweight `sdd/SKILL.md` overview skill (progressive-disclosure entry point for ambiguous requests) plus one independent, directly slash-invocable `spk-<phase>/SKILL.md` skill per phase, laid into each target's skills directory (`targetSkillDirs`). Per-command wrapper generation and the user-facing skills-management subsystem were removed; each phase skill inlines the canonical prompt body from `.speckeep/templates/prompts/` at render time (via `templates.PromptContent`) so an agent reads full phase instructions from a single file instead of following a pointer, while the prompt file remains the single authored source. The deterministic CLI (`check`/`guard`/`converge`) is the verification spine that skills call as gates.
+
+Phase skills are independent top-level directories (`spk-spec/SKILL.md`, `spk-plan/SKILL.md`, ...) rather than nested resource files under one composite skill (`sdd/phases/*.md`), because skill loaders such as Claude Code only ever slash-invoke a top-level `<dir>/SKILL.md` — a nested file is reachable only when the model decides to open it, never by the user typing a command. `agents.LegacySkillPhasePaths` covers cleanup of the older nested layout for any workspace refreshed before this change.
 
 This keeps one main source of truth for workflow prompts while still supporting multiple agent ecosystems.
 

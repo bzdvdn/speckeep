@@ -2,7 +2,6 @@ package project
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,7 +12,6 @@ import (
 	"gopkg.in/yaml.v3"
 	"speckeep/src/internal/agents"
 	"speckeep/src/internal/config"
-	"speckeep/src/internal/skills"
 	"speckeep/src/internal/templates"
 )
 
@@ -110,12 +108,6 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 	}
 
 	if err := syncConfig(root, cfg, options.DryRun, &result); err != nil {
-		return RefreshResult{}, err
-	}
-	if err := syncSkillsManifest(root, options.DryRun, &result); err != nil {
-		return RefreshResult{}, err
-	}
-	if err := syncSkillsGitignore(root, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
 	}
 
@@ -511,10 +503,14 @@ func resolveRefreshSettings(cfg config.Config, options RefreshOptions) (template
 
 	targets := cfg.Agents.Targets
 	if len(options.AgentTargets) > 0 {
-		targets, err = agents.NormalizeTargets(options.AgentTargets)
-		if err != nil {
-			return templates.LanguageSettings{}, "", nil, err
-		}
+		targets = options.AgentTargets
+	}
+	// Always re-normalize (even when targets came straight from the saved
+	// config) so a deprecated target left over in speckeep.yaml quietly
+	// drops out of the config on refresh instead of persisting forever.
+	targets, err = agents.NormalizeTargets(targets)
+	if err != nil {
+		return templates.LanguageSettings{}, "", nil, err
 	}
 
 	return languages, shell, targets, nil
@@ -530,18 +526,6 @@ func syncConfig(root string, cfg config.Config, dryRun bool, result *RefreshResu
 		return err
 	}
 	return syncManagedFile(root, path, string(content), 0o644, dryRun, result)
-}
-
-func syncSkillsManifest(root string, dryRun bool, result *RefreshResult) error {
-	manifest, err := skills.Load(context.Background(), root)
-	if err != nil {
-		return err
-	}
-	content, err := yaml.Marshal(manifest)
-	if err != nil {
-		return fmt.Errorf("marshal skills manifest: %w", err)
-	}
-	return syncManagedFile(root, skills.ManifestPath(root), string(content), 0o644, dryRun, result)
 }
 
 func syncManagedFile(root, path, content string, mode os.FileMode, dryRun bool, result *RefreshResult) error {
@@ -578,10 +562,7 @@ func syncAgentsSnippet(root, path, snippetPath string, dryRun bool, result *Refr
 	if err != nil {
 		return err
 	}
-	block, err := renderManagedAgentsBlockForRoot(root, string(snippetBytes))
-	if err != nil {
-		return err
-	}
+	block := renderManagedAgentsBlock(string(snippetBytes))
 
 	current, err := os.ReadFile(path)
 	switch {
@@ -672,7 +653,10 @@ func syncAgentFiles(root string, targets []string, language string, shell string
 
 func removeOldPrefixAgentArtifacts(root, shell string, dryRun bool, result *RefreshResult) error {
 	commands := agents.DefaultCommands(shell)
-	oldPaths := agents.LegacyPrefixPaths(commands)
+	oldPaths := append(agents.LegacyPrefixPaths(commands), agents.LegacyCommandWrapperPaths(commands)...)
+	oldPaths = append(oldPaths, agents.LegacySkillPhasePaths(commands)...)
+	oldPaths = append(oldPaths, agents.LegacyAmazonQSkillPaths(commands)...)
+	oldPaths = append(oldPaths, agents.LegacyContinueSkillPaths(commands)...)
 	seen := make(map[string]struct{})
 	for _, relPath := range oldPaths {
 		normalized := filepath.FromSlash(relPath)

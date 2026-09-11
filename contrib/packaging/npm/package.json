@@ -1,0 +1,44 @@
+{
+  "name": "speckeep",
+  "version": "1.0.0",
+  "description": "speckeep — lightweight Spec-Driven Development kit for dev agents and humans (npm launcher for the native binary; downloads the matching speckeep release from GitHub on install)",
+  "license": "MIT",
+  "homepage": "https://github.com/bzdvdn/speckeep",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bzdvdn/speckeep.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bzdvdn/speckeep/issues"
+  },
+  "keywords": [
+    "spec-driven-development",
+    "sdd",
+    "ai-agents",
+    "claude-code",
+    "cli"
+  ],
+  "bin": {
+    "speckeep": "bin/speckeep.js"
+  },
+  "files": [
+    "bin",
+    "scripts",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/install.js"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "os": [
+    "linux",
+    "darwin",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ]
+}

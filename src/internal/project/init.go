@@ -68,6 +68,7 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 	if err != nil {
 		return InitResult{}, err
 	}
+	deprecatedAgentTargets := agents.DeprecatedTargetsRequested(options.AgentTargets)
 	normalizedAgentTargets, err := agents.NormalizeTargets(options.AgentTargets)
 	if err != nil {
 		return InitResult{}, err
@@ -167,7 +168,6 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 	result.ConstitutionFile = rel(root, constitutionAbs)
 	subdirs := []string{
 		draftspecDir,
-		filepath.Join(draftspecDir, "skills"),
 		specsDir,
 		archiveDir,
 		templatesDir,
@@ -228,22 +228,13 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 	}
 	result.AgentArtifactMessages = ensureAgentFiles(root, normalizedAgentTargets, languages.Agent, cfg.Runtime.Shell)
 	messages = append(messages, result.AgentArtifactMessages...)
+	for _, target := range deprecatedAgentTargets {
+		messages = append(messages, fmt.Sprintf("skipped %q: no longer a supported agent target", target))
+	}
 	if len(normalizedAgentTargets) > 0 {
 		messages = append(messages, fmt.Sprintf("enabled agent targets: %s", strings.Join(normalizedAgentTargets, ", ")))
 	} else {
 		messages = append(messages, "enabled agent targets: none")
-	}
-
-	var sr RefreshResult
-	if err := syncSkillsManifest(root, false, &sr); err != nil {
-		return InitResult{}, err
-	}
-	if err := syncSkillsGitignore(root, false, &sr); err != nil {
-		return InitResult{}, err
-	}
-	for _, path := range sr.Created {
-		result.Created = append(result.Created, path)
-		messages = append(messages, "created "+path)
 	}
 
 	result.Messages = messages
@@ -273,10 +264,7 @@ func ensureAgentsSnippet(root, path, snippetPath string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	block, err := renderManagedAgentsBlockForRoot(root, string(snippetBytes))
-	if err != nil {
-		return false, err
-	}
+	block := renderManagedAgentsBlock(string(snippetBytes))
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 		return true, os.WriteFile(path, []byte(block), 0o644)
 	} else if err != nil {

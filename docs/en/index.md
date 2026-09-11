@@ -13,7 +13,7 @@ This documentation is organized into a few practical guides:
 - [Agents](agents.md)
 - [Language and Configuration](language-and-config.md)
 - [Self-Hosting and Development](self-hosting.md)
-- [Examples](examples.md)
+- [Examples & Recipes](examples.md) — full lifecycle walkthrough plus a recipe for every secondary command (propose, converge, challenge, scope, glossary, hotfix, handoff, recap, rollback, repo-map, import, guard, self-update, express lane)
 - [FAQ](faq.md)
 - [Glossary](glossary.md)
 - [Roadmap](roadmap.md)

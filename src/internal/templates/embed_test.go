@@ -389,6 +389,34 @@ func TestSpecPromptDefinesDeterministicStagedMode(t *testing.T) {
 	}
 }
 
+func TestProposePromptDefinesOneShotLaneAndExpressDefault(t *testing.T) {
+	files, err := Files(LanguageSettings{
+		Default:  "en",
+		Docs:     "en",
+		Agent:    "en",
+		Comments: "en",
+		Shell:    "sh",
+	})
+	if err != nil {
+		t.Fatalf("Files() returned error: %v", err)
+	}
+
+	content := fileContentByTarget(t, files, "templates/prompts/propose.md")
+	requiredSnippets := []string{
+		"one-shot",
+		"spec.md` + `tasks.md",
+		"check-ready.sh propose",
+		"express",
+		"Ready for: /spk.implement <slug>",
+		".speckeep/constitution.summary.md",
+	}
+	for _, snippet := range requiredSnippets {
+		if !strings.Contains(content, snippet) {
+			t.Fatalf("expected propose prompt to contain %q", snippet)
+		}
+	}
+}
+
 func TestPlanPromptDefinesConcreteResearchTriggers(t *testing.T) {
 	files, err := Files(LanguageSettings{
 		Default:  "en",

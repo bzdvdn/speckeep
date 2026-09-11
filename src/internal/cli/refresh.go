@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"speckeep/src/internal/agents"
 	"speckeep/src/internal/project"
 )
 
@@ -29,10 +30,9 @@ func newRefreshCmd() *cobra.Command {
 
 Synchronizes:
   - .speckeep/speckeep.yaml (config)
-  - .speckeep/skills/manifest.yaml (skills manifest)
   - managed templates/prompts/scripts inside .speckeep/
   - the managed SpecKeep block in AGENTS.md
-  - agent-target artifacts (.claude/, .cursor/, etc.)
+  - generated agent skill packs in their target directories
 
 	Does not rewrite authored feature content:
 	  - feature contents under specs_dir are not regenerated (but paths can be canonicalized or moved with --specs-dir).
@@ -103,7 +103,7 @@ Synchronizes:
 	cmd.Flags().StringVar(&constitutionFile, "constitution-file", "", "override the constitution file path and (safely) move the existing file when possible")
 	cmd.Flags().StringVar(&specsDir, "specs-dir", "", "override paths.specs_dir and (safely) move the existing specs directory when possible")
 	cmd.Flags().StringVar(&archiveDir, "archive-dir", "", "override paths.archive_dir and (safely) move the existing archive directory when possible")
-	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "override enabled project-local agent targets: claude, codex, copilot, cursor, kilocode, opencode, trae, windsurf, roocode, aider, all")
+	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "override enabled project-local agent targets: "+agents.TargetOptionsText()+", all")
 	cmd.Flags().StringSliceVar(&legacyAgentTargets, "agent", nil, "deprecated alias for --agents")
 	cmd.Flags().MarkHidden("agent")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Show which managed files would change without writing them")

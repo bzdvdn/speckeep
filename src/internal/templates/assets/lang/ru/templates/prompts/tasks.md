@@ -13,9 +13,9 @@
 
 ## Phase Contract
 
-Inputs: `.speckeep/constitution.summary.md` (предпочтительно, если файл есть) или `project.constitution_file` (по умолчанию `CONSTITUTION.md`), `<specs_dir>/<slug>/plan.md`, опционально `spec.md` если нужно уточнить `AC-*`.
+Inputs: `.speckeep/constitution.summary.md` (предпочтительно, если файл есть) или `project.constitution_file` (по умолчанию `CONSTITUTION.md`), `<specs_dir>/<slug>/plan.md` если есть, иначе напрямую `spec.md` (express-режим). Опционально `spec.md` если нужно уточнить `AC-*`.
 Outputs: `tasks.md` с фазами, `Touches:` для каждой задачи, `## Surface Map`, и `## Покрытие критериев приемки` (AC → tasks).
-Stop if: `plan.md` отсутствует/расплывчат или хотя бы один `AC-*` нельзя привязать к исполнимым задачам без догадок.
+Stop if: отсутствуют и `plan.md`, и пригодный к работе `spec.md`, или хотя бы один `AC-*` нельзя привязать к исполнимым задачам без догадок.
 
 ## Правила
 
@@ -25,6 +25,7 @@ Stop if: `plan.md` отсутствует/расплывчат или хотя �
 - Перед фазами обязателен `## Surface Map` (Surface | Tasks) для batch-reads на implement.
   - Строка Surface Map: `| src/export.go | T1.1, T2.1 |` (одна строка на surface, задачи через запятую).
 - Не ищите «примеры» в соседних спеках/тасках других slug: это почти всегда лишний токен‑расход и scope drift. Форму/структуру берите из шаблона `.speckeep/templates/tasks.md` и текущего `<specs_dir>/<slug>/plan.md`.
+- Express-режим: когда `plan.md` отсутствует, выводите задачи прямо из `spec.md`. Плановые решения (surfaces, риски, короткие заметки `DEC-*`) кладите в `## Implementation Context`, а не придумывайте отдельный план-файл.
 - Делайте `tasks.md` самодостаточным для implement: implement-агент должен выполнять задачи, читая только `tasks.md` + файлы из `Touches:` активной задачи (без обязательного reread `plan.md`/`spec.md`/`data-model.md`).
 - Если для выполнения нужны ключевые решения/инварианты из plan/data-model, вынесите их в короткий раздел `## Implementation Context` (≤ ~20 строк) и ссылайтесь на них из задач (например `DEC-*` / `DM`), чтобы implement не перечитывал исходные артефакты целиком.
 - `## Implementation Context` обязателен всегда, даже если он короткий: это основной operational bridge между spec/plan и implement/verify.
@@ -39,6 +40,7 @@ Stop if: `plan.md` отсутствует/расплывчат или хотя �
 - Каждый `AC-*` должен быть покрыт ≥ 1 задачей: `AC-001 -> T1.1, T2.1`.
 - Не начинайте implementation и не редактируйте исходный код на фазе tasks.
 - Не считайте, что `research.md` обязан существовать; ссылайтесь на него только если план явно от него зависит.
+- Доменный язык: если `.speckeep/glossary.md` существует, прочитайте его один раз и переиспользуйте его термины; не вводите новый синоним термину, который он уже определяет.
 - Конституция: AGENTS.md (`.speckeep/constitution.summary.md` предпочтительнее).
 - Дисциплина размера: цель `tasks.md` ≤ ~150 строк; переполненный список задач это обычно scope creep — дробите фазы или уплотняйте до продолжения.
 - Запустите readiness script фазы (см. AGENTS.md: Скрипты).

@@ -13,7 +13,7 @@ SpecKeep — преемник DraftSpec (архивирован). Если ми�
 - [Агенты](agents.md)
 - [Языки и конфигурация](language-and-config.md)
 - [Self-hosting и разработка](self-hosting.md)
-- [Примеры](examples.md)
+- [Примеры и рецепты](examples.md) — полный проход жизненного цикла плюс рецепт на каждую второстепенную команду (propose, converge, challenge, scope, glossary, hotfix, handoff, recap, rollback, repo-map, import, guard, self-update, express lane)
 - [FAQ](faq.md)
 - [Glossary](glossary.md)
 - [Roadmap](roadmap.md)

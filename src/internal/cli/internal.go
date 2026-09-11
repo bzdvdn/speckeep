@@ -21,6 +21,7 @@ func newInternalCmd() *cobra.Command {
 	cmd.AddCommand(newInternalCheckConstitutionCmd())
 	cmd.AddCommand(newInternalCheckReadyCmd())
 	cmd.AddCommand(newInternalCheckSpecReadyCmd())
+	cmd.AddCommand(newInternalCheckProposeReadyCmd())
 	cmd.AddCommand(newInternalCheckInspectReadyCmd())
 	cmd.AddCommand(newInternalCheckPlanReadyCmd())
 	cmd.AddCommand(newInternalCheckTasksReadyCmd())
@@ -109,6 +110,13 @@ func newInternalCheckReadyCmd() *cobra.Command {
 				}
 				result, err := workflow.CheckSpecReadyForSlug(context.Background(), cfg, root, slug)
 				return renderCheckResult(cmd, result, err)
+			case "propose":
+				slug := ""
+				if len(phaseArgs) >= 1 {
+					slug = phaseArgs[0]
+				}
+				result, err := workflow.CheckProposeReady(context.Background(), cfg, root, slug)
+				return renderCheckResult(cmd, result, err)
 			case "inspect":
 				if len(phaseArgs) < 1 {
 					return fmt.Errorf("slug required for inspect")
@@ -139,6 +147,12 @@ func newInternalCheckReadyCmd() *cobra.Command {
 				}
 				result, err := workflow.CheckVerifyReady(context.Background(), cfg, root, phaseArgs[0])
 				return renderCheckResult(cmd, result, err)
+			case "converge":
+				if len(phaseArgs) < 1 {
+					return fmt.Errorf("slug required for converge")
+				}
+				result, err := workflow.CheckConvergeReady(context.Background(), cfg, root, phaseArgs[0])
+				return renderCheckResult(cmd, result, err)
 			case "archive":
 				if len(phaseArgs) < 2 {
 					return fmt.Errorf("usage: check-ready archive <slug> <status> [reason]")
@@ -150,7 +164,7 @@ func newInternalCheckReadyCmd() *cobra.Command {
 				result, err := workflow.CheckArchiveReady(context.Background(), cfg, root, phaseArgs[0], phaseArgs[1], reason)
 				return renderCheckResult(cmd, result, err)
 			default:
-				return fmt.Errorf("unknown phase %q, expected: constitution, spec, inspect, plan, tasks, implement, verify, archive", phase)
+				return fmt.Errorf("unknown phase %q, expected: constitution, spec, propose, inspect, plan, tasks, implement, converge, verify, archive", phase)
 			}
 		},
 	}
@@ -176,6 +190,31 @@ func newInternalCheckSpecReadyCmd() *cobra.Command {
 				return err
 			}
 			result, err := workflow.CheckSpecReadyForSlug(context.Background(), cfg, root, slug)
+			return renderCheckResult(cmd, result, err)
+		},
+	}
+	cmd.Flags().StringVar(&root, "root", ".", "SpecKeep project root")
+	return cmd
+}
+
+func newInternalCheckProposeReadyCmd() *cobra.Command {
+	var root string
+	cmd := &cobra.Command{
+		Use:           "check-propose-ready [slug]",
+		Hidden:        true,
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		Args:          cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			slug := ""
+			if len(args) == 1 {
+				slug = args[0]
+			}
+			cfg, err := config.Load(context.Background(), root)
+			if err != nil {
+				return err
+			}
+			result, err := workflow.CheckProposeReady(context.Background(), cfg, root, slug)
 			return renderCheckResult(cmd, result, err)
 		},
 	}

@@ -59,10 +59,9 @@ speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --she
 Эта команда обновляет:
 
 - `.speckeep/spk.yaml`
-- `.speckeep/skills/manifest.yaml`
 - `.speckeep/templates/**`
 - `.speckeep/scripts/**`
-- project-local agent command files
+- project-local agent skill packs
 - managed SpecKeep block внутри `AGENTS.md`
 
 	Эта команда не обновляет:
@@ -112,90 +111,6 @@ speckeep add-agent my-project --agents claude --agents codex
 ### `speckeep cleanup-agents [path]`
 
 Удаляет осиротевшие agent artifacts, которые больше не соответствуют включенным targets в config.
-
-### `speckeep add-skill [path]`
-
-Добавляет или обновляет один skill в `.speckeep/skills/manifest.yaml`.
-
-Для git-источников `--ref` обязателен: это фиксирует версию и предотвращает drift на плавающих ветках.
-
-Для git-источников SpecKeep materialize'ит checkout в `.speckeep/skills/checkouts/<id>`. Это runtime-cache для skill source, и SpecKeep поддерживает для него managed block в корневом `.gitignore`.
-
-Используйте `--no-install`, чтобы обновить только manifest/AGENTS без немедленной установки в agent skill folders.
-
-Примеры:
-
-```bash
-speckeep add-skill my-project --id architecture --from-local skills/architecture
-speckeep add-skill my-project --id openai-docs --from-git https://example.com/skills.git --ref v1.2.3 --path skills/openai-docs
-```
-
-### `speckeep list-skills [path]`
-
-Показывает настроенные skills из `.speckeep/skills/manifest.yaml`.
-
-Для machine-readable output используйте `--json`.
-
-### `speckeep remove-skill [path]`
-
-Удаляет один skill из `.speckeep/skills/manifest.yaml`.
-
-Используйте `--no-install`, чтобы пропустить немедленную синхронизацию установленных skills в agent folders.
-
-### `speckeep install-skills [path]`
-
-Устанавливает включенные skills из `.speckeep/skills/manifest.yaml` в skill-папки выбранных агентов.
-
-По умолчанию используются targets из `.speckeep/spk.yaml`. Можно переопределить через `--targets codex,opencode`.
-
-Для git-backed skills команда умеет rehydrate отсутствующие `.speckeep/skills/checkouts/<id>` из данных manifest (`location` + `ref`) перед установкой. Это помогает, если checkout был удален локально. Если исходный git source недоступен, одного manifest недостаточно для восстановления содержимого.
-
-Важные флаги:
-
-- `--dry-run` показывает pending changes без записи на диск
-- `--json` выводит результат установки в JSON
-- `--include-disabled` ставит и disabled skills
-
-Эквивалентная subcommand:
-
-```bash
-speckeep skills install my-project
-```
-
-### `speckeep skills-restore [path]`
-
-Восстанавливает git-backed checkouts в `.speckeep/skills/checkouts/` по данным из `.speckeep/skills/manifest.yaml`, не устанавливая skill'ы в agent folders.
-
-Полезно, если checkout'ы были удалены локально, но `manifest.yaml` сохранил `location` и pinned `ref`.
-
-Если upstream git source недоступен, команда не сможет восстановить содержимое только по manifest.
-
-Для machine-readable output используйте `--json`.
-
-Эквивалентная subcommand:
-
-```bash
-speckeep skills restore my-project
-```
-
-### `speckeep sync-skills [path]`
-
-Синхронизирует только skill-managed артефакты:
-
-- `.speckeep/skills/manifest.yaml`
-- managed block в корневом `.gitignore` для `.speckeep/skills/checkouts/`
-- managed SpecKeep block в `AGENTS.md` (включая секцию skills)
-
-Важные флаги:
-
-- `--dry-run` показывает pending changes без записи на диск
-- `--json` выводит результат синхронизации в JSON
-
-Эквивалентная subcommand:
-
-```bash
-speckeep skills sync my-project
-```
 
 ## Миграция Существующих Feature Packages
 
@@ -332,6 +247,59 @@ speckeep trace
 speckeep trace export-report
 speckeep trace export-report --tests
 speckeep trace export-report my-project --json
+```
+
+### `speckeep converge <slug> [path]`
+
+Дешёвый цикл закрытия для «почти готовых» фич: подтверждает, что каждая завершённая задача несёт валидный `Proof:` (существующий файл, резолвящийся anchor), каждый touched surface существует, а покрытие `AC-*` держится.
+
+Это **легче verify** — файл отчёта не создаётся. Когда остаются разрывы, команда выдаёт список структурированных находок и выходит с кодом 1; агент добавляет follow-up задачи (`## Converge Follow-ups` в `tasks.md`) и повторяет до `converged`, с жёсткой остановкой после 2 раундов правок.
+
+Используй `--json` для машинно-читаемого вывода. Код выхода 1 — фича не сошлась.
+
+```bash
+speckeep converge export-report
+speckeep converge export-report my-project --json
+```
+
+### `speckeep guard [path]`
+
+Детерминированный CI-гейт для закрытия фич: падает (exit 1), когда хотя бы одна активная фича не готова к архивации — открытые задачи, отсутствующие `Proof:`, заблокированный inspect/verify или mismatch ветки.
+
+Передавай `--slug <slug>`, чтобы ограничить проверку одной фичей. Используй `--json` для логов CI.
+
+```bash
+speckeep guard my-project
+speckeep guard my-project --slug export-report
+speckeep guard my-project --json
+```
+
+### `speckeep import <openspec|speckit> [path]`
+
+Мигрирует feature packages из другой spec-системы в текущий speckeep workspace.
+
+- **openspec**: читает `openspec/changes/<slug>/` и пересобирает `spec.md` (`RQ-*`/`AC-*` из блоков `### Requirement:` и `#### Scenario:`), `plan.md` из `design.md`, копирует `tasks.md` best-effort (с пометкой перегенерировать через `/spk.tasks`).
+- **speckit**: читает `specs/<slug>/` и копирует `spec.md` / `plan.md` / `tasks.md`.
+
+Существующие фичи speckeep никогда не перезаписываются — они сообщаются как пропущенные. Используй `--json` для машинно-читаемого вывода.
+
+```bash
+speckeep import openspec ./
+speckeep import speckit ./spec-kit-project
+speckeep import openspec . --json
+```
+
+### `speckeep self check` / `speckeep self upgrade`
+
+Управление установленным бинарником.
+
+- `speckeep self check`: сообщает установленную версию против последнего GitHub-релиза (`--json` для машинного вывода). Read-only — завершается с 0.
+- `speckeep self upgrade`: скачивает архив последнего релиза, проверяет sha256 по `sha256sum.txt` и заменяет запущенный бинарник на месте. На Windows или при недоступной записи в директорию установки выдаёт подсказку по ручной установке.
+
+```bash
+speckeep self check
+speckeep self check --json
+speckeep self upgrade
 ```
 
 ### `speckeep demo [path]`

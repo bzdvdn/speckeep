@@ -16,7 +16,6 @@ import (
 	"speckeep/src/internal/featurepaths"
 	"speckeep/src/internal/gitutil"
 	"speckeep/src/internal/project"
-	"speckeep/src/internal/skills"
 	"speckeep/src/internal/trace"
 	"speckeep/src/internal/workflow"
 )
@@ -261,16 +260,71 @@ func Check(ctx context.Context, root string) (Result, error) {
 		}
 	}
 
-	skillsManifest, err := skills.Load(ctx, root)
-	if err != nil {
-		findings = append(findings, Finding{Level: "error", Message: err.Error()})
-	} else {
-		skillErrors, skillWarnings := skills.ValidateManifest(context.Background(), root, skillsManifest)
-		for _, message := range skillErrors {
-			findings = append(findings, Finding{Level: "error", Message: message})
+	legacyWrapperPaths := agents.LegacyCommandWrapperPaths(agents.DefaultCommands(shell))
+	legacyWrapperSeen := make(map[string]struct{})
+	for _, relPath := range legacyWrapperPaths {
+		normalized := filepath.FromSlash(relPath)
+		if _, seen := legacyWrapperSeen[normalized]; seen {
+			continue
 		}
-		for _, message := range skillWarnings {
-			findings = append(findings, Finding{Level: "warning", Message: message})
+		legacyWrapperSeen[normalized] = struct{}{}
+		fullPath := filepath.Join(root, normalized)
+		if _, err := os.Stat(fullPath); err == nil {
+			findings = append(findings, Finding{
+				Level:   "warning",
+				Message: fmt.Sprintf("legacy per-command agent artifact is superseded by the sdd skill pack, no longer needed; run `speckeep refresh .`: %s", fullPath),
+			})
+		}
+	}
+
+	legacySkillPhasePaths := agents.LegacySkillPhasePaths(agents.DefaultCommands(shell))
+	legacySkillPhaseSeen := make(map[string]struct{})
+	for _, relPath := range legacySkillPhasePaths {
+		normalized := filepath.FromSlash(relPath)
+		if _, seen := legacySkillPhaseSeen[normalized]; seen {
+			continue
+		}
+		legacySkillPhaseSeen[normalized] = struct{}{}
+		fullPath := filepath.Join(root, normalized)
+		if _, err := os.Stat(fullPath); err == nil {
+			findings = append(findings, Finding{
+				Level:   "warning",
+				Message: fmt.Sprintf("legacy nested skill phase file is not directly slash-invocable and is superseded by an independent spk-<phase> skill; run `speckeep refresh .`: %s", fullPath),
+			})
+		}
+	}
+
+	legacyAmazonQPaths := agents.LegacyAmazonQSkillPaths(agents.DefaultCommands(shell))
+	legacyAmazonQSeen := make(map[string]struct{})
+	for _, relPath := range legacyAmazonQPaths {
+		normalized := filepath.FromSlash(relPath)
+		if _, seen := legacyAmazonQSeen[normalized]; seen {
+			continue
+		}
+		legacyAmazonQSeen[normalized] = struct{}{}
+		fullPath := filepath.Join(root, normalized)
+		if _, err := os.Stat(fullPath); err == nil {
+			findings = append(findings, Finding{
+				Level:   "warning",
+				Message: fmt.Sprintf("legacy .q/skills artifact — Amazon Q's real dotfile root is .amazonq/, not .q/; run `speckeep refresh .`: %s", fullPath),
+			})
+		}
+	}
+
+	legacyContinuePaths := agents.LegacyContinueSkillPaths(agents.DefaultCommands(shell))
+	legacyContinueSeen := make(map[string]struct{})
+	for _, relPath := range legacyContinuePaths {
+		normalized := filepath.FromSlash(relPath)
+		if _, seen := legacyContinueSeen[normalized]; seen {
+			continue
+		}
+		legacyContinueSeen[normalized] = struct{}{}
+		fullPath := filepath.Join(root, normalized)
+		if _, err := os.Stat(fullPath); err == nil {
+			findings = append(findings, Finding{
+				Level:   "warning",
+				Message: fmt.Sprintf("continue is no longer a supported speckeep target (Continue.dev is reportedly discontinued); run `speckeep refresh .` to remove its stale generated files: %s", fullPath),
+			})
 		}
 	}
 

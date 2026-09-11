@@ -69,20 +69,16 @@ SpecKeep генерирует файлы из локализованных asset
 
 ## Слой Генерации Агентов
 
-`src/internal/agents/files.go` генерирует project-local файлы для поддерживаемых targets:
+`src/internal/agents/` генерирует **композитный skill-pack** для каждого поддерживаемого target:
 
-- `claude`
-- `codex`
-- `copilot`
-- `cursor`
-- `kilocode`
-- `opencode`
-- `trae`
-- `windsurf`
-- `roocode`
-- `aider`
+- `claude`, `codex`, `copilot`, `cursor`, `kilocode`
+- `opencode`, `trae`, `windsurf`, `roocode`, `aider`
+- `amazonq`, `gemini`, `jules`, `cline`, `continue`
+- `devin`, `goose`, `refact`, `codiumate`, `qwen-code`
 
-Эти generated files являются обертками, которые ссылаются на канонические prompts SpecKeep в `.speckeep/templates/prompts/`.
+Все target'ы используют один рендерер (`skill_pack.go`): лёгкий обзорный `sdd/SKILL.md` (progressive-disclosure точка входа для неоднозначных запросов) плюс по одному независимому, напрямую слэш-вызываемому скиллу `spk-<фаза>/SKILL.md` на каждую фазу, раскладывается в skills-директорию каждого таргета (`targetSkillDirs`). Генерация per-command обёрток и пользовательский skills-менеджмент удалены; каждый фазовый скилл инлайнит тело канонического промпта из `.speckeep/templates/prompts/` в момент рендера (через `templates.PromptContent`), так что агент читает полные инструкции фазы из одного файла вместо перехода по указателю, а файл промпта остаётся единственным authored source. Детерминированный CLI (`check`/`guard`/`converge`) — проверяющий остов, который скиллы зовут как гейты.
+
+Фазовые скиллы — независимые top-level директории (`spk-spec/SKILL.md`, `spk-plan/SKILL.md`, ...), а не вложенные файлы-ресурсы под одним композитным скиллом (`sdd/phases/*.md`), потому что загрузчики skills вроде Claude Code слэш-вызывают только top-level `<dir>/SKILL.md` — вложенный файл достижим лишь когда модель сама решает его открыть, никогда — набором команды пользователем. `agents.LegacySkillPhasePaths` покрывает очистку старого вложенного layout для любого workspace, обновлённого до этого изменения.
 
 Так сохраняется один главный источник истины для workflow prompts при поддержке нескольких агентных экосистем.
 

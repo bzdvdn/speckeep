@@ -181,7 +181,7 @@ func inferLifecycle(state *FeatureState, verifyRequired bool) {
 		state.Phase = "inspect"
 		state.ReadyFor = "inspect"
 		state.Blocked = true
-	case !state.PlanExists:
+	case !state.PlanExists && !state.TasksExists:
 		if hasValidInspect {
 			state.Phase = "inspect"
 		} else {
@@ -189,7 +189,13 @@ func inferLifecycle(state *FeatureState, verifyRequired bool) {
 		}
 		state.ReadyFor = "plan"
 	case !state.TasksExists:
-		state.Phase = "plan"
+		if state.PlanExists {
+			state.Phase = "plan"
+		} else if hasValidInspect {
+			state.Phase = "inspect"
+		} else {
+			state.Phase = "spec"
+		}
 		state.ReadyFor = "tasks"
 	case state.TasksTotal == 0:
 		// tasks.md exists but contains no checkboxes — treat as empty/incomplete

@@ -13,6 +13,14 @@ type File struct {
 	Mode    os.FileMode
 }
 
+// NormalizeTargets validates and deduplicates agent target names.
+//
+// Deprecated targets (see deprecatedTargets) are silently dropped rather
+// than rejected: they may still be sitting in an existing project's
+// speckeep.yaml, and a discontinued target should quietly stop being
+// generated for on the next refresh, not hard-fail every command that
+// touches that project. speckeep doctor separately surfaces their now-stale
+// generated files so the drop stays discoverable.
 func NormalizeTargets(values []string) ([]string, error) {
 	if len(values) == 0 {
 		return nil, nil
@@ -36,8 +44,11 @@ func NormalizeTargets(values []string) ([]string, error) {
 				}
 				continue
 			}
-			if _, ok := adapterRegistry[target]; !ok {
-				return nil, fmt.Errorf("unsupported agent target %q, expected one of: aider, claude, codex, copilot, cursor, kilocode, opencode, roocode, trae, windsurf, all", target)
+			if _, ok := deprecatedTargets[target]; ok {
+				continue
+			}
+			if _, ok := targetSkillDirs[target]; !ok {
+				return nil, fmt.Errorf("unsupported agent target %q, expected one of: %s, all", target, TargetOptionsText())
 			}
 			if _, ok := seen[target]; ok {
 				continue
@@ -51,26 +62,21 @@ func NormalizeTargets(values []string) ([]string, error) {
 	return out, nil
 }
 
+// Files returns all skill-pack files for the given targets.
 func Files(targets []string, language string, shell string) ([]File, error) {
 	normalized, err := NormalizeTargets(targets)
 	if err != nil {
 		return nil, err
 	}
-
 	commands := DefaultCommands(shell)
 	var files []File
 	for _, target := range normalized {
-		adapter, err := adapterForTarget(target)
-		if err != nil {
-			return nil, err
-		}
-		targetFiles, err := adapter.Render(commands, language)
+		targetFiles, err := skillPackFiles(target, language, commands)
 		if err != nil {
 			return nil, err
 		}
 		files = append(files, targetFiles...)
 	}
-
 	sort.Slice(files, func(i, j int) bool { return files[i].Path < files[j].Path })
 	return files, nil
 }
@@ -83,27 +89,34 @@ func FilesForTarget(target, language, shell string) ([]File, error) {
 	if len(normalized) == 0 {
 		return nil, nil
 	}
-
-	adapter, err := adapterForTarget(normalized[0])
-	if err != nil {
-		return nil, err
-	}
-	return adapter.Render(DefaultCommands(shell), language)
+	return skillPackFiles(normalized[0], language, DefaultCommands(shell))
 }
 
 func PathsForTarget(target string) ([]string, error) {
-	adapter, err := adapterForTarget(target)
-	if err != nil {
-		return nil, err
+	if _, ok := targetSkillDirs[target]; !ok {
+		return nil, fmt.Errorf("unsupported agent target %q: %w", target, ErrUnsupportedTarget)
 	}
-	paths, err := adapter.Paths(DefaultCommands("sh"), "en")
-	if err != nil {
-		return nil, err
-	}
+	paths := skillPackPaths(target, DefaultCommands("sh"))
 	sort.Strings(paths)
 	return paths, nil
 }
 
+// TargetOptionsText returns the comma-joined target list used in CLI flag help.
+func TargetOptionsText() string {
+	return strings.Join(SupportedTargets(), ", ")
+}
+
+// SupportedTargets lists every agent target that can receive the sdd skill pack.
+func SupportedTargets() []string {
+	targets := make([]string, 0, len(targetSkillDirs))
+	for target := range targetSkillDirs {
+		targets = append(targets, target)
+	}
+	sort.Strings(targets)
+	return targets
+}
+
+// LegacyArchivePaths are leftover /speckeep.archive wrappers removed on refresh.
 func LegacyArchivePaths() []string {
 	return []string{
 		".claude/commands/speckeep.archive.md",
@@ -117,68 +130,57 @@ func LegacyArchivePaths() []string {
 	}
 }
 
-// LegacyPrefixPaths returns old-style agent file paths with the deprecated
-// "speckeep." prefix. Used by doctor and refresh for migration cleanup.
+// commandWrapperDirPatterns enumerates the per-command wrapper file
+// conventions used by every target before skills-first generation replaced
+// them with one composite `sdd` skill pack. Shared by LegacyPrefixPaths and
+// LegacyCommandWrapperPaths so both prefix eras stay in sync.
+func commandWrapperDirPatterns() []struct {
+	dir string
+	sep string
+	ext string
+} {
+	return []struct {
+		dir string
+		sep string
+		ext string
+	}{
+		{dir: ".claude/commands", sep: ".", ext: ".md"},
+		{dir: ".opencode/commands", sep: ".", ext: ".md"},
+		{dir: ".kilocode/workflows", sep: ".", ext: ".md"},
+		{dir: ".windsurf/workflows", sep: ".", ext: ".md"},
+		{dir: ".trae/rules", sep: ".", ext: ".md"},
+		{dir: ".codex/prompts", sep: ".", ext: ".md"},
+		{dir: ".cursor/rules", sep: "-", ext: ".mdc"},
+		{dir: ".roo/rules", sep: "-", ext: ".md"},
+		{dir: ".github/prompts", sep: "-", ext: ".prompt.md"},
+	}
+}
+
+// LegacyPrefixPaths returns pre-rename `/speckeep.*` per-command wrapper
+// paths (from before the `/speckeep.* -> /spk.*` command shortening) that
+// refresh and cleanup remove.
 func LegacyPrefixPaths(commands []CommandDefinition) []string {
 	var paths []string
-	patterns := []struct {
-		dir    string
-		fmtStr string
-		sep    string // "." or "-"
-	}{
-		{dir: ".claude/commands", sep: "."},
-		{dir: ".opencode/commands", sep: "."},
-		{dir: ".kilocode/workflows", sep: "."},
-		{dir: ".windsurf/workflows", sep: "."},
-		{dir: ".trae/rules", sep: "."},
-		{dir: ".codex/prompts", sep: "."},
-		{dir: ".cursor/rules", sep: "-"},
-		{dir: ".roo/rules", sep: "-"},
-		{dir: ".github/prompts", sep: "-"},
-	}
-	extensions := map[string]string{
-		".claude/commands":    ".md",
-		".opencode/commands":  ".md",
-		".kilocode/workflows": ".md",
-		".windsurf/workflows": ".md",
-		".trae/rules":         ".md",
-		".codex/prompts":      ".md",
-		".cursor/rules":       ".mdc",
-		".roo/rules":          ".md",
-		".github/prompts":     ".prompt.md",
-	}
 	for _, cmd := range commands {
-		for _, p := range patterns {
-			ext := extensions[p.dir]
-			name := "speckeep" + p.sep + cmd.Name
-			paths = append(paths, p.dir+"/"+name+ext)
+		for _, pattern := range commandWrapperDirPatterns() {
+			paths = append(paths, pattern.dir+"/"+"speckeep"+pattern.sep+cmd.Name+pattern.ext)
 		}
 	}
 	return paths
 }
 
-// commandSpec and commandSpecs are kept as compatibility shims while tests and
-// callers continue to use the previous names.
-type commandSpec = CommandDefinition
-
-func commandSpecs(shell string) []commandSpec {
-	return DefaultCommands(shell)
-}
-
-// render is kept as a narrow compatibility shim for single-command rendering.
-func render(target, language string, spec CommandDefinition) (string, string, error) {
-	adapter, err := adapterForTarget(target)
-	if err != nil {
-		return "", "", err
+// LegacyCommandWrapperPaths returns `/spk.*` per-command wrapper paths from
+// before skills-first generation (one file per command per target) was
+// introduced. These are superseded by the composite `sdd` skill pack, not
+// renamed, so refresh and cleanup remove them outright.
+func LegacyCommandWrapperPaths(commands []CommandDefinition) []string {
+	var paths []string
+	for _, cmd := range commands {
+		for _, pattern := range commandWrapperDirPatterns() {
+			paths = append(paths, pattern.dir+"/"+"spk"+pattern.sep+cmd.Name+pattern.ext)
+		}
 	}
-	files, err := adapter.Render([]CommandDefinition{spec}, language)
-	if err != nil {
-		return "", "", err
-	}
-	if len(files) != 1 {
-		return "", "", fmt.Errorf("expected one rendered file for target %q, got %d", target, len(files))
-	}
-	return files[0].Path, files[0].Content, nil
+	return paths
 }
 
 func normalizeLanguage(language string) string {
@@ -204,34 +206,6 @@ func scriptPath(name, shell string) string {
 	return "./.speckeep/scripts/" + name + ext
 }
 
-func commandHint(name, lang string) string {
-	if lang == "ru" {
-		return fmt.Sprintf("Команда: `/spk.%s [request]`", name)
-	}
-	return fmt.Sprintf("Command: `/spk.%s [request]`", name)
-}
-
-func toolInvocationHint(lang string) string {
-	if lang == "ru" {
-		return "Используйте инструменты напрямую через runtime агента; не печатайте raw JSON/XML/tool-call payloads и не выводите внутренние рассуждения о выборе инструмента."
-	}
-	return "Use tools directly through the agent runtime; do not print raw JSON/XML/tool-call payloads or expose internal reasoning about tool choice."
-}
-
-func constitutionSummaryHint(lang string) string {
-	if lang == "ru" {
-		return "Если в фазе нужна конституция, сначала загрузите `.speckeep/constitution.summary.md`, если файл существует; только при его отсутствии переходите к `project.constitution_file`."
-	}
-	return "If the phase needs constitution context, load `.speckeep/constitution.summary.md` first when it exists; fall back to `project.constitution_file` only when the summary is absent."
-}
-
-func finalLineHint(lang string) string {
-	if lang == "ru" {
-		return "Строго сохраните точную финальную строку из prompt-файла: `Готово к: ...` или `Вернуться к: ...` без перефразирования и без пропуска."
-	}
-	return "Preserve the exact final line from the prompt file: `Ready for: ...` or `Return to: ...` with no paraphrase and no omission."
-}
-
 func proofHint(lang string) string {
 	if lang == "ru" {
 		return "Доказанность: каждая закрытая задача в `tasks.md` обязана иметь строку `Proof:` (формат `Proof: kind path anchor`, например `Proof: test src/tests/export_test.go TestRunExport`). Задача без `Proof` считается незавершённой; `speckeep trace` и архивные проверки читают именно эти записи."
@@ -239,21 +213,28 @@ func proofHint(lang string) string {
 	return "Evidence: every completed task in `tasks.md` must carry a `Proof:` line (format `Proof: kind path anchor`, e.g. `Proof: test src/tests/export_test.go TestRunExport`). A task without `Proof` is not complete; `speckeep trace` and archive gates read exactly these records."
 }
 
-func helpDiscoveryHint(lang string) string {
+func antiPatternHint(lang string) string {
 	if lang == "ru" {
-		return "Не запускайте `speckeep ... --help`/`speckeep help` для «разведки»; вместо этого опирайтесь на prompt-файл и readiness scripts."
+		return `Запрещено:
+- пропускать readiness scripts
+- расширять scope / перепланировать во время implement
+- отмечать done без observable proof
+- делать git commit/push/tag или PR без явной просьбы
+- читать весь репозиторий вместо минимального среза`
 	}
-	return "Do not run `speckeep ... --help`/`speckeep help` for discovery; rely on the prompt file and readiness scripts instead."
+	return `Do not:
+- skip readiness scripts
+- expand scope / re-plan during implement
+- mark done without observable proof
+- run git commit/push/tag or open a PR unless explicitly asked
+- read the full repo instead of the minimum slice`
 }
 
-func specBranchFirstBullet(commandName, lang string) string {
-	if commandName != "spec" {
-		return ""
-	}
+func workflowChainHint(lang string) string {
 	if lang == "ru" {
-		return "- Для `/spk.spec`: до записи любого файла обязательно переключиться/создать feature-ветку `feature/<slug>` (или явное значение `--branch`). Если git недоступен или вы в detached HEAD — остановитесь и сообщите причину."
+		return "Цепочка workflow: constitution → spec → [inspect, опционально] → plan → tasks → implement → archive; verify — опциональный on-demand аудит; propose — one-shot быстрая полоса; converge — быстрый цикл закрытия. Уважайте `workflow.verify` в `.speckeep/speckeep.yaml`. Archive — CLI-only: `speckeep archive <slug> .`."
 	}
-	return "- For `/spk.spec`: before writing any file, you must switch/create the feature branch `feature/<slug>` (or the explicit `--branch` value). If git is unavailable or you are in detached HEAD, stop and report the reason."
+	return "Workflow chain: constitution → spec → [inspect, optional] → plan → tasks → implement → archive; verify is an optional on-demand audit; propose is the one-shot fast lane; converge is the fast closing loop. Respect `workflow.verify` in `.speckeep/speckeep.yaml`. Archive is CLI-only: `speckeep archive <slug> .`."
 }
 
 func titleCase(value string) string {
@@ -261,70 +242,4 @@ func titleCase(value string) string {
 		return value
 	}
 	return strings.ToUpper(value[:1]) + value[1:]
-}
-
-func workflowChainHint(lang string) string {
-	if lang == "ru" {
-		return "Цепочка workflow: constitution → spec → [inspect, опционально] → plan → tasks → implement → archive; verify — опциональный on-demand аудит (всегда доступен, по умолчанию пропускается). Уважайте `workflow.verify` в `.speckeep/speckeep.yaml`: `required` возвращает verify как обязательный гейт перед archive. Не пропускайте обязательные фазы и не забегайте вперёд. Archive — CLI-only: `speckeep archive <slug> .`, не выдумывайте и не вызывайте `/spk.archive`."
-	}
-	return "Workflow chain: constitution → spec → [inspect, optional] → plan → tasks → implement → archive; verify is an optional on-demand audit (always available, skipped by default). Respect `workflow.verify` in `.speckeep/speckeep.yaml`: `required` restores verify as a mandatory pre-archive gate. Do not skip required phases or jump ahead. Archive is CLI-only: use `speckeep archive <slug> .`; do not invent or call `/spk.archive`."
-}
-
-func antiPatternHint(lang string) string {
-	if lang == "ru" {
-		return `Запрещено:
-- пропускать readiness scripts
-- читать/анализировать исходники ` + "`" + `.speckeep/scripts/*` + "`" + `
-- расширять scope / перепланировать во время implement
-- отмечать done без observable proof
-- делать ` + "`" + `git commit/push/tag` + "`" + ` или PR без явной просьбы
-- читать весь репозиторий вместо минимального среза`
-	}
-	return `Do not:
-- skip readiness scripts
-- read/inspect ` + "`" + `.speckeep/scripts/*` + "`" + `
-- expand scope / re-plan during implement
-- mark done without observable proof
-- run ` + "`" + `git commit/push/tag` + "`" + ` or open a PR unless explicitly asked
-- read the full repo instead of the minimum slice`
-}
-
-func scriptExecutionHint(lang string) string {
-	if lang == "ru" {
-		return "Если для фазы указан readiness script — выполните его как shell-команду (доверяйте stdout/exit code). Исходники `.speckeep/scripts/*` не читать. Ошибка скрипта → сообщить вывод и остановиться."
-	}
-	return "If a readiness script is listed, run it as a shell command (trust stdout/exit code). Do not read `.speckeep/scripts/*` source. Script failure → report output and stop."
-}
-
-func windsurfWorkspaceHint(lang string) string {
-	if lang == "ru" {
-		return "Примечание (Windsurf): убедитесь, что hidden/dotfiles индексируются и видны (папка `.speckeep/`). Перед запуском scripts работайте из корня репозитория (где лежит `.speckeep/`): `cd \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\"`."
-	}
-	return "Note (Windsurf): ensure hidden/dotfiles are indexed and visible (the `.speckeep/` folder). Before running scripts, work from the repo root (where `.speckeep/` lives): `cd \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\"`."
-}
-
-func scriptListBlock(items []string, lang string) string {
-	if len(items) == 0 {
-		return ""
-	}
-	header := "Scripts to execute:"
-	if lang == "ru" {
-		header = "Scripts для выполнения (запускать через shell):"
-	}
-	lines := []string{"- " + header}
-	for _, item := range items {
-		display := item
-		switch {
-		case strings.Contains(item, "check-ready"):
-		// check-ready already includes phase hint in the item itself
-		case strings.Contains(item, "archive-feature"):
-			display = item + " <slug> . --status completed"
-		case strings.Contains(item, "verify-task-state"):
-			display = item + " <slug>"
-		case strings.Contains(item, "list-open-tasks"):
-			display = item + " <slug>"
-		}
-		lines = append(lines, fmt.Sprintf("  - `%s`", display))
-	}
-	return strings.Join(lines, "\n")
 }

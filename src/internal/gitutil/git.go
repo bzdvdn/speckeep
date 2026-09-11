@@ -66,6 +66,33 @@ func CurrentBranch(ctx context.Context, root string) (string, error) {
 	return strings.TrimSpace(stdout), nil
 }
 
+// IsRepository reports whether root is inside a git work tree.
+func IsRepository(ctx context.Context, root string) bool {
+	_, _, err := run(ctx, root, "git", "rev-parse", "--is-inside-work-tree")
+	return err == nil
+}
+
+// Head returns the current HEAD commit SHA.
+func Head(ctx context.Context, root string) (string, error) {
+	stdout, _, err := run(ctx, root, "git", "rev-parse", "HEAD")
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(stdout), nil
+}
+
+// FileAt returns the content of path at the given revision (via git show).
+func FileAt(ctx context.Context, root, revision, path string) ([]byte, error) {
+	stdout, stderr, err := run(ctx, root, "git", "show", revision+":"+path)
+	if err != nil {
+		if strings.TrimSpace(stderr) != "" {
+			return nil, fmt.Errorf("git show %s:%s: %w: %s", revision, path, err, strings.TrimSpace(stderr))
+		}
+		return nil, fmt.Errorf("git show %s:%s: %w", revision, path, err)
+	}
+	return []byte(stdout), nil
+}
+
 func branchExists(ctx context.Context, root, branch string) (bool, error) {
 	_, _, err := run(ctx, root, "git", "rev-parse", "--verify", "--quiet", "refs/heads/"+branch)
 	if err == nil {

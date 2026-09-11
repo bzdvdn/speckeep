@@ -38,6 +38,7 @@ func AddAgents(root string, options AddAgentsOptions) (AddAgentsResult, error) {
 		return AddAgentsResult{}, err
 	}
 
+	deprecated := agents.DeprecatedTargetsRequested(options.Targets)
 	requested, err := agents.NormalizeTargets(options.Targets)
 	if err != nil {
 		return AddAgentsResult{}, err
@@ -58,6 +59,9 @@ func AddAgents(root string, options AddAgentsOptions) (AddAgentsResult, error) {
 	}
 
 	messages := []string{"updated .speckeep/speckeep.yaml with agent targets"}
+	for _, target := range deprecated {
+		messages = append(messages, fmt.Sprintf("skipped %q: no longer a supported agent target", target))
+	}
 	messages = append(messages, ensureAgentFiles(root, requested, agentLanguage, cfg.Runtime.Shell)...)
 	messages = append(messages, fmt.Sprintf("enabled agent targets: %s", strings.Join(combined, ", ")))
 	return AddAgentsResult{Messages: messages}, nil
@@ -145,8 +149,14 @@ func CleanupAgents(root string) (CleanupAgentsResult, error) {
 		}
 	}
 
-	// Also clean up old-prefix files (speckeep.*) for disabled targets
-	oldPaths := agents.LegacyPrefixPaths(agents.DefaultCommands(cfg.Runtime.Shell))
+	// Also clean up old per-command wrapper files: pre-rename (speckeep.*)
+	// and pre-skills-first (spk.*) — both eras are superseded by the
+	// composite sdd skill pack, regardless of which target is enabled.
+	commands := agents.DefaultCommands(cfg.Runtime.Shell)
+	oldPaths := append(agents.LegacyPrefixPaths(commands), agents.LegacyCommandWrapperPaths(commands)...)
+	oldPaths = append(oldPaths, agents.LegacySkillPhasePaths(commands)...)
+	oldPaths = append(oldPaths, agents.LegacyAmazonQSkillPaths(commands)...)
+	oldPaths = append(oldPaths, agents.LegacyContinueSkillPaths(commands)...)
 	for _, relPath := range oldPaths {
 		fullPath := filepath.Join(root, filepath.FromSlash(relPath))
 		if _, err := os.Stat(fullPath); errors.Is(err, os.ErrNotExist) {

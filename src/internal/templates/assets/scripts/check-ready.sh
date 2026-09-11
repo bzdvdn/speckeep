@@ -4,7 +4,7 @@ set -eu
 
 if [ $# -lt 1 ]; then
   echo "Usage: check-ready.sh <phase> [slug]" >&2
-  echo "Phases: constitution, spec, inspect, plan, tasks, implement, verify, archive" >&2
+  echo "Phases: constitution, spec, propose, inspect, plan, tasks, implement, converge, verify, archive" >&2
   exit 2
 fi
 

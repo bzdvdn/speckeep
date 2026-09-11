@@ -37,7 +37,13 @@ speckeep solves this with **discipline per token** — minimal file-based struct
 - **Specs** with stable IDs (`AC-*`, `RQ-*`) — agents know exactly what to build and verify
 - **Tasks** with surface maps and phase grouping — agents execute in order, one phase at a time
 - **Traceability** (`Proof:` entries in `tasks.md`) — prove that every requirement is implemented and tested
-- **10 agent adapters** — Claude Code, Cursor, Copilot, OpenCode, aider, Windsurf, and more
+- **19 agent adapters** — Claude Code, Codex, Cursor, Copilot, OpenCode, aider, Amazon Q, Gemini, Jules, Cline, Devin, Goose, Refact, Windsurf, and more ([maintenance tiers](docs/en/agents.md#maintenance-tiers)) — Continue.dev support was dropped after reports the product was discontinued
+- **Fast closing loop** (`/spk.converge`) — turn implementation gaps into follow-up tasks and iterate until converged
+- **CI gate** (`speckeep guard`) — machine-verifiable "is every feature closeable now?"
+- **Express lane** — tiny/low-risk features skip `plan.md`/`data-model.md` and close from `spec.md` + `tasks.md`
+- **One-shot propose** (`/spk.propose`) — idea → `spec.md` + `tasks.md` in a single pass, straight to implement
+- **Drop-in migration** (`speckeep import openspec|speckit`) — convert OpenSpec/Spec Kit feature packages into speckeep layout in seconds
+- **Compact archive** (`--compact`) — keep only `summary.md` + git pointer instead of copying every artifact
 
 Results in practice: agents produce correct code on first try more often, handoffs between sessions cost less context, and requirements stay reviewable by humans.
 
@@ -82,13 +88,32 @@ speckeep list-specs [path]
 speckeep show-spec <name> [path]
 speckeep trace <slug> [path]
 speckeep export <slug> [path] [--output <file>]
+speckeep converge <slug> [path] [--json]
+speckeep guard [path] [--slug <slug>] [--json]
+speckeep import <openspec|speckit> [path] [--json]
 speckeep demo [path]
-speckeep archive <slug> [path]
+speckeep archive <slug> [path] [--compact]
 speckeep list-archive [path] [--status <status>] [--since <YYYY-MM-DD>] [--json]
+speckeep self check | self upgrade
 speckeep migrate [path]
 speckeep add-agent | list-agents | remove-agent | cleanup-agents [path]
-speckeep add-skill | list-skills | remove-skill | install-skills | skills-restore [path]
 ```
+
+Agent support is **skills-first**: `speckeep init --agents opencode,claude` lays a composite SpecKeep `sdd` skill pack (a root `SKILL.md` plus one self-contained per-phase skill file, each inlining its full phase instructions) into each target's standard skills directory (`.opencode/skills/`, `.claude/skills/`, …). The CLI stays the deterministic spine that skills call as gates (`check`, `converge`, `guard`).
+
+---
+
+## CI
+
+Use the bundled GitHub Action to keep every pull request green against the SpecKeep gate:
+
+```yaml
+- uses: bzdvdn/speckeep/.github/actions/speckeep@main
+  with:
+    root: .
+```
+
+It installs speckeep, detects changed `specs/active/<slug>/` features, and runs `speckeep guard` on each (fails the PR when a touched feature is not closeable). A copy-paste ready workflow lives in [`contrib/ci/speckeep-guard.yml`](contrib/ci/speckeep-guard.yml).
 
 ---
 
@@ -97,24 +122,30 @@ speckeep add-skill | list-skills | remove-skill | install-skills | skills-restor
 **Linux / macOS:**
 
 ```bash
-VERSION=v0.8.0
-curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
+curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.sh" | bash
+# add --version v1.0.0 to pin; --add-to-path to register PATH
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-$version="v0.8.0"
-$env:SPECKEEP_VERSION=$version
-powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.ps1 | iex"
 ```
 
 The binary is automatically added to PATH on Windows. On Linux, use `--add-to-path` if the install directory is not already on your PATH.
 
-**Go users:**
+**Package managers:**
+
+- Homebrew: `brew install bzdvdn/speckeep/speckeep` (see `contrib/packaging/brew/`)
+- Scoop: `scoop bucket add speckeep https://github.com/bzdvdn/speckeep && scoop install speckeep` (see `contrib/packaging/scoop/`)
+- npm: `npx speckeep init` or `npm install -g speckeep` — a thin launcher that downloads the matching native binary on install (see `contrib/packaging/npm/`)
+- Go: `go install speckeep@latest`
+
+**Update the installed binary:**
 
 ```bash
-go install speckeep@latest
+speckeep self check     # current vs latest release (read-only)
+speckeep self upgrade   # download, sha256-verify, and replace in place
 ```
 
 **Build from source:**
@@ -231,18 +262,28 @@ Verify with:
 speckeep trace <slug> .
 ```
 
-### Agent adapters
+### Agent adapters (skills-first)
 
-Supported out of the box: `claude`, `codex`, `copilot`, `cursor`, `kilocode`, `opencode`, `trae`, `windsurf`, `roocode`, `aider`.
-
-### Skills
-
-Reusable guidance packages from local paths or git repos:
+Supported out of the box: `claude`, `codex`, `copilot`, `cursor`, `kilocode`, `opencode`, `trae`, `windsurf`, `roocode`, `aider`, `amazonq`, `gemini`, `jules`, `cline`, `devin`, `goose`, `refact`, `codiumate`, `qwen-code`.
 
 ```bash
-speckeep add-skill my-project --id architecture --from-local skills/architecture
-speckeep install-skills my-project
+speckeep init my-project --agents opencode,claude    # lays the sdd skill pack
 ```
+
+The skills live under the target's skills directory: a lightweight `sdd` overview skill plus one independent, directly slash-invocable skill per phase:
+
+```text
+.<target>/skills/
+  sdd/
+    SKILL.md          # overview: workflow chain, gates — reach for this when the phase isn't obvious
+  spk-spec/
+    SKILL.md           # each phase is its own top-level skill: /spk-spec, /spk-plan, /spk-implement, ...
+  spk-plan/
+    SKILL.md
+  ...
+```
+
+Each phase skill is its own directory (not nested resource files) so it is directly slash-invocable — e.g. typing `/spk-spec` in Claude Code — instead of only reachable through the model deciding to open a linked file. Each one inlines the canonical prompt from `.speckeep/templates/prompts/` (kept in sync automatically) so an agent gets the full phase instructions from one file, and is gated by `speckeep check`; closing uses `speckeep converge` / `speckeep guard`. `aider` additionally gets a `.aider/CONVENTIONS.md` pointer because it has no skill loader.
 
 ---
 

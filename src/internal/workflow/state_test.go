@@ -243,6 +243,57 @@ func TestInferLifecycleSubTaskCheckboxes(t *testing.T) {
 	}
 }
 
+// Express mode: a small feature closed from spec.md + tasks.md, without plan.md.
+func TestInferLifecycleExpressModeWithoutPlan(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specDir := filepath.Join(testSpecsDir(t, root), "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+	// No plan.md, no data-model.md — only tasks.md.
+	tasksOpen := "# Tasks\n\n## Phase 1\n- [ ] T1.1 open\n"
+	if err := os.WriteFile(filepath.Join(specDir, "tasks.md"), []byte(tasksOpen), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks open) returned error: %v", err)
+	}
+
+	state, err := State(context.Background(), root, "demo")
+	if err != nil {
+		t.Fatalf("State returned error: %v", err)
+	}
+	if state.PlanExists {
+		t.Fatalf("expected PlanExists=false, got true")
+	}
+	if state.Phase != "implement" || state.ReadyFor != "implement" {
+		t.Fatalf("expected express mode phase=implement readyFor=implement, got phase=%s readyFor=%s", state.Phase, state.ReadyFor)
+	}
+
+	// All tasks complete and verify optional -> ready to archive without a plan.
+	tasksDone := "# Tasks\n\n## Phase 1\n- [x] T1.1 done\n  Proof: code src/demo.go Demo\n"
+	if err := os.WriteFile(filepath.Join(specDir, "tasks.md"), []byte(tasksDone), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks done) returned error: %v", err)
+	}
+	state, err = State(context.Background(), root, "demo")
+	if err != nil {
+		t.Fatalf("State returned error: %v", err)
+	}
+	if state.ReadyFor != "archive" {
+		t.Fatalf("expected express mode to reach archive-ready, got readyFor=%s phase=%s", state.ReadyFor, state.Phase)
+	}
+}
+
 func TestInferLifecycleBranchMismatchBlocks(t *testing.T) {
 	// Test inferLifecycle directly: BranchMismatch must set Blocked=true.
 	state := FeatureState{

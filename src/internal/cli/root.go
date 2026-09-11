@@ -17,11 +17,13 @@ Quick start:
 
 For agents (Kilocode/Claude/Cursor):
   /spk.constitution                        — create a constitution
+  /spk.propose "feature idea"              — one-shot: idea → spec + tasks (plan optional)
   /spk.spec --name "feature name"          — create a spec
   /spk.spec --amend                        — targeted spec edit
   /spk.plan <slug> [--research|--update]   — create a plan
   /spk.tasks <slug>                        — decompose into tasks
   /spk.implement <slug>                    — implement tasks
+  /spk.converge <slug>                    — fast loop: re-check tasks/proofs, append follow-ups until converged
   /spk.verify <slug> [--deep]              — verify AC coverage
 
 Optional commands (any phase):
@@ -38,8 +40,12 @@ CLI commands:
   speckeep check <slug> . [--json]       — feature status
   speckeep check . --all                 — all features table
   speckeep dashboard .                   — visual dashboard
-  speckeep archive <slug> .              — archive verified feature
+  speckeep converge <slug> .             — fast closing loop (exit 1 on gaps)
+  speckeep guard . [--slug <slug>]       — CI gate: all features closeable?
+  speckeep archive <slug> . [--compact]  — archive verified feature (+ git-pointer mode)
   speckeep trace <slug> . [--tests]      — code traceability
+  speckeep self check|upgrade            — manage the speckeep binary
+  speckeep import <openspec|speckit> .   — migrate feature packages from OpenSpec/Spec Kit
   speckeep export <slug> . --output f.md — export artifacts
   speckeep list-archive [path]           — list archived features
 
@@ -61,13 +67,6 @@ Documentation:
 	cmd.AddCommand(newListAgentsCmd())
 	cmd.AddCommand(newRemoveAgentCmd())
 	cmd.AddCommand(newCleanupAgentsCmd())
-	cmd.AddCommand(newAddSkillCmd())
-	cmd.AddCommand(newListSkillsCmd())
-	cmd.AddCommand(newRemoveSkillCmd())
-	cmd.AddCommand(newInstallSkillsCmd())
-	cmd.AddCommand(newRestoreSkillCheckoutsCmd())
-	cmd.AddCommand(newSyncSkillsCmd())
-	cmd.AddCommand(newSkillsCmd())
 	cmd.AddCommand(newDoctorCmd())
 	cmd.AddCommand(newStatusCmd())
 	cmd.AddCommand(newDashboardCmd())
@@ -87,6 +86,10 @@ Documentation:
 	cmd.AddCommand(newInternalCmd())
 	cmd.AddCommand(newArchiveCmd())
 	cmd.AddCommand(newListArchiveCmd())
+	cmd.AddCommand(newConvergeCmd())
+	cmd.AddCommand(newGuardCmd())
+	cmd.AddCommand(newImportCmd())
+	cmd.AddCommand(newSelfCmd())
 
 	return cmd
 }

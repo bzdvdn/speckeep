@@ -1,0 +1,94 @@
+name: 'speckeep guard'
+description: 'Run the speckeep CI gate on a repository guarded by spec-driven development'
+author: 'speckeep'
+
+branding:
+  icon: 'shield'
+  color: 'gray-dark'
+
+inputs:
+  version:
+    description: 'speckeep version to install (default: latest v* release)'
+    required: false
+    default: ''
+  root:
+    description: 'speckeep workspace root (directory containing .speckeep/)'
+    required: false
+    default: '.'
+  base-ref:
+    description: 'Git ref/sha to diff against for feature-slug detection (default: PR base)'
+    required: false
+    default: ''
+  fail-on-outdated:
+    description: 'Exit non-zero when a feature is not closeable (default true)'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install speckeep
+      shell: bash
+      run: |
+        set -euo pipefail
+        VERSION="${VERSION_ARG}"
+        if [[ "${VERSION}" == "" ]]; then
+          INSTALL_OPTS=""
+        else
+          INSTALL_OPTS="--version ${VERSION}"
+        fi
+        curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.sh" \
+          | bash -s -- ${INSTALL_OPTS} --add-to-path
+        speckeep --version
+      env:
+        VERSION_ARG: ${{ inputs.version }}
+
+    - name: Detect changed feature slugs
+      id: diff
+      shell: bash
+      run: |
+        set -uo pipefail
+        ROOT="${{ inputs.root }}"
+        BASE="${{ inputs.base-ref }}"
+        if [[ -z "${BASE}" ]]; then
+          BASE="${GITHUB_BASE_REF:-main}"
+        fi
+        SLUGS=""
+        if git rev-parse --verify --quiet "${BASE}" >/dev/null 2>&1; then
+          # Collect slug dirs under specs/active that changed relative to BASE.
+          SLUGS="$(
+            git diff --name-only "refs/heads/${GITHUB_HEAD_REF:-HEAD}" "${BASE}" 2>/dev/null \
+              || git diff --name-only HEAD "${BASE}" 2>/dev/null \
+              || true
+          )" || true
+        fi
+        CHANGED=""
+        if [[ -n "${SLUGS}" ]]; then
+          CHANGED="$(
+            printf '%s\n' "${SLUGS}" \
+              | grep -E '^specs/active/[^/]+/' 2>/dev/null \
+              | awk -F/ '{print $3}' | sort -u || true
+          )" || true
+        fi
+        echo "slug-list=${CHANGED}" >> "${GITHUB_OUTPUT}"
+
+    - name: Guard features
+      shell: bash
+      working-directory: ${{ inputs.root }}
+      run: |
+        set -euo pipefail
+        SLUGS="${{ steps.diff.outputs.slug-list }}"
+        if [[ -n "${SLUGS}" ]]; then
+          set -- ${SLUGS}
+          for slug in "$@"; do
+            if ! speckeep guard . --slug "${slug}" --json; then
+              if [[ "${{ inputs.fail-on-outdated }}" == "true" ]]; then
+                echo "::error::feature ${slug} is not ready to close"
+                exit 1
+              fi
+              echo "::warning::feature ${slug} is not ready to close (non-fatal)"
+            fi
+          done
+        else
+          speckeep guard . --json || true
+        fi

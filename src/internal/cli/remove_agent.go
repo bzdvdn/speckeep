@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"speckeep/src/internal/agents"
 	"speckeep/src/internal/project"
 )
 
@@ -31,7 +32,7 @@ func newRemoveAgentCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "remove one or more agent targets: claude, codex, copilot, cursor, kilocode, opencode, trae, windsurf, roocode, aider, all")
+	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "remove one or more agent targets: "+agents.TargetOptionsText()+", all")
 	cmd.Flags().StringSliceVar(&legacyAgentTargets, "agent", nil, "deprecated alias for --agents")
 	cmd.Flags().MarkHidden("agent")
 
