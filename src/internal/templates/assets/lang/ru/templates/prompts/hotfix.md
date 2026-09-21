@@ -22,5 +22,5 @@ Stop if: изменений > 3 файлов или требуется изме�
 - Добавьте короткий summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Готово к` (задаётся финальной строкой ниже).
 - Определите `workflow.verify` по **Verify gate policy** в AGENTS.md (`.speckeep/speckeep.yaml`, ≤1 чтение за сессию): если `required` — фикс обязан пройти verify перед archive.
 - Финальная строка:
-  - если `workflow.verify: required`: `Готово к: /spk.verify <slug>`
-  - если `workflow.verify` — `optional`/отсутствует: `Готово к: /spk.implement <slug>` (известный scope, без audit-гейта) — или `Готово к: speckeep archive <slug> .`, если hotfix уже доказан.
+  - если `workflow.verify: required`: `Готово к: /spk-verify <slug>`
+  - если `workflow.verify` — `optional`/отсутствует: `Готово к: /spk-implement <slug>` (известный scope, без audit-гейта) — или `Готово к: speckeep archive <slug> .`, если hotfix уже доказан.

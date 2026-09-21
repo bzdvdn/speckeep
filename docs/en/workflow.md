@@ -10,9 +10,9 @@ constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> arc
 
 Two lighter lanes keep features closing fast without artifact bloat:
 
-- **One-shot propose** (`/spk.propose`): idea → `spec.md` + `tasks.md` in a single pass (plan optional), straight to `implement`. Falls back to `/spk.spec` when the idea is ambiguous or spans multiple features.
-- **Express lane**: tiny/low-risk changes skip `plan.md` (and `data-model.md`). `/spk.tasks` derives tasks straight from `spec.md`; plan-level decisions land in `tasks.md` → `## Implementation Context`. The lifecycle allows a feature with `spec.md + tasks.md` to reach `implement` and `archive` without a separate plan.
-- **Converge loop** (`/spk.converge` / `speckeep converge <slug>`): after `implement`, re-checks task/proof/surface/AC coverage cheaply and reports gaps. The agent appends follow-up tasks and repeats until `converged` (hard stop after 2 fix rounds). Lighter than `verify` — no report file.
+- **One-shot propose** (`/spk-propose`): idea → `spec.md` + `tasks.md` in a single pass (plan optional), straight to `implement`. Falls back to `/spk-spec` when the idea is ambiguous or spans multiple features.
+- **Express lane**: tiny/low-risk changes skip `plan.md` (and `data-model.md`). `/spk-tasks` derives tasks straight from `spec.md`; plan-level decisions land in `tasks.md` → `## Implementation Context`. The lifecycle allows a feature with `spec.md + tasks.md` to reach `implement` and `archive` without a separate plan.
+- **Converge loop** (`/spk-converge` / `speckeep converge <slug>`): after `implement`, re-checks task/proof/surface/AC coverage cheaply and reports gaps. The agent appends follow-up tasks and repeats until `converged` (hard stop after 2 fix rounds). Lighter than `verify` — no report file.
 
 `speckeep guard .` is the machine gate variant: exit 0 only when every active feature is archive-ready. Features living in an OpenSpec or Spec Kit workspace can be brought in with `speckeep import openspec|speckit .`.
 
@@ -46,7 +46,7 @@ After updating the constitution, the agent checks whether any active specs confl
 
 Captures one feature request as a concrete spec. Acceptance criteria should use canonical `Given / When / Then` markers even when the surrounding document language is Russian.
 
-For agent-facing `/spk.spec`, SpecKeep should support optional arguments:
+For agent-facing `/spk-spec`, SpecKeep should support optional arguments:
 
 - `--name <feature name>`
 - `--slug <feature-slug>`
@@ -58,12 +58,12 @@ Argument semantics:
 - `--slug` overrides the spec slug
 - `--branch` overrides only the working branch and does not change the spec slug
 
-`/spk.spec` should support two input modes:
+`/spk-spec` should support two input modes:
 
 - inline mode: the feature name and description are provided in the same message
-- staged mode: the user first sends `/spk.spec --name ...` and then sends the feature description in the next message
+- staged mode: the user first sends `/spk-spec --name ...` and then sends the feature description in the next message
 
-When `/spk.spec` starts from a prompt file, SpecKeep should prefer top-of-file metadata such as:
+When `/spk-spec` starts from a prompt file, SpecKeep should prefer top-of-file metadata such as:
 
 ```text
 name: Add dark mode
@@ -84,7 +84,7 @@ Priority rules for the feature name:
 2. `name:`
 3. a concise feature name safely derived from the user request
 
-If `/spk.spec` is invoked with `--name` but the feature description is still not detailed enough for a valid spec, SpecKeep should not lose the request context: it should ask for the missing description or treat the next user message as the continuation of the same spec request.
+If `/spk-spec` is invoked with `--name` but the feature description is still not detailed enough for a valid spec, SpecKeep should not lose the request context: it should ask for the missing description or treat the next user message as the continuation of the same spec request.
 
 By default, the feature branch should be `feature/<slug>`. If the user explicitly provides `--branch <name>`, SpecKeep should use that branch name instead without changing the spec slug.
 
@@ -185,7 +185,7 @@ Acceptance coverage should reference those task IDs directly:
 AC-001 -> T1.1, T2.1
 ```
 
-`--repair <task-id-list>`: targeted repair mode. Fixes specific tasks identified by verify or review (e.g. `--repair T2.3,T3.1`) without rewriting the full task list. If the repair reveals a plan-level flaw, suggests `/spk.plan --update` instead.
+`--repair <task-id-list>`: targeted repair mode. Fixes specific tasks identified by verify or review (e.g. `--repair T2.3,T3.1`) without rewriting the full task list. If the repair reveals a plan-level flaw, suggests `/spk-plan --update` instead.
 
 ### `implement`
 

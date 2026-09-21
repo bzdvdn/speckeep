@@ -224,17 +224,17 @@ func buildCheckResult(ctx context.Context, cfg config.Config, root string, state
 func nextCommand(state workflow.FeatureState) string {
 	switch state.ReadyFor {
 	case "spec":
-		return "/spk.spec " + state.Slug
+		return "/spk-spec " + state.Slug
 	case "inspect":
-		return "/spk.inspect " + state.Slug
+		return "/spk-inspect " + state.Slug
 	case "plan":
-		return "/spk.plan " + state.Slug
+		return "/spk-plan " + state.Slug
 	case "tasks":
-		return "/spk.tasks " + state.Slug
+		return "/spk-tasks " + state.Slug
 	case "implement":
-		return "/spk.implement " + state.Slug
+		return "/spk-implement " + state.Slug
 	case "verify":
-		return "/spk.verify " + state.Slug
+		return "/spk-verify " + state.Slug
 	case "archive":
 		return "speckeep archive " + state.Slug + " ."
 	default:
@@ -271,11 +271,11 @@ func printCheck(cmd *cobra.Command, state workflow.FeatureState, result checkRes
 
 	if state.SpecExists && !state.PlanExists && state.Phase != "archive" {
 		fmt.Fprintln(w)
-		fmt.Fprintln(w, "hint:     plan.md is optional for small changes — express mode: /spk.tasks works straight from spec.md")
+		fmt.Fprintln(w, "hint:     plan.md is optional for small changes — express mode: /spk-tasks works straight from spec.md")
 	}
 	if state.TasksExists && state.TasksTotal > 0 && state.TasksOpen == 0 {
 		fmt.Fprintln(w)
-		fmt.Fprintln(w, "hint:     feature looks closeable — run `/spk.converge` (fast loop) or `speckeep guard .` (CI gate)")
+		fmt.Fprintln(w, "hint:     feature looks closeable — run `/spk-converge` (fast loop) or `speckeep guard .` (CI gate)")
 	}
 
 	if state.BranchMismatch {

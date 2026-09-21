@@ -155,6 +155,7 @@ func CleanupAgents(root string) (CleanupAgentsResult, error) {
 	commands := agents.DefaultCommands(cfg.Runtime.Shell)
 	oldPaths := append(agents.LegacyPrefixPaths(commands), agents.LegacyCommandWrapperPaths(commands)...)
 	oldPaths = append(oldPaths, agents.LegacySkillPhasePaths(commands)...)
+	oldPaths = append(oldPaths, agents.LegacyOpenCodeCommandPaths(commands)...)
 	oldPaths = append(oldPaths, agents.LegacyAmazonQSkillPaths(commands)...)
 	oldPaths = append(oldPaths, agents.LegacyContinueSkillPaths(commands)...)
 	for _, relPath := range oldPaths {
@@ -173,10 +174,24 @@ func CleanupAgents(root string) (CleanupAgentsResult, error) {
 		messages = append(messages, fmt.Sprintf("removed orphaned agent artifact %s", rel(root, fullPath)))
 		removedAny = true
 	}
+	pruneEmptyOpenCodeCommandsDir(root)
 
 	if !removedAny {
 		messages = append(messages, "no orphaned agent artifacts found")
 	}
 
 	return CleanupAgentsResult{Messages: messages}, nil
+}
+
+// pruneEmptyOpenCodeCommandsDir best-effort removes the now-unused
+// `.opencode/commands/` directory once every speckeep slash-command file has
+// been cleaned up (OpenCode ships skills-only). A non-empty directory — e.g.
+// the user's own OpenCode commands — is left untouched, as are any errors.
+func pruneEmptyOpenCodeCommandsDir(root string) {
+	dir := filepath.Join(root, ".opencode", "commands")
+	entries, err := os.ReadDir(dir)
+	if err != nil || len(entries) != 0 {
+		return
+	}
+	_ = os.Remove(dir)
 }

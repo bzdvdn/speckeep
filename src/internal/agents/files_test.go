@@ -50,10 +50,10 @@ func TestNormalizeTargetsAll(t *testing.T) {
 }
 
 func TestFlatCommandTargetsGetCommandsAlongsideSkills(t *testing.T) {
-	// Windsurf, OpenCode, Cline, and Amazon Q Skills are model/tool-invoked
-	// only, never invocable by name there — real commands for those
-	// targets come from a flat file per phase in their own directory,
-	// generated in addition to the skill pack.
+	// Windsurf, Cline, and Amazon Q Skills are model/tool-invoked only,
+	// never invocable by name there — real commands for those targets come
+	// from a flat file per phase in their own directory, generated in
+	// addition to the skill pack. OpenCode is intentionally skills-only.
 	for target, flat := range targetFlatCommandDirs {
 		files, err := FilesForTarget(target, "en", "sh")
 		if err != nil {
@@ -76,6 +76,72 @@ func TestFlatCommandTargetsGetCommandsAlongsideSkills(t *testing.T) {
 		}
 		if !found {
 			t.Fatalf("target %q missing flat command %s", target, want)
+		}
+	}
+}
+
+func TestOpenCodeIsSkillsOnly(t *testing.T) {
+	// OpenCode Skills aren't slash-invocable either, but the duplicate
+	// `.opencode/commands/spk-*.md` set was removed as a redundant second
+	// entry point — OpenCode ships skills-only.
+	if _, ok := targetFlatCommandDirs["opencode"]; ok {
+		t.Fatal("opencode must not be a flat-command target any more")
+	}
+	files, err := FilesForTarget("opencode", "en", "sh")
+	if err != nil {
+		t.Fatalf("FilesForTarget(opencode) returned error: %v", err)
+	}
+	for _, f := range files {
+		if strings.HasPrefix(f.Path, ".opencode/commands/") {
+			t.Fatalf("opencode must not generate slash commands, got %s", f.Path)
+		}
+	}
+	if paths, err := PathsForTarget("opencode"); err != nil {
+		t.Fatalf("PathsForTarget(opencode) returned error: %v", err)
+	} else {
+		for _, p := range paths {
+			if strings.HasPrefix(p, ".opencode/commands/") {
+				t.Fatalf("opencode expected-paths must not include slash commands, got %s", p)
+			}
+		}
+	}
+
+	commands := DefaultCommands("sh")
+	legacy := LegacyOpenCodeCommandPaths(commands)
+	if len(legacy) != len(commands) {
+		t.Fatalf("expected %d legacy opencode command paths, got %d", len(commands), len(legacy))
+	}
+	for _, p := range legacy {
+		if !strings.HasPrefix(p, ".opencode/commands/spk-") || !strings.HasSuffix(p, ".md") {
+			t.Fatalf("unexpected legacy opencode command path %q", p)
+		}
+	}
+}
+
+func TestReadinessReminderOnlyForReadyCheckPhases(t *testing.T) {
+	files, err := FilesForTarget("claude", "en", "sh")
+	if err != nil {
+		t.Fatalf("FilesForTarget(claude) returned error: %v", err)
+	}
+	content := func(phase string) string {
+		want := ".claude/skills/spk-" + phase + "/SKILL.md"
+		for _, f := range files {
+			if f.Path == want {
+				return f.Content
+			}
+		}
+		t.Fatalf("missing phase skill %s", want)
+		return ""
+	}
+
+	for phase := range readyCheckPhases {
+		if got := content(phase); !strings.Contains(got, "check-ready.sh "+phase) {
+			t.Fatalf("phase %q must advertise readiness", phase)
+		}
+	}
+	for _, phase := range []string{"handoff", "challenge", "scope", "glossary", "recap", "hotfix", "repo-map", "rollback"} {
+		if got := content(phase); strings.Contains(got, "check-ready.sh") {
+			t.Fatalf("phase %q has no readiness check and must not advertise one", phase)
 		}
 	}
 }
@@ -194,7 +260,8 @@ func TestFiles(t *testing.T) {
 
 	commands := DefaultCommands("sh")
 	// +1 for aider CONVENTIONS pointer; +len(commands) per target with a flat
-	// command dir (windsurf, opencode — Skills aren't slash-invocable there).
+	// command dir (windsurf, cline, amazonq — Skills aren't slash-invocable
+	// there). OpenCode is skills-only, so it contributes no flat commands.
 	want := len(SupportedTargets())*(len(commands)+1) + 1 + len(targetFlatCommandDirs)*len(commands) + len(commands) // +len(commands) for gemini's TOML commands
 	if len(files) != want {
 		t.Fatalf("expected %d generated files, got %d", want, len(files))
@@ -211,7 +278,6 @@ func TestFiles(t *testing.T) {
 		".github/skills/sdd/SKILL.md":           false,
 		".aider/CONVENTIONS.md":                 false,
 		".windsurf/workflows/spk-spec.md":       false,
-		".opencode/commands/spk-implement.md":   false,
 		".clinerules/workflows/spk-tasks.md":    false,
 		".amazonq/prompts/spk-verify.md":        false,
 		".gemini/commands/spk-plan.toml":        false,

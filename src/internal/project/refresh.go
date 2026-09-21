@@ -655,6 +655,7 @@ func removeOldPrefixAgentArtifacts(root, shell string, dryRun bool, result *Refr
 	commands := agents.DefaultCommands(shell)
 	oldPaths := append(agents.LegacyPrefixPaths(commands), agents.LegacyCommandWrapperPaths(commands)...)
 	oldPaths = append(oldPaths, agents.LegacySkillPhasePaths(commands)...)
+	oldPaths = append(oldPaths, agents.LegacyOpenCodeCommandPaths(commands)...)
 	oldPaths = append(oldPaths, agents.LegacyAmazonQSkillPaths(commands)...)
 	oldPaths = append(oldPaths, agents.LegacyContinueSkillPaths(commands)...)
 	seen := make(map[string]struct{})
@@ -677,6 +678,9 @@ func removeOldPrefixAgentArtifacts(root, shell string, dryRun bool, result *Refr
 		if err := os.Remove(fullPath); err != nil {
 			return err
 		}
+	}
+	if !dryRun {
+		pruneEmptyOpenCodeCommandsDir(root)
 	}
 	return nil
 }

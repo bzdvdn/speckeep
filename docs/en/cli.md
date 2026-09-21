@@ -58,7 +58,7 @@ Refreshes only SpecKeep-managed generated artifacts in an existing project.
 
 This command updates:
 
-- `.speckeep/spk.yaml`
+- `.speckeep/spk-yaml`
 - `.speckeep/templates/**`
 - `.speckeep/scripts/**`
 - project-local agent skill packs
@@ -102,7 +102,7 @@ speckeep add-agent my-project --agents claude --agents codex
 
 ### `speckeep list-agents [path]`
 
-Lists enabled agent targets from `.speckeep/spk.yaml`.
+Lists enabled agent targets from `.speckeep/spk-yaml`.
 
 ### `speckeep remove-agent [path]`
 
@@ -270,7 +270,7 @@ speckeep guard my-project --json
 
 Migrates feature packages from another spec system into the current speckeep workspace.
 
-- **openspec**: reads `openspec/changes/<slug>/` and rebuilds `spec.md` (`RQ-*`/`AC-*` from `### Requirement:` and `#### Scenario:` blocks), `plan.md` from `design.md`, and copies `tasks.md` best-effort (with a note to regenerate via `/spk.tasks`).
+- **openspec**: reads `openspec/changes/<slug>/` and rebuilds `spec.md` (`RQ-*`/`AC-*` from `### Requirement:` and `#### Scenario:` blocks), `plan.md` from `design.md`, and copies `tasks.md` best-effort (with a note to regenerate via `/spk-tasks`).
 - **speckit**: reads `specs/<slug>/` and copies `spec.md` / `plan.md` / `tasks.md`.
 
 Existing speckeep feature directories are never overwritten — they are reported as skipped. Use `--json` for machine-readable output.
@@ -298,7 +298,7 @@ speckeep self upgrade
 
 Creates a demo workspace at the given path (default: `./speckeep-demo`).
 
-The workspace is pre-populated with an example feature (`export-report`) at the implement phase — spec, inspect report, plan, tasks, and data model are all present. Suggests `/spk.scope`, `/spk.challenge`, and `/spk.handoff` to try immediately.
+The workspace is pre-populated with an example feature (`export-report`) at the implement phase — spec, inspect report, plan, tasks, and data model are all present. Suggests `/spk-scope`, `/spk-challenge`, and `/spk-handoff` to try immediately.
 
 ```bash
 speckeep demo

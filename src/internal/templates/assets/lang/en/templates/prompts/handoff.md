@@ -18,7 +18,7 @@ Stop if: tasks.md is missing.
 
 - `Slug`, `Phase`, `What changed`, `Open tasks`, `Blockers`, `Next command`.
 - Final line (detect phase from state; resolve `workflow.verify` per the **Verify gate policy** in AGENTS.md):
-  - If blocked: `Return to: /spk.<phase> <slug>`
-  - If ready for next phase: `Ready for: /spk.<next> <slug>`
-  - If all done and `workflow.verify: required`: `Ready for: /spk.verify <slug>`
+  - If blocked: `Return to: /spk-<phase> <slug>`
+  - If ready for next phase: `Ready for: /spk-<next> <slug>`
+  - If all done and `workflow.verify: required`: `Ready for: /spk-verify <slug>`
   - If all done and `workflow.verify` is `optional`/absent: `Ready for: speckeep archive <slug> .`

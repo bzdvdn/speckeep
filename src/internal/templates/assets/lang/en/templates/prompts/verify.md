@@ -74,8 +74,8 @@ If any check fails: fix it and re-run the checklist. After **2 fix rounds** that
   Status: pass|concerns|blocked
   Artifacts: <paths>
   Blockers: <none | reason>
-  Ready for: speckeep archive <slug> .   (or "Return to: /spk.<phase> <slug>" when not pass)
+  Ready for: speckeep archive <slug> .   (or "Return to: /spk-<phase> <slug>" when not pass)
   ```
 - If `pass`, final line: `Ready for: speckeep archive <slug> .`
-- If `concerns`, final line: `Ready for: /spk.implement <slug>` (close the proof gaps) — or `Return to: /spk.tasks <slug>` when the gaps are task coverage issues.
-- If `blocked`, final line: `Return to: /spk.<phase> <slug>` (narrowest earlier phase that can honestly fix it).
+- If `concerns`, final line: `Ready for: /spk-implement <slug>` (close the proof gaps) — or `Return to: /spk-tasks <slug>` when the gaps are task coverage issues.
+- If `blocked`, final line: `Return to: /spk-<phase> <slug>` (narrowest earlier phase that can honestly fix it).

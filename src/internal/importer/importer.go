@@ -236,7 +236,7 @@ func writeFeature(specsDir string, feat *ImportedFeature) error {
 }
 
 func importTasksNote(source string) string {
-	return "\n\n<!-- IMPORTED from " + source + " — best-effort. Run /spk.tasks to regenerate with Touches:, ## Surface Map and ## Acceptance Coverage. -->\n"
+	return "\n\n<!-- IMPORTED from " + source + " — best-effort. Run /spk-tasks to regenerate with Touches:, ## Surface Map and ## Acceptance Coverage. -->\n"
 }
 
 func translateOpenSpecSpec(ctx context.Context, changeDir, slug string) (string, []string) {
@@ -289,7 +289,7 @@ func translateOpenSpecSpec(ctx context.Context, changeDir, slug string) (string,
 		}
 	}
 	sb.WriteString("\n## Assumptions\n\n")
-	sb.WriteString("- Imported from OpenSpec (requirements/scenarios). Run `/spk.inspect` to deepen quality.\n")
+	sb.WriteString("- Imported from OpenSpec (requirements/scenarios). Run `/spk-inspect` to deepen quality.\n")
 	notes := []string{"spec.md rebuilt from OpenSpec Requirement/Scenario blocks; validate AC wording"}
 	return sb.String(), notes
 }

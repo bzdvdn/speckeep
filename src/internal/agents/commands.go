@@ -129,7 +129,7 @@ func DefaultCommands(shell string) []CommandDefinition {
 			Name:        "hotfix",
 			Description: "Create emergency fix outside the standard phase chain",
 			PromptPath:  ".speckeep/templates/prompts/hotfix.md",
-			Extras:      []string{scriptPath("check-hotfix-ready", normalizedShell)},
+			Extras:      nil,
 			Optional:    true,
 			Category:    "workflow",
 		},

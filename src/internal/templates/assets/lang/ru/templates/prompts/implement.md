@@ -40,7 +40,7 @@ Stop if: `tasks.md` отсутствует, следующая задача не
   - примеры: `Proof: code src/export.go ExportHandler`, `Proof: test src/export_test.go TestExportFlow`, `Proof: docs docs/export.md`.
 - Задача `[x]` без ни одной строки `Proof:` — не завершена: не закрывайте её, `speckeep check` и `speckeep archive` отклонят её.
 - Если proof не может ссылаться на существующий файл → стоп и объяснить до закрытия.
-- Режим конфига (финальная строка): следуйте **Verify gate policy** в AGENTS.md — определите `workflow.verify` из `.speckeep/speckeep.yaml` (уже прочитан ≤ 1 раза за сессию). Если `required` — архивный гейт требует отчёт `verify: pass`, НЕ предлагайте archive напрямую; финальная строка `/spk.verify`. Если `optional` (или ключ отсутствует) — archive разрешён, когда все задачи `[x]` имеют `Proof:`.
+- Режим конфига (финальная строка): следуйте **Verify gate policy** в AGENTS.md — определите `workflow.verify` из `.speckeep/speckeep.yaml` (уже прочитан ≤ 1 раза за сессию). Если `required` — архивный гейт требует отчёт `verify: pass`, НЕ предлагайте archive напрямую; финальная строка `/spk-verify`. Если `optional` (или ключ отсутствует) — archive разрешён, когда все задачи `[x]` имеют `Proof:`.
 
 ## Режимы
 
@@ -52,8 +52,8 @@ Stop if: `tasks.md` отсутствует, следующая задача не
 
 - Обновите код/файлы и отметьте выполненные задачи `[x]` в `tasks.md`.
 - Перед итоговым summary добавьте короткий блок `Proof plan:` для задач, которые вы трогали в этом запуске.
-- Перед завершением добавьте явную строку решения: `Map update: yes|no` + причина (по trigger checklist `/spk.repo-map` из `AGENTS.md`).
-- Если `Map update: yes`, запустите `/spk.repo-map` и включите `REPOSITORY_MAP.md` в список измененных файлов.
+- Перед завершением добавьте явную строку решения: `Map update: yes|no` + причина (по trigger checklist `/spk-repo-map` из `AGENTS.md`).
+- Если `Map update: yes`, запустите `/spk-repo-map` и включите `REPOSITORY_MAP.md` в список измененных файлов.
 - Если структура/навигация репозитория изменилась (новые/перенесенные модули, новые entrypoints, заметная перестройка путей), `Map update` обязательно должно быть `yes`.
 - Если изменения локальные и не затрагивают структуру/навигацию, `REPOSITORY_MAP.md` не трогайте.
 - Коротко отчитайтесь: какие task IDs закрыты, какие файлы изменены, какой observable proof.
@@ -65,8 +65,8 @@ Stop if: `tasks.md` отсутствует, следующая задача не
   Status: <фаза>
   Artifacts: <пути>
   Blockers: <none | причина>
-  Готово к: /spk.verify <slug>   (или "speckeep archive <slug> ." при optional)
+  Готово к: /spk-verify <slug>   (или "speckeep archive <slug> ." при optional)
   ```
 - Как только все задачи `[x]` имеют записи `Proof:`, финальная строка (обязательно) зависит от `workflow.verify`:
-  - если `required`: `Готово к: /spk.verify <slug>`
-  - если `optional` (по умолчанию/нет ключа): `Готово к: speckeep archive <slug> .` (полный аудит остаётся доступен через `/spk.verify <slug>`)
+  - если `required`: `Готово к: /spk-verify <slug>`
+  - если `optional` (по умолчанию/нет ключа): `Готово к: speckeep archive <slug> .` (полный аудит остаётся доступен через `/spk-verify <slug>`)

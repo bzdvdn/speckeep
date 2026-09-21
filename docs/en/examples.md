@@ -65,7 +65,7 @@ on one existing endpoint, and a concrete before/after — see
 
 ### Prompt File Input
 
-When `/spk.spec` starts from a local prompt file, prefer explicit metadata instead of relying on a generic filename such as `spec_prompt.md`.
+When `/spk-spec` starts from a local prompt file, prefer explicit metadata instead of relying on a generic filename such as `spec_prompt.md`.
 
 Example prompt file:
 
@@ -84,12 +84,12 @@ This lets SpecKeep:
 
 ### Staged Input Via `--name`
 
-When the feature name is already clear but the detailed description is easier to send in the next message, `/spk.spec` can start in staged mode.
+When the feature name is already clear but the detailed description is easier to send in the next message, `/spk-spec` can start in staged mode.
 
 Example:
 
 ```text
-/spk.spec --name "Dependency Dashboard"
+/spk-spec --name "Dependency Dashboard"
 ```
 
 Next message:
@@ -107,13 +107,13 @@ This allows SpecKeep to:
 If you need an explicit slug:
 
 ```text
-/spk.spec --name "Dependency Dashboard" --slug frontend-layout-rework
+/spk-spec --name "Dependency Dashboard" --slug frontend-layout-rework
 ```
 
 If you need a repository-specific branch override:
 
 ```text
-/spk.spec --name "Dependency Dashboard" --slug frontend-layout-rework --branch FEAT-142
+/spk-spec --name "Dependency Dashboard" --slug frontend-layout-rework --branch FEAT-142
 ```
 
 ## 1. Create a Constitution for a Brownfield Project
@@ -121,7 +121,7 @@ If you need a repository-specific branch override:
 User request:
 
 ```text
-/spk.constitution Python project, DDD style, split into API and workers, Kafka for asynchronous integration, ClickHouse as the analytical sink.
+/spk-constitution Python project, DDD style, split into API and workers, Kafka for asynchronous integration, ClickHouse as the analytical sink.
 ```
 
 Expected agent behavior:
@@ -142,7 +142,7 @@ Expected outcome:
 User request:
 
 ```text
-/spk.spec Add partner-specific ingestion scheduling with retry policy overrides.
+/spk-spec Add partner-specific ingestion scheduling with retry policy overrides.
 ```
 
 Expected agent behavior:
@@ -166,7 +166,7 @@ Example acceptance criterion:
 Example with an explicit branch override:
 
 ```text
-/spk.spec Add partner-specific ingestion scheduling with retry policy overrides --branch NRD-11
+/spk-spec Add partner-specific ingestion scheduling with retry policy overrides --branch NRD-11
 ```
 
 In that case, the spec slug can still stay `partner-scheduling` while the working branch follows the repository's branch convention, for example `NRD-11`.
@@ -174,12 +174,12 @@ In that case, the spec slug can still stay `partner-scheduling` while the workin
 ## 3. Inspect the Spec
 
 Use this step when the feature is ambiguous, high-risk, or you want a formal quality gate.  
-If the spec is already clear and low-risk, you may proceed directly to `/spk.plan <slug>`.
+If the spec is already clear and low-risk, you may proceed directly to `/spk-plan <slug>`.
 
 User request:
 
 ```text
-/spk.inspect partner-scheduling
+/spk-inspect partner-scheduling
 ```
 
 Expected agent behavior:
@@ -203,7 +203,7 @@ Typical findings:
 User request:
 
 ```text
-/spk.plan partner-scheduling
+/spk-plan partner-scheduling
 ```
 
 Expected agent behavior:
@@ -226,7 +226,7 @@ Typical outputs:
 User request:
 
 ```text
-/spk.tasks partner-scheduling
+/spk-tasks partner-scheduling
 ```
 
 Expected agent behavior:
@@ -254,7 +254,7 @@ Example task structure:
 User request:
 
 ```text
-/spk.implement partner-scheduling
+/spk-implement partner-scheduling
 ```
 
 Expected agent behavior:
@@ -287,7 +287,7 @@ Verify is an optional on-demand audit: it is always available but skipped by def
 User request:
 
 ```text
-/spk.verify partner-scheduling
+/spk-verify partner-scheduling
 ```
 
 Expected agent behavior:
@@ -323,8 +323,8 @@ This phase should avoid broad repository reads unless the active task actually r
 Example scoped requests:
 
 ```text
-/spk.implement partner-scheduling --phase 2
-/spk.implement partner-scheduling --tasks T1.1,T2.1
+/spk-implement partner-scheduling --phase 2
+/spk-implement partner-scheduling --tasks T1.1,T2.1
 ```
 
 Expected scoped behavior:
@@ -345,7 +345,7 @@ Typical runtime updates:
 User request:
 
 ```text
-/spk.verify partner-scheduling
+/spk-verify partner-scheduling
 ```
 
 Expected agent behavior:
@@ -427,7 +427,7 @@ speckeep init . --lang en --shell sh --agents claude
 
 ```text
 initialized .speckeep/ workspace
-wrote CONSTITUTION.md (template — edit or run /spk.constitution)
+wrote CONSTITUTION.md (template — edit or run /spk-constitution)
 wrote AGENTS.md (managed SpecKeep guidance block)
 wrote .claude/skills/sdd/ (8 phase skills)
 next: speckeep doctor .
@@ -454,7 +454,7 @@ pretty — a constitution that describes an imagined future architecture is
 worse than none, because agents will trust it.
 
 ```text
-/spk.constitution Node.js + Express monolith, PostgreSQL via raw pg queries
+/spk-constitution Node.js + Express monolith, PostgreSQL via raw pg queries
 (no ORM), REST-only (no GraphQL), synchronous request/response (no queue
 yet — that's a known gap, not a target state). Tests use Jest + supertest.
 No feature may introduce a new HTTP framework or database without an
@@ -478,7 +478,7 @@ Resulting `CONSTITUTION.md` excerpt:
 survey of the whole API surface:
 
 ```text
-/spk.spec Support idempotency keys on POST /invoices so retried client
+/spk-spec Support idempotency keys on POST /invoices so retried client
 requests don't create duplicate invoices.
 ```
 
@@ -493,7 +493,7 @@ Slug: invoice-idempotency-keys
 Status: spec
 Artifacts: specs/active/invoice-idempotency-keys/spec.md
 Blockers: none
-Ready for: /spk.plan invoice-idempotency-keys
+Ready for: /spk-plan invoice-idempotency-keys
 ```
 
 From here the feature runs through the normal chain
@@ -504,14 +504,14 @@ constrained to the codebase's actual shape instead of a blank slate.
 
 **What not to do:**
 
-- Don't ask `/spk.spec` (or any phase) to "document the whole billing-api
+- Don't ask `/spk-spec` (or any phase) to "document the whole billing-api
   service" — that's a repo audit, not a feature spec, and it will produce a
   huge, unreviewable artifact that nobody keeps up to date.
 - Don't let the constitution describe where the architecture is *headed* —
   describe where it *is*. Migrations (e.g. "we're adding a queue") belong in
   a feature's own `plan.md`, not baked into the constitution as if already
   true.
-- Don't run `/spk.repo-map` on day one "just to have it" — it earns its
+- Don't run `/spk-repo-map` on day one "just to have it" — it earns its
   keep once a feature's `Touches:` surfaces stop being obvious from the
   existing directory names, not before.
 
@@ -522,24 +522,24 @@ constrained to the codebase's actual shape instead of a blank slate.
 | Where feature intent lives | Jira description + Slack thread | `specs/active/<slug>/spec.md`, versioned with the code |
 | How much of the repo an agent reads | Whatever it guesses it needs | Constitution + the one feature's `Touches:` surfaces |
 | What "done" means | "Looks right in review" | Every `[x]` task carries a `Proof:` line `speckeep guard` can check |
-| Onboarding a new engineer to a feature | Re-read the PR and ask around | `/spk.handoff <slug>` or `/spk.recap` |
+| Onboarding a new engineer to a feature | Re-read the PR and ask around | `/spk-handoff <slug>` or `/spk-recap` |
 
 If the first feature already feels too big to spec cleanly (touches several
 services, unclear ownership, real design risk), that's a legitimate signal
-to run `/spk.inspect` before `/spk.plan` — not a reason to widen the spec to
+to run `/spk-inspect` before `/spk-plan` — not a reason to widen the spec to
 cover more ground defensively.
 
 ### Recipe: The Alignment Pass Asks Before It Guesses
 
 Problem this solves: an agent that drafts acceptance criteria from a vague
 request either invents requirements silently or produces a spec nobody
-agreed to. `/spk.spec` runs a short **alignment pass** first — it only asks
+agreed to. `/spk-spec` runs a short **alignment pass** first — it only asks
 when the request is genuinely ambiguous, never as a formality.
 
 Vague request:
 
 ```text
-/spk.spec Add a way to export data.
+/spk-spec Add a way to export data.
 ```
 
 Expected agent behavior — it recognizes the actor and the scope boundary are
@@ -557,7 +557,7 @@ Precise request — same command, zero clarifying questions, straight to the
 spec:
 
 ```text
-/spk.spec Let a dashboard user export the visible table as CSV, respecting
+/spk-spec Let a dashboard user export the visible table as CSV, respecting
 the active filters, from a button in the top-right toolbar.
 ```
 
@@ -567,16 +567,16 @@ requests, not to interrogate every one. If you don't answer and move straight
 to another command, the agent drafts best-effort and puts the open points
 under `## Open Questions` instead of inventing an `AC-*` to fill the gap.
 
-### Recipe: One-Shot Fast Lane With `/spk.propose`
+### Recipe: One-Shot Fast Lane With `/spk-propose`
 
 Problem this solves: for a small, low-risk change, running
 `spec → plan → tasks` as three separate round-trips is process overhead the
-change doesn't need. `/spk.propose` collapses idea → `spec.md` + `tasks.md`
+change doesn't need. `/spk-propose` collapses idea → `spec.md` + `tasks.md`
 (skipping `plan.md` by default — the **express lane**) in one pass, then
-hands off straight to `/spk.implement`.
+hands off straight to `/spk-implement`.
 
 ```text
-/spk.propose Add a "copy as JSON" button next to the existing "copy as CSV"
+/spk-propose Add a "copy as JSON" button next to the existing "copy as CSV"
 button on the report detail page.
 ```
 
@@ -587,16 +587,16 @@ Slug: copy-as-json
 Status: propose
 Artifacts: specs/active/copy-as-json/spec.md, specs/active/copy-as-json/tasks.md
 Blockers: none
-Ready for: /spk.implement copy-as-json
+Ready for: /spk-implement copy-as-json
 ```
 
 If the idea turns out to be bigger than it looked — multiple realistic
 implementation options, cross-boundary impact, migration risk — propose
-stops and falls back to `/spk.spec` instead of forcing a shallow plan into
+stops and falls back to `/spk-spec` instead of forcing a shallow plan into
 `tasks.md`. That's a `Blockers:` line, not a bug: propose is deliberately
 narrow so it never race-drafts a feature that actually needed design.
 
-### Recipe: Shared Domain Glossary With `/spk.glossary`
+### Recipe: Shared Domain Glossary With `/spk-glossary`
 
 Problem this solves: without a shared vocabulary, `spec.md` calls it a
 "workspace", `plan.md` calls it a "project", and the code calls it a
@@ -605,7 +605,7 @@ translation tax. `.speckeep/glossary.md` is optional and project-level (not
 per-feature); it exists only when a term is worth pinning down.
 
 ```text
-/spk.glossary Define "workspace" vs "project" — we keep using them
+/spk-glossary Define "workspace" vs "project" — we keep using them
 interchangeably and it's starting to cause confusion in specs.
 ```
 
@@ -620,20 +620,20 @@ Resulting `.speckeep/glossary.md`:
 | `Project` | A named collection of specs/features inside a workspace. | `Workspace` (rejected) | Formerly called "workspace" in old docs — do not reuse that name for this concept. |
 ```
 
-Once this file exists, `/spk.spec`, `/spk.plan`, and `/spk.tasks` read it
+Once this file exists, `/spk-spec`, `/spk-plan`, and `/spk-tasks` read it
 once per session and reuse its terms — they will not introduce a new
 synonym for something it already defines. Nothing else changes: no gate, no
 required re-read, no mandatory update on every feature.
 
-### Recipe: Finding Blind Spots With `/spk.challenge`
+### Recipe: Finding Blind Spots With `/spk-challenge`
 
-Problem this solves: `/spk.spec` and `/spk.inspect` are written to converge
-on a shippable artifact; `/spk.challenge` is deliberately adversarial — it
+Problem this solves: `/spk-spec` and `/spk-inspect` are written to converge
+on a shippable artifact; `/spk-challenge` is deliberately adversarial — it
 looks for the gaps a cooperative pass tends to miss (untestable claims,
 silent scope expansion, contradictions).
 
 ```text
-/spk.challenge partner-scheduling
+/spk-challenge partner-scheduling
 ```
 
 Typical findings:
@@ -650,19 +650,19 @@ Typical findings:
   or move it out of this feature.
 ```
 
-`/spk.challenge` only reports findings + minimal fixes — it does not emit a
-`pass|concerns|blocked` verdict (that's `/spk.inspect`) and does not replace
-a scope inventory (that's `/spk.scope`). Run it when you want a second,
+`/spk-challenge` only reports findings + minimal fixes — it does not emit a
+`pass|concerns|blocked` verdict (that's `/spk-inspect`) and does not replace
+a scope inventory (that's `/spk-scope`). Run it when you want a second,
 skeptical pair of eyes on a spec or plan before committing to it.
 
-### Recipe: A Quick Boundary Check With `/spk.scope`
+### Recipe: A Quick Boundary Check With `/spk-scope`
 
 Problem this solves: "is X in scope for this feature?" is a question that
-otherwise gets answered by re-reading the whole spec. `/spk.scope` gives a
+otherwise gets answered by re-reading the whole spec. `/spk-scope` gives a
 fast in/out inventory without a verdict or a deep review.
 
 ```text
-/spk.scope partner-scheduling
+/spk-scope partner-scheduling
 ```
 
 ```text
@@ -682,14 +682,14 @@ Clarify questions:
 - Which "partner" identity does the override key on?
 ```
 
-Use this before `/spk.plan` when scope creep risk feels high, or any time a
+Use this before `/spk-plan` when scope creep risk feels high, or any time a
 teammate asks "wait, is this feature also going to do X?"
 
-### Recipe: Closing Out a "Mostly Done" Feature With `/spk.converge`
+### Recipe: Closing Out a "Mostly Done" Feature With `/spk-converge`
 
 Problem this solves: a feature where most tasks are checked off but a few
-`Proof:` entries are thin or missing shouldn't need a full `/spk.verify`
-audit — `/spk.converge` is the cheap loop that turns exactly those gaps into
+`Proof:` entries are thin or missing shouldn't need a full `/spk-verify`
+audit — `/spk-converge` is the cheap loop that turns exactly those gaps into
 follow-up tasks and re-checks until clean.
 
 ```bash
@@ -719,19 +719,19 @@ The agent then appends a `## Converge Follow-ups` section to `tasks.md`:
 ```
 
 ...implements them, and re-runs `speckeep converge partner-scheduling` until
-it reports `converged`. This is lighter than `/spk.verify`: no persisted
+it reports `converged`. This is lighter than `/spk-verify`: no persisted
 report, just tasks/coverage brought back in sync — the right tool when the
 feature is 90% there, not when you need a full audit trail.
 
-### Recipe: An Emergency Fix With `/spk.hotfix`
+### Recipe: An Emergency Fix With `/spk-hotfix`
 
 Problem this solves: a production bug doesn't wait for
-`spec → plan → tasks`. `/spk.hotfix` is a narrow escape hatch: at most 3
+`spec → plan → tasks`. `/spk-hotfix` is a narrow escape hatch: at most 3
 files, no re-planning, no scope expansion — if the fix needs more than that,
 it isn't a hotfix anymore.
 
 ```text
-/spk.hotfix The export endpoint 500s when a report has zero rows — NPE on
+/spk-hotfix The export endpoint 500s when a report has zero rows — NPE on
 an empty result set.
 ```
 
@@ -750,16 +750,16 @@ Ready for: speckeep archive hotfix-export-empty-result .
 
 If the real fix needs a 4th file or a design change, the agent stops and
 says so instead of quietly growing the hotfix — that's the signal to go
-through `/spk.spec` instead.
+through `/spk-spec` instead.
 
-### Recipe: Resuming Cleanly With `/spk.handoff`
+### Recipe: Resuming Cleanly With `/spk-handoff`
 
 Problem this solves: a session ends mid-feature and the next session (yours
 tomorrow, or a teammate's, or a different agent) shouldn't have to
 re-derive state from scratch by reading every artifact end to end.
 
 ```text
-/spk.handoff partner-scheduling
+/spk-handoff partner-scheduling
 ```
 
 ```text
@@ -770,42 +770,42 @@ T2.1 (scheduler integration) is in progress — override lookup wired, not
 yet covering the "no override" fallback path.
 Open tasks: T2.1 (partial), T2.2, T3.1
 Blockers: none
-Next command: /spk.implement partner-scheduling --tasks T2.1
+Next command: /spk-implement partner-scheduling --tasks T2.1
 ```
 
 Paste that into a fresh session (or hand it to a teammate) and the next
 agent has everything it needs without re-reading `spec.md`/`plan.md` end to
 end.
 
-### Recipe: A Project-Wide Status Read With `/spk.recap`
+### Recipe: A Project-Wide Status Read With `/spk-recap`
 
 Problem this solves: "what's the state of everything?" across several
 active features, without opening each one.
 
 ```text
-/spk.recap
+/spk-recap
 ```
 
 ```text
 | Slug                | Phase     | Status (blockers?)        | Next                         |
 | -------------------- | --------- | -------------------------- | ----------------------------- |
-| partner-scheduling   | implement | in progress                | /spk.implement --tasks T2.1  |
+| partner-scheduling   | implement | in progress                | /spk-implement --tasks T2.1  |
 | copy-as-json         | implement | done, unverified           | speckeep archive copy-as-json . |
-| dark-mode            | plan      | blocked: inspect concerns  | /spk.spec (resolve open Qs)  |
+| dark-mode            | plan      | blocked: inspect concerns  | /spk-spec (resolve open Qs)  |
 ```
 
-No end block, no per-feature deep dive — `/spk.recap` is a status board, not
+No end block, no per-feature deep dive — `/spk-recap` is a status board, not
 a phase output. Reach for it at the start of a session to decide what to
 pick up.
 
-### Recipe: Undoing Completed Work With `/spk.rollback`
+### Recipe: Undoing Completed Work With `/spk-rollback`
 
 Problem this solves: a task got marked `[x]` too early, or the approach
-turned out wrong and needs re-doing — `/spk.rollback` reverts the *declared*
+turned out wrong and needs re-doing — `/spk-rollback` reverts the *declared*
 state (checkboxes, optionally code) with full transparency about what moved.
 
 ```text
-/spk.rollback partner-scheduling
+/spk-rollback partner-scheduling
 ```
 
 ```text
@@ -818,7 +818,7 @@ Which tasks should I roll back? (IDs like T1.1,T1.2, a phase like "T1", or
 ```
 
 ```text
-/spk.rollback partner-scheduling T2.1
+/spk-rollback partner-scheduling T2.1
 ```
 
 ```text
@@ -829,13 +829,13 @@ Slug: partner-scheduling
 Status: implement
 Artifacts: specs/active/partner-scheduling/tasks.md
 Blockers: none
-Ready for: /spk.implement partner-scheduling
+Ready for: /spk-implement partner-scheduling
 ```
 
 Code is **not** reverted automatically — only say so explicitly if you also
 want `git checkout -- <file>` run on the task's `Touches:` files.
 
-### Recipe: Keeping `REPOSITORY_MAP.md` Honest With `/spk.repo-map`
+### Recipe: Keeping `REPOSITORY_MAP.md` Honest With `/spk-repo-map`
 
 Problem this solves: agents that navigate with `ls`/`find`/glob burn tokens
 re-discovering a repo's shape every session. `REPOSITORY_MAP.md` is a
@@ -851,7 +851,7 @@ Reshaped subsystem boundaries (where-to-edit paths changed materially).
 ```
 
 ```text
-/spk.repo-map
+/spk-repo-map
 ```
 
 ```text
@@ -884,7 +884,7 @@ speckeep import openspec ./my-project
 imported: partner-scheduling
   spec.md    <- rebuilt from openspec Requirement:/Scenario: blocks (3 AC-*)
   plan.md    <- rebuilt from design.md (2 DEC-*)
-  tasks.md   <- copied best-effort; run /spk.tasks to regenerate
+  tasks.md   <- copied best-effort; run /spk-tasks to regenerate
              Touches:/Surface Map/Acceptance Coverage
 skipped: dark-mode (already exists in specs/active/dark-mode/)
 ```
@@ -902,7 +902,7 @@ imported: export-report
 
 Existing speckeep feature directories are **never** overwritten — a
 name collision is reported as `skipped`, not silently clobbered. For an
-imported `tasks.md`, run `/spk.tasks <slug>` once to regenerate it with the
+imported `tasks.md`, run `/spk-tasks <slug>` once to regenerate it with the
 `Touches:`/`Surface Map`/`Acceptance Coverage` sections speckeep's
 `implement`/`verify` phases rely on.
 
@@ -968,7 +968,7 @@ Problem this solves: not every feature needs `data-model.md` and a formal
 doesn't carry.
 
 ```text
-/spk.propose Add a "last synced at" timestamp to the integration status
+/spk-propose Add a "last synced at" timestamp to the integration status
 badge in the settings page.
 ```
 
@@ -980,7 +980,7 @@ Slug: last-synced-badge
 Status: propose
 Artifacts: specs/active/last-synced-badge/spec.md, specs/active/last-synced-badge/tasks.md
 Blockers: none
-Ready for: /spk.implement last-synced-badge
+Ready for: /spk-implement last-synced-badge
 ```
 
 `speckeep check last-synced-badge` prints an express-mode hint instead of an

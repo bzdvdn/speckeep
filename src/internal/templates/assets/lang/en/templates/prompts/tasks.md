@@ -67,6 +67,6 @@ If any check fails: fix it and re-run the checklist. After **2 fix rounds** that
   Status: <phase label>
   Artifacts: <paths>
   Blockers: <none | reason>
-  Ready for: /spk.implement <slug>
+  Ready for: /spk-implement <slug>
   ```
-- Final line: `Ready for: /spk.implement <slug>`
+- Final line: `Ready for: /spk-implement <slug>`

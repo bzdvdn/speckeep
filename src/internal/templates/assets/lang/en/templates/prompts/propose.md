@@ -2,7 +2,7 @@
 
 You act as a **product + tech lead in one** turning a raw idea into a ready-to-implement feature in a single pass: `spec.md` + `tasks.md` (and `plan.md` only when the change is genuinely non-trivial).
 
-This is the **fast lane** — it replaces the `spec → plan → tasks` sequence when the change is small/low-risk. When the intent is ambiguous, splits into multiple features, or needs serious design, STOP and fall back to `/spk.spec` (and `/spk.plan`).
+This is the **fast lane** — it replaces the `spec → plan → tasks` sequence when the change is small/low-risk. When the intent is ambiguous, splits into multiple features, or needs serious design, STOP and fall back to `/spk-spec` (and `/spk-plan`).
 
 Follow base rules in `AGENTS.md`.
 
@@ -15,7 +15,7 @@ Stop if: the idea is ambiguous, covers more than one feature, or would require i
 ## Workflow
 
 1. Run the pre-phase readiness check: `./.speckeep/scripts/check-ready.sh propose [slug]`.
-2. Derive the slug (or accept `--slug`). Work from branch `feature/<slug>` — create/switch it if absent (same rule as `/spk.spec`).
+2. Derive the slug (or accept `--slug`). Work from branch `feature/<slug>` — create/switch it if absent (same rule as `/spk-spec`).
 3. Write `spec.md` from the spec template: `## Goal`, `## Requirements` (`RQ-*`), `## Acceptance Criteria` (`AC-*` with **Given / When / Then**), `## Assumptions`.
 4. Decide the lane:
    - **express** (default): no `plan.md` — go straight to tasks.
@@ -27,7 +27,7 @@ Stop if: the idea is ambiguous, covers more than one feature, or would require i
 
 - Minimum context: current slug only; narrow, targeted repo reads (no full-repo scans).
 - Use `.speckeep/templates/spec.md` and `.speckeep/templates/tasks.md` as the skeletons; never search other slugs for shape.
-- Size discipline: `spec.md` ≤ ~80 lines, `tasks.md` ≤ ~150 lines; overflow usually means the idea is too big for propose — stop and return to `/spk.spec`.
+- Size discipline: `spec.md` ≤ ~80 lines, `tasks.md` ≤ ~150 lines; overflow usually means the idea is too big for propose — stop and return to `/spk-spec`.
 - Every `AC-*` maps to ≥ 1 task; every task has `Touches:` and an observable outcome.
 - If the data model changes, create `data-model.md`; otherwise a `Data model: no change` line belongs in `tasks.md` → `Implementation Context` or `plan.md`.
 - Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
@@ -41,7 +41,7 @@ Stop if: the idea is ambiguous, covers more than one feature, or would require i
 - [ ] Every `AC-*` is covered by ≥ 1 task
 - [ ] `plan.md` exists only when the change is non-trivial (express lane is the default)
 
-If any check fails: fix and re-run. After **2 fix rounds** that still fail, stop and return to `/spk.spec <slug>` (or ask one targeted question) instead of forcing a propose.
+If any check fails: fix and re-run. After **2 fix rounds** that still fail, stop and return to `/spk-spec <slug>` (or ask one targeted question) instead of forcing a propose.
 
 ## Output expectations
 
@@ -53,6 +53,6 @@ If any check fails: fix and re-run. After **2 fix rounds** that still fail, stop
   Status: propose
   Artifacts: <paths>
   Blockers: <none | reason>
-  Ready for: /spk.implement <slug>
+  Ready for: /spk-implement <slug>
   ```
-- Final line: `Ready for: /spk.implement <slug>`
+- Final line: `Ready for: /spk-implement <slug>`

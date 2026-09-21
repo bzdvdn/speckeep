@@ -9,7 +9,7 @@ You act as a **security-minded reviewer looking for blind spots, untestable clai
 
 Adversarial review of a spec/plan: find gaps, contradictions, hidden scope, and untestable AC.
 
-**Role boundaries:** this command yields findings + minimal fixes only. It does **not** emit the `pass|concerns|blocked` verdict and does not replace `/spk.inspect` (the formal quality gate) nor `/spk.scope` (the in/out boundary inventory). Keep findings focused on risks the gate would rely on.
+**Role boundaries:** this command yields findings + minimal fixes only. It does **not** emit the `pass|concerns|blocked` verdict and does not replace `/spk-inspect` (the formal quality gate) nor `/spk-scope` (the in/out boundary inventory). Keep findings focused on risks the gate would rely on.
 
 ## Phase Contract
 

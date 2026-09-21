@@ -67,6 +67,6 @@ Stop if: отсутствуют и `plan.md`, и пригодный к рабо�
   Status: <фаза>
   Artifacts: <пути>
   Blockers: <none | причина>
-  Готово к: /spk.implement <slug>
+  Готово к: /spk-implement <slug>
   ```
-- Финальная строка: `Готово к: /spk.implement <slug>`
+- Финальная строка: `Готово к: /spk-implement <slug>`

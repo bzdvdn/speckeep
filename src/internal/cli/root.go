@@ -16,23 +16,23 @@ Quick start:
   speckeep list-specs .
 
 For agents (Kilocode/Claude/Cursor):
-  /spk.constitution                        — create a constitution
-  /spk.propose "feature idea"              — one-shot: idea → spec + tasks (plan optional)
-  /spk.spec --name "feature name"          — create a spec
-  /spk.spec --amend                        — targeted spec edit
-  /spk.plan <slug> [--research|--update]   — create a plan
-  /spk.tasks <slug>                        — decompose into tasks
-  /spk.implement <slug>                    — implement tasks
-  /spk.converge <slug>                    — fast loop: re-check tasks/proofs, append follow-ups until converged
-  /spk.verify <slug> [--deep]              — verify AC coverage
+  /spk-constitution                        — create a constitution
+  /spk-propose "feature idea"              — one-shot: idea → spec + tasks (plan optional)
+  /spk-spec --name "feature name"          — create a spec
+  /spk-spec --amend                        — targeted spec edit
+  /spk-plan <slug> [--research|--update]   — create a plan
+  /spk-tasks <slug>                        — decompose into tasks
+  /spk-implement <slug>                    — implement tasks
+  /spk-converge <slug>                    — fast loop: re-check tasks/proofs, append follow-ups until converged
+  /spk-verify <slug> [--deep]              — verify AC coverage
 
 Optional commands (any phase):
-  /spk.challenge <slug> [--spec|--plan]    — adversarial review
-  /spk.handoff [slug]                      — session handoff doc
-  /spk.hotfix <slug>                       — emergency fix
-  /spk.rollback <slug>                     — roll back completed tasks
-  /spk.scope <slug>                        — scope boundary check
-  /spk.recap                               — recap active features
+  /spk-challenge <slug> [--spec|--plan]    — adversarial review
+  /spk-handoff [slug]                      — session handoff doc
+  /spk-hotfix <slug>                       — emergency fix
+  /spk-rollback <slug>                     — roll back completed tasks
+  /spk-scope <slug>                        — scope boundary check
+  /spk-recap                               — recap active features
 
 CLI commands:
   speckeep doctor .                      — workspace health check

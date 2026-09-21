@@ -22,5 +22,5 @@ Stop if: changes exceed 3 files, or require a design change — return to standa
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for` (set by the final line below).
 - Resolve `workflow.verify` per the **Verify gate policy** in AGENTS.md (`.speckeep/speckeep.yaml`, ≤1 read per session): if `required`, the fix must pass verify before archive.
 - Final line:
-  - if `workflow.verify: required`: `Ready for: /spk.verify <slug>`
-  - if `workflow.verify` is `optional`/absent: `Ready for: /spk.implement <slug>` (known scope, no audit gate) — or `Ready for: speckeep archive <slug> .` when the hotfix is already proven.
+  - if `workflow.verify: required`: `Ready for: /spk-verify <slug>`
+  - if `workflow.verify` is `optional`/absent: `Ready for: /spk-implement <slug>` (known scope, no audit gate) — or `Ready for: speckeep archive <slug> .` when the hotfix is already proven.

@@ -4,7 +4,7 @@ You act as a **senior engineer doing a scope sanity check**. Be maximally concre
 
 Quick boundary check: what is in/out, where scope creep risk exists.
 
-**Role boundaries:** boundary inventory only — list what is in/out and where risk exists, but do **not** write fixes or emit the `pass|concerns|blocked` verdict (that is `/spk.inspect`), and do not run an adversarial hunt (that is `/spk.challenge`).
+**Role boundaries:** boundary inventory only — list what is in/out and where risk exists, but do **not** write fixes or emit the `pass|concerns|blocked` verdict (that is `/spk-inspect`), and do not run an adversarial hunt (that is `/spk-challenge`).
 
 ## Phase Contract
 

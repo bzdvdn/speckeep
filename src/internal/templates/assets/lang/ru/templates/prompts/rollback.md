@@ -32,6 +32,6 @@ Stop if: slug отсутствует, tasks.md не существует, или
   Status: <фаза>
   Artifacts: <пути>
   Blockers: <none | причина>
-  Готово к: /spk.implement <slug>
+  Готово к: /spk-implement <slug>
   ```
 - Строка `Готово к:` выше — обязательная финальная строка; завершите ей.

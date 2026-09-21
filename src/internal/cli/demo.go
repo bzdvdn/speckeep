@@ -57,9 +57,9 @@ commands immediately.`,
 				styleCmd(w, "speckeep dashboard ."),
 				styleCmd(w, "speckeep check "+result.ExampleSlug+" ."),
 				"agent flow:",
-				"  " + styleCmd(w, "/spk.challenge "+result.ExampleSlug) + "  (optional)",
-				"  " + styleCmd(w, "/spk.scope "+result.ExampleSlug) + "      (optional)",
-				"  " + styleCmd(w, "/spk.handoff "+result.ExampleSlug) + "    (optional)",
+				"  " + styleCmd(w, "/spk-challenge "+result.ExampleSlug) + "  (optional)",
+				"  " + styleCmd(w, "/spk-scope "+result.ExampleSlug) + "      (optional)",
+				"  " + styleCmd(w, "/spk-handoff "+result.ExampleSlug) + "    (optional)",
 			})
 
 			return nil

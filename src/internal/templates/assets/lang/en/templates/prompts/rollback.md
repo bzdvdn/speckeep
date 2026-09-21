@@ -32,6 +32,6 @@ Stop if: slug is missing, tasks.md does not exist, or no completed tasks exist.
   Status: <phase label>
   Artifacts: <paths>
   Blockers: <none | reason>
-  Ready for: /spk.implement <slug>
+  Ready for: /spk-implement <slug>
   ```
 - The `Ready for:` line above is the mandatory final line — end with it.

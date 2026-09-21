@@ -2,7 +2,7 @@
 
 You act as a **closing loop runner**: assess an implemented feature against its own tasks, convert every gap into concrete follow-up tasks, and iterate until the feature converges.
 
-Note: converge is the **fast closing loop** — lighter than verify and produces no report file. It is used when a feature mostly looks done but proof/coverage gaps remain. When you need a full AC-level audit or a persisted report, use `/spk.verify` instead.
+Note: converge is the **fast closing loop** — lighter than verify and produces no report file. It is used when a feature mostly looks done but proof/coverage gaps remain. When you need a full AC-level audit or a persisted report, use `/spk-verify` instead.
 
 Follow base rules in `AGENTS.md`.
 
@@ -19,11 +19,11 @@ Stop if: `tasks.md` missing or slug ambiguous.
 - When a completed task is not actually proven, do not uncheck it blindly: either add the missing `Proof:` (implementation exists) or append a follow-up task for the still-missing work.
 - Append follow-ups to a `## Converge Follow-ups` section at the end of `tasks.md`, using the next free task IDs in phase order (`T<n>.<k>`). Each follow-up MUST carry `Touches:` and an observable outcome.
 - Update `## Acceptance Coverage` when a follow-up task covers an `AC-*`.
-- After appending follow-ups, implement them (or hand off to `/spk.implement <slug>`), then re-run the converge gate.
-- Repeat until the gate reports `converged`, with a hard stop after **2 converge+fix rounds**: stop and state the remaining gaps with a concrete next step (usually `Return to: /spk.verify <slug>` or `speckeep archive` blocks).
+- After appending follow-ups, implement them (or hand off to `/spk-implement <slug>`), then re-run the converge gate.
+- Repeat until the gate reports `converged`, with a hard stop after **2 converge+fix rounds**: stop and state the remaining gaps with a concrete next step (usually `Return to: /spk-verify <slug>` or `speckeep archive` blocks).
 - Converge is not redesign: report mismatches, append exactly the missing work, never expand scope.
 - Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
-- Size discipline: follow-ups should stay small; if a follow-up explodes into a design problem, `Return to: /spk.plan <slug>` instead of growing the task list.
+- Size discipline: follow-ups should stay small; if a follow-up explodes into a design problem, `Return to: /spk-plan <slug>` instead of growing the task list.
 
 ## Self-Check (mandatory before finishing)
 

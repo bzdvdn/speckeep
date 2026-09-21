@@ -65,7 +65,7 @@ speckeep doctor .
 
 ### Вход Через Prompt-Файл
 
-Когда `/spk.spec` запускается от локального prompt-файла, лучше использовать явные метаданные, а не полагаться на generic filename вроде `spec_prompt.md`.
+Когда `/spk-spec` запускается от локального prompt-файла, лучше использовать явные метаданные, а не полагаться на generic filename вроде `spec_prompt.md`.
 
 Пример prompt-файла:
 
@@ -84,12 +84,12 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 ### Поэтапный Ввод Через `--name`
 
-Когда имя фичи уже понятно, а подробное описание удобнее прислать следующим сообщением, `/spk.spec` может стартовать в staged mode.
+Когда имя фичи уже понятно, а подробное описание удобнее прислать следующим сообщением, `/spk-spec` может стартовать в staged mode.
 
 Пример:
 
 ```text
-/spk.spec --name "Dependency Dashboard"
+/spk-spec --name "Dependency Dashboard"
 ```
 
 Следующее сообщение:
@@ -107,13 +107,13 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Если нужен явный slug:
 
 ```text
-/spk.spec --name "Dependency Dashboard" --slug frontend-layout-rework
+/spk-spec --name "Dependency Dashboard" --slug frontend-layout-rework
 ```
 
 Если нужен repository-specific branch override:
 
 ```text
-/spk.spec --name "Dependency Dashboard" --slug frontend-layout-rework --branch FEAT-142
+/spk-spec --name "Dependency Dashboard" --slug frontend-layout-rework --branch FEAT-142
 ```
 
 ## 1. Создание Конституции для Brownfield-проекта
@@ -121,7 +121,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример запроса:
 
 ```text
-/spk.constitution Python-проект в стиле DDD, разделен на API и workers, Kafka для асинхронной интеграции, ClickHouse как аналитический sink.
+/spk-constitution Python-проект в стиле DDD, разделен на API и workers, Kafka для асинхронной интеграции, ClickHouse как аналитический sink.
 ```
 
 Ожидаемое поведение агента:
@@ -142,7 +142,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример запроса:
 
 ```text
-/spk.spec Добавить partner-specific расписание ingestion с override для retry policy.
+/spk-spec Добавить partner-specific расписание ingestion с override для retry policy.
 ```
 
 Ожидаемое поведение агента:
@@ -166,7 +166,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример с явным branch override:
 
 ```text
-/spk.spec Добавить partner-specific расписание ingestion с override для retry policy --branch NRD-11
+/spk-spec Добавить partner-specific расписание ingestion с override для retry policy --branch NRD-11
 ```
 
 В этом случае slug спецификации может по-прежнему оставаться `partner-scheduling`, а рабочая ветка будет следовать branch convention репозитория, например `NRD-11`.
@@ -174,12 +174,12 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 ## 3. Проверка Spec через Inspect
 
 Используйте этот шаг, когда фича неоднозначная, рискованная или нужен формальный quality gate.  
-Если спецификация уже ясная и низкорисковая, можно сразу переходить к `/spk.plan <slug>`.
+Если спецификация уже ясная и низкорисковая, можно сразу переходить к `/spk-plan <slug>`.
 
 Пример запроса:
 
 ```text
-/spk.inspect partner-scheduling
+/spk-inspect partner-scheduling
 ```
 
 Ожидаемое поведение агента:
@@ -203,7 +203,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример запроса:
 
 ```text
-/spk.plan partner-scheduling
+/spk-plan partner-scheduling
 ```
 
 Ожидаемое поведение агента:
@@ -226,7 +226,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример запроса:
 
 ```text
-/spk.tasks partner-scheduling
+/spk-tasks partner-scheduling
 ```
 
 Ожидаемое поведение агента:
@@ -254,7 +254,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример запроса:
 
 ```text
-/spk.implement partner-scheduling
+/spk-implement partner-scheduling
 ```
 
 Ожидаемое поведение агента:
@@ -286,7 +286,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример запроса:
 
 ```text
-/spk.verify partner-scheduling
+/spk-verify partner-scheduling
 ```
 
 Ожидаемое поведение агента:
@@ -312,8 +312,8 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Примеры выборочных запросов:
 
 ```text
-/spk.implement partner-scheduling --phase 2
-/spk.implement partner-scheduling --tasks T1.1,T2.1
+/spk-implement partner-scheduling --phase 2
+/spk-implement partner-scheduling --tasks T1.1,T2.1
 ```
 
 Ожидаемое поведение в scoped mode:
@@ -336,7 +336,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 Пример запроса:
 
 ```text
-/spk.verify partner-scheduling
+/spk-verify partner-scheduling
 ```
 
 Ожидаемое поведение агента:
@@ -420,7 +420,7 @@ speckeep init . --lang ru --shell sh --agents claude
 
 ```text
 initialized .speckeep/ workspace
-wrote CONSTITUTION.md (шаблон — отредактируйте или запустите /spk.constitution)
+wrote CONSTITUTION.md (шаблон — отредактируйте или запустите /spk-constitution)
 wrote AGENTS.md (managed SpecKeep guidance block)
 wrote .claude/skills/sdd/ (8 phase skills)
 next: speckeep doctor .
@@ -448,7 +448,7 @@ constitution, описывающий воображаемую будущую а�
 отсутствие, потому что агенты будут ему доверять.
 
 ```text
-/spk.constitution Node.js + Express монолит, PostgreSQL через сырые pg
+/spk-constitution Node.js + Express монолит, PostgreSQL через сырые pg
 запросы (без ORM), только REST (без GraphQL), синхронный request/response
 (очереди пока нет — это известный пробел, а не целевое состояние). Тесты —
 Jest + supertest. Ни одна фича не может вводить новый HTTP-фреймворк или БД
@@ -475,7 +475,7 @@ Jest + supertest. Ни одна фича не может вводить новы
 всей поверхности API:
 
 ```text
-/spk.spec Поддержать idempotency keys на POST /invoices, чтобы повторные
+/spk-spec Поддержать idempotency keys на POST /invoices, чтобы повторные
 запросы клиента не создавали дублирующиеся инвойсы.
 ```
 
@@ -490,7 +490,7 @@ Slug: invoice-idempotency-keys
 Status: spec
 Artifacts: specs/active/invoice-idempotency-keys/spec.md
 Blockers: none
-Ready for: /spk.plan invoice-idempotency-keys
+Ready for: /spk-plan invoice-idempotency-keys
 ```
 
 Отсюда фича проходит по обычной цепочке (`plan → tasks → implement →
@@ -501,7 +501,7 @@ archive`, см. walkthrough выше) точно так же, как в greenfie
 
 **Чего не делать:**
 
-- Не просите `/spk.spec` (или любую фазу) "задокументировать весь
+- Не просите `/spk-spec` (или любую фазу) "задокументировать весь
   billing-api сервис целиком" — это repo-аудит, а не feature spec, и он
   породит огромный неревьюабельный артефакт, который никто не будет
   поддерживать в актуальном состоянии.
@@ -509,7 +509,7 @@ archive`, см. walkthrough выше) точно так же, как в greenfie
   описывайте, где она *есть сейчас*. Миграции (например "добавляем
   очередь") принадлежат `plan.md` конкретной фичи, а не constitution, как
   будто это уже правда.
-- Не запускайте `/spk.repo-map` в первый же день "чтобы было" — он
+- Не запускайте `/spk-repo-map` в первый же день "чтобы было" — он
   окупается, когда `Touches:`-поверхности фичи перестают быть очевидны из
   существующих имён директорий, а не раньше.
 
@@ -520,25 +520,25 @@ archive`, см. walkthrough выше) точно так же, как в greenfie
 | Где живёт intent фичи | Описание в Jira + тред в Slack | `specs/active/<slug>/spec.md`, версионируется вместе с кодом |
 | Сколько репозитория читает агент | Сколько сам решит, что нужно | Constitution + `Touches:`-поверхности одной фичи |
 | Что значит "готово" | "Выглядит правильно в ревью" | У каждой `[x]` задачи есть строка `Proof:`, которую проверяет `speckeep guard` |
-| Онбординг нового инженера на фичу | Перечитать PR и поспрашивать вокруг | `/spk.handoff <slug>` или `/spk.recap` |
+| Онбординг нового инженера на фичу | Перечитать PR и поспрашивать вокруг | `/spk-handoff <slug>` или `/spk-recap` |
 
 Если первая же фича уже кажется слишком большой, чтобы заспекать чисто
 (затрагивает несколько сервисов, неясное владение, реальный риск дизайна) —
-это законный сигнал запустить `/spk.inspect` перед `/spk.plan`, а не повод
+это законный сигнал запустить `/spk-inspect` перед `/spk-plan`, а не повод
 защитно расширять spec, чтобы покрыть побольше.
 
 ### Рецепт: Alignment Pass спрашивает прежде, чем гадать
 
 Какую проблему решает: агент, который пишет acceptance criteria по
 расплывчатому запросу, либо молча выдумывает требования, либо делает спеку,
-с которой никто не соглашался. `/spk.spec` сначала прогоняет короткий
+с которой никто не соглашался. `/spk-spec` сначала прогоняет короткий
 **alignment pass** — вопросы задаются только когда запрос реально
 неоднозначен, а не для проформы.
 
 Расплывчатый запрос:
 
 ```text
-/spk.spec Добавь возможность экспортировать данные.
+/spk-spec Добавь возможность экспортировать данные.
 ```
 
 Ожидаемое поведение агента — он видит, что не хватает и actor'а, и границы
@@ -555,7 +555,7 @@ scope, и задаёт вопросы один раз, одним пакетом
 Точный запрос — та же команда, ноль уточняющих вопросов, сразу спека:
 
 ```text
-/spk.spec Дай пользователю дашборда экспортировать видимую таблицу в CSV,
+/spk-spec Дай пользователю дашборда экспортировать видимую таблицу в CSV,
 с учётом активных фильтров, кнопкой в правом верхнем углу тулбара.
 ```
 
@@ -566,16 +566,16 @@ scope, и задаёт вопросы один раз, одним пакетом
 нерешённые пункты в `## Открытые вопросы` вместо того, чтобы выдумать
 `AC-*` для заполнения пробела.
 
-### Рецепт: One-shot fast lane через `/spk.propose`
+### Рецепт: One-shot fast lane через `/spk-propose`
 
 Какую проблему решает: для маленькой низкорисковой правки прогонять
 `spec → plan → tasks` тремя отдельными раундами — это process overhead,
-который правке не нужен. `/spk.propose` схлопывает идею → `spec.md` +
+который правке не нужен. `/spk-propose` схлопывает идею → `spec.md` +
 `tasks.md` (по умолчанию без `plan.md` — **express lane**) за один проход и
-сразу передаёт в `/spk.implement`.
+сразу передаёт в `/spk-implement`.
 
 ```text
-/spk.propose Добавь кнопку "copy as JSON" рядом с существующей кнопкой
+/spk-propose Добавь кнопку "copy as JSON" рядом с существующей кнопкой
 "copy as CSV" на странице деталей отчёта.
 ```
 
@@ -586,17 +586,17 @@ Slug: copy-as-json
 Status: propose
 Artifacts: specs/active/copy-as-json/spec.md, specs/active/copy-as-json/tasks.md
 Blockers: none
-Ready for: /spk.implement copy-as-json
+Ready for: /spk-implement copy-as-json
 ```
 
 Если идея оказывается крупнее, чем выглядела — несколько реалистичных
 вариантов реализации, влияние на границы, миграционный риск — propose
-останавливается и падает обратно на `/spk.spec`, вместо того чтобы
+останавливается и падает обратно на `/spk-spec`, вместо того чтобы
 проталкивать неглубокий план в `tasks.md`. Это строка `Blockers:`, а не
 баг: propose намеренно узкий, чтобы никогда не race-drafted фичу, которая
 на самом деле требовала дизайна.
 
-### Рецепт: Общий доменный глоссарий через `/spk.glossary`
+### Рецепт: Общий доменный глоссарий через `/spk-glossary`
 
 Какую проблему решает: без общего словаря `spec.md` называет это
 "workspace", `plan.md` — "project", а код — "tenant" — три имени для
@@ -605,7 +605,7 @@ Ready for: /spk.implement copy-as-json
 он появляется только когда термин реально стоит зафиксировать.
 
 ```text
-/spk.glossary Определи "workspace" vs "project" — мы используем их
+/spk-glossary Определи "workspace" vs "project" — мы используем их
 взаимозаменяемо, и это начинает путать в спеках.
 ```
 
@@ -620,22 +620,22 @@ Ready for: /spk.implement copy-as-json
 | `Project` | Именованная коллекция specs/features внутри workspace. | `Workspace` (отклонено) | Раньше называлось "workspace" в старых доках — не переиспользуйте это имя для этого понятия. |
 ```
 
-После появления этого файла `/spk.spec`, `/spk.plan` и `/spk.tasks` читают
+После появления этого файла `/spk-spec`, `/spk-plan` и `/spk-tasks` читают
 его один раз за сессию и переиспользуют термины — они не введут новый
 синоним тому, что он уже определяет. Больше ничего не меняется: нет гейта,
 нет обязательного перечитывания, нет обязательного обновления на каждой
 фиче.
 
-### Рецепт: Поиск слепых зон через `/spk.challenge`
+### Рецепт: Поиск слепых зон через `/spk-challenge`
 
-Какую проблему решает: `/spk.spec` и `/spk.inspect` написаны так, чтобы
-сходиться к готовому к отгрузке артефакту; `/spk.challenge` — намеренно
+Какую проблему решает: `/spk-spec` и `/spk-inspect` написаны так, чтобы
+сходиться к готовому к отгрузке артефакту; `/spk-challenge` — намеренно
 адверсариален: он ищет именно то, что кооперативный проход обычно
 пропускает (непроверяемые утверждения, тихое расширение scope,
 противоречия).
 
 ```text
-/spk.challenge partner-scheduling
+/spk-challenge partner-scheduling
 ```
 
 Типичные находки:
@@ -652,19 +652,19 @@ Ready for: /spk.implement copy-as-json
   через spec или вынести из этой фичи.
 ```
 
-`/spk.challenge` только выдаёт находки + минимальные fix'ы — он не выносит
-вердикт `pass|concerns|blocked` (это `/spk.inspect`) и не заменяет scope
-inventory (это `/spk.scope`). Запускайте, когда хотите второй, скептичный
+`/spk-challenge` только выдаёт находки + минимальные fix'ы — он не выносит
+вердикт `pass|concerns|blocked` (это `/spk-inspect`) и не заменяет scope
+inventory (это `/spk-scope`). Запускайте, когда хотите второй, скептичный
 взгляд на spec или plan перед тем, как закоммититься к нему.
 
-### Рецепт: Быстрая проверка границ через `/spk.scope`
+### Рецепт: Быстрая проверка границ через `/spk-scope`
 
 Какую проблему решает: "входит ли X в scope этой фичи?" — вопрос, на
-который иначе отвечают перечитыванием всей спеки. `/spk.scope` даёт
+который иначе отвечают перечитыванием всей спеки. `/spk-scope` даёт
 быструю in/out опись без вердикта и без глубокого ревью.
 
 ```text
-/spk.scope partner-scheduling
+/spk-scope partner-scheduling
 ```
 
 ```text
@@ -684,15 +684,15 @@ Out of scope:
 - На какой идентификатор "partner" завязан override?
 ```
 
-Используйте это перед `/spk.plan`, когда риск scope creep кажется высоким,
+Используйте это перед `/spk-plan`, когда риск scope creep кажется высоким,
 или в любой момент, когда коллега спрашивает "погоди, а эта фича ещё и X
 делает?".
 
-### Рецепт: Закрытие "почти готовой" фичи через `/spk.converge`
+### Рецепт: Закрытие "почти готовой" фичи через `/spk-converge`
 
 Какую проблему решает: фича, где большинство задач отмечено, но пара
 `Proof:`-записей тонкие или отсутствуют, не должна требовать полного
-аудита `/spk.verify` — `/spk.converge` это дешёвый цикл, который превращает
+аудита `/spk-verify` — `/spk-converge` это дешёвый цикл, который превращает
 именно эти пробелы в follow-up задачи и перепроверяет до чистого состояния.
 
 ```bash
@@ -722,19 +722,19 @@ exit code: 1
 ```
 
 ...реализует их и перезапускает `speckeep converge partner-scheduling`, пока
-не получит `converged`. Это легче, чем `/spk.verify`: без сохраняемого
+не получит `converged`. Это легче, чем `/spk-verify`: без сохраняемого
 отчёта, просто задачи/coverage возвращаются в синхрон — правильный
 инструмент, когда фича готова на 90%, а не когда нужен полный аудит.
 
-### Рецепт: Экстренный фикс через `/spk.hotfix`
+### Рецепт: Экстренный фикс через `/spk-hotfix`
 
 Какую проблему решает: production-баг не ждёт
-`spec → plan → tasks`. `/spk.hotfix` — узкий escape hatch: максимум 3
+`spec → plan → tasks`. `/spk-hotfix` — узкий escape hatch: максимум 3
 файла, без replanning, без расширения scope — если фикс требует больше,
 это уже не hotfix.
 
 ```text
-/spk.hotfix Экспорт-эндпоинт падает с 500, когда в отчёте ноль строк —
+/spk-hotfix Экспорт-эндпоинт падает с 500, когда в отчёте ноль строк —
 NPE на пустом result set.
 ```
 
@@ -753,16 +753,16 @@ Ready for: speckeep archive hotfix-export-empty-result .
 
 Если реальный фикс требует 4-й файл или изменение дизайна, агент
 останавливается и говорит об этом, вместо того чтобы тихо растить hotfix —
-это сигнал перейти на `/spk.spec`.
+это сигнал перейти на `/spk-spec`.
 
-### Рецепт: Чистое возобновление через `/spk.handoff`
+### Рецепт: Чистое возобновление через `/spk-handoff`
 
 Какую проблему решает: сессия заканчивается посреди фичи, и следующая
 сессия (ваша завтра, коллеги, или другой агент) не должна заново выводить
 состояние, перечитывая все артефакты целиком.
 
 ```text
-/spk.handoff partner-scheduling
+/spk-handoff partner-scheduling
 ```
 
 ```text
@@ -773,42 +773,42 @@ T2.1 (scheduler integration) в процессе — override lookup подкл�
 не покрыт fallback-путь "нет override".
 Open tasks: T2.1 (partial), T2.2, T3.1
 Blockers: none
-Next command: /spk.implement partner-scheduling --tasks T2.1
+Next command: /spk-implement partner-scheduling --tasks T2.1
 ```
 
 Вставьте это в новую сессию (или передайте коллеге) — и следующий агент
 получает всё нужное без перечитывания `spec.md`/`plan.md` целиком.
 
-### Рецепт: Обзор всего проекта через `/spk.recap`
+### Рецепт: Обзор всего проекта через `/spk-recap`
 
 Какую проблему решает: "какое состояние у всего?" по нескольким активным
 фичам, не открывая каждую по отдельности.
 
 ```text
-/spk.recap
+/spk-recap
 ```
 
 ```text
 | Slug                | Phase     | Status (blockers?)        | Next                         |
 | -------------------- | --------- | -------------------------- | ----------------------------- |
-| partner-scheduling   | implement | in progress                | /spk.implement --tasks T2.1  |
+| partner-scheduling   | implement | in progress                | /spk-implement --tasks T2.1  |
 | copy-as-json         | implement | done, unverified           | speckeep archive copy-as-json . |
-| dark-mode            | plan      | blocked: inspect concerns  | /spk.spec (resolve open Qs)  |
+| dark-mode            | plan      | blocked: inspect concerns  | /spk-spec (resolve open Qs)  |
 ```
 
-Без end block, без глубокого разбора каждой фичи — `/spk.recap` это
+Без end block, без глубокого разбора каждой фичи — `/spk-recap` это
 status board, а не вывод фазы. Используйте его в начале сессии, чтобы
 решить, за что браться.
 
-### Рецепт: Отмена выполненной работы через `/spk.rollback`
+### Рецепт: Отмена выполненной работы через `/spk-rollback`
 
 Какую проблему решает: задача была отмечена `[x]` слишком рано, или подход
-оказался неверным и требует переделки — `/spk.rollback` откатывает
+оказался неверным и требует переделки — `/spk-rollback` откатывает
 *декларируемое* состояние (чекбоксы, опционально код) с полной
 прозрачностью о том, что именно откатилось.
 
 ```text
-/spk.rollback partner-scheduling
+/spk-rollback partner-scheduling
 ```
 
 ```text
@@ -821,7 +821,7 @@ Which tasks should I roll back? (IDs like T1.1,T1.2, a phase like "T1", or
 ```
 
 ```text
-/spk.rollback partner-scheduling T2.1
+/spk-rollback partner-scheduling T2.1
 ```
 
 ```text
@@ -832,14 +832,14 @@ Slug: partner-scheduling
 Status: implement
 Artifacts: specs/active/partner-scheduling/tasks.md
 Blockers: none
-Ready for: /spk.implement partner-scheduling
+Ready for: /spk-implement partner-scheduling
 ```
 
 Код **не** откатывается автоматически — явно попросите об этом отдельно,
 если хотите, чтобы для `Touches:`-файлов задачи был выполнен
 `git checkout -- <file>`.
 
-### Рецепт: Держим `REPOSITORY_MAP.md` честной через `/spk.repo-map`
+### Рецепт: Держим `REPOSITORY_MAP.md` честной через `/spk-repo-map`
 
 Какую проблему решает: агенты, которые навигируют через `ls`/`find`/glob,
 тратят токены на переоткрытие формы репозитория каждую сессию.
@@ -857,7 +857,7 @@ Ready for: /spk.implement partner-scheduling
 ```
 
 ```text
-/spk.repo-map
+/spk-repo-map
 ```
 
 ```text
@@ -892,7 +892,7 @@ speckeep import openspec ./my-project
 imported: partner-scheduling
   spec.md    <- rebuilt from openspec Requirement:/Scenario: blocks (3 AC-*)
   plan.md    <- rebuilt from design.md (2 DEC-*)
-  tasks.md   <- copied best-effort; run /spk.tasks to regenerate
+  tasks.md   <- copied best-effort; run /spk-tasks to regenerate
              Touches:/Surface Map/Acceptance Coverage
 skipped: dark-mode (already exists in specs/active/dark-mode/)
 ```
@@ -910,7 +910,7 @@ imported: export-report
 
 Существующие директории speckeep-фич **никогда** не перезаписываются —
 коллизия имён репортится как `skipped`, а не тихо затирается. Для
-импортированного `tasks.md` один раз запустите `/spk.tasks <slug>`, чтобы
+импортированного `tasks.md` один раз запустите `/spk-tasks <slug>`, чтобы
 пересобрать его с секциями `Touches:`/`Surface Map`/`Acceptance Coverage`,
 на которые опираются фазы `implement`/`verify` speckeep.
 
@@ -977,7 +977,7 @@ replaced: /home/you/.local/bin/speckeep (v1.0.0 -> v1.1.0)
 фича не несёт.
 
 ```text
-/spk.propose Добавь метку времени "last synced at" на бейдж статуса
+/spk-propose Добавь метку времени "last synced at" на бейдж статуса
 интеграции на странице настроек.
 ```
 
@@ -989,7 +989,7 @@ Slug: last-synced-badge
 Status: propose
 Artifacts: specs/active/last-synced-badge/spec.md, specs/active/last-synced-badge/tasks.md
 Blockers: none
-Ready for: /spk.implement last-synced-badge
+Ready for: /spk-implement last-synced-badge
 ```
 
 `speckeep check last-synced-badge` печатает express-mode подсказку вместо

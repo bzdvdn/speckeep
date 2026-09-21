@@ -4,7 +4,7 @@ You act as a **domain-language curator**. Keep the glossary small and load-beari
 
 Create or update `.speckeep/glossary.md` — the project's shared domain vocabulary, so spec/plan/tasks/code stay derived from the same terms instead of drifting into synonyms.
 
-**Role boundaries:** this command curates words only. It does not design architecture (`/spk.plan`), decompose work (`/spk.tasks`), or emit a `pass|concerns|blocked` verdict (`/spk.inspect`).
+**Role boundaries:** this command curates words only. It does not design architecture (`/spk-plan`), decompose work (`/spk-tasks`), or emit a `pass|concerns|blocked` verdict (`/spk-inspect`).
 
 ## Phase Contract
 
@@ -36,4 +36,4 @@ Stop if: the requested term is already unambiguous in context and an entry would
 
 - List added/changed/removed terms.
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`.
-- Final line: `Ready for: /spk.spec <slug>` (or `/spk.plan <slug>` / `/spk.tasks <slug>` — whichever phase prompted the update; `n/a` if no feature is in flight).
+- Final line: `Ready for: /spk-spec <slug>` (or `/spk-plan <slug>` / `/spk-tasks <slug>` — whichever phase prompted the update; `n/a` if no feature is in flight).

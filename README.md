@@ -38,10 +38,10 @@ speckeep solves this with **discipline per token** — minimal file-based struct
 - **Tasks** with surface maps and phase grouping — agents execute in order, one phase at a time
 - **Traceability** (`Proof:` entries in `tasks.md`) — prove that every requirement is implemented and tested
 - **19 agent adapters** — Claude Code, Codex, Cursor, Copilot, OpenCode, aider, Amazon Q, Gemini, Jules, Cline, Devin, Goose, Refact, Windsurf, and more ([maintenance tiers](docs/en/agents.md#maintenance-tiers)) — Continue.dev support was dropped after reports the product was discontinued
-- **Fast closing loop** (`/spk.converge`) — turn implementation gaps into follow-up tasks and iterate until converged
+- **Fast closing loop** (`/spk-converge`) — turn implementation gaps into follow-up tasks and iterate until converged
 - **CI gate** (`speckeep guard`) — machine-verifiable "is every feature closeable now?"
 - **Express lane** — tiny/low-risk features skip `plan.md`/`data-model.md` and close from `spec.md` + `tasks.md`
-- **One-shot propose** (`/spk.propose`) — idea → `spec.md` + `tasks.md` in a single pass, straight to implement
+- **One-shot propose** (`/spk-propose`) — idea → `spec.md` + `tasks.md` in a single pass, straight to implement
 - **Drop-in migration** (`speckeep import openspec|speckit`) — convert OpenSpec/Spec Kit feature packages into speckeep layout in seconds
 - **Compact archive** (`--compact`) — keep only `summary.md` + git pointer instead of copying every artifact
 
@@ -56,7 +56,7 @@ constitution → spec → [inspect] → plan → tasks → implement → archive
 ```
 `verify` is an optional on-demand audit; archive is allowed once every `[x]` task carries a `Proof:` entry (or after `verify: pass`).
 
-Each phase loads only the minimum context. Optional workflow commands available at any phase: `/spk.challenge`, `/spk.handoff`, `/spk.hotfix`, `/spk.scope`, `/spk.recap`.
+Each phase loads only the minimum context. Optional workflow commands available at any phase: `/spk-challenge`, `/spk-handoff`, `/spk-hotfix`, `/spk-scope`, `/spk-recap`.
 
 ---
 
@@ -169,7 +169,7 @@ speckeep init . --lang en --shell sh --agents claude
 
 ### 2. Spec
 
-Call `/spk.spec --name "CSV export for reports"` in your agent.
+Call `/spk-spec --name "CSV export for reports"` in your agent.
 
 `specs/active/csv-export-for-reports/spec.md`:
 
@@ -193,15 +193,15 @@ Then a .csv with headers only downloads — no error shown
 
 ### 3. Inspect
 
-Call `/spk.inspect csv-export-for-reports`. Produces `inspect.md` with verdict.
+Call `/spk-inspect csv-export-for-reports`. Produces `inspect.md` with verdict.
 
 ### 4. Plan
 
-Call `/spk.plan csv-export-for-reports`. Surfaces: `ReportsPage.tsx`, `useReportExport.ts`, `reports.test.ts`.
+Call `/spk-plan csv-export-for-reports`. Surfaces: `ReportsPage.tsx`, `useReportExport.ts`, `reports.test.ts`.
 
 ### 5. Tasks
 
-Call `/spk.tasks csv-export-for-reports`. Produces `tasks.md`:
+Call `/spk-tasks csv-export-for-reports`. Produces `tasks.md`:
 
 | Surface                    | Tasks |
 | -------------------------- | ----- |
@@ -212,8 +212,8 @@ Call `/spk.tasks csv-export-for-reports`. Produces `tasks.md`:
 ### 6. Implement, verify, archive
 
 ```
-/spk.implement csv-export-for-reports
-/spk.verify    csv-export-for-reports   # verdict: pass
+/spk-implement csv-export-for-reports
+/spk-verify    csv-export-for-reports   # verdict: pass
 speckeep archive    csv-export-for-reports .
 ```
 
@@ -223,7 +223,7 @@ speckeep archive    csv-export-for-reports .
 speckeep check csv-export-for-reports
 # Phase:  tasks → implement
 # Tasks:  0 / 3 done
-# Next:   /spk.implement csv-export-for-reports
+# Next:   /spk-implement csv-export-for-reports
 ```
 
 </details>

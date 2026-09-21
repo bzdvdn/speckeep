@@ -27,7 +27,7 @@ workspace, converting their artifacts to speckeep layout:
   - speckit:   reads specs/<slug>/ and copies spec.md / plan.md / tasks.md.
 
 Existing speckeep feature directories are never overwritten — they are reported
-as skipped. Imported tasks.md usually need a /spk.tasks regeneration to add
+as skipped. Imported tasks.md usually need a /spk-tasks regeneration to add
 Touches:, Surface Map, and Acceptance Coverage.`,
 		Example: `  speckeep import openspec .
   speckeep import openspec ./existing-openspec-repo
@@ -96,5 +96,5 @@ func printImportResult(cmd *cobra.Command, result importer.Result) {
 		printPanel(w, "Skipped", result.Skipped)
 	}
 	fmt.Fprintln(w)
-	fmt.Fprintln(w, "tip:     run `/spk.tasks <slug>` to regenerate imported tasks.md with Touches/Surface Map/Acceptance Coverage")
+	fmt.Fprintln(w, "tip:     run `/spk-tasks <slug>` to regenerate imported tasks.md with Touches/Surface Map/Acceptance Coverage")
 }

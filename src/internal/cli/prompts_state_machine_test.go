@@ -45,7 +45,7 @@ func TestPromptsNextCommandsMatchStateMachine(t *testing.T) {
 		phase   string
 		prompts []string
 	}{
-		{phase: "spec", prompts: []string{"inspect"}},              // blocked → "Return to: /spk.spec <slug>"
+		{phase: "spec", prompts: []string{"inspect"}},              // blocked → "Return to: /spk-spec <slug>"
 		{phase: "inspect", prompts: []string{"spec"}},              // optional deep review branch
 		{phase: "plan", prompts: []string{"spec", "inspect"}},      // spec + inspect next command
 		{phase: "tasks", prompts: []string{"plan"}},                // post-plan

@@ -36,6 +36,25 @@ go build -o bin/speckeep ./src/cmd/speckeep
 
 If your change affects generated templates, scripts, prompts, or agent files, also verify the generated output path that `speckeep init` or `speckeep refresh` would produce.
 
+## Release Gate
+
+Before tagging a release, run the full gate:
+
+```bash
+sh scripts/release-check.sh          # full: static + -race + cross-builds + e2e
+sh scripts/release-check.sh --quick  # fast: static + e2e, no -race / matrix
+```
+
+It runs, in order:
+
+- **L0** — `gofmt` (tracked files), `go vet`, `go test [-race]`
+- **L1/L3** — the agent-artifact golden matrix (`TestAgentArtifactMatrix`) and the upgrade-from-legacy check (`TestUpgradeFromLegacyLayout`)
+- **build matrix** — `GOOS/GOARCH` builds for linux/darwin/windows × amd64/arm64 (skipped with `--quick`)
+- **L2 e2e** — builds the binary and black-box tests `speckeep demo --agents all`: expected artifacts per target, OpenCode skills-only, `check-ready` no-op for auxiliary commands, `refresh` idempotency, `doctor`
+- **L4** — `install.sh` and npm-launcher syntax smoke
+
+The same gate runs in CI: `--quick` on pull requests, full on pushes to `main`/`master`.
+
 ## Workflow Expectations
 
 - Keep changes focused and reviewable.

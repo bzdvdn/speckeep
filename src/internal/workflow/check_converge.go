@@ -9,7 +9,7 @@ import (
 	"speckeep/src/internal/config"
 )
 
-// CheckConvergeReady is the cheap loop gate behind /spk.converge: it re-checks
+// CheckConvergeReady is the cheap loop gate behind /spk-converge: it re-checks
 // a feature whose tasks are claimed complete and turns the gaps into a small
 // set of structured findings. The agent (+ repository) fixes those gaps and
 // re-runs converge until it is clean — or stops with a concrete reason.

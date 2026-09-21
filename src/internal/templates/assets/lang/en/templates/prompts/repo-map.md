@@ -48,4 +48,4 @@ Stop if: no structural changes detected (check trigger checklist first).
 - List changed/added/removed entries.
 - Confirm the map is up to date and within the size cap.
 - Include a short summary block: `Slug`, `Status`, `Artifacts`, `Blockers`.
-- Final line: `Ready for: /spk.implement <slug>` (resume the phase that requested the map update).
+- Final line: `Ready for: /spk-implement <slug>` (resume the phase that requested the map update).

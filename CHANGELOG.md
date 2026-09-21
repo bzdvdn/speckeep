@@ -7,6 +7,22 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Release gate** (`scripts/release-check.sh`, wired into CI): a single entry point that runs static analysis (`gofmt`, `go vet`, `go test [-race]`), the agent-artifact golden matrix + upgrade-from-legacy Go tests, a `GOOS/GOARCH` build matrix, a black-box end-to-end smoke against the built binary (`speckeep demo --agents all` → per-target artifacts, OpenCode skills-only, `check-ready` no-op for auxiliary commands, `refresh` idempotency, `doctor`), and packaging syntax smoke. `--quick` skips `-race` and the cross-builds; CI uses `--quick` on PRs and the full gate on `main`/`master`. Documented in `CONTRIBUTING.md`.
+- **`TestAgentArtifactMatrix`** (`src/internal/agents/matrix_test.go`): golden path-set + invariant test over all 19 targets × {en,ru} × {sh,powershell} — exact generated file set, no legacy paths, OpenCode skills-only, and readiness reminders only on gated phases.
+- **`TestUpgradeFromLegacyLayout`** (`src/internal/cli/upgrade_test.go`): emulates a pre-skills-first workspace (per-command wrappers, nested `sdd/phases/`, OpenCode command files), asserts `doctor` flags every stale artifact, `refresh` heals it, OpenCode ends skills-only, user data survives, and `doctor` is clean afterwards.
+
+### Changed
+
+- **Unified slash-command form on `/spk-<phase>` everywhere**: prompts, `agents-snippet.md`, `AGENTS.md` output, CLI help/hints (`init`, `check`, `status`, `dashboard`, `archive`, `import`, `demo`, `explore`), the importer, and `docs/{en,ru}` still used the pre-skills-first `/spk.<phase>` dot form, which no longer matches any generated skill or command. All user- and agent-facing references now use `/spk-<phase>`. `doctor` flags an `AGENTS.md` that still carries the old `/spk.*` form and tells you to `speckeep refresh .`.
+- **OpenCode is now skills-only**: the generated `.opencode/commands/spk-<phase>.md` set was removed as a redundant second entry point. OpenCode's `/` palette is built from `.opencode/commands/*` and explicitly skips commands whose `source === "skill"`, so the command files duplicated the skill pack without adding reachability; phase skills stay available through OpenCode's `/skills` picker. `targetFlatCommandDirs` no longer lists `opencode`, so `doctor`/`PathsForTarget`/`refresh` stop expecting or generating those files. `agents.LegacyOpenCodeCommandPaths` lets `doctor` flag and `refresh`/`cleanup-agents` remove leftovers from earlier versions; `docs/{en,ru}/agents.md` updated.
+
+### Fixed
+
+- **Readiness reminder no longer advertised for phases without a readiness check**: `check-ready.sh <phase>` has a real gate only for the core chain (`constitution`, `spec`, `propose`, `inspect`, `plan`, `tasks`, `implement`, `verify`, `converge`). Auxiliary phases (`handoff`, `challenge`, `scope`, `glossary`, `recap`, `hotfix`, `repo-map`, `rollback`) were still told to run it, which failed with `unknown phase` / `unknown flag: --root`. Generated phase skills and flat/Gemini commands now include the readiness line only when `agents.hasReadyCheck` reports a real gate. Removed the dangling `check-hotfix-ready` reference from the `hotfix` command definition.
+- **`check-ready` is a no-op for non-gated commands**: `check-ready.*` now short-circuits with `OK: no readiness gate for <phase>` (exit 0) for auxiliary commands instead of forwarding an unknown `check-<phase>-ready` to the CLI, which failed with `unknown flag: --root`. The managed `AGENTS.md` block and the `sdd` overview skill now list auxiliary commands (`repo-map`, `glossary`, `challenge`, `handoff`, `recap`, `scope`, `rollback`, `hotfix`) separately as "not phases, no readiness gate" instead of implying every `/spk-*` is a gated phase.
+
 ## [v1.0.0] - 2026-09-11
 
 ### Added

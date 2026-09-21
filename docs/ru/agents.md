@@ -46,21 +46,21 @@ SpecKeep умеет генерировать project-local command или prompt
 | `codex` | Вероятно, `/name` | Skills слэш-вызываемы по докам OpenAI, но *канонический* задокументированный путь — `.agents/skills/`, не `.codex/skills/` — `.codex/skills/` задокументирован только в community-источниках и не подтверждён независимо как читаемый Codex CLI. |
 | `copilot` | Да (CLI), `/name` | Подтверждено для Copilot **CLI** по официальной документации. У VS Code Copilot Chat своя отдельная документация "Agent Skills", паритет с ней не перепроверен. |
 | `windsurf` | Нет через Skills — **да через сгенерированный Workflow** | Windsurf Skills загружаются автоматически или через `@mention`, никогда через `/`. speckeep также генерирует `.windsurf/workflows/spk-<фаза>.md` (реальный slash-механизм Windsurf), так что `/spk-spec` там реально работает. |
-| `opencode` | Нет через Skills — **да через сгенерированный Command** | OpenCode Skills загружаются вызовом агентом tool `skill()`, никогда через `/`. speckeep также генерирует `.opencode/commands/spk-<фаза>.md` (реальный slash-механизм OpenCode), так что `/spk-spec` там тоже реально работает. |
+| `opencode` | Нет через `/` — фазы через `/skills` | OpenCode Skills загружаются вызовом агентом tool `skill()`, никогда через `/`; палитра `/` строится из `.opencode/commands/*` и явно пропускает `source === "skill"`. speckeep **поставляет OpenCode в режиме skills-only**: дублирующий набор `.opencode/commands/spk-<фаза>.md` удалён, поэтому фазы выбираются через `/skills`, а не набираются как `/spk-spec`. |
 | `cline` | Нет через Skills (`.clinerules/` — это контекст, не команды) — **да через сгенерированный Workflow** | speckeep также генерирует `.clinerules/workflows/spk-<фаза>.md` (реальный slash-механизм Cline, вызывается как `/spk-<фаза>.md`). |
 | `amazonq` | Нет через `/`, но **да через сгенерированный Prompt с `@name`** | У Amazon Q Developer нет подтверждённого нативного Skills-ридера вообще (единственная официальная документация "Skills" принадлежит отдельному плагину "Agent Toolkit for AWS"). speckeep теперь пишет в реальный dotfile root `.amazonq/` (не `.q/` — старый путь, вероятно, никогда не читался) и генерирует `.amazonq/prompts/spk-<фаза>.md`, вызывается через `@spk-<фаза>`, не слэшем. |
 | `gemini` | Нет через Skills — **да через сгенерированную TOML-команду** | Gemini CLI Skills — только model-invoked. speckeep также генерирует `.gemini/commands/spk-<фаза>.toml` (реальный формат команд Gemini — TOML, не markdown), так что `/spk-spec` там реально работает. |
 | `devin` | Нет, только `@skills:name` | Skills загружаются автоматически или через явное упоминание `@skills:name`, никогда через `/`. `.agents/skills/` — задокументированный канонический путь; `.devin/skills/` у speckeep — подтверждённо валидный fallback-путь, просто не основной. |
 | `goose` | Нет, только meta-команда `/skills <name>` | Не вызывается напрямую как `/name` — доступ через `/skills <name>` или авто-триггер. Реальные slash-команды Goose — отдельная система "recipes" (параметризованные YAML-задачи с пользовательскими алиасами), которую speckeep не генерирует. `.agents/skills/` — канонический путь; `.goose/skills/` — подтверждённо валидный fallback. |
 | `kilocode` | Не проверено / вероятно нет через Skills | Community-документация описывает Skills как только model-invoked, с реальными slash-командами по пути **`.kilo/commands/`** — но та же документация также намекает, что dotfile root продукта мог смениться с `.kilocode/` на `.kilo/`, что не подтверждено независимо. speckeep **не стал** менять `.kilocode/skills/` на основании одного источника; считайте эту строку открытой до подтверждения. |
-| `roocode` | Нет, и плоского command-fallback не существует | Skills — только model-invoked. В отличие от Windsurf/OpenCode/Cline, у Roo Code нет задокументированного one-file-per-command механизма — единственная project-local конвенция (`.roo/rules/*.md`) — это конкатенированный свободный контекст, не вызываемый по отдельности. Сейчас у speckeep нет способа дать Roo Code реальный `/spk-spec`. |
+| `roocode` | Нет, и плоского command-fallback не существует | Skills — только model-invoked. В отличие от Windsurf/Cline, у Roo Code нет задокументированного one-file-per-command механизма — единственная project-local конвенция (`.roo/rules/*.md`) — это конкатенированный свободный контекст, не вызываемый по отдельности. Сейчас у speckeep нет способа дать Roo Code реальный `/spk-spec`. |
 | `trae` | Не проверено, вероятно нет | Документация Trae описывает natural-language/авто-выбор триггеринг, а не `/name`. Открытый upstream issue также говорит, что drop-in `SKILL.md`-файлы могут не подхватываться автоматически без регистрации через UI/CLI Trae. |
 | `aider` | N/A — нет Skills-загрузчика | Подтверждено: у Aider нет ни Skills, ни custom-slash-command механизма. Он читает `CONVENTIONS.md` только когда явно попросить (`/read`, `--read` или `.aider.conf.yml`) — существующий указатель `.aider/CONVENTIONS.md` остаётся верным подходом. |
 | `jules` | N/A — механизма нет вообще | Jules — async/неинтерактивный агент; он читает только `AGENTS.md` (fallback на `README.md`) для контекста. Ни Skills, ни slash-команды не применимы — вывод `.jules/skills/` у speckeep сейчас не читается, но и не вредит. |
 | `refact` | Не проверено, вероятно нет | Ни Skills, ни SKILL.md, ни project-local command-конвенции не найдено нигде в докам Refact.ai или на GitHub. Кастомизация там UI-driven ("AI Toolbox", `Alt+T`), а не repo-local файл. Вывод `.refact/skills/` у speckeep не подтверждён как читаемый вообще. |
 | `codiumate` | Не проверено | **Продукт переименован**: CodiumAI → Qodo → "Codiumate" теперь называется "Qodo Gen". У Qodo есть система, совместимая с открытым Agent-Skills-стандартом, но ни один официальный источник не подтверждает установленный project-path или слэш-вызываемость — считайте неподтверждённым, не предполагайте паритет. |
 
-Если у вас нужная команда не появляется на каком-то таргете — заведите issue с тем, что вы видите: это и есть сигнал, который переводит строку из "не проверено" в подтверждённую (или, как с windsurf/opencode/cline/amazonq/gemini, в target-специфичный фикс).
+Если у вас нужная команда не появляется на каком-то таргете — заведите issue с тем, что вы видите: это и есть сигнал, который переводит строку из "не проверено" в подтверждённую (или, как с windsurf/cline/amazonq/gemini, в target-специфичный фикс).
 
 **`continue` убран из поддерживаемых таргетов.** Несколько вторичных источников сообщили, что Continue.dev был поглощён Cursor и свёрнут примерно в середине 2026 (репозиторий на GitHub переведён в read-only) — поддерживать генерацию для него не имеет смысла. `speckeep doctor` подсвечивает оставшийся вывод `.continue/skills/` с момента до удаления, а `speckeep refresh`/`cleanup-agents` его убирают; запись `continue`, оставшаяся в существующем `speckeep.yaml`, при следующем refresh тихо отбрасывается, а не приводит к ошибке.
 
@@ -73,7 +73,7 @@ SpecKeep умеет генерировать project-local command или prompt
 - Copilot: `.github/skills/{sdd,spk-*}/`
 - Cursor: `.cursor/skills/{sdd,spk-*}/`
 - Kilo Code: `.kilocode/skills/{sdd,spk-*}/`
-- OpenCode: `.opencode/skills/{sdd,spk-*}/` + `.opencode/commands/spk-*.md` (real slash mechanism)
+- OpenCode: `.opencode/skills/{sdd,spk-*}/` (skills-only; без генерации slash-команд)
 - Trae: `.trae/skills/{sdd,spk-*}/`
 - Windsurf: `.windsurf/skills/{sdd,spk-*}/` + `.windsurf/workflows/spk-*.md` (real slash mechanism)
 - Roo Code: `.roo/skills/{sdd,spk-*}/`
@@ -119,7 +119,7 @@ Agent-facing workflow в SpecKeep:
 
 - перед записью `specs/active/<slug>/spec.md` он должен создавать или переключать `feature/<slug>`, когда окружение это позволяет
 - он должен поддерживать `--name`, optional `--slug` и optional `--branch` для chat-oriented ввода
-- если `/spk.spec` вызван с `--name`, но без достаточного описания, он должен сохранить контекст и запросить или принять следующее сообщение как продолжение spec-запроса
+- если `/spk-spec` вызван с `--name`, но без достаточного описания, он должен сохранить контекст и запросить или принять следующее сообщение как продолжение spec-запроса
 - если вход приходит из локального prompt-файла, он должен предпочитать `name:` и опциональный `slug:` в начале файла вместо generic filename
 - если запрос неоднозначен, охватывает несколько фич, похож на URL или пытается вывести одну spec из нескольких изменений конституции, он должен остановиться и запросить одно конкретное изменение
 

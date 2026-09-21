@@ -40,7 +40,7 @@ Stop if: `tasks.md` is missing, the next task is not concrete, execution require
   - examples: `Proof: code src/export.go ExportHandler`, `Proof: test src/export_test.go TestExportFlow`, `Proof: docs docs/export.md`.
 - A `[x]` task without any `Proof:` line is not done: do not close the task, `speckeep check` and `speckeep archive` will reject it.
 - If proof cannot reference an existing file → stop and explain before closing.
-- Config mode (final line): follow the **Verify gate policy** in AGENTS.md — resolve `workflow.verify` from `.speckeep/speckeep.yaml` (already read once per session). If `required`, the archive gate demands a `verify: pass` report — do NOT offer archive directly; end with `/spk.verify`. If `optional` (or absent), archive is allowed once all `[x]` tasks carry `Proof:` entries.
+- Config mode (final line): follow the **Verify gate policy** in AGENTS.md — resolve `workflow.verify` from `.speckeep/speckeep.yaml` (already read once per session). If `required`, the archive gate demands a `verify: pass` report — do NOT offer archive directly; end with `/spk-verify`. If `optional` (or absent), archive is allowed once all `[x]` tasks carry `Proof:` entries.
 
 ## Modes
 
@@ -52,8 +52,8 @@ Stop if: `tasks.md` is missing, the next task is not concrete, execution require
 
 - Update code/files and mark completed tasks `[x]` in `tasks.md`.
 - Include a short `Proof plan:` block before the result summary for the tasks you touched.
-- Before finalizing, make an explicit map decision line: `Map update: yes|no` + reason (based on `/spk.repo-map` trigger checklist in `AGENTS.md`).
-- If `Map update: yes`, run `/spk.repo-map` and include `REPOSITORY_MAP.md` in changed files.
+- Before finalizing, make an explicit map decision line: `Map update: yes|no` + reason (based on `/spk-repo-map` trigger checklist in `AGENTS.md`).
+- If `Map update: yes`, run `/spk-repo-map` and include `REPOSITORY_MAP.md` in changed files.
 - If repository structure/navigation changed (new/moved modules, new entrypoints, major path reshaping), `Map update` must be `yes`.
 - If changes are local and do not affect structure/navigation, do not touch `REPOSITORY_MAP.md`.
 - Report: closed task IDs, changed files, and the observable proof.
@@ -65,8 +65,8 @@ Stop if: `tasks.md` is missing, the next task is not concrete, execution require
   Status: <phase label>
   Artifacts: <paths>
   Blockers: <none | reason>
-  Ready for: /spk.verify <slug>   (or "speckeep archive <slug> ." when optional)
+  Ready for: /spk-verify <slug>   (or "speckeep archive <slug> ." when optional)
   ```
 - Once all `[x]` tasks carry `Proof:` entries, final line (mandatory) depends on `workflow.verify`:
-  - if `required`: `Ready for: /spk.verify <slug>`
-  - if `optional` (default/absent): `Ready for: speckeep archive <slug> .` (optional full audit remains available via `/spk.verify <slug>`)
+  - if `required`: `Ready for: /spk-verify <slug>`
+  - if `optional` (default/absent): `Ready for: speckeep archive <slug> .` (optional full audit remains available via `/spk-verify <slug>`)

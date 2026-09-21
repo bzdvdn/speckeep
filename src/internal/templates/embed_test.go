@@ -188,7 +188,7 @@ func TestInspectPromptDefinesCheapScopeAndVerdictRules(t *testing.T) {
 		"pass|concerns|blocked",
 		"check-ready.* inspect",
 		".speckeep/constitution.summary.md",
-		"Return to: /spk.spec <slug>",
+		"Return to: /spk-spec <slug>",
 	}
 	for _, snippet := range requiredSnippets {
 		if !strings.Contains(content, snippet) {
@@ -377,8 +377,8 @@ func TestSpecPromptDefinesDeterministicStagedMode(t *testing.T) {
 		"staged mode is canceled",
 		"Do not pin technologies/versions unless required",
 		".speckeep/constitution.summary.md",
-		"/spk.inspect <slug>",
-		"/spk.plan <slug>",
+		"/spk-inspect <slug>",
+		"/spk-plan <slug>",
 		"Final line (mandatory): `Ready for:",
 		"End with standard end block (see AGENTS.md), exact shape:",
 	}
@@ -407,7 +407,7 @@ func TestProposePromptDefinesOneShotLaneAndExpressDefault(t *testing.T) {
 		"spec.md` + `tasks.md",
 		"check-ready.sh propose",
 		"express",
-		"Ready for: /spk.implement <slug>",
+		"Ready for: /spk-implement <slug>",
 		".speckeep/constitution.summary.md",
 	}
 	for _, snippet := range requiredSnippets {
@@ -434,7 +434,7 @@ func TestPlanPromptDefinesConcreteResearchTriggers(t *testing.T) {
 		"Create `research.md` only when needed",
 		"Do not create `research.md` for generic brainstorming",
 		".speckeep/constitution.summary.md",
-		"Ready for: /spk.tasks <slug>",
+		"Ready for: /spk-tasks <slug>",
 		"End with standard end block (see AGENTS.md), exact shape:",
 	}
 	for _, snippet := range requiredSnippets {
@@ -624,7 +624,7 @@ func TestVerifyTemplateAndPromptPreferEvidenceScopedVerification(t *testing.T) {
 	for _, snippet := range []string{
 		"evidence log",
 		"verify-task-state",
-		"Return to: /spk.<phase> <slug>",
+		"Return to: /spk-<phase> <slug>",
 		"Ready for: speckeep archive <slug> .",
 	} {
 		if !strings.Contains(promptContent, snippet) {
@@ -653,8 +653,8 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			target: "templates/prompts/spec.md",
 			want: []string{
 				".speckeep/constitution.summary.md",
-				"/spk.inspect <slug>",
-				"/spk.plan <slug>",
+				"/spk-inspect <slug>",
+				"/spk-plan <slug>",
 				"Final line (mandatory): `Ready for:",
 				"End with standard end block (see AGENTS.md), exact shape:",
 			},
@@ -663,7 +663,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			target: "templates/prompts/plan.md",
 			want: []string{
 				".speckeep/constitution.summary.md",
-				"Ready for: /spk.tasks <slug>",
+				"Ready for: /spk-tasks <slug>",
 				"End with standard end block (see AGENTS.md), exact shape:",
 			},
 		},
@@ -671,7 +671,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			target: "templates/prompts/tasks.md",
 			want: []string{
 				".speckeep/constitution.summary.md",
-				"Ready for: /spk.implement <slug>",
+				"Ready for: /spk-implement <slug>",
 				"End with standard end block (see AGENTS.md), exact shape:",
 			},
 		},
@@ -690,7 +690,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			want: []string{
 				".speckeep/constitution.summary.md",
 				"End with standard end block (see AGENTS.md), exact shape:",
-				"Return to: /spk.<phase> <slug>",
+				"Return to: /spk-<phase> <slug>",
 				"Ready for: speckeep archive <slug> .",
 			},
 		},
@@ -755,7 +755,7 @@ func TestPromptsEnforcePhaseBoundaries(t *testing.T) {
 		{
 			target: "templates/prompts/verify.md",
 			want: []string{
-				"If `blocked`, final line: `Return to: /spk.<phase> <slug>`",
+				"If `blocked`, final line: `Return to: /spk-<phase> <slug>`",
 			},
 		},
 	}

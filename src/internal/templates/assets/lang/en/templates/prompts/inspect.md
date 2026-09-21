@@ -7,7 +7,7 @@ You act as a **principal engineer doing a formal design/code review**. Be thorou
 - If a claim cannot be verified from artifacts alone, flag it as unverifiable
 - Suggest concrete fixes, not just problems
 
-You run an optional deep quality review of one feature spec before planning. This phase is not mandatory — if the spec passed self-validation and looks solid, the user may proceed directly to `/spk.plan`. Use inspect when there is ambiguity, a complex domain, or the user wants a formal quality gate.
+You run an optional deep quality review of one feature spec before planning. This phase is not mandatory — if the spec passed self-validation and looks solid, the user may proceed directly to `/spk-plan`. Use inspect when there is ambiguity, a complex domain, or the user wants a formal quality gate.
 
 Follow base rules in `AGENTS.md`.
 
@@ -59,8 +59,8 @@ If any check fails: fix it and re-run the checklist. After **2 fix rounds** that
   Status: <pass|concerns|blocked>
   Artifacts: <paths>
   Blockers: <none | reason>
-  Ready for: /spk.plan <slug>   (or "Return to: /spk.spec <slug>" when blocked)
+  Ready for: /spk-plan <slug>   (or "Return to: /spk-spec <slug>" when blocked)
   ```
 - Final line:
-  - if `pass|concerns`: `Ready for: /spk.plan <slug>`
-  - if `blocked`: `Return to: /spk.spec <slug>`
+  - if `pass|concerns`: `Ready for: /spk-plan <slug>`
+  - if `blocked`: `Return to: /spk-spec <slug>`

@@ -28,6 +28,13 @@ var placeholderPattern = regexp.MustCompile(`\[[A-Z][A-Z0-9_]*\]`)
 // /speckeep.archive /speckeep.spec; looking for a known command suffix keeps the check precise.
 var deprecatedCommandPattern = regexp.MustCompile(`/?speckeep\.(?:archive|spec|plan|tasks|inspect|implement|verify|constitution|rollback|recap|repo-map|challenge)\b`)
 
+// deprecatedSpkDotPattern matches the pre-dash slash form (`/spk.spec`,
+// `/spk.repo-map`) that produced per-command wrapper files. Generated
+// skills/commands have used the `/spk-<phase>` dash form since the
+// skills-first migration, so any `/spk.<phase>` left in AGENTS.md (or in
+// prompt text) is stale and must be refreshed.
+var deprecatedSpkDotPattern = regexp.MustCompile(`/spk\.[a-z]`)
+
 type Finding struct {
 	Level   string
 	Message string
@@ -141,16 +148,17 @@ func Check(ctx context.Context, root string) (Result, error) {
 	agentsPath := filepath.Join(root, cfg.Agents.AgentsFile)
 	if content, err := os.ReadFile(agentsPath); err == nil {
 		text := string(content)
-		if !strings.Contains(text, "/spk.repo-map") {
-			findings = append(findings, Finding{
-				Level:   "warning",
-				Message: "AGENTS.md is missing /spk.repo-map guidance — run `speckeep refresh .` to sync the managed SpecKeep block",
-			})
+		if !strings.Contains(text, "/spk-repo-map") {
+			message := "AGENTS.md is missing /spk-repo-map guidance — run `speckeep refresh .` to sync the managed SpecKeep block"
+			if deprecatedSpkDotPattern.MatchString(text) {
+				message = "AGENTS.md still uses the deprecated /spk.* slash form — run `speckeep refresh .` to switch to /spk-*"
+			}
+			findings = append(findings, Finding{Level: "warning", Message: message})
 		}
 		if deprecatedCommandPattern.MatchString(text) {
 			findings = append(findings, Finding{
 				Level:   "warning",
-				Message: "AGENTS.md still references deprecated /speckeep.* commands — run `speckeep refresh .` to update to /spk.*",
+				Message: "AGENTS.md still references deprecated /speckeep.* commands — run `speckeep refresh .` to update to /spk-*",
 			})
 		}
 	}
@@ -168,7 +176,7 @@ func Check(ctx context.Context, root string) (Result, error) {
 		if placeholderPattern.Match(content) {
 			findings = append(findings, Finding{
 				Level:   "warning",
-				Message: "constitution.md contains unfilled placeholder content — run /spk.constitution to complete setup",
+				Message: "constitution.md contains unfilled placeholder content — run /spk-constitution to complete setup",
 			})
 		}
 		summaryPath := filepath.Join(draftspecDir, "constitution.summary.md")
@@ -179,7 +187,7 @@ func Check(ctx context.Context, root string) (Result, error) {
 			if _, err := os.Stat(summaryPath); os.IsNotExist(err) {
 				findings = append(findings, Finding{
 					Level:   "warning",
-					Message: "constitution.summary.md not found — run /spk.constitution to generate the compact summary used by spec, inspect, plan, tasks, implement, verify, and hotfix phases",
+					Message: "constitution.summary.md not found — run /spk-constitution to generate the compact summary used by spec, inspect, plan, tasks, implement, verify, and hotfix phases",
 				})
 			}
 		}
@@ -255,7 +263,7 @@ func Check(ctx context.Context, root string) (Result, error) {
 		if _, err := os.Stat(fullPath); err == nil {
 			findings = append(findings, Finding{
 				Level:   "warning",
-				Message: fmt.Sprintf("deprecated /speckeep.* agent artifact found, rename to /spk.*; run `speckeep refresh .`: %s", fullPath),
+				Message: fmt.Sprintf("deprecated /speckeep.* agent artifact found, rename to /spk-*; run `speckeep refresh .`: %s", fullPath),
 			})
 		}
 	}
@@ -324,6 +332,23 @@ func Check(ctx context.Context, root string) (Result, error) {
 			findings = append(findings, Finding{
 				Level:   "warning",
 				Message: fmt.Sprintf("continue is no longer a supported speckeep target (Continue.dev is reportedly discontinued); run `speckeep refresh .` to remove its stale generated files: %s", fullPath),
+			})
+		}
+	}
+
+	legacyOpenCodePaths := agents.LegacyOpenCodeCommandPaths(agents.DefaultCommands(shell))
+	legacyOpenCodeSeen := make(map[string]struct{})
+	for _, relPath := range legacyOpenCodePaths {
+		normalized := filepath.FromSlash(relPath)
+		if _, seen := legacyOpenCodeSeen[normalized]; seen {
+			continue
+		}
+		legacyOpenCodeSeen[normalized] = struct{}{}
+		fullPath := filepath.Join(root, normalized)
+		if _, err := os.Stat(fullPath); err == nil {
+			findings = append(findings, Finding{
+				Level:   "warning",
+				Message: fmt.Sprintf("legacy OpenCode slash-command artifact is superseded by skills-only generation, no longer needed; run `speckeep refresh .`: %s", fullPath),
 			})
 		}
 	}

@@ -58,7 +58,7 @@ speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --she
 
 Эта команда обновляет:
 
-- `.speckeep/spk.yaml`
+- `.speckeep/spk-yaml`
 - `.speckeep/templates/**`
 - `.speckeep/scripts/**`
 - project-local agent skill packs
@@ -102,7 +102,7 @@ speckeep add-agent my-project --agents claude --agents codex
 
 ### `speckeep list-agents [path]`
 
-Показывает включенные agent targets из `.speckeep/spk.yaml`.
+Показывает включенные agent targets из `.speckeep/spk-yaml`.
 
 ### `speckeep remove-agent [path]`
 
@@ -278,7 +278,7 @@ speckeep guard my-project --json
 
 Мигрирует feature packages из другой spec-системы в текущий speckeep workspace.
 
-- **openspec**: читает `openspec/changes/<slug>/` и пересобирает `spec.md` (`RQ-*`/`AC-*` из блоков `### Requirement:` и `#### Scenario:`), `plan.md` из `design.md`, копирует `tasks.md` best-effort (с пометкой перегенерировать через `/spk.tasks`).
+- **openspec**: читает `openspec/changes/<slug>/` и пересобирает `spec.md` (`RQ-*`/`AC-*` из блоков `### Requirement:` и `#### Scenario:`), `plan.md` из `design.md`, копирует `tasks.md` best-effort (с пометкой перегенерировать через `/spk-tasks`).
 - **speckit**: читает `specs/<slug>/` и копирует `spec.md` / `plan.md` / `tasks.md`.
 
 Существующие фичи speckeep никогда не перезаписываются — они сообщаются как пропущенные. Используй `--json` для машинно-читаемого вывода.
@@ -306,7 +306,7 @@ speckeep self upgrade
 
 Создаёт демо-workspace по указанному пути (по умолчанию: `./speckeep-demo`).
 
-Workspace заполнен примером фичи (`export-report`) на фазе implement — spec, inspect report, plan, tasks и data model уже присутствуют. После создания предлагает попробовать `/spk.scope`, `/spk.challenge` и `/spk.handoff`.
+Workspace заполнен примером фичи (`export-report`) на фазе implement — spec, inspect report, plan, tasks и data model уже присутствуют. После создания предлагает попробовать `/spk-scope`, `/spk-challenge` и `/spk-handoff`.
 
 ```bash
 speckeep demo

@@ -71,7 +71,7 @@ func Files(targets []string, language string, shell string) ([]File, error) {
 	commands := DefaultCommands(shell)
 	var files []File
 	for _, target := range normalized {
-		targetFiles, err := skillPackFiles(target, language, commands)
+		targetFiles, err := skillPackFiles(target, language, shell, commands)
 		if err != nil {
 			return nil, err
 		}
@@ -89,7 +89,7 @@ func FilesForTarget(target, language, shell string) ([]File, error) {
 	if len(normalized) == 0 {
 		return nil, nil
 	}
-	return skillPackFiles(normalized[0], language, DefaultCommands(shell))
+	return skillPackFiles(normalized[0], language, shell, DefaultCommands(shell))
 }
 
 func PathsForTarget(target string) ([]string, error) {

@@ -100,17 +100,21 @@ type flatCommandTarget struct {
 // tool's docs:
 //   - Windsurf Skills load via @mention/auto-relevance, not "/"; real slash
 //     commands are Workflows (.windsurf/workflows/*.md).
-//   - OpenCode Skills are loaded by the agent calling a skill() tool, not
-//     "/"; real slash commands are Commands (.opencode/commands/*.md).
 //   - Cline's .clinerules/ is a context directory, not commands; real
 //     slash commands are Workflows (.clinerules/workflows/*.md).
 //   - Amazon Q Developer has no confirmed native Skills reader at all
 //     (only an unrelated "Agent Toolkit for AWS" plugin uses that term);
 //     its real invocable mechanism is Prompts (.amazonq/prompts/*.md),
 //     invoked with "@name", not "/name".
+//
+// OpenCode is deliberately NOT listed: its Skills are likewise only
+// model-invoked (loaded through the agent's skill() tool, never "/"), but
+// the duplicate `.opencode/commands/spk-<phase>.md` set is redundant as a
+// second entry point, so speckeep ships OpenCode skills-only. Phase skills
+// stay reachable through the `/skills` picker; stale command files are
+// removed via LegacyOpenCodeCommandPaths.
 var targetFlatCommandDirs = map[string]flatCommandTarget{
 	"windsurf": {dir: ".windsurf/workflows", invokePrefix: "/"},
-	"opencode": {dir: ".opencode/commands", invokePrefix: "/"},
 	"cline":    {dir: ".clinerules/workflows", invokePrefix: "/"},
 	"amazonq":  {dir: ".amazonq/prompts", invokePrefix: "@"},
 }
@@ -129,7 +133,7 @@ var targetFlatCommandDirs = map[string]flatCommandTarget{
 // For targets in targetFlatCommandDirs, Skills alone are not enough — they
 // are not slash-invocable there at all — so a flat command file per phase
 // is generated too, in that tool's real slash-command directory.
-func skillPackFiles(target, language string, commands []CommandDefinition) ([]File, error) {
+func skillPackFiles(target, language, shell string, commands []CommandDefinition) ([]File, error) {
 	lang := normalizeLanguage(language)
 	base := targetSkillDirs[target]
 	if base == "" {
@@ -137,11 +141,11 @@ func skillPackFiles(target, language string, commands []CommandDefinition) ([]Fi
 	}
 	files := []File{{
 		Path:    filepath.ToSlash(filepath.Join(base, "sdd", "SKILL.md")),
-		Content: renderRootSkill(commands, lang),
+		Content: renderRootSkill(commands, lang, shell),
 		Mode:    0o644,
 	}}
 	for _, command := range commands {
-		content, err := renderPhaseSkill(command, lang)
+		content, err := renderPhaseSkill(command, lang, shell)
 		if err != nil {
 			return nil, err
 		}
@@ -153,7 +157,7 @@ func skillPackFiles(target, language string, commands []CommandDefinition) ([]Fi
 	}
 	if flat, ok := targetFlatCommandDirs[target]; ok {
 		for _, command := range commands {
-			content, err := renderFlatCommand(command, lang, flat.invokePrefix)
+			content, err := renderFlatCommand(command, lang, flat.invokePrefix, shell)
 			if err != nil {
 				return nil, err
 			}
@@ -168,7 +172,7 @@ func skillPackFiles(target, language string, commands []CommandDefinition) ([]Fi
 	// real custom-command mechanism is TOML files, not markdown.
 	if target == "gemini" {
 		for _, command := range commands {
-			content, err := renderGeminiCommand(command, lang)
+			content, err := renderGeminiCommand(command, lang, shell)
 			if err != nil {
 				return nil, err
 			}
@@ -235,13 +239,31 @@ func LegacySkillPhasePaths(commands []CommandDefinition) []string {
 	return paths
 }
 
-func renderRootSkill(commands []CommandDefinition, lang string) string {
-	var phaseLines []string
+// LegacyOpenCodeCommandPaths returns the flat `.opencode/commands/spk-<phase>.md`
+// slash-command files speckeep used to generate for OpenCode. OpenCode ships
+// skills-only now (see targetFlatCommandDirs); refresh/cleanup remove these
+// leftovers and doctor warns when they're still present.
+func LegacyOpenCodeCommandPaths(commands []CommandDefinition) []string {
+	var paths []string
 	for _, cmd := range commands {
-		phaseLines = append(phaseLines, fmt.Sprintf("- `/spk-%s` — %s", cmd.Name, cmd.Description))
+		paths = append(paths, filepath.ToSlash(filepath.Join(".opencode/commands", "spk-"+cmd.Name+".md")))
+	}
+	return paths
+}
+
+func renderRootSkill(commands []CommandDefinition, lang, shell string) string {
+	var phaseLines, auxLines []string
+	for _, cmd := range commands {
+		line := fmt.Sprintf("- `/spk-%s` — %s", cmd.Name, cmd.Description)
+		if hasReadyCheck(cmd.Name) {
+			phaseLines = append(phaseLines, line)
+			continue
+		}
+		auxLines = append(auxLines, line)
 	}
 	phases := strings.Join(phaseLines, "\n")
-	scripts := "./.speckeep/scripts/check-ready.sh <phase> <slug>"
+	aux := strings.Join(auxLines, "\n")
+	scripts := checkReadyScript(shell) + " <phase> <slug>"
 
 	if lang == "ru" {
 		return fmt.Sprintf(`---
@@ -261,7 +283,7 @@ description: SpecKeep — spec-driven development. Use when the user asks to pro
 2. Сначала прочитай .speckeep/constitution.summary.md (fallback: CONSTITUTION.md).
 3. Branch-first: работай с feature/<slug> (ветку создаёт/переключает только spec/propose).
 4. Держи контекст узким: текущий slug + surfaces из Touches:.
-5. Запускай readiness-скрипт: %[1]s, доверяй exit-коду.
+5. Readiness-скрипт %[1]s — только для гейтируемых фаз, доверяй exit-коду; у вспомогательных команд гейта нет.
 6. Каждую фазу завершай end block (Slug / Status / Artifacts / Blockers / Готово к) и сохраняй точную финальную строку промпта.
 
 ## Гейты (не пропускать)
@@ -274,10 +296,14 @@ description: SpecKeep — spec-driven development. Use when the user asks to pro
 
 %[2]s
 
+## Вспомогательные команды (вне цепочки фаз, readiness-гейта нет)
+
+%[5]s
+
 ## Ограничения
 
 %[4]s
-`, scripts, phases, "`/spk-<phase>`", antiPatternHint(lang))
+`, scripts, phases, "`/spk-<phase>`", antiPatternHint(lang), aux)
 	}
 
 	return fmt.Sprintf(`---
@@ -297,7 +323,7 @@ Every phase is its own independent skill, invoked directly with %[3]s
 2. Read .speckeep/constitution.summary.md first (fallback: CONSTITUTION.md).
 3. Branch-first: work on feature/<slug> (only spec/propose may create/switch the branch).
 4. Keep context narrow: current slug + Touches: surfaces only.
-5. Run the readiness script: %[1]s and trust its exit code.
+5. Run the readiness script %[1]s only for the gated phases and trust its exit code; auxiliary commands have no gate.
 6. End every phase with the end block (Slug / Status / Artifacts / Blockers / Ready for) and preserve the prompt's exact final line.
 
 ## Gates (never skip)
@@ -310,10 +336,61 @@ Every phase is its own independent skill, invoked directly with %[3]s
 
 %[2]s
 
+## Auxiliary commands (outside the phase chain, no readiness gate)
+
+%[5]s
+
 ## Constraints
 
 %[4]s
-`, scripts, phases, "`/spk-<phase>`", antiPatternHint(lang))
+`, scripts, phases, "`/spk-<phase>`", antiPatternHint(lang), aux)
+}
+
+// readyCheckPhases lists the phases that have a real readiness gate behind
+// `check-ready.sh <phase>` (mirrors the `__internal check-<phase>-ready`
+// subcommands). Auxiliary commands — handoff, challenge, scope, glossary,
+// recap, hotfix, repo-map, rollback — have no readiness check, so their
+// generated artifacts must not advertise one: invoking it would fail with
+// "unknown phase"/"unknown flag: --root".
+var readyCheckPhases = map[string]struct{}{
+	"constitution": {},
+	"spec":         {},
+	"propose":      {},
+	"inspect":      {},
+	"plan":         {},
+	"tasks":        {},
+	"implement":    {},
+	"verify":       {},
+	"converge":     {},
+}
+
+func hasReadyCheck(phase string) bool {
+	_, ok := readyCheckPhases[phase]
+	return ok
+}
+
+// checkReadyScript returns the readiness-script path for the configured shell,
+// so generated reminders point at check-ready.sh or check-ready.ps1 as
+// appropriate.
+func checkReadyScript(shell string) string {
+	ext := ".sh"
+	if normalizeShell(shell) == "powershell" {
+		ext = ".ps1"
+	}
+	return "./.speckeep/scripts/check-ready" + ext
+}
+
+// readinessLine returns the readiness reminder bullet (with trailing newline)
+// for a phase, or "" when the phase has no readiness check.
+func readinessLine(phase, lang, shell string) string {
+	if !hasReadyCheck(phase) {
+		return ""
+	}
+	checkReady := checkReadyScript(shell) + " " + phase + " [<slug>]"
+	if lang == "ru" {
+		return "- readiness: " + checkReady + " (запусти, доверяй exit-коду).\n"
+	}
+	return "- readiness: " + checkReady + " (run it, trust the exit code).\n"
 }
 
 // renderPhaseSkill inlines the canonical prompt body directly into the phase
@@ -321,9 +398,9 @@ Every phase is its own independent skill, invoked directly with %[3]s
 // single read instead of following a pointer to .speckeep/templates/prompts/.
 // The prompt text stays the single authored source (embedded at build time);
 // this only changes where its content is delivered from at runtime.
-func renderPhaseSkill(command CommandDefinition, lang string) (string, error) {
+func renderPhaseSkill(command CommandDefinition, lang, shell string) (string, error) {
 	promptPath := ".speckeep/templates/prompts/" + command.Name + ".md"
-	checkReady := "./.speckeep/scripts/check-ready.sh " + command.Name + " [<slug>]"
+	checkReady := readinessLine(command.Name, lang, shell)
 
 	body, err := templates.PromptContent(lang, command.Name)
 	if err != nil {
@@ -345,8 +422,7 @@ description: SpecKeep-фаза «%s» — %s.
 
 Напоминания:
 
-- readiness: %s (запусти, доверяй exit-коду).
-- Создавай/правь только артефакты, которые называет промпт выше; контекст — текущий slug и surfaces из Touches:.
+%s- Создавай/правь только артефакты, которые называет промпт выше; контекст — текущий slug и surfaces из Touches:.
 - Не расширяй scope, не перепланируй, не коммить без явной просьбы.
 - Заверши фазу end block и сохрани точную финальную строку промпта.
 - Гейт: speckeep check <slug> → исправь находки или сообщи blocker.
@@ -369,8 +445,7 @@ description: SpecKeep phase "%s" — %s.
 
 Reminders:
 
-- readiness: %s (run it, trust the exit code).
-- Write/patch only the artifacts named above; keep context to the current slug and Touches: surfaces.
+%s- Write/patch only the artifacts named above; keep context to the current slug and Touches: surfaces.
 - Do not expand scope, re-plan, or commit without being asked.
 - End with the end block and preserve the prompt's exact final line.
 - Gate: speckeep check <slug> → fix findings or report a blocker.
@@ -383,11 +458,11 @@ Reminders:
 // renderFlatCommand renders a plain, frontmatter-free markdown command file
 // for targets whose Skills mechanism isn't invocable by name (see
 // targetFlatCommandDirs) — the tool treats the file itself as the command
-// body, keyed by filename. invokePrefix is "/" (Windsurf Workflows, OpenCode
-// Commands, Cline Workflows) or "@" (Amazon Q Prompts).
-func renderFlatCommand(command CommandDefinition, lang, invokePrefix string) (string, error) {
+// body, keyed by filename. invokePrefix is "/" (Windsurf Workflows, Cline
+// Workflows) or "@" (Amazon Q Prompts).
+func renderFlatCommand(command CommandDefinition, lang, invokePrefix, shell string) (string, error) {
 	promptPath := ".speckeep/templates/prompts/" + command.Name + ".md"
-	checkReady := "./.speckeep/scripts/check-ready.sh " + command.Name + " [<slug>]"
+	checkReady := readinessLine(command.Name, lang, shell)
 	invoke := invokePrefix + "spk-" + command.Name
 
 	body, err := templates.PromptContent(lang, command.Name)
@@ -407,8 +482,7 @@ func renderFlatCommand(command CommandDefinition, lang, invokePrefix string) (st
 
 Напоминания:
 
-- readiness: %s (запусти, доверяй exit-коду).
-- Создавай/правь только артефакты, которые называет промпт выше; контекст — текущий slug и surfaces из Touches:.
+%s- Создавай/правь только артефакты, которые называет промпт выше; контекст — текущий slug и surfaces из Touches:.
 - Не расширяй scope, не перепланируй, не коммить без явной просьбы.
 - Заверши фазу end block и сохрани точную финальную строку промпта.
 - Гейт: speckeep check <slug> → исправь находки или сообщи blocker.
@@ -426,8 +500,7 @@ func renderFlatCommand(command CommandDefinition, lang, invokePrefix string) (st
 
 Reminders:
 
-- readiness: %s (run it, trust the exit code).
-- Write/patch only the artifacts named above; keep context to the current slug and Touches: surfaces.
+%s- Write/patch only the artifacts named above; keep context to the current slug and Touches: surfaces.
 - Do not expand scope, re-plan, or commit without being asked.
 - End with the end block and preserve the prompt's exact final line.
 - Gate: speckeep check <slug> → fix findings or report a blocker.
@@ -438,20 +511,27 @@ Reminders:
 // renderGeminiCommand renders a Gemini CLI custom-command TOML file
 // (.gemini/commands/<name>.toml) — Gemini's real invocable-command format,
 // distinct from its (non-slash-invocable) Skills mechanism.
-func renderGeminiCommand(command CommandDefinition, lang string) (string, error) {
+func renderGeminiCommand(command CommandDefinition, lang, shell string) (string, error) {
 	body, err := templates.PromptContent(lang, command.Name)
 	if err != nil {
 		return "", fmt.Errorf("render gemini command %q: %w", command.Name, err)
 	}
 	body = strings.TrimSpace(dropLeadingHeading(body))
-	checkReady := "./.speckeep/scripts/check-ready.sh " + command.Name + " [<slug>]"
 	promptPath := ".speckeep/templates/prompts/" + command.Name + ".md"
+	runFirst := ""
+	if hasReadyCheck(command.Name) {
+		runFirst = "run " + checkReadyScript(shell) + " " + command.Name + " [<slug>] first; "
+	}
 
-	reminders := "Reminders: run " + checkReady + " first; write/patch only the named artifacts; " +
+	reminders := "Reminders: " + runFirst + "write/patch only the named artifacts; " +
 		"do not expand scope or commit without being asked; end with the end block; " +
 		"gate with speckeep check <slug>; canonical source: " + promptPath
 	if lang == "ru" {
-		reminders = "Напоминания: сначала запусти " + checkReady + "; создавай/правь только названные артефакты; " +
+		runFirst = ""
+		if hasReadyCheck(command.Name) {
+			runFirst = "сначала запусти " + checkReadyScript(shell) + " " + command.Name + " [<slug>]; "
+		}
+		reminders = "Напоминания: " + runFirst + "создавай/правь только названные артефакты; " +
 			"не расширяй scope и не коммить без просьбы; заверши end block'ом; " +
 			"гейт speckeep check <slug>; канонический источник: " + promptPath
 	}

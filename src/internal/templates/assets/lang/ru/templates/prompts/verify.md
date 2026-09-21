@@ -74,8 +74,8 @@ Stop if: `tasks.md` отсутствует или slug неоднозначен.
   Status: pass|concerns|blocked
   Artifacts: <пути>
   Blockers: <none | причина>
-  Готово к: speckeep archive <slug> .   (или "Вернуться к: /spk.<phase> <slug>" при не-pass)
+  Готово к: speckeep archive <slug> .   (или "Вернуться к: /spk-<phase> <slug>" при не-pass)
   ```
 - Если `pass` — финальная строка: `Готово к: speckeep archive <slug> .`
-- Если `concerns` — финальная строка: `Готово к: /spk.implement <slug>` (закрыть пробелы proof) — или `Вернуться к: /spk.tasks <slug>`, если это проблемы покрытия задачами.
-- Если `blocked` — финальная строка: `Вернуться к: /spk.<phase> <slug>` (самая узкая ранняя фаза, которая реально может исправить).
+- Если `concerns` — финальная строка: `Готово к: /spk-implement <slug>` (закрыть пробелы proof) — или `Вернуться к: /spk-tasks <slug>`, если это проблемы покрытия задачами.
+- Если `blocked` — финальная строка: `Вернуться к: /spk-<phase> <slug>` (самая узкая ранняя фаза, которая реально может исправить).

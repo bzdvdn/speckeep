@@ -38,10 +38,10 @@ speckeep решает это через **discipline per token** — миним�
 - **Tasks** с surface map и группировкой по фазам — агенты выполняют по порядку, одну фазу за раз
 - **Traceability** (записи `Proof:` в `tasks.md`) — доказательство, что каждое требование реализовано и протестировано
 - **19 адаптеров агентов** — Claude Code, Codex, Cursor, Copilot, OpenCode, aider, Amazon Q, Gemini, Jules, Cline, Devin, Goose, Refact, Windsurf и другие ([уровни поддержки](docs/ru/agents.md#уровни-поддержки)) — поддержка Continue.dev снята после сообщений о свёртывании продукта
-- **Быстрый цикл закрытия** (`/spk.converge`) — превращает разрывы реализации в follow-up задачи и повторяет до сходимости
+- **Быстрый цикл закрытия** (`/spk-converge`) — превращает разрывы реализации в follow-up задачи и повторяет до сходимости
 - **CI-гейт** (`speckeep guard`) — машино-проверяемый ответ «можно ли прямо сейчас закрыть каждую фичу?»
 - **Express-полоса** — крошечные/низкорисковые фичи пропускают `plan.md`/`data-model.md` и закрываются через `spec.md` + `tasks.md`
-- **One-shot propose** (`/spk.propose`) — идея → `spec.md` + `tasks.md` за один проход, сразу к implement
+- **One-shot propose** (`/spk-propose`) — идея → `spec.md` + `tasks.md` за один проход, сразу к implement
 - **Миграция на лету** (`speckeep import openspec|speckit`) — конвертация feature packages из OpenSpec/Spec Kit в наш layout за секунды
 - **Компактный архив** (`--compact`) — хранит только `summary.md` + git-указатель вместо копий всех артефактов
 
@@ -56,7 +56,7 @@ constitution → spec → [inspect] → plan → tasks → implement → archive
 ```
 `verify` — опциональный on-demand аудит; archive разрешён, когда каждая задача `[x]` имеет `Proof:` (или после `verify: pass`).
 
-Каждая фаза загружает только минимум контекста. Опциональные команды на любой фазе: `/spk.challenge`, `/spk.handoff`, `/spk.hotfix`, `/spk.scope`, `/spk.recap`.
+Каждая фаза загружает только минимум контекста. Опциональные команды на любой фазе: `/spk-challenge`, `/spk-handoff`, `/spk-hotfix`, `/spk-scope`, `/spk-recap`.
 
 ---
 
@@ -165,7 +165,7 @@ speckeep init . --lang ru --shell sh --agents claude
 
 ### 2. Spec
 
-Вызовите `/spk.spec --name "Экспорт отчётов в CSV"` в агенте.
+Вызовите `/spk-spec --name "Экспорт отчётов в CSV"` в агенте.
 
 `specs/active/eksport-otchetov-v-csv/spec.md`:
 
@@ -189,15 +189,15 @@ Then скачивается .csv только с заголовками — бе
 
 ### 3. Inspect
 
-Вызовите `/spk.inspect eksport-otchetov-v-csv`.
+Вызовите `/spk-inspect eksport-otchetov-v-csv`.
 
 ### 4. Plan
 
-Вызовите `/spk.plan eksport-otchetov-v-csv`. Surfaces: `ReportsPage.tsx`, `useReportExport.ts`, `reports.test.ts`.
+Вызовите `/spk-plan eksport-otchetov-v-csv`. Surfaces: `ReportsPage.tsx`, `useReportExport.ts`, `reports.test.ts`.
 
 ### 5. Tasks
 
-Вызовите `/spk.tasks eksport-otchetov-v-csv`. Результат:
+Вызовите `/spk-tasks eksport-otchetov-v-csv`. Результат:
 
 | Surface                    | Задачи |
 | -------------------------- | ------ |
@@ -208,8 +208,8 @@ Then скачивается .csv только с заголовками — бе
 ### 6. Implement, verify, archive
 
 ```
-/spk.implement eksport-otchetov-v-csv
-/spk.verify    eksport-otchetov-v-csv   # вердикт: pass
+/spk-implement eksport-otchetov-v-csv
+/spk-verify    eksport-otchetov-v-csv   # вердикт: pass
 speckeep archive    eksport-otchetov-v-csv .
 ```
 
@@ -219,7 +219,7 @@ speckeep archive    eksport-otchetov-v-csv .
 speckeep check eksport-otchetov-v-csv
 # Фаза:   tasks → implement
 # Задачи: 0 / 3 выполнено
-# Далее:  /spk.implement eksport-otchetov-v-csv
+# Далее:  /spk-implement eksport-otchetov-v-csv
 ```
 
 </details>

@@ -46,21 +46,21 @@ Every target gets an identical `sdd/` overview skill plus one `spk-<phase>/` ski
 | `codex` | Likely, `/name` | Skills are slash-invocable per OpenAI's docs, but the *canonical* documented path is `.agents/skills/`, not `.codex/skills/` — `.codex/skills/` is community-documented and not independently confirmed as read by Codex CLI. |
 | `copilot` | Yes (CLI), `/name` | Confirmed for Copilot **CLI** against official docs. VS Code Copilot Chat has its own separate "Agent Skills" documentation not yet cross-checked for parity. |
 | `windsurf` | No via Skills — **yes via generated Workflow** | Windsurf Skills load automatically or via `@mention`, never `/`. speckeep also generates `.windsurf/workflows/spk-<phase>.md` (Windsurf's real slash-command mechanism), so `/spk-spec` genuinely works there. |
-| `opencode` | No via Skills — **yes via generated Command** | OpenCode Skills are loaded by the agent calling a `skill()` tool, never `/`. speckeep also generates `.opencode/commands/spk-<phase>.md` (OpenCode's real slash-command mechanism), so `/spk-spec` genuinely works there. |
+| `opencode` | No via `/` — reach phases via `/skills` | OpenCode Skills are loaded by the agent calling a `skill()` tool, never `/`; the `/` palette is built from `.opencode/commands/*` and explicitly skips `source === "skill"`. speckeep **ships OpenCode skills-only**: the duplicate `.opencode/commands/spk-<phase>.md` set was removed, so phases are picked through `/skills` rather than typed as `/spk-spec`. |
 | `cline` | No via Skills (`.clinerules/` is context, not commands) — **yes via generated Workflow** | speckeep also generates `.clinerules/workflows/spk-<phase>.md` (Cline's real slash-command mechanism, invoked as `/spk-<phase>.md`). |
 | `amazonq` | No via `/`, but **yes via generated Prompt with `@name`** | Amazon Q Developer has no confirmed native Skills reader at all (the only official "Skills" doc found belongs to an unrelated "Agent Toolkit for AWS" plugin). speckeep now writes to the real dotfile root `.amazonq/` (not `.q/` — the old path was likely never read) and generates `.amazonq/prompts/spk-<phase>.md`, invoked with `@spk-<phase>`, not a slash. |
 | `gemini` | No via Skills — **yes via generated TOML command** | Gemini CLI Skills are model-invoked only. speckeep also generates `.gemini/commands/spk-<phase>.toml` (Gemini's real command format — TOML, not markdown), so `/spk-spec` genuinely works there. |
 | `devin` | No, `@skills:name` only | Skills load automatically or via explicit `@skills:name` mention, never `/`. `.agents/skills/` is the documented canonical path; speckeep's `.devin/skills/` is a confirmed-valid fallback path, just not the primary one. |
 | `goose` | No, `/skills <name>` meta-command only | Not directly `/name`-invocable — reach it via `/skills <name>` or auto-trigger. Goose's own real slash commands are a separate "recipes" system (user-aliased parameterized YAML tasks), which speckeep does not generate. `.agents/skills/` is canonical; `.goose/skills/` is a confirmed-valid fallback. |
 | `kilocode` | Unverified / likely no via Skills | Community docs describe Skills as model-invoked only, with real slash commands at a **`.kilo/commands/`** path — but those same docs also suggest the product's dotfile root may have moved from `.kilocode/` to `.kilo/`, which is not independently confirmed. speckeep has **not** changed `.kilocode/skills/` on the strength of a single source; treat this row as open until verified. |
-| `roocode` | No, and no flat-command fallback exists | Skills are model-invoked only. Unlike Windsurf/OpenCode/Cline, Roo Code has no documented one-file-per-command mechanism — its only project-local convention (`.roo/rules/*.md`) is concatenated free-form context, not individually invocable. There is currently no way for speckeep to give Roo Code a real `/spk-spec`. |
+| `roocode` | No, and no flat-command fallback exists | Skills are model-invoked only. Unlike Windsurf/Cline, Roo Code has no documented one-file-per-command mechanism — its only project-local convention (`.roo/rules/*.md`) is concatenated free-form context, not individually invocable. There is currently no way for speckeep to give Roo Code a real `/spk-spec`. |
 | `trae` | Unverified, likely not | Trae's own docs describe natural-language/auto-selection triggering, not `/name`. An open upstream issue also suggests drop-in `SKILL.md` files may not be auto-discovered without registering through Trae's own UI/CLI. |
 | `aider` | N/A — no Skills loader | Confirmed: Aider has no Skills or custom-slash-command mechanism. It only reads `CONVENTIONS.md` when explicitly told to (`/read`, `--read`, or `.aider.conf.yml`) — the existing `.aider/CONVENTIONS.md` pointer is the correct approach. |
 | `jules` | N/A — no mechanism at all | Jules is an async/non-interactive agent; it only reads `AGENTS.md` (falling back to `README.md`) for context. Neither Skills nor slash commands apply — speckeep's `.jules/skills/` output is currently unread but harmless. |
 | `refact` | Unverified, likely no | No Skills, SKILL.md, or project-local command convention found anywhere in Refact.ai's docs or GitHub. Its customization is UI-driven ("AI Toolbox", `Alt+T`), not a repo-local file. speckeep's `.refact/skills/` output is unconfirmed to be read at all. |
 | `codiumate` | Unverified | **Product renamed**: CodiumAI → Qodo → "Codiumate" is now "Qodo Gen". Qodo does document an Agent-Skills-compatible system, but no official source confirms the installed project path or slash-invocability — treat as unconfirmed rather than assume parity. |
 
-If you hit a target where the documented command doesn't appear, please open an issue with what you see — that's exactly the signal that moves a row from "unverified" to confirmed (or, like windsurf/opencode/cline/amazonq/gemini, a target-specific fix).
+If you hit a target where the documented command doesn't appear, please open an issue with what you see — that's exactly the signal that moves a row from "unverified" to confirmed (or, like windsurf/cline/amazonq/gemini, a target-specific fix).
 
 **`continue` was removed as a supported target.** Multiple secondary sources reported Continue.dev was acquired by Cursor and discontinued around mid-2026 (its GitHub repo made read-only); not worth maintaining generation for. `speckeep doctor` flags any leftover `.continue/skills/` output from before the removal, and `speckeep refresh`/`cleanup-agents` remove it; a `continue` entry lingering in an existing `speckeep.yaml` is dropped silently on the next refresh rather than erroring.
 
@@ -73,7 +73,7 @@ Every target receives the same skill set at `<target-skills-dir>/`: a lightweigh
 - Copilot: `.github/skills/{sdd,spk-*}/`
 - Cursor: `.cursor/skills/{sdd,spk-*}/`
 - Kilo Code: `.kilocode/skills/{sdd,spk-*}/`
-- OpenCode: `.opencode/skills/{sdd,spk-*}/` + `.opencode/commands/spk-*.md` (real slash mechanism)
+- OpenCode: `.opencode/skills/{sdd,spk-*}/` (skills-only; no generated slash commands)
 - Trae: `.trae/skills/{sdd,spk-*}/`
 - Windsurf: `.windsurf/skills/{sdd,spk-*}/` + `.windsurf/workflows/spk-*.md` (real slash mechanism)
 - Roo Code: `.roo/skills/{sdd,spk-*}/`
@@ -119,7 +119,7 @@ Each generated agent wrapper includes:
 
 - it should create or switch to `feature/<slug>` before writing `specs/active/<slug>/spec.md` when the environment allows it
 - it should support `--name`, optional `--slug`, and optional `--branch` for chat-oriented input
-- if `/spk.spec` is invoked with `--name` but without enough description, it should preserve context and ask for or accept the next message as the continuation of the spec request
+- if `/spk-spec` is invoked with `--name` but without enough description, it should preserve context and ask for or accept the next message as the continuation of the spec request
 - when the input comes from a local prompt file, it should prefer top-of-file `name:` and optional `slug:` metadata over a generic filename
 - if the request is ambiguous, multi-feature, URL-like, or tries to derive one spec from multiple constitutional changes, it should stop and ask for one concrete feature
 

@@ -41,3 +41,25 @@ jobs:
 
       - name: Run test suite
         run: go test ./...
+
+  release-gate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Run release gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            sh scripts/release-check.sh --quick
+          else
+            sh scripts/release-check.sh
+          fi

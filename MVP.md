@@ -35,7 +35,7 @@ Managed generated artifacts should remain refreshable without touching authored 
   speckeep.yaml
   constitution.md
   constitution.summary.md  (generated, optional)
-  glossary.md  (optional, created on demand via /spk.glossary)
+  glossary.md  (optional, created on demand via /spk-glossary)
   specs/
     <slug>/
       spec.md
@@ -129,13 +129,13 @@ Dependency rules:
 
 Available at any phase:
 
-- `/spk.challenge`: adversarial review of spec or plan — finds weak assumptions, untestable AC, scope drift
-- `/spk.propose`: one-shot fast lane — idea → `spec.md` + `tasks.md` (plan optional), straight to implement; falls back to `/spk.spec` on ambiguity
-- `/spk.converge`: fast closing loop — re-checks an implemented feature cheaply, appends follow-up tasks, repeats until converged (lighter than verify)
-- `/spk.handoff`: compact session handoff document for new sessions
-- `/spk.hotfix`: emergency fix outside standard chain (≤3 files, known root cause)
-- `/spk.scope`: quick scope boundary check (inline only, no file)
-- `/spk.recap`: project-level overview of all active features
+- `/spk-challenge`: adversarial review of spec or plan — finds weak assumptions, untestable AC, scope drift
+- `/spk-propose`: one-shot fast lane — idea → `spec.md` + `tasks.md` (plan optional), straight to implement; falls back to `/spk-spec` on ambiguity
+- `/spk-converge`: fast closing loop — re-checks an implemented feature cheaply, appends follow-up tasks, repeats until converged (lighter than verify)
+- `/spk-handoff`: compact session handoff document for new sessions
+- `/spk-hotfix`: emergency fix outside standard chain (≤3 files, known root cause)
+- `/spk-scope`: quick scope boundary check (inline only, no file)
+- `/spk-recap`: project-level overview of all active features
 
 ## Language model
 
@@ -440,7 +440,7 @@ systems**:
   Requirement/Scenario blocks, `plan.md` from design.md, copies tasks.md best-effort)
 - reads `specs/<slug>/` for Spec Kit (copies spec/plan/tasks)
 - never overwrites existing speckeep features (reported as skipped)
-- imported `tasks.md` should be regenerated via `/spk.tasks` to add `Touches:`,
+- imported `tasks.md` should be regenerated via `/spk-tasks` to add `Touches:`,
   Surface Map, and Acceptance Coverage
 
 ## Doctor checks

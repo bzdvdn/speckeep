@@ -82,7 +82,7 @@ type Workflow struct {
 	Schema string `yaml:"schema,omitempty"`
 	// Verify controls whether the verify report is a mandatory pre-archive
 	// gate. Defaults to "optional" (new workflow): the archive gate relies on
-	// deterministic task/proof checks and /spk.verify becomes a strict
+	// deterministic task/proof checks and /spk-verify becomes a strict
 	// on-demand audit that can veto archive when a report exists but is not
 	// pass. Set to "required" to restore the older mandatory-verify ritual.
 	Verify string `yaml:"verify,omitempty"`

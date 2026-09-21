@@ -37,7 +37,7 @@ func CheckProposeReady(ctx context.Context, cfg config.Config, root, slug string
 		} else if branch == "HEAD" {
 			result.AddError(fmt.Sprintf("detached HEAD: switch/create %s before proposing a feature", expectedBranch))
 		} else if branch != expectedBranch && branch != "main" && branch != "master" {
-			result.AddError(fmt.Sprintf("expected to be on branch %s, got %s (create it or use /spk.spec)", expectedBranch, branch))
+			result.AddError(fmt.Sprintf("expected to be on branch %s, got %s (create it or use /spk-spec)", expectedBranch, branch))
 		} else {
 			result.AddOK(fmt.Sprintf("on branch %s (ok for propose)", branch))
 		}
