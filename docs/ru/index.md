@@ -32,4 +32,4 @@ speckeep init my-project --lang ru --agents claude --agents codex
 - project-local файлы команд для агентов, если указан `--agents`
 - `AGENTS.md` с привязкой к памяти проекта и шаблонам SpecKeep
 
-Для краткого обзора продукта смотри корневые [README](../README.md) и [MVP](../MVP.md).
+Для краткого обзора продукта смотри корневые [README](https://github.com/bzdvdn/speckeep/blob/master/README.md) и [MVP](https://github.com/bzdvdn/speckeep/blob/master/MVP.md).

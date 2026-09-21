@@ -33,3 +33,9 @@ TESTS/*
 
 # Demo recording workspace
 demo/_work/
+
+# Docs site (VitePress)
+docs/node_modules/
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+docs/.vitepress/.temp/

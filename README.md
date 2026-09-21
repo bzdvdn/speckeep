@@ -1,19 +1,44 @@
 # speckeep
 
 [![ci](https://github.com/bzdvdn/speckeep/actions/workflows/ci.yml/badge.svg)](https://github.com/bzdvdn/speckeep/actions/workflows/ci.yml)
-[![release-build](https://github.com/bzdvdn/speckeep/actions/workflows/release-build.yml/badge.svg)](https://github.com/bzdvdn/speckeep/actions/workflows/release-build.yml)
+[![release](https://img.shields.io/github/v/release/bzdvdn/speckeep?sort=semver)](https://github.com/bzdvdn/speckeep/releases)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Go version](https://img.shields.io/github/go-mod/go-version/bzdvdn/speckeep)](go.mod)
+[![Go Report Card](https://goreportcard.com/badge/github.com/bzdvdn/speckeep)](https://goreportcard.com/report/github.com/bzdvdn/speckeep)
+[![docs](https://img.shields.io/badge/docs-online-3c8772)](https://bzdvdn.github.io/speckeep/)
 
-Русская версия: [README.ru.md](README.ru.md)
+**Strict, lightweight spec-driven development for coding agents.** `speckeep` keeps specs, plans, tasks, and traceability in plain files so agents and people stay aligned — without heavy process.
 
-`speckeep` — a lightweight Spec-Driven Development kit for dev agents and humans. It keeps specs, plans, tasks, and traceability in simple files so agents and people stay aligned without heavy process.
+English · [Русский](README.ru.md) · [Docs](https://bzdvdn.github.io/speckeep/) · [Roadmap](docs/en/roadmap.md) · [Releases](https://github.com/bzdvdn/speckeep/releases)
 
 SpecKeep is the successor to DraftSpec (archived). Migrate with `speckeep migrate`.
+
+![speckeep demo: init → spec → plan → tasks → implement](demo/speckeep-demo.gif)
+
+---
+
+## Contents
+
+- [Quick Start](#quick-start--30-seconds)
+- [Why speckeep?](#why-speckeep)
+- [Workflow](#workflow)
+- [Positioning](#positioning)
+- [CLI](#cli)
+- [CI](#ci)
+- [Install](#install)
+- [Example Feature Cycle](#example-feature-cycle)
+- [Documentation](#documentation)
+- [Development](#development)
+- [License](#license)
 
 ---
 
 ## Quick Start — 30 seconds
 
 ```bash
+# 0. Install (or use npx speckeep ... without installing)
+curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.sh" | bash
+
 # 1. Try it instantly — no project setup needed
 speckeep demo ./my-demo
 
@@ -123,7 +148,7 @@ It installs speckeep, detects changed `specs/active/<slug>/` features, and runs 
 
 ```bash
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.sh" | bash
-# add --version v1.0.0 to pin; --add-to-path to register PATH
+# add --version v1.0.1 to pin; --add-to-path to register PATH
 ```
 
 **Windows (PowerShell):**
@@ -137,7 +162,7 @@ The binary is automatically added to PATH on Windows. On Linux, use `--add-to-pa
 **Package managers:**
 
 - Homebrew: `brew install bzdvdn/speckeep/speckeep` (see `contrib/packaging/brew/`)
-- Scoop: `scoop bucket add speckeep https://github.com/bzdvdn/speckeep && scoop install speckeep` (see `contrib/packaging/scoop/`)
+- Scoop: `scoop bucket add speckeep https://github.com/bzdvdn/scoop-speckeep && scoop install speckeep` (see `contrib/packaging/scoop/`)
 - npm: `npx speckeep init` or `npm install -g speckeep` — a thin launcher that downloads the matching native binary on install (see `contrib/packaging/npm/`)
 - Go: `go install speckeep@latest`
 
@@ -151,7 +176,7 @@ speckeep self upgrade   # download, sha256-verify, and replace in place
 **Build from source:**
 
 ```bash
-go build -ldflags "-X speckeep/src/internal/cli.Version=v0.8.0" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v1.0.1" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 ---

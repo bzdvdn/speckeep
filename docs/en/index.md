@@ -32,4 +32,4 @@ This creates:
 - project-local agent command files when `--agents` is used
 - `AGENTS.md` guidance linked to SpecKeep structure, workflow, and templates
 
-For a concise product summary, see the root [README](../README.md) and [MVP](../MVP.md).
+For a concise product summary, see the root [README](https://github.com/bzdvdn/speckeep/blob/master/README.md) and [MVP](https://github.com/bzdvdn/speckeep/blob/master/MVP.md).

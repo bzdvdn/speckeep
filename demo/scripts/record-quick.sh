@@ -15,11 +15,13 @@ require_cmd vhs
 
 cd "$ROOT_DIR"
 
+VERSION="${VERSION:-$(git describe --tags --always --dirty 2>/dev/null || echo dev)}"
+
 mkdir -p bin
-go build -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=${VERSION}" -o bin/speckeep ./src/cmd/speckeep
 
 rm -rf demo/_work
 
 vhs demo/quick.tape
 
-echo "ok: wrote demo/speckeep-demo.gif"
+echo "ok: wrote demo/speckeep-demo.gif (${VERSION})"

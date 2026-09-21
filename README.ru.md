@@ -1,19 +1,44 @@
 # speckeep
 
 [![ci](https://github.com/bzdvdn/speckeep/actions/workflows/ci.yml/badge.svg)](https://github.com/bzdvdn/speckeep/actions/workflows/ci.yml)
-[![release-build](https://github.com/bzdvdn/speckeep/actions/workflows/release-build.yml/badge.svg)](https://github.com/bzdvdn/speckeep/actions/workflows/release-build.yml)
+[![release](https://img.shields.io/github/v/release/bzdvdn/speckeep?sort=semver)](https://github.com/bzdvdn/speckeep/releases)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Go version](https://img.shields.io/github/go-mod/go-version/bzdvdn/speckeep)](go.mod)
+[![Go Report Card](https://goreportcard.com/badge/github.com/bzdvdn/speckeep)](https://goreportcard.com/report/github.com/bzdvdn/speckeep)
+[![docs](https://img.shields.io/badge/docs-online-3c8772)](https://bzdvdn.github.io/speckeep/ru/)
 
-[English README](README.md)
+**Строгая, лёгкая spec-driven разработка для кодинг-агентов.** `speckeep` хранит specs, планы, задачи и traceability в простых файлах, чтобы агенты и люди работали согласованно — без тяжеловесного процесса.
 
-`speckeep` — лёгкий Spec-Driven Development kit для агентов разработки и людей. Хранит specs, планы, задачи и traceability в простых файлах, чтобы агенты и люди работали согласованно без тяжеловесного процесса.
+[English](README.md) · Русский · [Документация](https://bzdvdn.github.io/speckeep/ru/) · [Roadmap](docs/ru/roadmap.md) · [Releases](https://github.com/bzdvdn/speckeep/releases)
 
 SpecKeep — преемник DraftSpec (архивирован). Миграция: `speckeep migrate`.
+
+![speckeep demo: init → spec → plan → tasks → implement](demo/speckeep-demo.gif)
+
+---
+
+## Содержание
+
+- [Быстрый старт](#быстрый-старт--30-секунд)
+- [Зачем speckeep?](#зачем-speckeep)
+- [Workflow](#workflow)
+- [Позиционирование](#позиционирование)
+- [CLI](#cli)
+- [CI](#ci)
+- [Установка](#установка)
+- [Пример полного цикла фичи](#пример-полного-цикла-фичи)
+- [Документация](#документация)
+- [Разработка](#разработка)
+- [Лицензия](#лицензия)
 
 ---
 
 ## Быстрый старт — 30 секунд
 
 ```bash
+# 0. Установить (или npx speckeep ... без установки)
+curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.sh" | bash
+
 # 1. Попробовать сразу — без настройки проекта
 speckeep demo ./my-demo
 
@@ -109,7 +134,7 @@ speckeep add-agent | list-agents | remove-agent | cleanup-agents [path]
 
 ```bash
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.sh" | bash
-# --version v1.0.0 для пина версии; --add-to-path для регистрации PATH
+# --version v1.0.1 для пина версии; --add-to-path для регистрации PATH
 ```
 
 **Windows (PowerShell):**
@@ -123,7 +148,7 @@ powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.c
 **Пакетные менеджеры:**
 
 - Homebrew: `brew install bzdvdn/speckeep/speckeep` (см. `contrib/packaging/brew/`)
-- Scoop: `scoop bucket add speckeep https://github.com/bzdvdn/speckeep && scoop install speckeep` (см. `contrib/packaging/scoop/`)
+- Scoop: `scoop bucket add speckeep https://github.com/bzdvdn/scoop-speckeep && scoop install speckeep` (см. `contrib/packaging/scoop/`)
 - npm: `npx speckeep init` или `npm install -g speckeep` — тонкий launcher, который при установке скачивает подходящий нативный бинарник (см. `contrib/packaging/npm/`)
 - Go: `go install speckeep@latest`
 

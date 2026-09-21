@@ -6,11 +6,11 @@
   "architecture": {
     "64bit": {
       "url": "https://github.com/bzdvdn/speckeep/releases/download/v1.0.0/speckeep_v1.0.0_windows_amd64.zip",
-      "hash": "REPLACE_WITH_ASSET_SHA256"
+      "hash": "c5a8d38e2566c021f8951e2d909df66b4b6026744be4616b6932b8e2fcd935c6"
     },
     "arm64": {
       "url": "https://github.com/bzdvdn/speckeep/releases/download/v1.0.0/speckeep_v1.0.0_windows_arm64.zip",
-      "hash": "REPLACE_WITH_ASSET_SHA256"
+      "hash": "fb0a2fda6b96c7eb4cb20cd3de47236f1cf57cdd95d1eca9f9df069c8c38e8c3"
     }
   },
   "bin": "speckeep.exe",

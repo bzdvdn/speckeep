@@ -7,13 +7,19 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.0.1] - 2026-09-21
+
 ### Added
 
 - **Release gate** (`scripts/release-check.sh`, wired into CI): a single entry point that runs static analysis (`gofmt`, `go vet`, `go test [-race]`), the agent-artifact golden matrix + upgrade-from-legacy Go tests, a `GOOS/GOARCH` build matrix, a black-box end-to-end smoke against the built binary (`speckeep demo --agents all` → per-target artifacts, OpenCode skills-only, `check-ready` no-op for auxiliary commands, `refresh` idempotency, `doctor`), and packaging syntax smoke. `--quick` skips `-race` and the cross-builds; CI uses `--quick` on PRs and the full gate on `main`/`master`. Documented in `CONTRIBUTING.md`.
 - **`TestAgentArtifactMatrix`** (`src/internal/agents/matrix_test.go`): golden path-set + invariant test over all 19 targets × {en,ru} × {sh,powershell} — exact generated file set, no legacy paths, OpenCode skills-only, and readiness reminders only on gated phases.
 - **`TestUpgradeFromLegacyLayout`** (`src/internal/cli/upgrade_test.go`): emulates a pre-skills-first workspace (per-command wrappers, nested `sdd/phases/`, OpenCode command files), asserts `doctor` flags every stale artifact, `refresh` heals it, OpenCode ends skills-only, user data survives, and `doctor` is clean afterwards.
+- **Documentation site** (VitePress under `docs/`): bilingual (EN/RU) site with local search, built and deployed to GitHub Pages by the new `docs` workflow. Landing page at `docs/index.md`; nav/sidebar in `docs/.vitepress/config.mts`.
+- **Automated Homebrew tap + Scoop bucket on release**: new `publish-packages` job in `manual-release.yml` bumps `bzdvdn/homebrew-speckeep` and `bzdvdn/scoop-speckeep` after a release (source-tarball and Windows-asset sha256 are computed from the release), gated on the `PKG_PUSH_TOKEN` secret. `contrib/packaging/update-release.py` performs the in-place formula/manifest update and is usable manually too.
 
 ### Changed
+
+- **README polish**: inline demo GIF above the fold, badges (release, license, Go version, Go Report Card, docs), a contents list, and an install step in the quick start. Regenerated `demo/speckeep-demo.gif` against the current binary (the old recording predated skills-first and the `/spk-` rename); `demo/scripts/record-quick.sh` now stamps the binary version via `git describe`.
 
 - **Unified slash-command form on `/spk-<phase>` everywhere**: prompts, `agents-snippet.md`, `AGENTS.md` output, CLI help/hints (`init`, `check`, `status`, `dashboard`, `archive`, `import`, `demo`, `explore`), the importer, and `docs/{en,ru}` still used the pre-skills-first `/spk.<phase>` dot form, which no longer matches any generated skill or command. All user- and agent-facing references now use `/spk-<phase>`. `doctor` flags an `AGENTS.md` that still carries the old `/spk.*` form and tells you to `speckeep refresh .`.
 - **OpenCode is now skills-only**: the generated `.opencode/commands/spk-<phase>.md` set was removed as a redundant second entry point. OpenCode's `/` palette is built from `.opencode/commands/*` and explicitly skips commands whose `source === "skill"`, so the command files duplicated the skill pack without adding reachability; phase skills stay available through OpenCode's `/skills` picker. `targetFlatCommandDirs` no longer lists `opencode`, so `doctor`/`PathsForTarget`/`refresh` stop expecting or generating those files. `agents.LegacyOpenCodeCommandPaths` lets `doctor` flag and `refresh`/`cleanup-agents` remove leftovers from earlier versions; `docs/{en,ru}/agents.md` updated.
