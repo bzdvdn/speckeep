@@ -7,6 +7,19 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.0.2] - 2026-10-05
+
+### Changed
+
+- **Token discipline for in-session continuation (implement and all phases)**: continuing the same phase no longer requires re-invoking the slash command. Re-running `/spk-implement` reloads the entire implement prompt even though it is already in context, so the implement end block now branches on remaining work:
+  - open tasks remain → `Ready for: continue — Phase N` plus an explicit question to continue (`continue`) or stop; `/spk-implement <slug>` is referenced only for a fresh session (cleared context);
+  - no open tasks → `Ready for: speckeep converge <slug>` (then `speckeep archive <slug> .` once converged), or `/spk-verify <slug>` when `workflow.verify: required`.
+- **`agents-snippet` (EN/RU)**: added a general token-discipline rule — staying in the same phase means continue in-session; invoke a new command only when moving to a different phase or after a context reset. Because this lives in the canonical prompts/snippet, it propagates to every generated skill/command across all targets.
+
+### Fixed
+
+- **Implement no longer loops back to itself**: the end block previously always ended with `Ready for: /spk-implement <slug>`, which both burned tokens (full prompt reload) and implied a silent auto-advance to the next phase. It now states the next phase and asks before continuing, and explicitly forbids emitting `/spk-implement` when no tasks remain (or a converge/verify/archive line while tasks remain).
+
 ## [v1.0.1] - 2026-09-21
 
 ### Added
@@ -415,4 +428,6 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [0.8.0]: https://github.com/bzdvdn/speckeep/releases/tag/v0.8.0
 [0.8.1]: https://github.com/bzdvdn/speckeep/releases/tag/v0.8.1
 [1.0.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.0
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.0.0...HEAD
+[1.0.1]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.1
+[1.0.2]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.2
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.0.2...HEAD

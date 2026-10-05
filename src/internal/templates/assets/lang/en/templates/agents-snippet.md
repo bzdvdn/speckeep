@@ -16,6 +16,7 @@ Core rules:
 - Git safety: no `git commit/push/tag` and no PRs unless explicitly asked.
 - Done: never mark a task done without observable proof (file path, test output, or command result). Every artifact must be reviewable by a peer without extra explanation.
 - Proof: evidence for every completed task is a `Proof:` line in `tasks.md` directly under the checked task: `Proof: <kind> <path> [<anchor>]` (`kind` = `code|test|docs|chore`). A `[x]` task without a `Proof:` entry is not done yet. `speckeep trace`, `speckeep doctor`, and archive gates read evidence only from `tasks.md` `Proof:` lines.
+- Token discipline: staying in the **same phase** — continue in-session (user replies `continue`); do NOT re-invoke the same slash command/skill, it reloads the whole prompt. Invoke a new command only when moving to a **different phase** or after a context reset. The `Ready for` line names the next phase + a `continue?` question, not a re-run of the current command.
 - End block: every phase output ends with compact summary: `Slug`, `Status`, `Artifacts`, `Blockers`, `Ready for`. `Ready for` is `speckeep archive` once all `[x]` tasks have `Proof:` entries (or after `verify: pass`) UNLESS `workflow.verify: required`, in which case it is `/spk-verify` first. Use `Return to` when blocked.
   - Canonical end block (exact shape, single source — phase prompts reference this, do not re-derive a local variant):
     ```

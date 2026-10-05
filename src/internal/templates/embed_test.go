@@ -349,7 +349,9 @@ func TestImplementPromptSupportsFullRunAndScopedExecution(t *testing.T) {
 		"Do not assume `research.md` should exist;",
 		"Proof plan:",
 		"Proof: <kind> <path> [<anchor>]",
-		"Ready for: speckeep archive <slug> .",
+		"Ready for: speckeep converge <slug>",
+		"If open tasks remain",
+		"Do not emit `/spk-implement <slug>` when no tasks remain",
 		"End with standard end block (see AGENTS.md), exact shape:",
 	}
 	for _, snippet := range requiredSnippets {
@@ -682,7 +684,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 				".speckeep/constitution.summary.md",
 				"End with standard end block (see AGENTS.md), exact shape:",
 				"Proof: <kind> <path> [<anchor>]",
-				"Ready for: speckeep archive <slug> .",
+				"Ready for: speckeep converge <slug>",
 			},
 		},
 		{
