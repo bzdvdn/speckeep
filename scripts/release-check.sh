@@ -112,6 +112,12 @@ else
 	exit 1
 fi
 
+# Pin the freshly built binary for generated wrapper scripts
+# (`.speckeep/scripts/run-speckeep.sh` resolves SPECKEEP_BIN, else `speckeep`
+# on PATH). Without this, gated readiness scripts fail in CI where the binary
+# is not installed on PATH.
+export SPECKEEP_BIN="$BIN"
+
 section "L2 e2e: demo workspace (all targets)"
 DEMO="$WORK/demo"
 if "$BIN" demo "$DEMO" --agents all --shell sh >"$WORK/demo.log" 2>&1; then

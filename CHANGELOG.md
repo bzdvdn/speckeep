@@ -7,6 +7,10 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Release gate pinned the freshly built binary for e2e readiness scripts** (`scripts/release-check.sh`): the gate builds a temporary binary but never put it on `PATH` nor set `SPECKEEP_BIN`, so generated wrappers (`run-speckeep.sh`) fell back to a `speckeep` on `PATH`. In CI (nothing installed) the gated `check-ready spec` step exited non-zero while local runs passed. The gate now `export SPECKEEP_BIN="$BIN"` before the e2e section.
+
 ## [v1.0.2] - 2026-10-05
 
 ### Changed
