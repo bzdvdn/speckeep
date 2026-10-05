@@ -1,6 +1,6 @@
 {
   "name": "speckeep",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "speckeep — lightweight Spec-Driven Development kit for dev agents and humans (npm launcher for the native binary; downloads the matching speckeep release from GitHub on install)",
   "license": "MIT",
   "homepage": "https://github.com/bzdvdn/speckeep",

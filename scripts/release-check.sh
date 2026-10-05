@@ -177,12 +177,40 @@ if command -v bash >/dev/null 2>&1; then
 else
 	note "skip install.sh syntax (bash not found)"
 fi
-if [ -f contrib/packaging/npm/bin/speckeep.js ]; then
-	if command -v node >/dev/null 2>&1; then
-		if node --check contrib/packaging/npm/bin/speckeep.js >/dev/null 2>&1; then ok "npm launcher syntax"; else bad "npm launcher syntax"; fi
+
+# npm launcher: must be tracked (a root `bin/` gitignore previously dropped it
+# from the published tarball, so `npm install -g speckeep` created no shim),
+# must parse, and must actually end up in `npm pack`.
+if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+	if git ls-files --error-unmatch contrib/packaging/npm/bin/speckeep.js >/dev/null 2>&1; then
+		ok "npm launcher tracked"
 	else
-		note "skip npm launcher syntax (node not found)"
+		bad "npm launcher not tracked (is contrib/packaging/npm/bin ignored?)"
 	fi
+	if node --check contrib/packaging/npm/bin/speckeep.js >/dev/null 2>&1; then
+		ok "npm launcher syntax"
+	else
+		bad "npm launcher syntax"
+	fi
+	if (cd contrib/packaging/npm && npm pack --dry-run --json 2>/dev/null | node -e '
+let d = "";
+process.stdin.on("data", (c) => (d += c));
+process.stdin.on("end", () => {
+  try {
+    const packs = JSON.parse(d);
+    const files = (packs[0] && packs[0].files) || [];
+    process.exit(files.some((f) => f.path === "bin/speckeep.js") ? 0 : 1);
+  } catch (e) {
+    process.exit(1);
+  }
+});
+'); then
+		ok "npm pack includes bin/speckeep.js"
+	else
+		bad "npm pack is missing bin/speckeep.js"
+	fi
+else
+	note "skip npm checks (node/npm not found)"
 fi
 
 printf '\n== summary ==\n%s passed, %s failed\n' "$PASS" "$FAIL"

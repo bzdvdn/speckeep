@@ -6,6 +6,10 @@
 # Binaries
 /draftspec
 bin/
+# The npm launcher lives under a `bin/` dir; keep it tracked or the published
+# tarball loses `bin/speckeep.js` and `npm install -g speckeep` creates no shim.
+!contrib/packaging/npm/bin/
+!contrib/packaging/npm/bin/**
 
 # Build outputs
 *.exe

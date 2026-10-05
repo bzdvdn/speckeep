@@ -11,6 +11,10 @@ verifies its sha256 against the release's `sha256sum.txt`, and extracts the
 binary into `.bin/`. `bin/speckeep.js` then just execs that binary,
 forwarding args, stdio, and exit code.
 
+Archive extraction is done in pure Node (no external `tar`/`unzip`), so
+`npm install -g speckeep` works on Windows as well as Linux/macOS. Downloads
+retry a few times on transient network errors.
+
 ## Usage
 
 ```bash
@@ -20,9 +24,13 @@ npm install -g speckeep
 speckeep doctor .
 ```
 
+Install globally **without `sudo`** (with nvm/`npm config set prefix`); a
+sudo install lands in the system npm and the `speckeep` shim may not be on
+your `PATH`.
+
 ## Env overrides
 
-- `SPECKEEP_VERSION` — install a specific tag (e.g. `v1.0.0` or `1.0.0`)
+- `SPECKEEP_VERSION` — install a specific tag (e.g. `v1.0.2` or `1.0.2`)
   instead of the one matching this package's own version.
 - `SPECKEEP_BINARY_PATH` — skip the download entirely and exec this path
   instead (useful for local development/testing against a locally built
@@ -30,6 +38,13 @@ speckeep doctor .
 - `SPECKEEP_SKIP_DOWNLOAD` — skip the postinstall download (the launcher will
   then fail until a binary is provided via `SPECKEEP_BINARY_PATH` or a manual
   `node scripts/install.js` run).
+
+## Version coupling
+
+By default the native binary version equals this package's `version`. To ship
+a launcher-only fix without cutting a matching binary release, set
+`speckeepVersion` in `package.json` (e.g. `"1.0.2"`); `postinstall` then
+downloads that release while the npm package keeps its own version.
 
 ## Supported platforms
 

@@ -8,18 +8,23 @@
 //
 // This package ships no compiled code of its own — speckeep is a Go binary,
 // this is just a launcher so `npx speckeep` / `npm install -g speckeep` work.
+//
+// Archive extraction is implemented in pure Node (zlib + a small tar/zip
+// reader) so it works on Windows without relying on an external `tar`/`unzip`.
 
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const crypto = require('crypto');
-const { spawnSync } = require('child_process');
+const zlib = require('zlib');
 
 const REPO_OWNER = 'bzdvdn';
 const REPO_NAME = 'speckeep';
 const PKG_ROOT = path.join(__dirname, '..');
 const BIN_DIR = path.join(PKG_ROOT, '.bin');
 const MAX_REDIRECTS = 5;
+const DOWNLOAD_ATTEMPTS = 3;
+const SOCKET_TIMEOUT_MS = 60000;
 
 function log(msg) {
   console.log(`[speckeep] ${msg}`);
@@ -36,7 +41,10 @@ function resolveTag() {
     return v.startsWith('v') ? v : `v${v}`;
   }
   const pkg = require(path.join(PKG_ROOT, 'package.json'));
-  return `v${pkg.version}`;
+  // `speckeepVersion` lets the npm package version move independently of the
+  // release the native binary is downloaded from (e.g. a launcher-only fix).
+  const target = pkg.speckeepVersion || pkg.version;
+  return String(target).startsWith('v') ? String(target) : `v${target}`;
 }
 
 function resolvePlatform() {
@@ -65,34 +73,58 @@ function resolvePlatform() {
 
 function get(url, redirectsLeft) {
   return new Promise((resolve, reject) => {
-    https
-      .get(url, { headers: { 'User-Agent': 'speckeep-npm-installer' } }, (res) => {
-        const { statusCode, headers } = res;
-        if (statusCode >= 300 && statusCode < 400 && headers.location) {
-          res.resume();
-          if (redirectsLeft <= 0) {
-            reject(new Error(`too many redirects fetching ${url}`));
-            return;
-          }
-          resolve(get(headers.location, redirectsLeft - 1));
+    const req = https.get(url, { headers: { 'User-Agent': 'speckeep-npm-installer' } }, (res) => {
+      const { statusCode, headers } = res;
+      if (statusCode >= 300 && statusCode < 400 && headers.location) {
+        res.resume();
+        if (redirectsLeft <= 0) {
+          reject(new Error(`too many redirects fetching ${url}`));
           return;
         }
-        if (statusCode !== 200) {
-          res.resume();
-          reject(new Error(`GET ${url} -> HTTP ${statusCode}`));
-          return;
-        }
-        const chunks = [];
-        res.on('data', (c) => chunks.push(c));
-        res.on('end', () => resolve(Buffer.concat(chunks)));
-        res.on('error', reject);
-      })
-      .on('error', reject);
+        resolve(get(headers.location, redirectsLeft - 1));
+        return;
+      }
+      if (statusCode !== 200) {
+        res.resume();
+        reject(new Error(`GET ${url} -> HTTP ${statusCode}`));
+        return;
+      }
+      const chunks = [];
+      res.on('data', (c) => chunks.push(c));
+      res.on('end', () => resolve(Buffer.concat(chunks)));
+      res.on('error', reject);
+    });
+    req.on('error', reject);
+    req.setTimeout(SOCKET_TIMEOUT_MS, () => {
+      req.destroy(new Error(`timeout after ${SOCKET_TIMEOUT_MS}ms fetching ${url}`));
+    });
   });
 }
 
 function fetchBuffer(url) {
   return get(url, MAX_REDIRECTS);
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// fetchBufferWithRetry retries transient network failures (ECONNRESET, socket
+// hangs, timeouts) — important on Windows and flaky connections.
+async function fetchBufferWithRetry(url, attempts) {
+  let lastErr;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return await fetchBuffer(url);
+    } catch (err) {
+      lastErr = err;
+      if (attempt < attempts) {
+        log(`download attempt ${attempt}/${attempts} failed (${err.message}); retrying...`);
+        await sleep(500 * attempt);
+      }
+    }
+  }
+  throw lastErr;
 }
 
 function sha256Hex(buf) {
@@ -108,20 +140,77 @@ function expectedChecksum(sumsText, assetName) {
   return line.split(/\s+/)[0].toLowerCase();
 }
 
-function extractArchive(archivePath, destDir) {
-  fs.mkdirSync(destDir, { recursive: true });
-  // Windows 10+ ships bsdtar (tar.exe) which handles both .zip and .tar.gz,
-  // so a single `tar` invocation works cross-platform without extra deps.
-  const result = spawnSync('tar', ['-xf', archivePath, '-C', destDir], {
-    stdio: 'inherit',
-  });
-  if (result.error || result.status !== 0) {
-    fail(
-      `failed to extract ${archivePath} with tar. ` +
-        'Install a tar-compatible tool (bsdtar/GNU tar) or install speckeep manually: ' +
-        'https://github.com/bzdvdn/speckeep#install'
-    );
+// extractFromTarGz reads a .tar.gz buffer and returns the bytes of `binName`.
+function extractFromTarGz(buf, binName) {
+  const tar = zlib.gunzipSync(buf);
+  let off = 0;
+  while (off + 512 <= tar.length) {
+    const name = tar.toString('utf8', off, off + 100).replace(/\0.*$/, '');
+    if (!name) break; // zero block: end of archive
+    const sizeField = tar
+      .toString('utf8', off + 124, off + 136)
+      .replace(/\0.*$/, '')
+      .trim();
+    const size = sizeField ? parseInt(sizeField, 8) : 0;
+    const type = tar[off + 156];
+    const base = name.split('/').pop();
+    const dataStart = off + 512;
+    if ((type === 0 || type === 0x30) && base === binName) {
+      return tar.slice(dataStart, dataStart + size);
+    }
+    off = dataStart + Math.ceil(size / 512) * 512;
   }
+  throw new Error(`${binName} not found in tar.gz archive`);
+}
+
+// extractFromZip reads a .zip buffer and returns the bytes of `binName`.
+// Handles stored (0) and deflate (8) entries; the release zips use deflate.
+function extractFromZip(buf, binName) {
+  const EOCD_SIG = 0x06054b50;
+  const CDH_SIG = 0x02014b50;
+  const LFH_SIG = 0x04034b50;
+
+  let eocd = -1;
+  const minEocd = Math.max(0, buf.length - 22 - 0xffff);
+  for (let i = buf.length - 22; i >= minEocd; i--) {
+    if (buf.readUInt32LE(i) === EOCD_SIG) {
+      eocd = i;
+      break;
+    }
+  }
+  if (eocd < 0) throw new Error('zip: end-of-central-directory not found');
+
+  const entries = buf.readUInt16LE(eocd + 10);
+  let p = buf.readUInt32LE(eocd + 16);
+  for (let n = 0; n < entries; n++) {
+    if (buf.readUInt32LE(p) !== CDH_SIG) throw new Error('zip: bad central directory header');
+    const method = buf.readUInt16LE(p + 10);
+    const compSize = buf.readUInt32LE(p + 20);
+    const nameLen = buf.readUInt16LE(p + 28);
+    const extraLen = buf.readUInt16LE(p + 30);
+    const commentLen = buf.readUInt16LE(p + 32);
+    const localOffset = buf.readUInt32LE(p + 42);
+    const name = buf.toString('utf8', p + 46, p + 46 + nameLen);
+
+    if (name.split('/').pop() === binName) {
+      if (buf.readUInt32LE(localOffset) !== LFH_SIG) throw new Error('zip: bad local file header');
+      const lNameLen = buf.readUInt16LE(localOffset + 26);
+      const lExtraLen = buf.readUInt16LE(localOffset + 28);
+      const dataStart = localOffset + 30 + lNameLen + lExtraLen;
+      const data = buf.slice(dataStart, dataStart + compSize);
+      if (method === 0) return data;
+      if (method === 8) return zlib.inflateRawSync(data);
+      throw new Error(`zip: unsupported compression method ${method}`);
+    }
+    p += 46 + nameLen + extraLen + commentLen;
+  }
+  throw new Error(`${binName} not found in zip archive`);
+}
+
+function extractBinary(archiveBuf, ext, binName) {
+  if (ext === 'tar.gz') return extractFromTarGz(archiveBuf, binName);
+  if (ext === 'zip') return extractFromZip(archiveBuf, binName);
+  throw new Error(`unsupported archive format: ${ext}`);
 }
 
 async function main() {
@@ -150,14 +239,14 @@ async function main() {
   log(`downloading ${asset} (${tag})...`);
   let archiveBuf;
   try {
-    archiveBuf = await fetchBuffer(assetUrl);
+    archiveBuf = await fetchBufferWithRetry(assetUrl, DOWNLOAD_ATTEMPTS);
   } catch (err) {
     fail(`download failed: ${err.message}\nURL: ${assetUrl}`);
     return;
   }
 
   try {
-    const sumsText = (await fetchBuffer(sumsUrl)).toString('utf8');
+    const sumsText = (await fetchBufferWithRetry(sumsUrl, 2)).toString('utf8');
     const expected = expectedChecksum(sumsText, asset);
     if (expected) {
       const actual = sha256Hex(archiveBuf);
@@ -173,17 +262,20 @@ async function main() {
     log(`warning: could not fetch/verify sha256sum.txt (${err.message}); continuing unverified.`);
   }
 
-  const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'speckeep-'));
-  const archivePath = path.join(tmpDir, asset);
-  fs.writeFileSync(archivePath, archiveBuf);
-
-  extractArchive(archivePath, BIN_DIR);
-  fs.rmSync(tmpDir, { recursive: true, force: true });
-
-  if (!fs.existsSync(destBinary)) {
-    fail(`archive did not contain expected binary: ${binName}`);
+  let binary;
+  try {
+    binary = extractBinary(archiveBuf, ext, binName);
+  } catch (err) {
+    fail(`failed to extract ${asset}: ${err.message}`);
     return;
   }
+  if (!binary || binary.length === 0) {
+    fail(`archive ${asset} contained an empty ${binName}`);
+    return;
+  }
+
+  fs.mkdirSync(BIN_DIR, { recursive: true });
+  fs.writeFileSync(destBinary, binary);
   if (goos !== 'windows') {
     fs.chmodSync(destBinary, 0o755);
   }
@@ -191,4 +283,9 @@ async function main() {
   log(`installed: ${destBinary}`);
 }
 
-main().catch((err) => fail(err.stack || String(err)));
+// Exported for the packaging smoke test; no-op when required as a dependency.
+module.exports = { extractBinary, extractFromTarGz, extractFromZip };
+
+if (require.main === module) {
+  main().catch((err) => fail(err.stack || String(err)));
+}

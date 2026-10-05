@@ -7,9 +7,20 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.0.3] - 2026-10-05
+
 ### Fixed
 
+- **`npm install -g speckeep` created no `speckeep` command**: the launcher `contrib/packaging/npm/bin/speckeep.js` was silently untracked because the root `.gitignore` ignores every `bin/` directory (for Go build output), so it never reached the published tarball — the package shipped `scripts/install.js` and downloaded the native binary, but npm could not create the `speckeep` shim from a missing `bin/speckeep.js`. The npm launcher directory is now explicitly un-ignored and tracked, and the release gate asserts it stays tracked and present in `npm pack`.
 - **Release gate pinned the freshly built binary for e2e readiness scripts** (`scripts/release-check.sh`): the gate builds a temporary binary but never put it on `PATH` nor set `SPECKEEP_BIN`, so generated wrappers (`run-speckeep.sh`) fell back to a `speckeep` on `PATH`. In CI (nothing installed) the gated `check-ready spec` step exited non-zero while local runs passed. The gate now `export SPECKEEP_BIN="$BIN"` before the e2e section.
+
+### Changed
+
+- **npm postinstall extracts archives in pure Node (no external `tar`)**: `.tar.gz` is decoded with `zlib.gunzipSync` + a small tar reader and `.zip` with a minimal central-directory reader + `zlib.inflateRawSync`, so `npm install -g speckeep` now works on Windows without relying on `bsdtar`/GNU tar. Download of the release asset and `sha256sum.txt` gained retries with backoff and a socket timeout for flaky connections.
+
+### Testing
+
+- **Release gate** now also checks that `contrib/packaging/npm/bin/speckeep.js` is tracked by git and that `npm pack` actually includes `bin/speckeep.js` (the class of bug above shipped a broken package twice because the previous smoke ran only `node --check` on a working-tree file).
 
 ## [v1.0.2] - 2026-10-05
 
@@ -434,4 +445,5 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [1.0.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.0
 [1.0.1]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.1
 [1.0.2]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.2
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.0.2...HEAD
+[1.0.3]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.3
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.0.3...HEAD
