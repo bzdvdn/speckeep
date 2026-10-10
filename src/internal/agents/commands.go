@@ -142,6 +142,14 @@ func DefaultCommands(shell string) []CommandDefinition {
 			Category:    "workflow",
 		},
 		{
+			Name:        "module-context",
+			Description: "Document a module: write/refresh CONTEXT.md for a folder (purpose, how it works, contracts)",
+			PromptPath:  ".speckeep/templates/prompts/module-context.md",
+			Extras:      nil,
+			Optional:    true,
+			Category:    "workflow",
+		},
+		{
 			Name:        "rollback",
 			Description: "Roll back completed tasks for a feature, returning them to unfinished state",
 			PromptPath:  ".speckeep/templates/prompts/rollback.md",

@@ -69,6 +69,7 @@ speckeep solves this with **discipline per token** — minimal file-based struct
 - **One-shot propose** (`/spk-propose`) — idea → `spec.md` + `tasks.md` in a single pass, straight to implement
 - **Drop-in migration** (`speckeep import openspec|speckit`) — convert OpenSpec/Spec Kit feature packages into speckeep layout in seconds
 - **Compact archive** (`--compact`) — keep only `summary.md` + git pointer instead of copying every artifact
+- **Module context** (`/spk-module-context`) — ask the agent to write/refresh a folder's `CONTEXT.md` ("what/how/why"), indexed from `REPOSITORY_MAP.md` so agents onboarding into a module/app don't lose context
 
 Results in practice: agents produce correct code on first try more often, handoffs between sessions cost less context, and requirements stay reviewable by humans.
 
@@ -309,6 +310,23 @@ The skills live under the target's skills directory: a lightweight `sdd` overvie
 ```
 
 Each phase skill is its own directory (not nested resource files) so it is directly slash-invocable — e.g. typing `/spk-spec` in Claude Code — instead of only reachable through the model deciding to open a linked file. Each one inlines the canonical prompt from `.speckeep/templates/prompts/` (kept in sync automatically) so an agent gets the full phase instructions from one file, and is gated by `speckeep check`; closing uses `speckeep converge` / `speckeep guard`. `aider` additionally gets a `.aider/CONVENTIONS.md` pointer because it has no skill loader.
+
+### Module context for large repos
+
+Large multi-project repos (monorepos, or front + backend + mobile clients) are where agents lose context fastest. Two lightweight pieces keep them oriented:
+
+- **`REPOSITORY_MAP.md`** (`/spk-repo-map`) is the map: it lists modules/apps and points to each one's context — `## Modules & Context` (path, role, `CONTEXT.md` when present, else `(no context — run /spk-module-context <path>)`).
+- **`/spk-module-context <path>`** asks the agent to read a folder (e.g. `src`, `ui`) and write/refresh `<path>/CONTEXT.md` with prose — Purpose, Responsibilities, How it works, Key files, Public contracts, Gotchas. Invoke it manually, or after `implement` the agent suggests it when a module was created/restructured.
+
+Agents entering a module read its `CONTEXT.md` first (and `repo-map` for the wider picture) instead of re-deriving the architecture by grepping everything.
+
+```bash
+/spk-repo-map                    # map: modules & apps -> CONTEXT.md pointers
+/spk-module-context src          # document the Go/backend app into src/CONTEXT.md
+/spk-module-context ui           # document the UI into ui/CONTEXT.md
+```
+
+Lean by design: no generated graphs, no CLI auto-parsing — the agent gathers and writes facts, and `repo-map` carries the index.
 
 ---
 

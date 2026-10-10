@@ -59,6 +59,7 @@ Stop if: `tasks.md` is missing, the next task is not concrete, execution require
 - Report: closed task IDs, changed files, and the observable proof.
 - Ensure every closed task has its `Proof:` line written into `tasks.md`.
 - If a closed task has no valid `Proof:` line, treat the task as still open and do not mark it `[x]`.
+- If you created a new module or substantially restructured an existing one (new package/dir, moved public types, changed contracts), suggest `/spk-module-context <path>` in your summary so future agents get the updated CONTEXT.md — do not run it unprompted.
 - Before the final line, determine remaining work: run `speckeep check <slug>` (or count open tasks in `tasks.md`).
 - If open tasks remain:
   - The run is a natural pause point — implement executes only the first unfinished phase by default.

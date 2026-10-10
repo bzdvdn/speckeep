@@ -7,6 +7,25 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.1.0] - 2026-10-11
+
+### Added
+
+- **`/spk-module-context <path>`**: an agent skill that reads a folder and writes/refreshes `<path>/CONTEXT.md` — Purpose, Responsibilities, How it works, Key files, Public contracts, Gotchas. Invocable manually; after `implement` the prompt suggests it when a module is created or substantially restructured.
+- **`/spk-repo-map` "Modules & Context"**: `REPOSITORY_MAP.md` now carries a `## Modules & Context` index (module/app → path, one-line role, `CONTEXT.md`, else a `(no context — run /spk-module-context <path>)` hint), so agents entering a module start from its context instead of re-deriving the architecture.
+
+### Changed
+
+- **Agent command list** (skills + `agents-snippet.md` EN/RU + help): added `/spk-module-context` as an auxiliary command (no readiness gate).
+
+### Removed
+
+- **Machine-based module map CLI and engine**: the `speckeep module-map` / `speckeep affected` commands, the `module-map.sh` helper, and the `modulemap` analyzer package were removed. Module navigation is now agent-curated — `repo-map` is the map, `CONTEXT.md` is the context — with no generated dependency graphs or auto-parsing.
+
+### Testing
+
+- `/spk-module-context` prompt is covered by the agent-artifact matrix (auxiliary, no readiness); the full gate (`go vet`, `go test -race`, repository e2e, packaging) stays green.
+
 ## [v1.0.3] - 2026-10-05
 
 ### Fixed
@@ -446,4 +465,5 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [1.0.1]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.1
 [1.0.2]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.2
 [1.0.3]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.3
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.0.3...HEAD
+[1.1.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.1.0
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.1.0...HEAD

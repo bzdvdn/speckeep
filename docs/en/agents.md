@@ -102,6 +102,11 @@ The agent-facing workflows are:
 - `implement`
 - `verify`
 
+Auxiliary commands support navigation and coordination, notably:
+
+- `/spk-repo-map` — maintains `REPOSITORY_MAP.md` ("what is where": entrypoints, key paths, where-to-edit, and the `## Modules & Context` index).
+- `/spk-module-context <path>` — the agent reads a folder and writes/refreshes `<path>/CONTEXT.md` (purpose, how it works, contracts, gotchas). `REPOSITORY_MAP.md` points to these files so agents onboarding into a module/app start from its context instead of re-deriving the architecture.
+
 Each prompt is designed to:
 
 - read only the minimum required context

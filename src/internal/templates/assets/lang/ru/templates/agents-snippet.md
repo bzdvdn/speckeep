@@ -11,7 +11,7 @@
 - Конституция: загружайте `.speckeep/constitution.summary.md` сначала, если файл существует; только при его отсутствии переходите к `project.constitution_file` (по умолчанию `CONSTITUTION.md`).
 - Доменный язык: если `.speckeep/glossary.md` существует, прочитайте его один раз за сессию и переиспользуйте термины в spec/plan/tasks; никогда не вводите синоним термину, который он уже определяет. Файл опционален и создаётся/обновляется только через `/spk-glossary` — не генерируйте его неявно из другой фазы.
 - Ветки: только `/spk-spec` и `/spk-propose` могут переключать/создавать `feature/<slug>` (или `--branch`). Остальные фазы должны уже быть на нужной ветке.
-- Скрипты: `check-ready.* <phase> <slug>` запускайте только перед гейтируемыми фазами цепочки (`constitution`, `spec`, `propose`, `inspect`, `plan`, `tasks`, `implement`, `verify`, `converge`; `archive` — через CLI). Вспомогательные команды (`repo-map`, `glossary`, `challenge`, `handoff`, `recap`, `scope`, `rollback`, `hotfix`) — не фазы и readiness-гейта не имеют, для них скрипт не запускать. Доверяйте stdout/exit code; исходники `.speckeep/scripts/*` не читать.
+- Скрипты: `check-ready.* <phase> <slug>` запускайте только перед гейтируемыми фазами цепочки (`constitution`, `spec`, `propose`, `inspect`, `plan`, `tasks`, `implement`, `verify`, `converge`; `archive` — через CLI). Вспомогательные команды (`repo-map`, `module-context`, `glossary`, `challenge`, `handoff`, `recap`, `scope`, `rollback`, `hotfix`) — не фазы и readiness-гейта не имеют, для них скрипт не запускать. Доверяйте stdout/exit code; исходники `.speckeep/scripts/*` не читать.
 - Скиллы: workflow SpecKeep поставляется как `sdd` skill-pack в вашей skills-директории (`<инструмент>/skills/sdd/` — корневой `SKILL.md` + тонкие файлы по фазам в `phases/`). Предпочтительно загружать подходящий фазовый скилл; он делегирует на канонический промпт в `.speckeep/templates/prompts/*` и гейтится через `speckeep check`/`guard`.
 - Scope/load: по умолчанию только текущий slug; без широких репо-сканов; предпочитайте surfaces из `Touches:`.
 - Git safety: не делать `git commit/push/tag` и PR без явной просьбы.
@@ -56,7 +56,8 @@
 - `/spk-handoff` → handoff-документ сессии по одной фиче (продолжение без догадок)
 - `/spk-hotfix` → экстренное исправление вне цепочки фаз (≤ 3 файлов, без перепланирования)
 - `speckeep archive <slug> .` → CLI-only архив когда фича детерминированно доказана (все задачи `[x]` имеют `Proof:`) или после `verify: pass`; при `workflow.verify: required` архив требует `verify: pass`
-- `/spk-repo-map` → обновить `REPOSITORY_MAP.md` (см. выделенный prompt для политики + шаблона)
+- `/spk-repo-map` → обновить `REPOSITORY_MAP.md` (см. выделенный prompt для политики + шаблона); держите секцию `## Modules & Context` как карту модулей/приложений
+- `/spk-module-context <path>` → документировать модуль/приложение: записать/обновить `<path>/CONTEXT.md` (purpose, как устроен, контракты, gotchas); зови вручную или после `implement`, когда модуль создан/перестроен
 
 Чеклист триггеров обновления (запускайте `/spk-repo-map`, если истинно хотя бы одно):
 

@@ -19,6 +19,7 @@ Stop if: no structural changes detected (check trigger checklist first).
 - Update in place (minimal diff): preserve unchanged lines/order and edit only impacted entries/sections.
 - Do not rewrite the whole file if only a subset changed.
 - If `REPOSITORY_MAP.md` does not exist, create it from template; otherwise patch existing content.
+- Modules & Context: for each top-level module/app (e.g. `src`, `ui`, `server`, per `specs`/top-level dirs), keep a `## Modules & Context` section listing the path, a one-line role, and its `CONTEXT.md` when present. If a module lacks `CONTEXT.md`, note `(no context — run /spk-module-context <path>)` so future agents know to document it. Do not duplicate a CONTEXT.md's contents here — point to it.
 - Exclude from indexing: `src/internal/agents/**`, `.speckeep/**`, `specs/archived/**`, `.git/**`, `bin/**`, `demo/**`, `docs/**`, `TESTS/**`, `node_modules/**`, `vendor/**`, `dist/**`, `build/**`, `coverage/**`.
 - Note: project settings are already sourced from `.speckeep/speckeep.yaml`; do not duplicate that config in the map.
 

@@ -95,6 +95,7 @@ func Files(settings LanguageSettings) ([]File, error) {
 		{RelativePath: "templates/prompts/repo-map.md", TargetPath: "templates/prompts/repo-map.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/rollback.md", TargetPath: "templates/prompts/rollback.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/converge.md", TargetPath: "templates/prompts/converge.md", Mode: 0o644, Language: settings.Agent},
+		{RelativePath: "templates/prompts/module-context.md", TargetPath: "templates/prompts/module-context.md", Mode: 0o644, Language: settings.Agent},
 	}
 	files := make([]File, 0, len(definitions)+9)
 	configContent, err := generateConfig(settings)

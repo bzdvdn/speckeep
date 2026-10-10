@@ -136,6 +136,7 @@ Available at any phase:
 - `/spk-hotfix`: emergency fix outside standard chain (≤3 files, known root cause)
 - `/spk-scope`: quick scope boundary check (inline only, no file)
 - `/spk-recap`: project-level overview of all active features
+- `/spk-module-context <path>`: document a module/app — the agent writes/refreshes `<path>/CONTEXT.md` (purpose, how it works, contracts, gotchas); `REPOSITORY_MAP.md` carries the `## Modules & Context` pointer index
 
 ## Language model
 
@@ -407,6 +408,15 @@ Must:
 - exit 0 only when every active feature (or `--slug <slug>`) is archive-ready
 - fails on open tasks, missing Proof, blocked inspect/verify, or branch mismatch
 - `--json` for CI logs
+
+## Module context workflow
+
+`/spk-module-context` (companion to `/spk-repo-map`) keeps agents oriented in large multi-project repos without any machine-generated graphs:
+
+- `/spk-repo-map` maintains `REPOSITORY_MAP.md`, including a `## Modules & Context` section: each top-level module/app → path, role, and its `CONTEXT.md` (or `(no context — run /spk-module-context <path>)`).
+- `/spk-module-context <path>` has the agent read the folder and write/refresh `<path>/CONTEXT.md` with prose — Purpose, Responsibilities, How it works, Key files, Public contracts, Gotchas.
+- Agents enter modules via their `CONTEXT.md` (and the repo map for the wider picture) instead of re-deriving architecture; `implement` suggests `/spk-module-context <path>` when a module is created or restructured.
+- Anti-bloat: no auto-parsing, no generated index files; the agent gathers facts, `repo-map` carries the pointers.
 
 ## Status and dashboard
 

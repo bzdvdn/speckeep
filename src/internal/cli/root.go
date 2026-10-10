@@ -32,7 +32,8 @@ Optional commands (any phase):
   /spk-hotfix <slug>                       — emergency fix
   /spk-rollback <slug>                     — roll back completed tasks
   /spk-scope <slug>                        — scope boundary check
-  /spk-recap                               — recap active features
+/spk-recap                               — recap active features
+  /spk-module-context <path>                — document a module/app: write/refresh <path>/CONTEXT.md (repo-map covers the map)
 
 CLI commands:
   speckeep doctor .                      — workspace health check
@@ -40,8 +41,6 @@ CLI commands:
   speckeep check <slug> . [--json]       — feature status
   speckeep check . --all                 — all features table
   speckeep dashboard .                   — visual dashboard
-  speckeep converge <slug> .             — fast closing loop (exit 1 on gaps)
-  speckeep guard . [--slug <slug>]       — CI gate: all features closeable?
   speckeep archive <slug> . [--compact]  — archive verified feature (+ git-pointer mode)
   speckeep trace <slug> . [--tests]      — code traceability
   speckeep self check|upgrade            — manage the speckeep binary

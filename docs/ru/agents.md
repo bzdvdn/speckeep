@@ -102,6 +102,11 @@ Agent-facing workflow в SpecKeep:
 - `implement`
 - `verify`
 
+Вспомогательные команды для навигации и координации:
+
+- `/spk-repo-map` — ведёт `REPOSITORY_MAP.md` («что где»: entrypoints, ключевые пути, where-to-edit и индекс `## Modules & Context`).
+- `/spk-module-context <path>` — агент читает папку и пишет/обновляет `<path>/CONTEXT.md` (purpose, как устроен, контракты, gotchas). `REPOSITORY_MAP.md` указывает на эти файлы, чтобы агент, заходя в модуль/приложение, стартовал с его контекста, а не выводил архитектуру заново.
+
 Каждый prompt должен:
 
 - читать только минимально нужный контекст
