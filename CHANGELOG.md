@@ -7,6 +7,12 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.1.1] - 2026-10-23
+
+### Fixed
+
+- **`/spk-module-context` prompt cleanup (EN/RU)**: removed stale wording left over from the removed machine module-map engine — the prompt no longer refers to a "generated scaffold" or a "managed block". `## Dependencies` / `## Consumed by` are now explicitly "the direct deps and dependents you verified by reading code", and re-runs preserve existing prose plus any recognizable sectioned/generated block. No behavior change beyond clearer instructions.
+
 ## [v1.1.0] - 2026-10-11
 
 ### Added
@@ -466,4 +472,5 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [1.0.2]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.2
 [1.0.3]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.3
 [1.1.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.1.0
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.1.0...HEAD
+[1.1.1]: https://github.com/bzdvdn/speckeep/releases/tag/v1.1.1
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.1.1...HEAD

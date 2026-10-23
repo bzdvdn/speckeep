@@ -7,7 +7,7 @@ You act as a **module documenter**: given a folder path, you gather what the cod
 ## Phase Contract
 
 Inputs: a repo-relative folder path `<path>` (e.g. `src`, `ui`, `packages/billing`).
-Outputs: `<path>/CONTEXT.md` (prose; keep any generated managed block).
+Outputs: `<path>/CONTEXT.md` (prose; keep any existing recognizable sectioned/generated block).
 Stop if: the path is outside the repository, or documenting would require speculative design changes.
 
 ## How to run
@@ -23,7 +23,7 @@ Stop if: the path is outside the repository, or documenting would require specul
 - `## How it works` — the main flow/architecture in ~5–10 bullets (key types, services, entrypoints).
 - `## Key files` — 3–6 paths with a one-line role each (repo-root-relative).
 - `## Public contracts` — interfaces/events/DTOs other parts rely on (stability matters most).
-- `## Dependencies` / `## Consumed by` — from the generated scaffold; do not duplicate detail.
+- `## Dependencies` / `## Consumed by` — the direct deps and dependents you verified by reading code; do not pad.
 - `## Gotchas` — invariants, hidden coupling, config keys, migrations, common mistakes.
 
 ## Policy
@@ -34,7 +34,7 @@ Stop if: the path is outside the repository, or documenting would require specul
 
 ## Output expectations
 
-- Write/patch `<path>/CONTEXT.md`; preserve the generated managed block.
+- Write/patch `<path>/CONTEXT.md`; preserve existing prose and any recognizable sectioned/generated block.
 - Summarize what you documented (purpose, key flows, contracts) in a few bullets.
 - End with the standard end block (see AGENTS.md); resume the calling phase:
   ```
