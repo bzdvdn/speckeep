@@ -42,7 +42,9 @@ CLI commands:
   speckeep check . --all                 — all features table
   speckeep dashboard .                   — visual dashboard
   speckeep archive <slug> . [--compact]  — archive verified feature (+ git-pointer mode)
-  speckeep trace <slug> . [--tests]      — code traceability
+  speckeep trace <slug> . [--tests]      — Proof traceability
+  speckeep trace <slug> . --files        — changed files mapped to tasks
+  speckeep trace --file <path> .         — which specs/tasks changed a file
   speckeep self check|upgrade            — manage the speckeep binary
   speckeep import <openspec|speckit> .   — migrate feature packages from OpenSpec/Spec Kit
   speckeep export <slug> . --output f.md — export artifacts

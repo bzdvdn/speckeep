@@ -15,7 +15,7 @@ Stop if: the idea is ambiguous, covers more than one feature, or would require i
 ## Workflow
 
 1. Run the pre-phase readiness check: `./.speckeep/scripts/check-ready.sh propose [slug]`.
-2. Derive the slug (or accept `--slug`). Work from branch `feature/<slug>` — create/switch it if absent (same rule as `/spk-spec`).
+2. Derive the slug (or accept `--slug`). Work from branch `feature/<slug>` — create/switch it if absent (same rule as `/spk-spec`). Right after that run `./.speckeep/scripts/run-speckeep.* trace init <slug>` to pin the change-attribution base.
 3. Write `spec.md` from the spec template: `## Goal`, `## Requirements` (`RQ-*`), `## Acceptance Criteria` (`AC-*` with **Given / When / Then**), `## Assumptions`.
 4. Decide the lane:
    - **express** (default): no `plan.md` — go straight to tasks.

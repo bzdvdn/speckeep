@@ -2,27 +2,40 @@
 
 ## Install
 
-SpecKeep is distributed as a single binary via GitHub Releases.
-
-Linux:
+**npm is the recommended install path** — it ships the matching native binary for your OS/arch and avoids PATH surprises:
 
 ```bash
-VERSION=v0.5.1
+# Global install (current release: v1.2.0)
+npm install -g speckeep@1.2.0
+
+# Or run without a global install
+npx speckeep@1.2.0 init my-project --lang en --agents claude
+```
+
+Linux/macOS via the native installer:
+
+```bash
+VERSION=v1.2.0
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 Windows (PowerShell):
 
 ```powershell
-$version="v0.5.1"
+npm install -g speckeep@1.2.0
+
+# Native alternative
+$version="v1.2.0"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
 
-To also add the install directory to `PATH`:
+To also add the native install directory to `PATH`:
 
 - Linux: add `--add-to-path` or set `SPECKEEP_ADD_TO_PATH=1`
 - Windows: set `$env:SPECKEEP_ADD_TO_PATH=1` or run the script with `-AddToPath`
+
+**Updates:** `speckeep self upgrade` upgrades a native install in place. If you installed via npm, use `npm install -g speckeep@latest` instead.
 
 ## Commands
 
@@ -241,6 +254,50 @@ speckeep trace export-report --tests
 speckeep trace export-report my-project --json
 ```
 
+### `speckeep trace <slug> --files [path]`
+
+Shows what a feature actually changed and maps every changed file to the tasks and `AC-*` that declared it via `Touches:`/`Proof:`.
+
+- works for an active feature (computed from git, including uncommitted tracked and untracked changes) and for an archived one (read from `changes.json`; committed history only)
+- reports files changed outside declared `Touches:` (`Unmapped`) and declared surfaces that were never changed (`Declared but not changed`)
+- excludes feature artifacts and common vendored directories
+- use `--json` for the full change set
+
+```bash
+speckeep trace export-report . --files
+speckeep trace export-report my-project --files --json
+```
+
+### `speckeep trace --file <path> [path]`
+
+Reverse lookup: which specs and tasks changed a file. Searches active features (git + `tasks.md`) and archived features (`changes.json`) and reports the task IDs, `AC-*` and change status.
+
+```bash
+speckeep trace --file src/handlers/export.go .
+speckeep trace --file src/handlers/export.go my-project --json
+```
+
+### `speckeep trace init <slug> [path]`
+
+Pins the commit a feature branched from in `<specs_dir>/<slug>/trace-meta.json`. This keeps change attribution correct after merges and deletions of the feature branch.
+
+- call it right after creating `feature/<slug>` (the spec/propose prompts do this)
+- default base is the merge-base with `main`/`master`; override with `--base <ref>`
+- idempotent: an existing pin is kept unless `--force` is passed
+
+```bash
+speckeep trace init export-report .
+```
+
+### `speckeep trace rebuild [slug] [path] --all`
+
+Backfills `changes.json` for archived snapshots created before change attribution existed. Uses the compact `snapshot.sha` pointer or the archived `trace-meta.json`; snapshots without a commit pointer are reported as skipped.
+
+```bash
+speckeep trace rebuild export-report .
+speckeep trace rebuild --all .
+```
+
 ### `speckeep converge <slug> [path]`
 
 The cheap closing loop for "almost done" features: confirms every completed task carries a valid `Proof:` entry (existing file, resolvable anchor), every touched surface exists, and `AC-*` coverage holds.
@@ -298,7 +355,7 @@ speckeep self upgrade
 
 Creates a demo workspace at the given path (default: `./speckeep-demo`).
 
-The workspace is pre-populated with an example feature (`export-report`) at the implement phase — spec, inspect report, plan, tasks, and data model are all present. Suggests `/spk-scope`, `/spk-challenge`, and `/spk-handoff` to try immediately.
+The workspace is pre-populated with an example feature (`export-report`) at the implement phase — spec, inspect report, plan, tasks, and data model are all present, and the first tasks are completed with `Proof:` entries. `speckeep check export-report .` is ready for `/spk-implement`, while `speckeep trace export-report .` and `--files` work in declared mode (the demo is not a git repository). Suggests `/spk-scope`, `/spk-challenge`, and `/spk-handoff` to try immediately.
 
 ```bash
 speckeep demo

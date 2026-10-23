@@ -84,18 +84,21 @@ func TestArchiveCompactRoundtrip(t *testing.T) {
 		t.Fatalf("expected active spec.md to be removed, stat err=%v", err)
 	}
 
-	// Archive holds only summary.md + snapshot.sha (no artifact copies).
+	// Archive holds the pointer, summary and generated trace artifacts (no
+	// artifact copies).
 	entries, err := os.ReadDir(filepath.Join(archiveDir, "demo"))
 	if err != nil || len(entries) != 1 {
 		t.Fatalf("expected one snapshot, got entries=%v err=%v", entries, err)
 	}
 	snapshotDir := filepath.Join(archiveDir, "demo", entries[0].Name())
 	snapEntries, _ := os.ReadDir(snapshotDir)
-	if len(snapEntries) != 2 {
-		t.Fatalf("expected compact snapshot to hold exactly summary.md + snapshot.sha, got %d files", len(snapEntries))
+	if len(snapEntries) != 4 {
+		t.Fatalf("expected compact snapshot to hold summary.md + snapshot.sha + trace artifacts, got %d files", len(snapEntries))
 	}
-	if _, err := os.Stat(filepath.Join(snapshotDir, "snapshot.sha")); err != nil {
-		t.Fatalf("expected snapshot.sha, got %v", err)
+	for _, name := range []string{"snapshot.sha", "changes.json", "trace-meta.json"} {
+		if _, err := os.Stat(filepath.Join(snapshotDir, name)); err != nil {
+			t.Fatalf("expected %s, got %v", name, err)
+		}
 	}
 
 	// Restore from the compact snapshot.

@@ -142,3 +142,55 @@ func TestShouldSkip(t *testing.T) {
 		}
 	}
 }
+
+func TestCompleteTasks(t *testing.T) {
+	content := "# Tasks\n- [x] T1.1 done\n- [ ] T2.1 open\n- [x] T3.1 done\n- [x] T1.1 duplicate\n"
+	got := CompleteTasks(content)
+	want := []string{"T1.1", "T3.1"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("CompleteTasks = %v, want %v", got, want)
+	}
+}
+
+func TestParseAllAcrossActiveFeatures(t *testing.T) {
+	root := t.TempDir()
+	if _, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"}); err != nil {
+		t.Fatalf("Initialize: %v", err)
+	}
+	specsDir := filepath.Join(root, "specs", "active")
+	for _, slug := range []string{"alpha", "beta"} {
+		dir := filepath.Join(specsDir, slug)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		content := "# Tasks\n- [x] T1.1 done\n  Proof: code src/" + slug + ".go\n"
+		if err := os.WriteFile(filepath.Join(dir, "tasks.md"), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// A directory without tasks.md must be ignored.
+	if err := os.MkdirAll(filepath.Join(specsDir, "empty"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	entries, err := ParseAll(context.Background(), root)
+	if err != nil {
+		t.Fatalf("ParseAll: %v", err)
+	}
+	if len(entries) != 2 {
+		t.Fatalf("got %d entries, want 2: %+v", len(entries), entries)
+	}
+	if entries[0].Slug != "alpha" || entries[1].Slug != "beta" {
+		t.Errorf("slugs = %s, %s; want alpha, beta", entries[0].Slug, entries[1].Slug)
+	}
+}
+
+func TestParseAllMissingSpecsDir(t *testing.T) {
+	entries, err := ParseAll(context.Background(), t.TempDir())
+	if err != nil {
+		t.Fatalf("ParseAll: %v", err)
+	}
+	if len(entries) != 0 {
+		t.Errorf("entries = %+v, want none", entries)
+	}
+}

@@ -21,6 +21,9 @@
 ## Быстрый старт
 
 ```bash
+# Рекомендуемый способ установки — npm (актуальный релиз: v1.2.0)
+npm install -g speckeep@1.2.0
+
 speckeep init my-project --lang ru --agents claude --agents codex
 ```
 

@@ -17,10 +17,11 @@ func newDemoCmd() *cobra.Command {
 		Short: "Create a demo workspace with pre-populated example artifacts",
 		Long: `Create a demo workspace at the given path (default: ./speckeep-demo).
 
-The demo workspace contains a fully worked example feature (export-report) at
-the implement phase — spec, inspect report, plan, tasks, and data model are all
-populated under specs/active/ so you can explore the workflow and try slash
-commands immediately.`,
+The demo workspace contains a worked example feature (export-report) at the
+implement phase — spec, inspect report, plan, tasks, and data model are all
+populated under specs/active/, and the first tasks carry Proof entries so
+traceability can be explored immediately. Open tasks are intentional: they
+show what /spk-implement would pick up next.`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			root := "./speckeep-demo"
@@ -56,6 +57,8 @@ commands immediately.`,
 				styleCmd(w, "cd "+result.RootAbs),
 				styleCmd(w, "speckeep dashboard ."),
 				styleCmd(w, "speckeep check "+result.ExampleSlug+" ."),
+				styleCmd(w, "speckeep trace "+result.ExampleSlug+" ."),
+				styleCmd(w, "speckeep trace "+result.ExampleSlug+" . --files"),
 				"agent flow:",
 				"  " + styleCmd(w, "/spk-challenge "+result.ExampleSlug) + "  (optional)",
 				"  " + styleCmd(w, "/spk-scope "+result.ExampleSlug) + "      (optional)",

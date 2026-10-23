@@ -59,6 +59,7 @@ func CheckConvergeReady(ctx context.Context, cfg config.Config, root, slug strin
 	result.Merge(proofResult)
 
 	checkTouchesFilesExist(&result, root, tasksDisplay, string(content))
+	checkTraceDrift(ctx, &result, root, slug)
 
 	if fileExists(specAbs) {
 		inspectResult, err := InspectSpec(ctx, cfg, root, specDisplay, tasksDisplay)

@@ -221,6 +221,8 @@ For every completed task (`[x]`) in `tasks.md`, write a `Proof:` line directly u
 - a `[x]` task without at least one `Proof:` entry is NOT done; `speckeep check` and `speckeep archive` block it
 - `Proof:` entries MUST point to existing files (missing file is a hardened error); anchors SHOULD resolve to owning symbols (missing anchor is a warning)
 
+Change attribution is separate from proof: `Touches:` records what a task plans to change, while `Proof:` records the evidence. Right after creating `feature/<slug>`, pin the base commit with `speckeep trace init <slug>`; `speckeep trace <slug> --files` then shows the actual diff mapped to tasks, and `speckeep trace --file <path>` answers "which spec changed this file" across active and archived features. Archive stores the mapping in `changes.json`.
+
 Those phase-status updates should follow the project's configured agent language rather than defaulting to English.
 
 ### `verify`

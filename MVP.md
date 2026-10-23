@@ -279,6 +279,7 @@ Outputs:
 - `archive/<slug>/<YYYY-MM-DD>/summary.md`
 - archived copies of spec and feature artifacts (default, move-based)
 - `--compact`: only `summary.md` + `snapshot.sha` git pointer (branch, commit, file list) — the rest lives in git; restore uses `git show`
+- both modes always write `changes.json` (file → task/AC attribution) and `trace-meta.json` (base pin) next to the snapshot
 - supports `--restore` to reverse archive
 
 ## Traceability
@@ -290,6 +291,14 @@ Provides verifiable traceability between:
 - requirements (AC-*)
 - tasks (T*)
 - implementation (Proof entries in `tasks.md` — code/test/docs paths)
+- actual change footprint (`Touches:` vs `git diff`), pinned by `trace init` and persisted as `changes.json` on archive
+
+Change attribution is declarative rather than marker-based:
+
+- `speckeep trace init <slug>` pins the branch base commit (`trace-meta.json`)
+- `speckeep trace <slug> --files` maps changed files to tasks/ACs and reports drift (`Unmapped`, `Declared but not changed`)
+- `speckeep trace --file <path>` answers "which spec/task changed this file" across active and archived features
+- `speckeep trace rebuild --all` backfills `changes.json` for legacy archives
 
 ## CLI entrypoint contract
 

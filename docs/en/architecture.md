@@ -108,6 +108,9 @@ This layer is responsible for:
 - reports orphaned/duplicate/missing proof, missing files, and warns on missing anchors
 - filters findings by feature slug
 - supports JSON output for integration with verification workflows
+- pins the feature base commit (`trace-meta.json`) and maps `git diff base..HEAD` to tasks via `Touches:`/`Proof:`
+- persists that mapping as `changes.json` at archive time so `trace --file` works across archived features and merges
+- never writes annotations into source code; attribution comes from git plus declarative surfaces
 
 This layer allows the `verify` phase to remain token-efficient by replacing manual code review with deterministic metadata parsing.
 

@@ -137,6 +137,94 @@ check_file ".gemini/commands/spk-spec.toml"
 check_file ".aider/CONVENTIONS.md"
 check_absent ".opencode/commands"
 
+section "L2 e2e: demo feature readiness + trace"
+if "$BIN" check export-report "$DEMO" >"$WORK/demo-check.log" 2>&1; then
+	ok "demo feature is ready for implement"
+else
+	bad "demo feature is not ready for implement"
+	tail -20 "$WORK/demo-check.log"
+fi
+if "$BIN" trace export-report "$DEMO" >"$WORK/demo-trace.log" 2>&1; then
+	if grep -q "Proof entries" "$WORK/demo-trace.log"; then
+		ok "demo Proof trace"
+	else
+		bad "demo Proof trace returned no entries"
+	fi
+else
+	bad "demo Proof trace failed"
+fi
+if "$BIN" trace export-report "$DEMO" --files >"$WORK/demo-trace-files.log" 2>&1; then
+	if grep -q "Source: declared" "$WORK/demo-trace-files.log"; then
+		ok "demo change attribution (declared mode)"
+	else
+		bad "demo change attribution did not report declared mode"
+	fi
+else
+	bad "demo change attribution failed"
+fi
+
+section "L2 e2e: trace + archive lifecycle"
+FLOW="$WORK/flow"
+mkdir -p "$FLOW"
+git -C "$FLOW" init -q -b main
+git -C "$FLOW" config user.email "release@example.com"
+git -C "$FLOW" config user.name "Release Check"
+if "$BIN" init "$FLOW" --git=false --lang en --shell sh >"$WORK/flow-init.log" 2>&1; then
+	git -C "$FLOW" add -A
+	git -C "$FLOW" commit -q -m init
+	git -C "$FLOW" checkout -q -b feature/flow-demo
+	mkdir -p "$FLOW/specs/active/flow-demo" "$FLOW/src"
+	cat >"$FLOW/specs/active/flow-demo/spec.md" <<'EOF'
+# Flow Demo
+
+## Goal
+x
+
+## Acceptance Criteria
+### AC-001 Demo
+- Given x
+- When y
+- Then z
+EOF
+	cat >"$FLOW/specs/active/flow-demo/tasks.md" <<'EOF'
+# Tasks
+
+- [x] T1.1 Add demo (AC-001). Touches: src/demo.go
+  Proof: code src/demo.go Demo
+
+## Acceptance Coverage
+- AC-001 -> T1.1
+EOF
+	if "$BIN" trace init flow-demo "$FLOW" >/dev/null 2>&1; then
+		ok "trace init"
+	else
+		bad "trace init"
+	fi
+	git -C "$FLOW" add -A
+	git -C "$FLOW" commit -q -m spec
+	printf 'package src\nfunc Demo() {}\n' >"$FLOW/src/demo.go"
+	git -C "$FLOW" add -A
+	git -C "$FLOW" commit -q -m code
+	if "$BIN" trace flow-demo "$FLOW" --files --json 2>/dev/null | grep -q '"T1.1"'; then
+		ok "trace --files maps task"
+	else
+		bad "trace --files lost task mapping"
+	fi
+	if "$BIN" archive flow-demo "$FLOW" --status completed >/dev/null 2>&1; then
+		ok "archive feature"
+	else
+		bad "archive feature"
+	fi
+	if "$BIN" trace --file src/demo.go "$FLOW" --json 2>/dev/null | grep -q '"slug": "flow-demo"'; then
+		ok "trace --file finds archived feature"
+	else
+		bad "trace --file lost archived attribution"
+	fi
+else
+	bad "flow workspace init"
+	tail -10 "$WORK/flow-init.log"
+fi
+
 section "L2 e2e: readiness scripts"
 if (cd "$DEMO" && ./.speckeep/scripts/check-ready.sh repo-map >"$WORK/ready-aux.log" 2>&1); then
 	if grep -q "no readiness gate" "$WORK/ready-aux.log"; then

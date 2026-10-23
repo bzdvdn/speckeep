@@ -34,8 +34,9 @@ English · [Русский](README.ru.md) · [Docs](https://bzdvdn.github.io/spe
 ## Quick Start — 30 seconds
 
 ```bash
-# 0. Install (or use npx speckeep ... without installing)
-curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.sh" | bash
+# 0. Install — npm is the recommended path (or use npx without installing)
+npm install -g speckeep@1.2.0
+# npx speckeep@1.2.0 demo ./my-demo
 
 # 1. Try it instantly — no project setup needed
 speckeep demo ./my-demo
@@ -110,7 +111,10 @@ speckeep feature <slug> [path]
 speckeep features [path]
 speckeep list-specs [path]
 speckeep show-spec <name> [path]
-speckeep trace <slug> [path]
+speckeep trace <slug> [path] [--tests|--files]
+speckeep trace --file <path> [path]
+speckeep trace init <slug> [path]
+speckeep trace rebuild [slug] [path] [--all]
 speckeep export <slug> [path] [--output <file>]
 speckeep converge <slug> [path] [--json]
 speckeep guard [path] [--slug <slug>] [--json]
@@ -143,31 +147,49 @@ It installs speckeep, detects changed `specs/active/<slug>/` features, and runs 
 
 ## Install
 
-**Linux / macOS:**
+**Recommended — npm** (current release: **v1.2.0**). The npm launcher downloads the matching native binary for your OS/arch, so PATH usually just works:
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.sh" | bash
-# add --version v1.0.1 to pin; --add-to-path to register PATH
+npm install -g speckeep@1.2.0
+
+# or run without a global install
+npx speckeep@1.2.0 init my-project --lang en --agents claude
+```
+
+**Native installer (Linux / macOS):**
+
+```bash
+VERSION=v1.2.0
+curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
+# --add-to-path registers the install directory in PATH
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.ps1 | iex"
+npm install -g speckeep@1.2.0
+
+# Native alternative
+$version="v1.2.0"
+$env:SPECKEEP_VERSION=$version
+powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
 
-The binary is automatically added to PATH on Windows. On Linux, use `--add-to-path` if the install directory is not already on your PATH.
+The native binary is automatically added to PATH on Windows. On Linux, use `--add-to-path` if the install directory is not already on your PATH.
 
-**Package managers:**
+**Other package managers:**
 
 - Homebrew: `brew install bzdvdn/speckeep/speckeep` (see `contrib/packaging/brew/`)
 - Scoop: `scoop bucket add speckeep https://github.com/bzdvdn/scoop-speckeep && scoop install speckeep` (see `contrib/packaging/scoop/`)
-- npm: `npx speckeep init` or `npm install -g speckeep` — a thin launcher that downloads the matching native binary on install (see `contrib/packaging/npm/`)
 - Go: `go install speckeep@latest`
 
 **Update the installed binary:**
 
 ```bash
+# npm install
+npm install -g speckeep@latest
+
+# native install
 speckeep self check     # current vs latest release (read-only)
 speckeep self upgrade   # download, sha256-verify, and replace in place
 ```
@@ -175,7 +197,7 @@ speckeep self upgrade   # download, sha256-verify, and replace in place
 **Build from source:**
 
 ```bash
-go build -ldflags "-X speckeep/src/internal/cli.Version=v1.0.1" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v1.2.0" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 ---
@@ -283,8 +305,12 @@ During implementation, record evidence for each completed task as a `Proof:` lin
 Verify with:
 
 ```bash
-speckeep trace <slug> .
+speckeep trace <slug> .          # Proof evidence for completed tasks
+speckeep trace <slug> . --files  # actual changed files mapped to tasks
+speckeep trace --file src/handlers/export.go .  # reverse lookup across active + archived specs
 ```
+
+Change attribution is pinned when the feature branch is created (`speckeep trace init <slug>`) and persisted as `changes.json` on archive, so `trace --file` keeps working after merges.
 
 ### Agent adapters (skills-first)
 

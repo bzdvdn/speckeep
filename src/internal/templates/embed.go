@@ -11,7 +11,7 @@ import (
 	"speckeep/src/internal/config"
 )
 
-//go:embed assets/scripts/* assets/scripts/powershell/* assets/lang/* assets/lang/*/* assets/lang/*/templates/* assets/lang/*/templates/prompts/* assets/lang/*/templates/contracts/* assets/lang/*/templates/archive/* assets/demo/* assets/demo/specs/* assets/demo/specs/export-report/*
+//go:embed assets/scripts/* assets/scripts/powershell/* assets/lang/* assets/lang/*/* assets/lang/*/templates/* assets/lang/*/templates/prompts/* assets/lang/*/templates/contracts/* assets/lang/*/templates/archive/* assets/demo/* assets/demo/specs/* assets/demo/specs/export-report/* assets/demo/server/*/* assets/demo/client/*/* assets/demo/tests/*/* assets/demo/docs/*
 var embedded embed.FS
 
 type File struct {
@@ -269,6 +269,12 @@ func DemoFiles() ([]File, error) {
 		{"assets/demo/specs/export-report/plan.md", "specs/active/export-report/plan.md"},
 		{"assets/demo/specs/export-report/tasks.md", "specs/active/export-report/tasks.md"},
 		{"assets/demo/specs/export-report/data-model.md", "specs/active/export-report/data-model.md"},
+		{"assets/demo/server/report_export/handler.go.txt", "server/report_export/handler.go"},
+		{"assets/demo/server/report_filters/parser.go.txt", "server/report_filters/parser.go"},
+		{"assets/demo/server/auth/README.md", "server/auth/README.md"},
+		{"assets/demo/client/report_table_toolbar/README.md", "client/report_table_toolbar/README.md"},
+		{"assets/demo/tests/report_export/README.md", "tests/report_export/README.md"},
+		{"assets/demo/docs/README.md", "docs/README.md"},
 	}
 	files := make([]File, 0, len(entries))
 	for _, e := range entries {

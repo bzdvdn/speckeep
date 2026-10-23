@@ -63,7 +63,7 @@ Allow authenticated users to download the current filtered table view as a CSV f
 
 ### AC-003 Empty result
 
-- Why this matters: exports should remain useful even when a filter matches nothing.
+- Why this matters: exports must remain useful even when a filter matches nothing.
 - **Given** an authenticated user viewing a report table with zero matching rows
 - **When** they click "Export as CSV"
 - **Then** a CSV file is downloaded containing only the header row and no data rows

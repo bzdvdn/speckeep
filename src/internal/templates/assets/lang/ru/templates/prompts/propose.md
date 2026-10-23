@@ -15,7 +15,7 @@
 ## Workflow
 
 1. Прогони readiness проверку фазы: `./.speckeep/scripts/check-ready.sh propose [slug]`.
-2. Выведи slug (или прими `--slug`). Работай с ветки `feature/<slug>` — создай/переключись, если её нет (то же правило, что у `/spk-spec`).
+2. Выведи slug (или прими `--slug`). Работай с ветки `feature/<slug>` — создай/переключись, если её нет (то же правило, что у `/spk-spec`). Сразу после этого выполни `./.speckeep/scripts/run-speckeep.* trace init <slug>`, чтобы зафиксировать базу атрибуции изменений.
 3. Напиши `spec.md` по шаблону spec: `## Goal`, `## Requirements` (`RQ-*`), `## Acceptance Criteria` (`AC-*` с **Given / When / Then**), `## Assumptions`.
 4. Выбери полосу:
    - **express** (по умолчанию): без `plan.md` — сразу к задачам.

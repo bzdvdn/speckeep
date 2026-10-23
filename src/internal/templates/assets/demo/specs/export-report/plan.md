@@ -18,11 +18,12 @@ Add an authenticated export endpoint that produces a CSV matching the current fi
 
 ## Implementation Surfaces
 
-- `server/report_export` (new) — export handler: parse filters, query rows, render CSV
-- `server/auth` (existing) — enforce authentication on the export endpoint
-- `server/report_filters` (existing) — reuse filter parsing and validation shared with table view
-- `client/report_table_toolbar` (existing) — add "Export as CSV" button that calls the endpoint with the current filter state
-- `tests/report_export` (new) — integration + unit coverage for CSV output and auth
+- `server/report_export/` (new) — export handler: parse filters, query rows, render CSV
+- `server/auth/` (existing) — enforce authentication on the export endpoint
+- `server/report_filters/` (existing) — reuse filter parsing and validation shared with table view
+- `client/report_table_toolbar/` (existing) — add "Export as CSV" button that calls the endpoint with the current filter state
+- `tests/report_export/` (new) — integration + unit coverage for CSV output and auth
+- `docs/` (existing) — export limits and usage notes
 
 ## Architecture Impact
 

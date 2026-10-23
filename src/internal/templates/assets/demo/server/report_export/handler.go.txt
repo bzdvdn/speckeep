@@ -1,0 +1,4 @@
+package report_export
+
+// ExportHandler renders the current filtered report view as CSV.
+func ExportHandler() {}

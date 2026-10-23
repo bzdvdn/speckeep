@@ -53,5 +53,6 @@ language:
 - включенные agent targets
 - имена templates
 - имена scripts
+- `trace.ignore`: префиксы путей от корня репо, исключаемые из change attribution (по умолчанию: `vendor/`, `node_modules/`, `dist/`)
 
 Если config и workspace начинают расходиться, используй `speckeep doctor`.

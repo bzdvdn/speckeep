@@ -7,6 +7,27 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.2.0] - 2026-10-23
+
+### Added
+
+- **Feature change attribution (`speckeep trace --files` / `--file`)**: maps the actual `git diff` of a feature to tasks and `AC-*` via `Touches:`/`Proof:`, without inline code markers. Reports drift (`Unmapped` changes, declared-but-unchanged surfaces) and excludes feature artifacts and vendored directories.
+- **`speckeep trace init <slug>`**: pins the feature base commit in `<specs_dir>/<slug>/trace-meta.json` (idempotent, `--base`/`--force` overrides), so attribution survives merges and branch deletion. Auto-invoked by `/spk-spec` and `/spk-propose`.
+- **Durable archive attribution**: `archive` now always writes `changes.json` (base/head SHA, commits, changed files mapped to tasks/ACs) and `trace-meta.json`; both are restored and copied back. `speckeep trace --file` searches active and archived features.
+- **`speckeep trace rebuild [slug] --all`**: best-effort backfill of `changes.json` for legacy archives using `snapshot.sha` or archived `trace-meta.json`.
+- **`trace.ignore` config**: repo-relative prefixes excluded from attribution (defaults: `vendor/`, `node_modules/`, `dist/`). Active `--files` includes worktree and untracked changes; archive records committed history and warns when the tree was dirty.
+- **Drift warnings**: `converge` warns when changes fall outside declared `Touches:` or declared surfaces were not changed; `doctor` warns about archive snapshots without `changes.json`.
+
+### Fixed
+
+- **Demo feature is implement-ready again**: `speckeep demo` now ships `## Implementation Context`, `Proof:` entries for completed tasks, matching plan/surface paths, and small scaffold files, so `speckeep check export-report .` is `ready` instead of blocked by its own sample data.
+- **`Touches:` parsing no longer treats trailing IDs as surfaces**: both `speckeep trace` and readiness checks strip `(AC-001, RQ-002)`-style suffixes before mapping files, eliminating bogus `AC-002`/`RQ-003` surface entries.
+- **Release gate covers the full trace lifecycle**: `scripts/release-check.sh` now verifies demo readiness + `trace` and a black-box `trace init → trace --files → archive → trace --file` flow.
+
+### Changed
+
+- **Docs/install positioning (EN/RU)**: the npm launcher is now the recommended install path in `README.md`, `README.ru.md`, and the docs; examples pin the current release `v1.2.0` instead of stale versions. Native installers remain as an alternative, and `self upgrade` docs clarify that npm installs should update via `npm install -g speckeep@latest`.
+
 ## [v1.1.1] - 2026-10-23
 
 ### Fixed
@@ -477,4 +498,5 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [1.0.3]: https://github.com/bzdvdn/speckeep/releases/tag/v1.0.3
 [1.1.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.1.0
 [1.1.1]: https://github.com/bzdvdn/speckeep/releases/tag/v1.1.1
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.1.1...HEAD
+[1.2.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.2.0
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.2.0...HEAD

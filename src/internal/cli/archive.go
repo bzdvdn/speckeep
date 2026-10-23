@@ -13,6 +13,7 @@ import (
 	"speckeep/src/internal/config"
 	"speckeep/src/internal/featurepaths"
 	"speckeep/src/internal/gitutil"
+	"speckeep/src/internal/trace"
 	"speckeep/src/internal/workflow"
 )
 
@@ -25,6 +26,7 @@ type ArchiveResult struct {
 	Mode       string   `json:"mode"`
 	Files      []string `json:"files,omitempty"`
 	Restored   []string `json:"restored,omitempty"`
+	Warning    string   `json:"warning,omitempty"`
 	Error      string   `json:"error,omitempty"`
 }
 
@@ -170,6 +172,27 @@ func archiveFeature(root, slug, status, reason string, copyMode, compact bool) (
 	}
 
 	var branch, headSHA string
+	if gitutil.IsRepository(context.Background(), root) {
+		branch, _ = gitutil.CurrentBranch(context.Background(), root)
+		headSHA, _ = gitutil.Head(context.Background(), root)
+	}
+
+	// Pin the base commit so change attribution survives merges.
+	archiveMeta, metaErr := trace.ResolveBase(context.Background(), root, specsDir, slug)
+	if metaErr != nil {
+		os.RemoveAll(slugArchiveDir)
+		return result, fmt.Errorf("resolve trace base: %w", metaErr)
+	}
+	if err := trace.WriteArchiveMetaFile(filepath.Join(slugArchiveDir, "trace-meta.json"), trace.ArchiveMeta{
+		Meta:    archiveMeta,
+		HeadSHA: headSHA,
+		Branch:  branch,
+	}); err != nil {
+		os.RemoveAll(slugArchiveDir)
+		return result, fmt.Errorf("write trace meta: %w", err)
+	}
+	result.Files = append(result.Files, "trace-meta.json")
+
 	var gitPaths []string
 	recordGitPath := func(src string) {
 		if rel, relErr := filepath.Rel(root, src); relErr == nil {
@@ -181,15 +204,19 @@ func archiveFeature(root, slug, status, reason string, copyMode, compact bool) (
 			os.RemoveAll(slugArchiveDir)
 			return result, fmt.Errorf("--compact requires a git repository (full history is the archive)")
 		}
-		branch, err = gitutil.CurrentBranch(context.Background(), root)
-		if err != nil {
-			os.RemoveAll(slugArchiveDir)
-			return result, fmt.Errorf("resolve branch for compact archive: %w", err)
+		if branch == "" {
+			branch, err = gitutil.CurrentBranch(context.Background(), root)
+			if err != nil {
+				os.RemoveAll(slugArchiveDir)
+				return result, fmt.Errorf("resolve branch for compact archive: %w", err)
+			}
 		}
-		headSHA, err = gitutil.Head(context.Background(), root)
-		if err != nil {
-			os.RemoveAll(slugArchiveDir)
-			return result, fmt.Errorf("resolve HEAD for compact archive: %w", err)
+		if headSHA == "" {
+			headSHA, err = gitutil.Head(context.Background(), root)
+			if err != nil {
+				os.RemoveAll(slugArchiveDir)
+				return result, fmt.Errorf("resolve HEAD for compact archive: %w", err)
+			}
 		}
 	}
 
@@ -270,6 +297,21 @@ func archiveFeature(root, slug, status, reason string, copyMode, compact bool) (
 				}
 			}
 		}
+	}
+
+	// Record the actual footprint of the feature for durable traceability.
+	changes, err := trace.BuildChangesCommitted(context.Background(), root, slug)
+	if err != nil {
+		os.RemoveAll(slugArchiveDir)
+		return result, fmt.Errorf("build changes: %w", err)
+	}
+	if err := trace.WriteChanges(filepath.Join(slugArchiveDir, "changes.json"), changes); err != nil {
+		os.RemoveAll(slugArchiveDir)
+		return result, fmt.Errorf("write changes: %w", err)
+	}
+	result.Files = append(result.Files, "changes.json")
+	if changes.Dirty {
+		result.Warning = "working tree had uncommitted changes; changes.json records committed history only"
 	}
 
 	// Generate summary.md
@@ -437,6 +479,18 @@ func restoreFeature(root, slug string) (ArchiveResult, error) {
 		}
 	}
 
+	// Restore trace metadata so attribution keeps working after restore.
+	if content, err := os.ReadFile(filepath.Join(snapshotDir, "trace-meta.json")); err == nil {
+		if err := os.MkdirAll(featureDir, 0o755); err != nil {
+			return result, err
+		}
+		dst := filepath.Join(featureDir, "trace-meta.json")
+		if err := os.WriteFile(dst, content, 0o644); err != nil {
+			return result, fmt.Errorf("restore trace-meta.json: %w", err)
+		}
+		result.Restored = append(result.Restored, "specs/"+slug+"/trace-meta.json")
+	}
+
 	// Remove archive snapshot after successful restore
 	if err := os.RemoveAll(snapshotDir); err != nil {
 		return result, fmt.Errorf("remove archive snapshot: %w", err)
@@ -456,7 +510,6 @@ func restoreFeature(root, slug string) (ArchiveResult, error) {
 // restoreCompactSnapshot re-creates a compact-archived feature from git using
 // the recorded branch/commit pointer and repo-relative file list.
 func restoreCompactSnapshot(root, slug, snapshotDir, specsDir, snapshotDate string) (ArchiveResult, error) {
-	_ = specsDir
 	result := ArchiveResult{
 		Slug:       slug,
 		Mode:       "restore",
@@ -496,6 +549,18 @@ func restoreCompactSnapshot(root, slug, snapshotDir, specsDir, snapshotDate stri
 			return result, fmt.Errorf("restore %s: %w", gitPath, err)
 		}
 		result.Restored = append(result.Restored, gitPath)
+	}
+	if content, err := os.ReadFile(filepath.Join(snapshotDir, "trace-meta.json")); err == nil {
+		featureDir := filepath.Join(specsDir, slug)
+		if err := os.MkdirAll(featureDir, 0o755); err != nil {
+			return result, err
+		}
+		if err := os.WriteFile(filepath.Join(featureDir, "trace-meta.json"), content, 0o644); err != nil {
+			return result, fmt.Errorf("restore trace-meta.json: %w", err)
+		}
+		if rel, relErr := filepath.Rel(root, filepath.Join(featureDir, "trace-meta.json")); relErr == nil {
+			result.Restored = append(result.Restored, filepath.ToSlash(rel))
+		}
 	}
 	if err := os.RemoveAll(snapshotDir); err != nil {
 		return result, fmt.Errorf("remove compact snapshot: %w", err)
@@ -639,6 +704,9 @@ func outputArchiveResult(cmd *cobra.Command, result ArchiveResult, jsonOutput bo
 		}
 		if len(result.Files) > 0 {
 			printPanel(w, "Archived Files", result.Files)
+		}
+		if result.Warning != "" {
+			fmt.Fprintf(w, "\n%s Warning: %s\n", styleWarn(w, "!"), result.Warning)
 		}
 		fmt.Fprintf(w, "\n%s Feature archived successfully\n", styleOK(w, "✓"))
 	}

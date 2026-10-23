@@ -70,5 +70,6 @@ Goal: prove the feature works and leave the package in a reviewable state.
 - Separate validation work from broad implementation work instead of hiding proof inside a large task
 - Mark tasks complete as implementation progresses and do not leave acceptance criteria without task coverage
 - Every completed task (`[x]`) must carry a `Proof:` line on the following line: `Proof: <kind> <path> [<anchor>]`, where `kind` is `code|test|docs|chore`, `path` is a repo-root-relative path, and `anchor` is the function/test/type name (optional). Without `Proof` the task is not complete and `check`/`archive` will block it
+- Keep `Touches:` honest: `speckeep trace <slug> --files` compares it with the actual git diff and reports drift (`Unmapped`)
 - State explicitly when a phase is intentionally omitted because the feature does not need it
 - Keep `Implementation Context` short but sufficient so implement and verify rarely need to re-read `spec.md` or `plan.md`

@@ -171,37 +171,16 @@ func extractSurfaceRefs(content string) []string {
 }
 
 func extractTouchesRefs(tasksContent string) []string {
-	lines := strings.Split(tasksContent, "\n")
 	var refs []string
-	for _, line := range lines {
-		idx := strings.Index(line, "Touches:")
-		if idx < 0 {
-			continue
-		}
-		part := strings.TrimSpace(line[idx+len("Touches:"):])
-		for _, piece := range strings.Split(part, ",") {
-			value := strings.TrimSpace(piece)
-			if value == "" {
-				continue
-			}
-			refs = append(refs, value)
-		}
+	for _, line := range strings.Split(tasksContent, "\n") {
+		refs = append(refs, parseTouchRefs(line)...)
 	}
 	return uniqueStrings(refs)
 }
 
 func checkTouchesFilesExist(result *CheckResult, root, tasksDisplay, tasksContent string) {
 	for _, line := range strings.Split(tasksContent, "\n") {
-		idx := strings.Index(line, "Touches:")
-		if idx < 0 {
-			continue
-		}
-		part := strings.TrimSpace(line[idx+len("Touches:"):])
-		for _, piece := range strings.Split(part, ",") {
-			value := strings.TrimSpace(strings.Trim(strings.TrimSpace(piece), "`"))
-			if value == "" || strings.ContainsAny(value, " \t") {
-				continue
-			}
+		for _, value := range parseTouchRefs(line) {
 			absPath := absFromRoot(root, value)
 			if !fileExists(absPath) && !isDir(absPath) {
 				result.AddStructuredWarn("touches_file_missing", CategoryTraceability, tasksDisplay,
@@ -209,6 +188,32 @@ func checkTouchesFilesExist(result *CheckResult, root, tasksDisplay, tasksConten
 			}
 		}
 	}
+}
+
+var touchIDRefPattern = regexp.MustCompile(`^(?:AC|RQ)-[0-9]{3}\b|^T[0-9]+\.[0-9]+$`)
+
+// parseTouchRefs extracts clean surface refs from one Touches: line, dropping
+// prose, backticks, and trailing requirement/task IDs such as "(AC-001, RQ-002)".
+func parseTouchRefs(line string) []string {
+	idx := strings.Index(line, "Touches:")
+	if idx < 0 {
+		return nil
+	}
+	raw := strings.TrimSpace(line[idx+len("Touches:"):])
+	if cut := strings.Index(raw, " ("); cut >= 0 {
+		raw = raw[:cut]
+	}
+	var refs []string
+	for _, piece := range strings.Split(raw, ",") {
+		value := strings.TrimSpace(strings.Trim(piece, "`"))
+		value = strings.TrimSuffix(value, ".")
+		value = filepath.ToSlash(value)
+		if value == "" || strings.ContainsAny(value, " \t") || strings.HasPrefix(value, "<") || touchIDRefPattern.MatchString(value) {
+			continue
+		}
+		refs = append(refs, value)
+	}
+	return refs
 }
 
 func countMatchingLines(content, pattern string) int {

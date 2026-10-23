@@ -247,7 +247,7 @@ func CompleteTasks(content string) []string {
 			ids = append(ids, matches[1])
 		}
 	}
-	return ids
+	return uniqueStrings(ids)
 }
 
 // CompletedTaskLines returns closed task IDs together with their Proof presence.

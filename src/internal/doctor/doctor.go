@@ -509,9 +509,6 @@ func traceabilityChecks(ctx context.Context, root string) ([]Finding, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(entries) == 0 {
-		return findings, nil
-	}
 
 	cfg, err := config.Load(ctx, root)
 	if err != nil {
@@ -520,6 +517,22 @@ func traceabilityChecks(ctx context.Context, root string) ([]Finding, error) {
 	specsDir, err := cfg.SpecsDir(root)
 	if err != nil {
 		return nil, err
+	}
+	if archiveDir, err := cfg.ArchiveDir(root); err == nil {
+		missing, err := trace.ArchivedSnapshotsWithoutChanges(archiveDir)
+		if err != nil {
+			return nil, err
+		}
+		for _, snapshot := range missing {
+			findings = append(findings, Finding{
+				Level:   "warning",
+				Message: fmt.Sprintf("archive snapshot %s has no changes.json — run `speckeep trace rebuild --all` to backfill change attribution", snapshot),
+			})
+		}
+	}
+
+	if len(entries) == 0 {
+		return findings, nil
 	}
 
 	grouped := map[string][]trace.Entry{}

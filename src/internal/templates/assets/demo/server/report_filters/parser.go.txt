@@ -1,0 +1,4 @@
+package report_filters
+
+// ParseQuery reads the shared table-view filter state.
+func ParseQuery() {}

@@ -36,6 +36,7 @@ If the user moves straight to another command instead of answering, draft best-e
 ## Mandatory Rules
 
 - **Branch-first**: before writing any file, switch/create `feature/<slug>` (or `--branch`). If not possible → stop and report why.
+- **Trace base**: right after creating/switching the branch, pin the change-attribution base: `./.speckeep/scripts/run-speckeep.* trace init <slug>`. Do not skip it: without a base, `trace --files` cannot separate feature changes from the rest of the history.
 - Do not try to “generate the spec via CLI”: as the agent, you must write/update `<specs_dir>/<slug>/spec.md` directly.
   - There is no `speckeep spec` subcommand. Do not run `./.speckeep/scripts/run-speckeep.* spec <slug>`.
   - `./.speckeep/scripts/check-*.{sh,ps1}` are validation gates only, not artifact generators.

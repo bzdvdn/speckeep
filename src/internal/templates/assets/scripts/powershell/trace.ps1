@@ -2,7 +2,13 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = (Resolve-Path (Join-Path $ScriptDir "..\\..")).Path
 
 if ($args.Count -eq 0) {
-  & "$ScriptDir/run-speckeep.ps1" trace $RootDir @args
+  & "$ScriptDir/run-speckeep.ps1" trace $RootDir
+  exit $LASTEXITCODE
+}
+
+# Flags and subcommands take the root as a trailing positional argument.
+if ($args[0].StartsWith("-") -or $args[0] -eq "init" -or $args[0] -eq "rebuild") {
+  & "$ScriptDir/run-speckeep.ps1" trace @args $RootDir
   exit $LASTEXITCODE
 }
 

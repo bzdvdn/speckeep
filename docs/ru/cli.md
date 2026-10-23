@@ -2,27 +2,40 @@
 
 ## Установка
 
-SpecKeep распространяется как один бинарник через GitHub Releases.
-
-Linux:
+**Рекомендуемый способ — npm**: пакет скачивает подходящий нативный бинарник для твоей ОС/архитектуры и не требует ручной настройки `PATH`:
 
 ```bash
-VERSION=v0.5.1
+# Глобальная установка (актуальный релиз: v1.2.0)
+npm install -g speckeep@1.2.0
+
+# Или запуск без глобальной установки
+npx speckeep@1.2.0 init my-project --lang ru --agents claude
+```
+
+Linux/macOS через нативный установщик:
+
+```bash
+VERSION=v1.2.0
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 Windows (PowerShell):
 
 ```powershell
-$version="v0.5.1"
+npm install -g speckeep@1.2.0
+
+# Нативная альтернатива
+$version="v1.2.0"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
 
-Чтобы также добавить папку установки в `PATH`:
+Чтобы также добавить папку нативной установки в `PATH`:
 
 - Linux: добавь `--add-to-path` или установи `SPECKEEP_ADD_TO_PATH=1`
 - Windows: установи `$env:SPECKEEP_ADD_TO_PATH=1` или запускай скрипт с `-AddToPath`
+
+**Обновление:** `speckeep self upgrade` обновляет нативную установку на месте. Если ставил через npm — используй `npm install -g speckeep@latest`.
 
 ## Команды
 
@@ -249,6 +262,50 @@ speckeep trace export-report --tests
 speckeep trace export-report my-project --json
 ```
 
+### `speckeep trace <slug> --files [path]`
+
+Показывает, что фича реально изменила, и связывает каждый изменённый файл с задачами и `AC-*`, которые его задекларировали через `Touches:`/`Proof:`.
+
+- работает для активной фичи (считается из git, включая незакоммиченные tracked/untracked изменения) и для архивной (читается из `changes.json`; только закоммиченная история)
+- показывает изменения вне задекларированных `Touches:` (`Unmapped`) и задекларированные поверхности, которые не менялись (`Declared but not changed`)
+- исключает артефакты фичи и типовые vendored-директории
+- `--json` отдаёт полный change set
+
+```bash
+speckeep trace export-report . --files
+speckeep trace export-report my-project --files --json
+```
+
+### `speckeep trace --file <path> [path]`
+
+Обратный поиск: какие спеки и задачи меняли файл. Ищет по активным фичам (git + `tasks.md`) и по архиву (`changes.json`) и показывает ID задач, `AC-*` и статус изменения.
+
+```bash
+speckeep trace --file src/handlers/export.go .
+speckeep trace --file src/handlers/export.go my-project --json
+```
+
+### `speckeep trace init <slug> [path]`
+
+Фиксирует коммит, от которого ответвилась фича, в `<specs_dir>/<slug>/trace-meta.json`. Это сохраняет атрибуцию изменений после merge и удаления feature-ветки.
+
+- вызывается сразу после создания `feature/<slug>` (промпты spec/propose делают это)
+- база по умолчанию — merge-base с `main`/`master`; переопределяется через `--base <ref>`
+- идемпотентна: существующий пин сохраняется, `--force` перезаписывает
+
+```bash
+speckeep trace init export-report .
+```
+
+### `speckeep trace rebuild [slug] [path] --all`
+
+Дозаполняет `changes.json` для архивных снапшотов, созданных до появления change attribution. Использует compact-указатель `snapshot.sha` или архивный `trace-meta.json`; снапшоты без commit pointer помечаются как skipped.
+
+```bash
+speckeep trace rebuild export-report .
+speckeep trace rebuild --all .
+```
+
 ### `speckeep converge <slug> [path]`
 
 Дешёвый цикл закрытия для «почти готовых» фич: подтверждает, что каждая завершённая задача несёт валидный `Proof:` (существующий файл, резолвящийся anchor), каждый touched surface существует, а покрытие `AC-*` держится.
@@ -306,7 +363,7 @@ speckeep self upgrade
 
 Создаёт демо-workspace по указанному пути (по умолчанию: `./speckeep-demo`).
 
-Workspace заполнен примером фичи (`export-report`) на фазе implement — spec, inspect report, plan, tasks и data model уже присутствуют. После создания предлагает попробовать `/spk-scope`, `/spk-challenge` и `/spk-handoff`.
+Workspace заполнен примером фичи (`export-report`) на фазе implement — spec, inspect report, plan, tasks и data model уже присутствуют, а первые задачи закрыты с записями `Proof:`. `speckeep check export-report .` готов к `/spk-implement`, а `speckeep trace export-report .` и `--files` работают в declared-режиме (демо не является git-репозиторием). После создания предлагает попробовать `/spk-scope`, `/spk-challenge` и `/spk-handoff`.
 
 ```bash
 speckeep demo

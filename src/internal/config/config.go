@@ -64,6 +64,9 @@ var defaultConfig = Config{
 		VerifyPrompt:       "prompts/verify.md",
 	},
 	Scripts: ScriptDefaultsForShell("sh"),
+	Trace: Trace{
+		Ignore: []string{"vendor/", "node_modules/", "dist/"},
+	},
 }
 
 type Config struct {
@@ -76,6 +79,13 @@ type Config struct {
 	Templates Templates `yaml:"templates"`
 	Scripts   Scripts   `yaml:"scripts"`
 	Workflow  Workflow  `yaml:"workflow,omitempty"`
+	Trace     Trace     `yaml:"trace,omitempty"`
+}
+
+// Trace configures change-attribution behaviour.
+type Trace struct {
+	// Ignore lists repo-relative prefixes excluded from change attribution.
+	Ignore []string `yaml:"ignore,omitempty"`
 }
 
 type Workflow struct {
@@ -292,6 +302,10 @@ func (c *Config) applyDefaults() {
 	}
 	if c.Language.Comments == "" {
 		c.Language.Comments = c.Language.Default
+	}
+
+	if len(c.Trace.Ignore) == 0 {
+		c.Trace.Ignore = append([]string{}, defaultConfig.Trace.Ignore...)
 	}
 
 	// Scripts: migrate deprecated RunDraftspec before reflection defaults

@@ -34,8 +34,9 @@
 ## Быстрый старт — 30 секунд
 
 ```bash
-# 0. Установить (или npx speckeep ... без установки)
-curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.sh" | bash
+# 0. Установить — рекомендуем npm (или npx без глобальной установки)
+npm install -g speckeep@1.2.0
+# npx speckeep@1.2.0 demo ./my-demo
 
 # 1. Попробовать сразу — без настройки проекта
 speckeep demo ./my-demo
@@ -110,7 +111,10 @@ speckeep feature <slug> [path]
 speckeep features [path]
 speckeep list-specs [path]
 speckeep show-spec <name> [path]
-speckeep trace <slug> [path]
+speckeep trace <slug> [path] [--tests|--files]
+speckeep trace --file <path> [path]
+speckeep trace init <slug> [path]
+speckeep trace rebuild [slug] [path] [--all]
 speckeep export <slug> [path] [--output <file>]
 speckeep converge <slug> [path] [--json]
 speckeep guard [path] [--slug <slug>] [--json]
@@ -129,33 +133,57 @@ speckeep add-agent | list-agents | remove-agent | cleanup-agents [path]
 
 ## Установка
 
-**Linux / macOS:**
+**Рекомендуем npm** (актуальный релиз: **v1.2.0**). Npm-launcher скачивает подходящий нативный бинарник для вашей ОС/архитектуры, поэтому с PATH обычно нет проблем:
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.sh" | bash
-# --version v1.0.1 для пина версии; --add-to-path для регистрации PATH
+npm install -g speckeep@1.2.0
+
+# или запуск без глобальной установки
+npx speckeep@1.2.0 init my-project --lang ru --agents claude
+```
+
+**Нативный установщик (Linux / macOS):**
+
+```bash
+VERSION=v1.2.0
+curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
+# --add-to-path регистрирует директорию установки в PATH
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/main/scripts/install.ps1 | iex"
+npm install -g speckeep@1.2.0
+
+# Нативная альтернатива
+$version="v1.2.0"
+$env:SPECKEEP_VERSION=$version
+powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
 
-На Windows бинарник добавляется в PATH автоматически. На Linux используйте `--add-to-path`, если директория установки ещё не в вашем PATH.
+На Windows нативный бинарник добавляется в PATH автоматически. На Linux используйте `--add-to-path`, если директория установки ещё не в вашем PATH.
 
-**Пакетные менеджеры:**
+**Другие пакетные менеджеры:**
 
 - Homebrew: `brew install bzdvdn/speckeep/speckeep` (см. `contrib/packaging/brew/`)
 - Scoop: `scoop bucket add speckeep https://github.com/bzdvdn/scoop-speckeep && scoop install speckeep` (см. `contrib/packaging/scoop/`)
-- npm: `npx speckeep init` или `npm install -g speckeep` — тонкий launcher, который при установке скачивает подходящий нативный бинарник (см. `contrib/packaging/npm/`)
 - Go: `go install speckeep@latest`
 
 **Обновление установленного бинарника:**
 
 ```bash
+# установка через npm
+npm install -g speckeep@latest
+
+# нативная установка
 speckeep self check     # текущая vs последняя версия (read-only)
 speckeep self upgrade   # скачивание, sha256-проверка и замена на месте
+```
+
+**Сборка из исходников:**
+
+```bash
+go build -ldflags "-X speckeep/src/internal/cli.Version=v1.2.0" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 **CI:**
@@ -279,8 +307,12 @@ speckeep check eksport-otchetov-v-csv
 Проверьте:
 
 ```bash
-speckeep trace <slug> .
+speckeep trace <slug> .          # доказательства Proof по завершённым задачам
+speckeep trace <slug> . --files  # фактические изменённые файлы с привязкой к задачам
+speckeep trace --file src/handlers/export.go .  # обратный поиск по активным и архивным спекам
 ```
+
+База атрибуции фиксируется при создании feature-ветки (`speckeep trace init <slug>`) и сохраняется в `changes.json` при архивации, поэтому `trace --file` работает и после merge.
 
 ### Адаптеры агентов (skills-first)
 

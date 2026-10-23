@@ -53,5 +53,6 @@ The main config lives in `.speckeep/speckeep.yaml` and stores:
 - enabled agent targets
 - template names
 - script names
+- `trace.ignore`: repo-relative prefixes excluded from change attribution (defaults: `vendor/`, `node_modules/`, `dist/`)
 
 Use `speckeep doctor` if the config and workspace drift apart.

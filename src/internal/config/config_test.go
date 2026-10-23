@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -131,5 +132,37 @@ func TestResolvePathHelpersRespectConfiguredPaths(t *testing.T) {
 	}
 	if scriptsDir != filepath.Join(root, "workspace", "scripts") {
 		t.Fatalf("ScriptsDir resolved to %q", scriptsDir)
+	}
+}
+
+func TestTraceIgnoreDefaults(t *testing.T) {
+	cfg := Default()
+	want := []string{"vendor/", "node_modules/", "dist/"}
+	if len(cfg.Trace.Ignore) != len(want) {
+		t.Fatalf("Trace.Ignore = %v, want %v", cfg.Trace.Ignore, want)
+	}
+	for i := range want {
+		if cfg.Trace.Ignore[i] != want[i] {
+			t.Fatalf("Trace.Ignore = %v, want %v", cfg.Trace.Ignore, want)
+		}
+	}
+}
+
+func TestLoadPreservesExplicitTraceIgnore(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, ".speckeep", "speckeep.yaml")
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	content := "version: 1\ntrace:\n  ignore:\n    - generated/\n"
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := Load(context.Background(), root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if len(cfg.Trace.Ignore) != 1 || cfg.Trace.Ignore[0] != "generated/" {
+		t.Errorf("Trace.Ignore = %v, want [generated/]", cfg.Trace.Ignore)
 	}
 }

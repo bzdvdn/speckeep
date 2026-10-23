@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"speckeep/src/internal/config"
+	"speckeep/src/internal/workflow"
 )
 
 func TestInitializeCreatesWorkspaceAndAgentTargets(t *testing.T) {
@@ -666,6 +667,8 @@ func TestDemoCreatesExampleArtifactsUnderActiveSpecs(t *testing.T) {
 		filepath.Join(root, "specs", "active", "export-report", "plan.md"),
 		filepath.Join(root, "specs", "active", "export-report", "tasks.md"),
 		filepath.Join(root, "specs", "active", "export-report", "data-model.md"),
+		filepath.Join(root, "server", "report_export", "handler.go"),
+		filepath.Join(root, "server", "report_filters", "parser.go"),
 	}
 	for _, path := range required {
 		if _, err := os.Stat(path); err != nil {
@@ -675,6 +678,24 @@ func TestDemoCreatesExampleArtifactsUnderActiveSpecs(t *testing.T) {
 
 	if _, err := os.Stat(filepath.Join(root, ".speckeep", "specs", "export-report", "spec.md")); !os.IsNotExist(err) {
 		t.Fatalf("expected legacy demo path not to exist, got err=%v", err)
+	}
+}
+
+func TestDemoFeaturePassesImplementReadiness(t *testing.T) {
+	root := filepath.Join(t.TempDir(), "demo-workspace")
+	if _, err := Demo(root, DemoOptions{Shell: "sh"}); err != nil {
+		t.Fatalf("Demo returned error: %v", err)
+	}
+	cfg, err := config.Load(context.Background(), root)
+	if err != nil {
+		t.Fatalf("config.Load: %v", err)
+	}
+	result, err := workflow.CheckImplementReady(context.Background(), cfg, root, "export-report")
+	if err != nil {
+		t.Fatalf("CheckImplementReady: %v", err)
+	}
+	if result.Failed || result.Warnings != 0 {
+		t.Fatalf("demo feature is not implement-ready: failed=%v warnings=%d\n%s", result.Failed, result.Warnings, strings.Join(result.Lines, "\n"))
 	}
 }
 
