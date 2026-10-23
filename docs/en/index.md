@@ -2,8 +2,6 @@
 
 `speckeep` is a lightweight project context kit for development agents and humans.
 
-SpecKeep is the successor to DraftSpec (archived). If you are migrating an existing DraftSpec workspace, start with `speckeep migrate`.
-
 This documentation is organized into a few practical guides:
 
 - [Overview](overview.md)

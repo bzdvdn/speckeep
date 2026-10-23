@@ -11,8 +11,6 @@
 
 English · [Русский](README.ru.md) · [Docs](https://bzdvdn.github.io/speckeep/) · [Roadmap](docs/en/roadmap.md) · [Releases](https://github.com/bzdvdn/speckeep/releases)
 
-SpecKeep is the successor to DraftSpec (archived). Migrate with `speckeep migrate`.
-
 ![speckeep demo: init → spec → plan → tasks → implement](demo/speckeep-demo.gif)
 
 ---

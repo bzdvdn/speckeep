@@ -301,8 +301,7 @@ Generated workspaces include launcher script under `.speckeep/scripts/`:
 Resolution order:
 
 1. `SPECKEEP_BIN`
-2. `DRAFTSPEC_BIN` (legacy, deprecated)
-3. `speckeep` from `PATH`
+2. `speckeep` from `PATH`
 
 ## Spec workflow
 

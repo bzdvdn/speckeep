@@ -13,6 +13,10 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - **`/spk-module-context` prompt cleanup (EN/RU)**: removed stale wording left over from the removed machine module-map engine — the prompt no longer refers to a "generated scaffold" or a "managed block". `## Dependencies` / `## Consumed by` are now explicitly "the direct deps and dependents you verified by reading code", and re-runs preserve existing prose plus any recognizable sectioned/generated block. No behavior change beyond clearer instructions.
 
+### Changed
+
+- **Docs: removed DraftSpec branding** from `README.md`, `README.ru.md`, the docs index (EN/RU), and the CLI entrypoint section in `MVP.md` (the stale `DRAFTSPEC_BIN` resolution step was dropped; `run-speckeep` resolves only `SPECKEEP_BIN` then `PATH`). Legacy-workspace migration via `speckeep migrate` is unchanged; CHANGELOG history is preserved.
+
 ## [v1.1.0] - 2026-10-11
 
 ### Added
