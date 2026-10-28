@@ -240,6 +240,12 @@ if (cd "$DEMO" && ./.speckeep/scripts/check-ready.sh spec >/dev/null 2>&1); then
 else
 	bad "check-ready spec"
 fi
+if (cd "$DEMO" && ./.speckeep/scripts/check-ready.sh constitution >"$WORK/ready-constitution.log" 2>&1); then
+	ok "check-ready constitution"
+else
+	bad "check-ready constitution"
+	tail -10 "$WORK/ready-constitution.log"
+fi
 
 section "L2 e2e: refresh idempotency + doctor"
 "$BIN" refresh "$DEMO" >/dev/null 2>&1 || true

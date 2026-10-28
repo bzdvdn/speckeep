@@ -30,7 +30,7 @@ your `PATH`.
 
 ## Env overrides
 
-- `SPECKEEP_VERSION` — install a specific tag (e.g. `v1.2.0` or `1.2.0`)
+- `SPECKEEP_VERSION` — install a specific tag (e.g. `v1.2.1` or `1.2.1`)
   instead of the one matching this package's own version.
 - `SPECKEEP_BINARY_PATH` — skip the download entirely and exec this path
   instead (useful for local development/testing against a locally built
@@ -65,7 +65,7 @@ Actions to enable it.
 Manual fallback (or first publish, to reserve the name):
 
 1. Bump `version` in `package.json` to match the git tag being released
-   (without the `v` prefix), e.g. tag `v1.2.0` → package version `1.2.0`.
+   (without the `v` prefix), e.g. tag `v1.2.1` → package version `1.2.1`.
 2. Make sure the GitHub release for that tag already exists with its assets +
    `sha256sum.txt` (installers need them at postinstall time).
 3. `npm publish --access public` from this directory.

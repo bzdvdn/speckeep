@@ -5,27 +5,27 @@
 **Рекомендуемый способ — npm**: пакет скачивает подходящий нативный бинарник для твоей ОС/архитектуры и не требует ручной настройки `PATH`:
 
 ```bash
-# Глобальная установка (актуальный релиз: v1.2.0)
-npm install -g speckeep@1.2.0
+# Глобальная установка (актуальный релиз: v1.2.1)
+npm install -g speckeep@1.2.1
 
 # Или запуск без глобальной установки
-npx speckeep@1.2.0 init my-project --lang ru --agents claude
+npx speckeep@1.2.1 init my-project --lang ru --agents claude
 ```
 
 Linux/macOS через нативный установщик:
 
 ```bash
-VERSION=v1.2.0
+VERSION=v1.2.1
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 Windows (PowerShell):
 
 ```powershell
-npm install -g speckeep@1.2.0
+npm install -g speckeep@1.2.1
 
 # Нативная альтернатива
-$version="v1.2.0"
+$version="v1.2.1"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```

@@ -17,7 +17,7 @@ shift
 
 case "$PHASE" in
   constitution|spec|propose|inspect|plan|tasks|implement|verify|converge|archive)
-    exec "$SCRIPT_DIR/run-speckeep.sh" __internal "check-$PHASE-ready" --root "$ROOT_DIR" "$@"
+    exec "$SCRIPT_DIR/run-speckeep.sh" __internal check-ready "$PHASE" --root "$ROOT_DIR" "$@"
     ;;
   *)
     echo "OK: no readiness gate for '$PHASE' (auxiliary command) - nothing to check"

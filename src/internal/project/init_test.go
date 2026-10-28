@@ -182,7 +182,7 @@ func TestInitializeGeneratesReadinessScriptsWithTraceabilityChecks(t *testing.T)
 			path: filepath.Join(root, ".speckeep", "scripts", "check-ready.sh"),
 			want: []string{
 				"run-speckeep.sh",
-				"check-$PHASE-ready",
+				`__internal check-ready "$PHASE"`,
 			},
 		},
 	}

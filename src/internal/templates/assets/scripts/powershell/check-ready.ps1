@@ -9,11 +9,14 @@ if ($args.Count -lt 1) {
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = (Resolve-Path (Join-Path $ScriptDir "..\\..")).Path
 $Phase = $args[0]
-$PhaseArgs = $args[1..$args.Count]
+$PhaseArgs = @()
+if ($args.Count -gt 1) {
+  $PhaseArgs = $args[1..($args.Count - 1)]
+}
 
 switch ($Phase) {
   { $_ -in @("constitution", "spec", "propose", "inspect", "plan", "tasks", "implement", "verify", "converge", "archive") } {
-    & (Join-Path $ScriptDir "run-speckeep.ps1") __internal "check-$Phase-ready" --root $RootDir @PhaseArgs
+    & (Join-Path $ScriptDir "run-speckeep.ps1") __internal check-ready $Phase --root $RootDir @PhaseArgs
     exit $LASTEXITCODE
   }
   default {

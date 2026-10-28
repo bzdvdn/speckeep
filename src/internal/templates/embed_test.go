@@ -821,7 +821,16 @@ func TestReadinessScriptsDelegateToInternalCLI(t *testing.T) {
 			target: "scripts/check-ready.sh",
 			want: []string{
 				"run-speckeep.sh",
-				"__internal \"check-$PHASE-ready\" --root \"$ROOT_DIR\"",
+				"__internal check-ready \"$PHASE\" --root \"$ROOT_DIR\"",
+			},
+		},
+		{
+			name:   "powershell check ready",
+			shell:  "powershell",
+			target: "scripts/check-ready.ps1",
+			want: []string{
+				"run-speckeep.ps1",
+				"__internal check-ready $Phase --root $RootDir",
 			},
 		},
 		{

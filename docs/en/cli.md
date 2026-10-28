@@ -5,27 +5,27 @@
 **npm is the recommended install path** — it ships the matching native binary for your OS/arch and avoids PATH surprises:
 
 ```bash
-# Global install (current release: v1.2.0)
-npm install -g speckeep@1.2.0
+# Global install (current release: v1.2.1)
+npm install -g speckeep@1.2.1
 
 # Or run without a global install
-npx speckeep@1.2.0 init my-project --lang en --agents claude
+npx speckeep@1.2.1 init my-project --lang en --agents claude
 ```
 
 Linux/macOS via the native installer:
 
 ```bash
-VERSION=v1.2.0
+VERSION=v1.2.1
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 Windows (PowerShell):
 
 ```powershell
-npm install -g speckeep@1.2.0
+npm install -g speckeep@1.2.1
 
 # Native alternative
-$version="v1.2.0"
+$version="v1.2.1"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```

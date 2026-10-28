@@ -8,9 +8,20 @@ Provide a clear, stable foundation for specification-driven development so agent
 
 ## Core Principles
 
-- Prefer clarity over cleverness.
-- Keep interfaces small and testable.
-- Preserve traceability from spec (`AC-*`, `RQ-*`) to tasks (`T*`) to code.
+### 1. Clarity over cleverness
+Optimize for the next reader; obvious code beats clever code.
+
+### 2. Small, testable interfaces
+Keep public surfaces narrow and mockable.
+
+### 3. Traceability by default
+Preserve the chain from spec (`AC-*`, `RQ-*`) to tasks (`T*`) to code.
+
+### 4. Safe defaults, explicit decisions
+Defaults must be safe; deviations need a recorded decision.
+
+### 5. Small, reviewable slices
+Ship incrementally and keep each change reviewable.
 
 ## Constraints
 

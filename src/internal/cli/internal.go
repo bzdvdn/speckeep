@@ -19,6 +19,7 @@ func newInternalCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(newInternalCheckConstitutionCmd())
+	cmd.AddCommand(newInternalCheckConstitutionReadyCmd())
 	cmd.AddCommand(newInternalCheckReadyCmd())
 	cmd.AddCommand(newInternalCheckSpecReadyCmd())
 	cmd.AddCommand(newInternalCheckProposeReadyCmd())

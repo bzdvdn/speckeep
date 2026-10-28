@@ -35,8 +35,8 @@ English · [Русский](README.ru.md) · [Docs](https://bzdvdn.github.io/spe
 
 ```bash
 # 0. Install — npm is the recommended path (or use npx without installing)
-npm install -g speckeep@1.2.0
-# npx speckeep@1.2.0 demo ./my-demo
+npm install -g speckeep@1.2.1
+# npx speckeep@1.2.1 demo ./my-demo
 
 # 1. Try it instantly — no project setup needed
 speckeep demo ./my-demo
@@ -147,19 +147,19 @@ It installs speckeep, detects changed `specs/active/<slug>/` features, and runs 
 
 ## Install
 
-**Recommended — npm** (current release: **v1.2.0**). The npm launcher downloads the matching native binary for your OS/arch, so PATH usually just works:
+**Recommended — npm** (current release: **v1.2.1**). The npm launcher downloads the matching native binary for your OS/arch, so PATH usually just works:
 
 ```bash
-npm install -g speckeep@1.2.0
+npm install -g speckeep@1.2.1
 
 # or run without a global install
-npx speckeep@1.2.0 init my-project --lang en --agents claude
+npx speckeep@1.2.1 init my-project --lang en --agents claude
 ```
 
 **Native installer (Linux / macOS):**
 
 ```bash
-VERSION=v1.2.0
+VERSION=v1.2.1
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 # --add-to-path registers the install directory in PATH
 ```
@@ -167,10 +167,10 @@ curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts
 **Windows (PowerShell):**
 
 ```powershell
-npm install -g speckeep@1.2.0
+npm install -g speckeep@1.2.1
 
 # Native alternative
-$version="v1.2.0"
+$version="v1.2.1"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -197,7 +197,7 @@ speckeep self upgrade   # download, sha256-verify, and replace in place
 **Build from source:**
 
 ```bash
-go build -ldflags "-X speckeep/src/internal/cli.Version=v1.2.0" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v1.2.1" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 ---

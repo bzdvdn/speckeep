@@ -7,6 +7,18 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.2.1] - 2026-10-23
+
+### Fixed
+
+- **Constitution readiness gate (`check-ready.sh constitution`)**: the generated wrapper called `__internal check-constitution-ready`, which was defined but never registered, so the CLI failed with `unknown flag: --root`. Registered the command and switched both `check-ready.sh`/`check-ready.ps1` to the stable generic `__internal check-ready <phase>` dispatcher. `check-constitution.sh` was unaffected.
+- **Demo constitution is fully valid**: added the five `###` principles expected by `check-constitution.sh`, so demo readiness and constitution checks no longer print non-blocking `ERROR` lines.
+- **PowerShell readiness wrapper**: `check-ready.ps1` now builds `$PhaseArgs` safely when a phase has no slug, matching the `trace.ps1` wrapper.
+
+### Changed
+
+- **Docs/examples pin `v1.2.1`** as the current release across README, CLI reference, docs index, and install/update examples.
+
 ## [v1.2.0] - 2026-10-23
 
 ### Added
@@ -499,4 +511,5 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [1.1.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.1.0
 [1.1.1]: https://github.com/bzdvdn/speckeep/releases/tag/v1.1.1
 [1.2.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.2.0
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.2.0...HEAD
+[1.2.1]: https://github.com/bzdvdn/speckeep/releases/tag/v1.2.1
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.2.1...HEAD
