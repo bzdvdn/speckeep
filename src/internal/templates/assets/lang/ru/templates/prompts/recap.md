@@ -7,6 +7,6 @@
 ## Output expectations
 
 - Таблица: `Slug | Phase | Status (blockers?) | Next`
-- Если доступен `./.speckeep/scripts/list-specs.*` — используйте его вывод.
+- Если доступен `./.speckeep/scripts/list-specs[SCRIPT_EXT]` — используйте его вывод.
 - Если перечисляете артефакты или пробелы, используйте канонические пути внутри `specs/<slug>/`: `plan.md`, `tasks.md`, `verify.md`.
 - Не добавляйте стандартный end block — recap это проектный обзор, а не фаза фичи.

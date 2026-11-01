@@ -50,7 +50,9 @@ spec_path="$input"
 slug=""
 
 if [ -f "$input" ]; then
-  spec_path="$input"
+  # Paths relative to the caller's CWD must be made absolute: the CLI resolves
+  # relative spec paths against the project root, not against the CWD.
+  spec_path="$(CDPATH= cd -- "$(dirname -- "$input")" && pwd)/$(basename -- "$input")"
 elif [ -f "$ROOT_DIR/$input" ]; then
   spec_path="$input"
 else
@@ -71,7 +73,11 @@ fi
 
 tasks_path=""
 if [ "$tasks_input" != "" ]; then
-  tasks_path="$tasks_input"
+  if [ -f "$tasks_input" ]; then
+    tasks_path="$(CDPATH= cd -- "$(dirname -- "$tasks_input")" && pwd)/$(basename -- "$tasks_input")"
+  else
+    tasks_path="$tasks_input"
+  fi
 elif [ "$slug" != "" ]; then
   candidate="$specs_dir/$slug/$tasks_file"
   legacy_candidate="$specs_dir/$slug/plan/$tasks_file"

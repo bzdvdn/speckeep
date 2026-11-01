@@ -7,6 +7,20 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.2.2] - 2026-11-01
+
+### Fixed
+
+- **Generated PowerShell skills pointed at `.sh` wrappers**: phase prompts were inlined into skills/flat commands/Gemini commands without shell substitution, so a project initialized with `--shell powershell` was told to run `check-ready.sh`, `verify-task-state.sh`, etc. — scripts that are not generated there. `PromptContent` now resolves the project shell, and prompt templates use a shell-neutral `[SCRIPT_EXT]` placeholder that becomes `.sh` or `.ps1` at generation time.
+- **`/spk-verify` no longer suggests the hidden `speckeep verify-task-state` command**: the prompt now points at the exact `verify-task-state[SCRIPT_EXT]` wrapper and explicitly says there is no public `speckeep verify-task-state` command. This prevents `unknown command "verify-task-state"` when an agent follows the instruction literally.
+- **`inspect-spec` wrappers resolve CWD-relative paths**: `inspect-spec.sh` and `inspect-spec.ps1` now absolutize spec/tasks paths that exist relative to the caller's directory. Previously the CLI resolved them against the project root, so running the wrapper from a subdirectory failed with `spec file not found`.
+- **Shell replacement list drifted from generated wrappers**: `trace` was missing from the `.sh` → `.ps1` replacement map. Script generation and prompt rewriting now share one canonical `shellScriptNames` list, so new wrappers cannot silently keep a stale shell extension.
+
+### Testing
+
+- **Agent artifact matrix now guards shell parity**: for every target × language × shell, generated skills/commands must not contain the other shell's wrapper extensions. Additional tests assert that every prompt script reference resolves to a generated wrapper and that `[SCRIPT_EXT]` is always expanded.
+- **Wrapper routing tests**: every generated wrapper must delegate through the matching `run-speckeep.sh`/`run-speckeep.ps1` runner and invoke the expected CLI command.
+
 ## [v1.2.1] - 2026-10-28
 
 ### Fixed

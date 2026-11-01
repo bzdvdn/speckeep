@@ -24,10 +24,10 @@ Stop if: `tasks.md` missing or slug ambiguous.
 - Treat verify as an evidence log (task/AC → proof), not a reassurance ritual.
 - When writing `<specs_dir>/<slug>/verify.md`, always include YAML frontmatter (use `.speckeep/templates/verify.md` as the format). Models commonly forget the `---` block — it is mandatory for archive readiness detection.
 - Start from `tasks.md`: every `[x]` task must have observable proof in the repo (file/test/command output).
-- If `./.speckeep/scripts/verify-task-state.*` exists, run it (slug first) as a cheap first pass.
+- If `./.speckeep/scripts/verify-task-state[SCRIPT_EXT]` exists, run that wrapper script directly (slug first) as a cheap first pass. There is no public `speckeep verify-task-state` command — do not call it.
 - Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
 - If you persist the report to a file, use `.speckeep/templates/verify.md` as the format and write to `<specs_dir>/<slug>/verify.md`. Do not look for “examples” in other slugs’ verify reports for shape.
-- Collect traceability as a cheap integrity check: use `./.speckeep/scripts/trace.* <slug>` (and `./.speckeep/scripts/trace.* <slug> --tests` when needed). It reads `Proof:` lines from `tasks.md`; this does not replace proof, but quickly highlights gaps/orphaned entries and missing files/anchors.
+- Collect traceability as a cheap integrity check: use `./.speckeep/scripts/trace[SCRIPT_EXT] <slug>` (and `./.speckeep/scripts/trace[SCRIPT_EXT] <slug> --tests` when needed). It reads `Proof:` lines from `tasks.md`; this does not replace proof, but quickly highlights gaps/orphaned entries and missing files/anchors.
 - Missing or clearly incomplete `Proof:` lines in `tasks.md` are evidence gaps, not cosmetic issues: if a completed task lacks expected proof coverage, do not silently overlook it.
 - Deep code reads only to confirm a specific claim for a specific task/AC.
 - Avoid re-reading the same files repeatedly: keep focused evidence notes and use targeted slices + `git diff` when you need to confirm what changed.

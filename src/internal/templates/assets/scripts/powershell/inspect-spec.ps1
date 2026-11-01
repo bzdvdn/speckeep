@@ -47,7 +47,9 @@ if ($args.Count -ge 2) { $tasksInput = [string]$args[1] }
 $slug = $null
 $specPath = $input
 if (Test-Path -LiteralPath $specPath) {
-  # ok: literal path
+  # Paths relative to the caller's CWD must be made absolute: the CLI resolves
+  # relative spec paths against the project root, not against the CWD.
+  $specPath = (Resolve-Path -LiteralPath $specPath).Path
 } elseif (Test-Path -LiteralPath (Join-Path $RootDir $specPath)) {
   # ok: relative to root
 } else {
@@ -62,7 +64,11 @@ if (-not (Test-Path -LiteralPath $specPath) -and -not (Test-Path -LiteralPath (J
 
 $tasksPath = $null
 if (-not [string]::IsNullOrWhiteSpace($tasksInput)) {
-  $tasksPath = $tasksInput
+  if (Test-Path -LiteralPath $tasksInput) {
+    $tasksPath = (Resolve-Path -LiteralPath $tasksInput).Path
+  } else {
+    $tasksPath = $tasksInput
+  }
 } elseif (-not [string]::IsNullOrWhiteSpace($slug)) {
   $candidate = "$specsDir/$slug/$tasksFile"
   $legacyCandidate = "$specsDir/$slug/plan/$tasksFile"

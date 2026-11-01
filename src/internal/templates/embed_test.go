@@ -133,6 +133,59 @@ func TestFilesBuildForSupportedLanguages(t *testing.T) {
 	}
 }
 
+func TestPromptContentAppliesShellPlaceholders(t *testing.T) {
+	for _, language := range []string{"en", "ru"} {
+		t.Run(language, func(t *testing.T) {
+			shContent, err := PromptContent(language, "propose", "sh")
+			if err != nil {
+				t.Fatalf("PromptContent(sh) returned error: %v", err)
+			}
+			if !strings.Contains(shContent, "check-ready.sh propose") {
+				t.Fatalf("sh prompt must reference check-ready.sh, got:\n%s", shContent)
+			}
+
+			psContent, err := PromptContent(language, "propose", "powershell")
+			if err != nil {
+				t.Fatalf("PromptContent(powershell) returned error: %v", err)
+			}
+			if !strings.Contains(psContent, "check-ready.ps1 propose") {
+				t.Fatalf("powershell prompt must reference check-ready.ps1, got:\n%s", psContent)
+			}
+			if strings.Contains(psContent, "check-ready.sh") {
+				t.Fatalf("powershell prompt must not reference check-ready.sh, got:\n%s", psContent)
+			}
+
+			psVerify, err := PromptContent(language, "verify", "powershell")
+			if err != nil {
+				t.Fatalf("PromptContent(verify, powershell) returned error: %v", err)
+			}
+			for _, want := range []string{"verify-task-state.ps1", "trace.ps1"} {
+				if !strings.Contains(psVerify, want) {
+					t.Fatalf("powershell verify prompt must reference %s, got:\n%s", want, psVerify)
+				}
+			}
+			for _, stale := range []string{"verify-task-state.sh", "trace.sh"} {
+				if strings.Contains(psVerify, stale) {
+					t.Fatalf("powershell verify prompt must not reference %s, got:\n%s", stale, psVerify)
+				}
+			}
+		})
+	}
+}
+
+func TestShellScriptReplacementCoversGeneratedScripts(t *testing.T) {
+	replacements := scriptReplacements("powershell")
+	for _, name := range shellScriptNames {
+		got, ok := replacements[name+".sh"]
+		if !ok {
+			t.Fatalf("missing shell replacement for generated script %s.sh", name)
+		}
+		if want := name + ".ps1"; got != want {
+			t.Fatalf("replacement for %s.sh = %q, want %q", name, got, want)
+		}
+	}
+}
+
 func TestInspectSpecScriptResolvesSlugViaConfig(t *testing.T) {
 	files, err := Files(LanguageSettings{
 		Default:  "en",
@@ -150,6 +203,185 @@ func TestInspectSpecScriptResolvesSlugViaConfig(t *testing.T) {
 	}
 	if !strings.Contains(content, "<spec-file|slug>") {
 		t.Fatalf("expected inspect-spec.sh usage to accept slug\ncontent:\n%s", content)
+	}
+	if !strings.Contains(content, `spec_path="$(CDPATH= cd -- "$(dirname -- "$input")" && pwd)/$(basename -- "$input")"`) {
+		t.Fatalf("expected inspect-spec.sh to absolutize CWD-relative spec paths\ncontent:\n%s", content)
+	}
+
+	psFiles, err := Files(LanguageSettings{
+		Default:  "en",
+		Docs:     "en",
+		Agent:    "en",
+		Comments: "en",
+		Shell:    "powershell",
+	})
+	if err != nil {
+		t.Fatalf("Files(powershell) returned error: %v", err)
+	}
+	psContent := fileContentByTarget(t, psFiles, "scripts/inspect-spec.ps1")
+	if !strings.Contains(psContent, "$specPath = (Resolve-Path -LiteralPath $specPath).Path") {
+		t.Fatalf("expected inspect-spec.ps1 to absolutize CWD-relative spec paths\ncontent:\n%s", psContent)
+	}
+}
+
+func TestLanguageTemplatesUseShellPlaceholder(t *testing.T) {
+	for _, language := range []string{"en", "ru"} {
+		for _, target := range []string{
+			"templates/agents-snippet.md",
+			"templates/prompts/propose.md",
+			"templates/prompts/verify.md",
+			"templates/prompts/converge.md",
+			"templates/prompts/recap.md",
+			"templates/prompts/spec.md",
+			"templates/prompts/inspect.md",
+		} {
+			content, err := localizedFileContent(language, target)
+			if err != nil {
+				t.Fatalf("%s/%s: %v", language, target, err)
+			}
+			for _, ext := range []string{".sh", ".ps1"} {
+				if strings.Contains(content, ext) {
+					t.Fatalf("%s/%s hardcodes %s; use [SCRIPT_EXT] instead", language, target, ext)
+				}
+			}
+		}
+	}
+}
+
+func TestPromptScriptRefsResolveToGeneratedWrappers(t *testing.T) {
+	refRe := regexp.MustCompile(`scripts/([a-z0-9-]+)\[SCRIPT_EXT\]`)
+	targets := []string{
+		"templates/agents-snippet.md",
+		"templates/prompts/propose.md",
+		"templates/prompts/verify.md",
+		"templates/prompts/converge.md",
+		"templates/prompts/recap.md",
+		"templates/prompts/spec.md",
+		"templates/prompts/inspect.md",
+	}
+
+	for _, language := range []string{"en", "ru"} {
+		for _, target := range targets {
+			content, err := localizedFileContent(language, target)
+			if err != nil {
+				t.Fatalf("%s/%s: %v", language, target, err)
+			}
+			refs := refRe.FindAllStringSubmatch(content, -1)
+			for _, shell := range []string{"sh", "powershell"} {
+				ext := ".sh"
+				if shell == "powershell" {
+					ext = ".ps1"
+				}
+				files, err := Files(LanguageSettings{
+					Default:  language,
+					Docs:     language,
+					Agent:    language,
+					Comments: language,
+					Shell:    shell,
+				})
+				if err != nil {
+					t.Fatalf("%s/%s: Files(%s) returned error: %v", language, target, shell, err)
+				}
+				existing := make(map[string]struct{}, len(files))
+				for _, file := range files {
+					existing[file.TargetPath] = struct{}{}
+				}
+				for _, ref := range refs {
+					want := "scripts/" + ref[1] + ext
+					if _, ok := existing[want]; !ok {
+						t.Fatalf("%s/%s references %s, but %s is not generated for shell %s", language, target, ref[0], want, shell)
+					}
+				}
+			}
+		}
+	}
+}
+
+func TestGeneratedFilesResolveScriptExtPlaceholder(t *testing.T) {
+	for _, shell := range []string{"sh", "powershell"} {
+		files, err := Files(LanguageSettings{
+			Default:  "en",
+			Docs:     "en",
+			Agent:    "en",
+			Comments: "en",
+			Shell:    shell,
+		})
+		if err != nil {
+			t.Fatalf("%s: Files() returned error: %v", shell, err)
+		}
+		for _, file := range files {
+			if strings.Contains(file.Content, "[SCRIPT_EXT]") {
+				t.Fatalf("%s: %s still contains unresolved [SCRIPT_EXT]", shell, file.TargetPath)
+			}
+		}
+	}
+}
+
+func TestPowerShellGeneratedFilesHaveNoShellScriptRefs(t *testing.T) {
+	files, err := Files(LanguageSettings{
+		Default:  "en",
+		Docs:     "en",
+		Agent:    "en",
+		Comments: "en",
+		Shell:    "powershell",
+	})
+	if err != nil {
+		t.Fatalf("Files() returned error: %v", err)
+	}
+
+	for _, file := range files {
+		for _, name := range shellScriptNames {
+			stale := name + ".sh"
+			if strings.Contains(file.Content, stale) {
+				t.Fatalf("%s still references %s in a powershell project", file.TargetPath, stale)
+			}
+		}
+	}
+}
+
+func TestWrapperScriptsUseMatchingRunnerAndCommand(t *testing.T) {
+	expected := map[string]string{
+		"run-speckeep":       "",
+		"inspect-spec":       "__internal inspect-spec",
+		"check-constitution": "__internal check-constitution",
+		"check-ready":        "__internal check-ready",
+		"archive-feature":    " archive ",
+		"trace":              " trace ",
+		"verify-task-state":  "__internal verify-task-state",
+		"list-open-tasks":    "__internal list-open-tasks",
+		"link-agents":        "__internal link-agents",
+		"list-specs":         "__internal list-specs",
+		"show-spec":          "__internal show-spec",
+	}
+
+	for _, shell := range []string{"sh", "powershell"} {
+		ext := ".sh"
+		if shell == "powershell" {
+			ext = ".ps1"
+		}
+		files, err := Files(LanguageSettings{
+			Default:  "en",
+			Docs:     "en",
+			Agent:    "en",
+			Comments: "en",
+			Shell:    shell,
+		})
+		if err != nil {
+			t.Fatalf("%s: Files() returned error: %v", shell, err)
+		}
+		runner := "run-speckeep" + ext
+		for name, command := range expected {
+			if name == "run-speckeep" {
+				continue
+			}
+			content := fileContentByTarget(t, files, "scripts/"+name+ext)
+			if !strings.Contains(content, runner) {
+				t.Fatalf("%s: scripts/%s%s must delegate through %s", shell, name, ext, runner)
+			}
+			if !strings.Contains(content, command) {
+				t.Fatalf("%s: scripts/%s%s must invoke %q", shell, name, ext, command)
+			}
+		}
 	}
 }
 
@@ -186,7 +418,7 @@ func TestInspectPromptDefinesCheapScopeAndVerdictRules(t *testing.T) {
 	requiredSnippets := []string{
 		"## Phase Contract",
 		"pass|concerns|blocked",
-		"check-ready.* inspect",
+		"check-ready.sh inspect",
 		".speckeep/constitution.summary.md",
 		"Return to: /spk-spec <slug>",
 	}
@@ -626,6 +858,7 @@ func TestVerifyTemplateAndPromptPreferEvidenceScopedVerification(t *testing.T) {
 	for _, snippet := range []string{
 		"evidence log",
 		"verify-task-state",
+		"no public `speckeep verify-task-state` command",
 		"Return to: /spk-<phase> <slug>",
 		"Ready for: speckeep archive <slug> .",
 	} {

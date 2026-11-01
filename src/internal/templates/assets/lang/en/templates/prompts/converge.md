@@ -14,7 +14,7 @@ Stop if: `tasks.md` missing or slug ambiguous.
 
 ## Rules
 
-- Run the cheap gate first: `./.speckeep/scripts/check-ready.sh converge <slug>` (or `speckeep converge <slug>`). Fix only what the gate flags.
+- Run the cheap gate first: `./.speckeep/scripts/check-ready[SCRIPT_EXT] converge <slug>` (or `speckeep converge <slug>`). Fix only what the gate flags.
 - Treat the gate findings as a checklist, not a narrative: a file is closed only when each `T<phase>.<index>` checkbox is `[x]` AND carries a `Proof:` line pointing to an existing file.
 - When a completed task is not actually proven, do not uncheck it blindly: either add the missing `Proof:` (implementation exists) or append a follow-up task for the still-missing work.
 - Append follow-ups to a `## Converge Follow-ups` section at the end of `tasks.md`, using the next free task IDs in phase order (`T<n>.<k>`). Each follow-up MUST carry `Touches:` and an observable outcome.

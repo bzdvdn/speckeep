@@ -124,6 +124,24 @@ func Files(settings LanguageSettings) ([]File, error) {
 	return files, nil
 }
 
+// shellScriptNames is the canonical list of wrapper scripts generated for a
+// project. Both script file generation and shell-reference rewriting use it,
+// so a newly added wrapper can never silently keep a stale `.sh` reference in
+// PowerShell output.
+var shellScriptNames = []string{
+	"run-speckeep",
+	"inspect-spec",
+	"check-constitution",
+	"check-ready",
+	"archive-feature",
+	"trace",
+	"verify-task-state",
+	"list-open-tasks",
+	"link-agents",
+	"list-specs",
+	"show-spec",
+}
+
 func shellScriptDefinitions(shell string) []struct {
 	AssetPath, TargetPath string
 	Mode                  fs.FileMode
@@ -135,19 +153,7 @@ func shellScriptDefinitions(shell string) []struct {
 		ext = ".ps1"
 		mode = 0o644
 	}
-	names := []string{
-		"run-speckeep",
-		"inspect-spec",
-		"check-constitution",
-		"check-ready",
-		"archive-feature",
-		"trace",
-		"verify-task-state",
-		"list-open-tasks",
-		"link-agents",
-		"list-specs",
-		"show-spec",
-	}
+	names := shellScriptNames
 	definitions := make([]struct {
 		AssetPath, TargetPath string
 		Mode                  fs.FileMode
@@ -170,11 +176,17 @@ func shellScriptDefinitions(shell string) []struct {
 }
 
 // PromptContent returns the canonical phase-prompt body for the given
-// language and command name (e.g. "spec", "implement"). It is the single
-// source of truth for phase instructions — callers that inline it (such as
-// generated agent skill files) should not duplicate its content elsewhere.
-func PromptContent(language, commandName string) (string, error) {
-	return localizedFileContent(language, "templates/prompts/"+commandName+".md")
+// language, command name (e.g. "spec", "implement"), and shell. It is the
+// single source of truth for phase instructions — callers that inline it
+// (such as generated agent skill files) should not duplicate its content
+// elsewhere. Shell substitution is applied here so inlined prompts point at
+// the wrapper scripts that were actually generated for the project.
+func PromptContent(language, commandName, shell string) (string, error) {
+	content, err := localizedFileContent(language, "templates/prompts/"+commandName+".md")
+	if err != nil {
+		return "", err
+	}
+	return applyShellPlaceholders(content, LanguageSettings{Shell: shell}), nil
 }
 
 func FileContent(path string) (string, error) {
@@ -216,6 +228,12 @@ func applyLanguagePlaceholders(content, outputLanguage string, settings Language
 }
 
 func applyShellPlaceholders(content string, settings LanguageSettings) string {
+	ext := ".sh"
+	if normalizeShellValue(settings.Shell) == "powershell" {
+		ext = ".ps1"
+	}
+	content = strings.ReplaceAll(content, "[SCRIPT_EXT]", ext)
+
 	replacements := scriptReplacements(settings.Shell)
 	oldNew := make([]string, 0, len(replacements)*2)
 	for oldValue, newValue := range replacements {
@@ -230,20 +248,8 @@ func scriptReplacements(shell string) map[string]string {
 	if normalizedShell == "powershell" {
 		ext = ".ps1"
 	}
-	names := []string{
-		"run-speckeep",
-		"inspect-spec",
-		"check-constitution",
-		"check-ready",
-		"archive-feature",
-		"verify-task-state",
-		"list-open-tasks",
-		"link-agents",
-		"list-specs",
-		"show-spec",
-	}
-	replacements := make(map[string]string, len(names))
-	for _, name := range names {
+	replacements := make(map[string]string, len(shellScriptNames))
+	for _, name := range shellScriptNames {
 		replacements[name+".sh"] = name + ext
 	}
 	return replacements

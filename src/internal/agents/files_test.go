@@ -146,6 +146,39 @@ func TestReadinessReminderOnlyForReadyCheckPhases(t *testing.T) {
 	}
 }
 
+func TestPowerShellSkillsReferencePowerShellScripts(t *testing.T) {
+	files, err := FilesForTarget("claude", "en", "powershell")
+	if err != nil {
+		t.Fatalf("FilesForTarget(claude) returned error: %v", err)
+	}
+
+	for _, f := range files {
+		if strings.Contains(f.Content, "check-ready.sh") {
+			t.Fatalf("%s still references check-ready.sh in a powershell project", f.Path)
+		}
+		if strings.Contains(f.Content, "run-speckeep.sh") {
+			t.Fatalf("%s still references run-speckeep.sh in a powershell project", f.Path)
+		}
+	}
+
+	for _, phase := range []string{"propose", "converge"} {
+		path := ".claude/skills/spk-" + phase + "/SKILL.md"
+		var content string
+		for _, f := range files {
+			if f.Path == path {
+				content = f.Content
+				break
+			}
+		}
+		if content == "" {
+			t.Fatalf("missing phase skill %s", path)
+		}
+		if !strings.Contains(content, "check-ready.ps1 "+phase) {
+			t.Fatalf("%s must reference check-ready.ps1 %s", path, phase)
+		}
+	}
+}
+
 func TestGeminiGetsTomlCommandsAlongsideSkills(t *testing.T) {
 	// Gemini CLI Skills are auto-discovered but not slash-invocable; its
 	// real custom-command mechanism is TOML, not markdown.

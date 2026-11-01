@@ -31,6 +31,27 @@ func expectedPathsForTarget(target string, commands []CommandDefinition) []strin
 	return paths
 }
 
+func shellWrapperRefs(ext string) []string {
+	names := []string{
+		"run-speckeep",
+		"inspect-spec",
+		"check-constitution",
+		"check-ready",
+		"archive-feature",
+		"trace",
+		"verify-task-state",
+		"list-open-tasks",
+		"link-agents",
+		"list-specs",
+		"show-spec",
+	}
+	refs := make([]string, 0, len(names))
+	for _, name := range names {
+		refs = append(refs, name+ext)
+	}
+	return refs
+}
+
 func frontmatterName(content string) string {
 	if !strings.HasPrefix(content, "---\n") {
 		return ""
@@ -92,6 +113,19 @@ func TestAgentArtifactMatrix(t *testing.T) {
 					}
 					if strings.HasPrefix(f.Path, ".opencode/commands/") {
 						t.Fatalf("%s: opencode must be skills-only, got %s", name, f.Path)
+					}
+					if shell == "powershell" {
+						for _, stale := range shellWrapperRefs(".sh") {
+							if strings.Contains(f.Content, stale) {
+								t.Fatalf("%s: %s still references %s in a powershell project", name, f.Path, stale)
+							}
+						}
+					} else {
+						for _, stale := range shellWrapperRefs(".ps1") {
+							if strings.Contains(f.Content, stale) {
+								t.Fatalf("%s: %s still references %s in a sh project", name, f.Path, stale)
+							}
+						}
 					}
 				}
 				sort.Strings(got)

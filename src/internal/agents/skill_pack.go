@@ -402,7 +402,7 @@ func renderPhaseSkill(command CommandDefinition, lang, shell string) (string, er
 	promptPath := ".speckeep/templates/prompts/" + command.Name + ".md"
 	checkReady := readinessLine(command.Name, lang, shell)
 
-	body, err := templates.PromptContent(lang, command.Name)
+	body, err := templates.PromptContent(lang, command.Name, shell)
 	if err != nil {
 		return "", fmt.Errorf("render phase skill %q: %w", command.Name, err)
 	}
@@ -465,7 +465,7 @@ func renderFlatCommand(command CommandDefinition, lang, invokePrefix, shell stri
 	checkReady := readinessLine(command.Name, lang, shell)
 	invoke := invokePrefix + "spk-" + command.Name
 
-	body, err := templates.PromptContent(lang, command.Name)
+	body, err := templates.PromptContent(lang, command.Name, shell)
 	if err != nil {
 		return "", fmt.Errorf("render flat command %q: %w", command.Name, err)
 	}
@@ -512,7 +512,7 @@ Reminders:
 // (.gemini/commands/<name>.toml) — Gemini's real invocable-command format,
 // distinct from its (non-slash-invocable) Skills mechanism.
 func renderGeminiCommand(command CommandDefinition, lang, shell string) (string, error) {
-	body, err := templates.PromptContent(lang, command.Name)
+	body, err := templates.PromptContent(lang, command.Name, shell)
 	if err != nil {
 		return "", fmt.Errorf("render gemini command %q: %w", command.Name, err)
 	}

@@ -36,10 +36,10 @@ If the user moves straight to another command instead of answering, draft best-e
 ## Mandatory Rules
 
 - **Branch-first**: before writing any file, switch/create `feature/<slug>` (or `--branch`). If not possible → stop and report why.
-- **Trace base**: right after creating/switching the branch, pin the change-attribution base: `./.speckeep/scripts/run-speckeep.* trace init <slug>`. Do not skip it: without a base, `trace --files` cannot separate feature changes from the rest of the history.
+- **Trace base**: right after creating/switching the branch, pin the change-attribution base: `./.speckeep/scripts/run-speckeep[SCRIPT_EXT] trace init <slug>`. Do not skip it: without a base, `trace --files` cannot separate feature changes from the rest of the history.
 - Do not try to “generate the spec via CLI”: as the agent, you must write/update `<specs_dir>/<slug>/spec.md` directly.
-  - There is no `speckeep spec` subcommand. Do not run `./.speckeep/scripts/run-speckeep.* spec <slug>`.
-  - `./.speckeep/scripts/check-*.{sh,ps1}` are validation gates only, not artifact generators.
+  - There is no `speckeep spec` subcommand. Do not run `./.speckeep/scripts/run-speckeep[SCRIPT_EXT] spec <slug>`.
+  - `./.speckeep/scripts/check-*` are validation gates only, not artifact generators.
 - Do not read any `<specs_dir>/*/spec.md` from other slugs for any reason — not for style, not for format, not for examples. Do not list or scan `<specs_dir>/` to survey existing slugs. The template `.speckeep/templates/spec.md` is the sole structure reference; reading it once is sufficient.
 - Spec captures intent, not plan/tasks. No implementation steps or decomposition.
 - Every `AC-*` is Given/When/Then with observable proof in Then.

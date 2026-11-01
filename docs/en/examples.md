@@ -943,7 +943,7 @@ speckeep self check
 
 ```text
 installed: v1.2.0
-latest:    v1.2.1
+latest:    v1.2.2
 update available — run `speckeep self upgrade`
 ```
 
@@ -952,9 +952,9 @@ speckeep self upgrade
 ```
 
 ```text
-downloading speckeep_v1.2.1_linux_amd64.tar.gz...
+downloading speckeep_v1.2.2_linux_amd64.tar.gz...
 sha256 verified
-replaced: /home/you/.local/bin/speckeep (v1.2.0 -> v1.2.1)
+replaced: /home/you/.local/bin/speckeep (v1.2.0 -> v1.2.2)
 ```
 
 Installed via npm? Update through npm instead — `self upgrade` manages the native binary only:
