@@ -106,6 +106,9 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 	if err := migrateLegacyNestedPlanLayout(root, cfg.Paths.SpecsDir, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
 	}
+	if err := ensureLayoutGitkeeps(root, cfg, options.DryRun, &result); err != nil {
+		return RefreshResult{}, err
+	}
 
 	if err := syncConfig(root, cfg, options.DryRun, &result); err != nil {
 		return RefreshResult{}, err
@@ -240,6 +243,35 @@ func moveDirIfRequested(root, label, previousPath, newPath string, dryRun bool, 
 		return err
 	}
 	return os.RemoveAll(src)
+}
+
+func ensureLayoutGitkeeps(root string, cfg config.Config, dryRun bool, result *RefreshResult) error {
+	specsDir, err := cfg.SpecsDir(root)
+	if err != nil {
+		return err
+	}
+	archiveDir, err := cfg.ArchiveDir(root)
+	if err != nil {
+		return err
+	}
+	for _, dir := range []string{specsDir, archiveDir} {
+		path := filepath.Join(dir, gitkeepName)
+		if fileExists(path) {
+			recordRefreshAction(result, "unchanged", rel(root, path))
+			continue
+		}
+		recordRefreshAction(result, "created", rel(root, path))
+		if dryRun {
+			continue
+		}
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return err
+		}
+		if err := os.WriteFile(path, nil, 0o644); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func applyLegacyDefaultLayoutTargets(cfg *config.Config, options RefreshOptions) {

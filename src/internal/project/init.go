@@ -18,6 +18,8 @@ var (
 	ErrNotInitialized = errors.New("speckeep project is not initialized")
 )
 
+const gitkeepName = ".gitkeep"
+
 type InitOptions struct {
 	InitGit          bool
 	DefaultLang      string
@@ -184,6 +186,20 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 		relPath := rel(root, dir)
 		result.EnsuredDirs = append(result.EnsuredDirs, relPath)
 		messages = append(messages, fmt.Sprintf("ensured directory %s", relPath))
+	}
+	for _, dir := range []string{specsDir, archiveDir} {
+		target := filepath.Join(dir, gitkeepName)
+		written, err := writeIfMissing(target, "", 0o644)
+		if err != nil {
+			return InitResult{}, err
+		}
+		if written {
+			result.Created = append(result.Created, rel(root, target))
+			messages = append(messages, fmt.Sprintf("created %s", rel(root, target)))
+		} else {
+			result.Kept = append(result.Kept, rel(root, target))
+			messages = append(messages, fmt.Sprintf("kept existing %s", rel(root, target)))
+		}
 	}
 	files, err := templates.Files(languages)
 	if err != nil {

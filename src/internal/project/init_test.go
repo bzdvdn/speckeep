@@ -44,6 +44,8 @@ func TestInitializeCreatesWorkspaceAndAgentTargets(t *testing.T) {
 		filepath.Join(root, "CONSTITUTION.md"),
 		filepath.Join(root, ".speckeep", "scripts", "run-speckeep.sh"),
 		filepath.Join(root, "AGENTS.md"),
+		filepath.Join(root, "specs", "active", ".gitkeep"),
+		filepath.Join(root, "specs", "archived", ".gitkeep"),
 		filepath.Join(root, ".claude", "skills", "spk-inspect", "SKILL.md"),
 		filepath.Join(root, ".cursor", "skills", "spk-inspect", "SKILL.md"),
 	}
@@ -365,6 +367,37 @@ func TestRefreshSelfHealsDeprecatedContinueTarget(t *testing.T) {
 	for _, target := range after.Agents.Targets {
 		if target == "continue" {
 			t.Fatalf("expected \"continue\" to be dropped from saved config, got %#v", after.Agents.Targets)
+		}
+	}
+}
+
+func TestRefreshRestoresGitkeepMarkers(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specsMarker := filepath.Join(root, "specs", "active", ".gitkeep")
+	archiveMarker := filepath.Join(root, "specs", "archived", ".gitkeep")
+	for _, path := range []string{specsMarker, archiveMarker} {
+		if err := os.Remove(path); err != nil {
+			t.Fatalf("Remove(%s) returned error: %v", path, err)
+		}
+	}
+
+	if _, err := Refresh(root, RefreshOptions{}); err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+
+	for _, path := range []string{specsMarker, archiveMarker} {
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("expected %s to be restored: %v", path, err)
 		}
 	}
 }

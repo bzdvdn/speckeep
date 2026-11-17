@@ -7,6 +7,12 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.2.3] - 2026-11-17
+
+### Added
+
+- **Git-visible layout markers**: `speckeep init` now writes an empty `.gitkeep` into `specs_dir` (`specs/active/` by default) and `archive_dir` (`specs/archived/`), so empty layout directories are always tracked by git. `speckeep refresh` restores a missing marker without overwriting an existing one and honors `--dry-run`.
+
 ## [v1.2.2] - 2026-11-01
 
 ### Fixed
