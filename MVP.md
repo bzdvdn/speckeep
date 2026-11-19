@@ -106,21 +106,21 @@ The intended agent workflow is strict:
 
 1. `constitution`
 2. `spec`
-3. `inspect`
-4. `plan`
+3. `inspect` (optional)
+4. `plan` (opt-in for design-heavy work)
 5. `tasks`
 6. `implement`
 7. `archive`
 
-`inspect` and `verify` are optional on-demand audits (always available, skipped by default).
+`inspect` and `verify` are optional on-demand audits (always available, skipped by default). `plan` is opt-in: small/low-risk features go straight to `tasks` from `spec.md`, and `/spk-propose` covers spec + tasks in one pass.
 
 Dependency rules:
 
 - `constitution` can be created first
 - `spec` depends on the constitution
 - `inspect` depends on the constitution and one spec
-- `plan` depends on the constitution, one spec, and the persisted inspect report
-- `tasks` depends on the constitution and one feature artifact set with a plan
+- `plan` depends on the constitution and one spec; the persisted inspect report is optional
+- `tasks` depends on the constitution and one spec (plus the plan when present)
 - `implement` depends on the constitution and one task list
 - `verify` (optional audit) depends on the constitution and one task list
 - `archive` depends on one existing spec and archives the related feature artifacts; allowed once all `[x]` tasks carry a `Proof:` entry, or after `verify: pass`
@@ -169,7 +169,7 @@ Design constraints for low token usage:
 - readiness scripts enforce prerequisites instead of pushing work into model context
 - patch existing files instead of regenerating large documents
 - avoid loading unrelated feature plans, tasks, or contracts
-- use `plan.md` as tasks entrypoint
+- use `plan.md` (when present) or `spec.md` as tasks entrypoint
 - use `tasks.md` as implement entrypoint
 
 Lightweight guardrails:
@@ -179,6 +179,8 @@ Lightweight guardrails:
 - `verify` stays cheap by default, deepens only when explicitly requested
 - helper scripts preferred over repeated prompt-time reasoning
 - traceability through stable IDs instead of shared summary artifacts
+- always-on context stays minimal: the full command reference and repo-map triggers are on-demand files, not part of `AGENTS.md`
+- generated artifact sizes have enforced budgets (snippet, root router, per-phase skill scaffolding)
 
 Recommended stable ID scheme:
 
@@ -198,7 +200,7 @@ Required artifacts:
 
 - `spec.md` — always
 - `tasks.md` — for any feature that reaches implementation (or a `hotfix.md` for emergency fixes)
-- `plan.md` — required when the change is non-trivial; **optional for tiny/low-risk changes** (express lane closes from `spec.md` + `tasks.md`)
+- `plan.md` — **opt-in**: write it only for design-heavy changes; small/low-risk features close from `spec.md` + `tasks.md`
 - `data-model.md` — optional on-demand: create only when the feature actually changes data model/state/persistence; otherwise a `Data model: no change` note inside `plan.md` is enough
 - `verify.md` (when verify is persisted)
 
@@ -344,13 +346,13 @@ Spec includes:
 
 ## Plan workflow
 
-`plan` translates spec into technical design.
+`plan` translates spec into technical design. It is opt-in: use it only when the feature needs design work; small/low-risk features skip it and go straight to `tasks`.
 
 Inputs:
 
 - `CONSTITUTION.md`
 - `specs/<slug>/spec.md`
-- `specs/<slug>/inspect.md` (required)
+- `specs/<slug>/inspect.md` (optional)
 
 Outputs:
 
@@ -372,8 +374,9 @@ Supports `--update` for targeted edits without rewriting entire plan.
 `tasks` reads:
 
 - `CONSTITUTION.md`
-- `specs/<slug>/plan.md`
-- reads spec/data-model/contracts only as needed
+- `specs/<slug>/spec.md`
+- `specs/<slug>/plan.md` when present (opt-in for design-heavy work)
+- reads data-model/contracts only as needed
 
 Must:
 

@@ -14,7 +14,7 @@ A review phase that checks a spec and related artifacts for completeness, consis
 
 ## Plan
 
-A technical design phase that translates one spec into implementation-oriented artifacts.
+An opt-in technical design phase that translates one spec into implementation-oriented artifacts. Used only when the feature needs design work; small/low-risk features go straight to tasks.
 
 ## Feature Artifact Set
 
@@ -22,7 +22,7 @@ The group of files stored under `specs/active/<slug>/`, typically including `spe
 
 ## Tasks
 
-The executable breakdown of a feature plan. In SpecKeep, `tasks.md` lives next to `plan.md` inside the feature artifact set.
+The executable breakdown of a feature's spec (and plan when present). In SpecKeep, `tasks.md` lives inside the feature artifact set, next to `plan.md` when that artifact exists.
 
 ## Implement
 

@@ -66,7 +66,7 @@ Typical minimal read order:
 No. The intended chain is strict:
 
 ```text
-constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> verify -> archive
+constitution -> spec -> [inspect, optional] -> [plan, optional] -> tasks -> implement -> [verify, optional] -> archive
 ```
 
 `plan` depends on an existing spec.

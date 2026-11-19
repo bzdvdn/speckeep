@@ -88,7 +88,7 @@ Every target receives the same skill set at `<target-skills-dir>/`: a lightweigh
 - Codiumate: `.codiumate/skills/{sdd,spk-*}/`
 - Qwen Code: `.qwen/skills/{sdd,spk-*}/`
 
-`<target>/sdd/SKILL.md` is an overview (workflow chain, gates) for when the phase isn't obvious from the request; each `<target>/spk-<phase>/SKILL.md` is its own top-level skill — directly slash-invocable (e.g. `/spk-spec`) rather than only reachable through the model opening a linked file — inlining the canonical prompt body from `.speckeep/templates/prompts/`. The CLI remains the deterministic verification spine — a skill alone never replaces `check`/`guard` verdicts. Tools that do not auto-index a skills directory (e.g. Aider) get a single loader pointer; the managed `AGENTS.md` block always points at the skills as well.
+`<target>/sdd/SKILL.md` is a lightweight router (routing + gates) for when the phase isn't obvious from the request; the full command reference lives in `.speckeep/templates/commands.md` and is loaded only when needed. Each `<target>/spk-<phase>/SKILL.md` is its own top-level skill — directly slash-invocable (e.g. `/spk-spec`) rather than only reachable through the model opening a linked file — inlining the canonical prompt body from `.speckeep/templates/prompts/` plus only a one-line `AGENTS.md` pointer, readiness line, and source reference. The CLI remains the deterministic verification spine — a skill alone never replaces `check`/`guard` verdicts. Tools that do not auto-index a skills directory (e.g. Aider) get a single loader pointer; the managed `AGENTS.md` block always points at the skills as well.
 
 ## Agent Discipline
 
@@ -114,11 +114,12 @@ Each prompt is designed to:
 - respect the configured documentation and agent languages
 - preserve constitutional authority over specs, plans, tasks, and implementation
 
-Each generated agent wrapper includes:
+Generated skills include:
 
-- **Workflow chain hint**: `constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive` — prevents agents from skipping required phases or jumping ahead, while making archive an explicit CLI follow-up after agent verification
+- **Workflow chain hint**: `constitution → spec → [inspect, optional] → [plan, optional] → tasks → implement → [verify, optional] → archive` — prevents agents from skipping required phases or jumping ahead. `/spk-propose` is the recommended default entry for a new feature (spec + tasks in one pass); plan is opt-in for design-heavy work.
 - **Script execution discipline**: explicit instruction to execute scripts as shell commands, trust stdout/exit code, and never read or inspect script source
-- **Anti-pattern block**: common mistakes to avoid — skipping readiness scripts, re-planning during implement, marking tasks done without observable proof, reading the full repository when minimal context is required
+- **Lean phase skills**: each phase skill inlines its prompt plus a one-line `AGENTS.md` pointer, readiness line, and source reference. Canonical cross-phase rules (scope, git safety, `Proof:`, escalation) live in the managed `AGENTS.md` block instead of being duplicated per skill.
+- **New-feature routing**: a request to build something new, with no phase named, goes to `/spk-propose` directly (skip the `sdd` router). Use `/spk-spec` only for ambiguous or multi-feature ideas, and `/spk-plan` only for design-heavy work. In slash-command tools (Claude Code) invoke `/spk-propose` explicitly; in skill tools (OpenCode, Cursor, Codex) the agent selects `spk-propose` from its description.
 
 `spec` should stay branch-first:
 

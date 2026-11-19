@@ -57,8 +57,8 @@ func TestStateInfersLifecycleAndReportStatuses(t *testing.T) {
 	if err != nil {
 		t.Fatalf("State returned error: %v", err)
 	}
-	if state.Phase != "spec" || state.ReadyFor != "plan" {
-		t.Fatalf("unexpected state after creating spec: %+v", state)
+	if state.Phase != "spec" || state.ReadyFor != "tasks" {
+		t.Fatalf("unexpected state after creating spec (plan is optional, tasks is next): %+v", state)
 	}
 
 	inspectPath := filepath.Join(specDir, "inspect.md")
@@ -84,8 +84,8 @@ func TestStateInfersLifecycleAndReportStatuses(t *testing.T) {
 	if err != nil {
 		t.Fatalf("State returned error: %v", err)
 	}
-	if state.Phase != "inspect" || state.ReadyFor != "plan" {
-		t.Fatalf("unexpected inspect state: %+v", state)
+	if state.Phase != "inspect" || state.ReadyFor != "tasks" {
+		t.Fatalf("unexpected inspect state (plan is optional, tasks is next): %+v", state)
 	}
 	if state.InspectStatus != StatusConcerns {
 		t.Fatalf("InspectStatus = %q, want %q", state.InspectStatus, StatusConcerns)
@@ -689,5 +689,88 @@ func TestValidateProjectFindsVerifyPerACEvidenceProblems(t *testing.T) {
 		if strings.Contains(f.Message, "no evidence line for AC-001") {
 			t.Fatalf("unexpected evidence warning for AC-001 (it should be covered), got %+v", findings)
 		}
+	}
+}
+
+// TestValidateProjectAllowsPlanOptionalExpressMode guards the express lane:
+// spec.md + tasks.md without plan.md must not be reported as an error, since
+// plan is opt-in for design-heavy work.
+func TestValidateProjectAllowsPlanOptionalExpressMode(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specDir := filepath.Join(testSpecsDir(t, root), "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
+	}
+	specContent := "# Demo\n\n## Goal\nx\n\n## Requirements\n- RQ-001 x\n\n## Acceptance Criteria\n### AC-001 Demo\n- Given x\n- When y\n- Then z\n"
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte(specContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+	tasksContent := "# Tasks\n\n## Phase 1: Foundation\n- [ ] T1.1 Do x — outcome: y; Touches: src/demo.go\n\n## Surface Map\n| src/demo.go | T1.1 |\n\n## Acceptance Coverage\n- AC-001 -> T1.1\n"
+	if err := os.WriteFile(filepath.Join(specDir, "tasks.md"), []byte(tasksContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks) returned error: %v", err)
+	}
+
+	findings, err := ValidateProject(context.Background(), root)
+	if err != nil {
+		t.Fatalf("ValidateProject returned error: %v", err)
+	}
+	for _, finding := range findings {
+		if finding.Level != "error" {
+			continue
+		}
+		if strings.Contains(finding.Message, "without matching plan") {
+			t.Fatalf("express mode (no plan.md) must not be an error, got: %s", finding.Message)
+		}
+		if strings.Contains(finding.Message, "mandatory inspect report") {
+			t.Fatalf("plan must not require inspect, got: %s", finding.Message)
+		}
+	}
+}
+
+// TestEmptyTasksWithoutPlanDoesNotReportPlanPhase guards the plan-optional
+// express lane: an empty tasks.md without plan.md must not look like a plan
+// phase, because plan is opt-in.
+func TestEmptyTasksWithoutPlanDoesNotReportPlanPhase(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specDir := filepath.Join(testSpecsDir(t, root), "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(specDir, "tasks.md"), []byte("# Tasks\n\n## Phase 1\n\nNo tasks defined yet.\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks) returned error: %v", err)
+	}
+
+	state, err := State(context.Background(), root, "demo")
+	if err != nil {
+		t.Fatalf("State returned error: %v", err)
+	}
+	if state.Phase == "plan" {
+		t.Fatalf("empty tasks without plan.md must not report phase=plan (plan is opt-in), got %+v", state)
+	}
+	if state.ReadyFor != "tasks" {
+		t.Fatalf("expected ready_for=tasks, got %+v", state)
 	}
 }

@@ -45,10 +45,8 @@ If the user moves straight to another command instead of answering, draft best-e
 - Every `AC-*` is Given/When/Then with observable proof in Then.
   - Compact example: `AC-001 Export is filterable → Given a report with >1000 rows, When the user sets the “last 30 days” filter, Then the export contains only rows within that window and the CLI prints the row count.` The `Then` clause names what a human or test can directly observe — always include that observable outcome.
 - Required sections: Out of Scope, Assumptions, Open Questions (or `none`).
-- Alignment pass: run it before drafting — see the dedicated section above.
 - If invoked with `--name` but without enough description, ask for it and treat the next non-command user message as the continuation. If the next message starts with `/spk-`, staged mode is canceled.
 - Domain language: if `.speckeep/glossary.md` exists, read it once and reuse its terms; do not introduce a new synonym for a term it already defines. Do not create/edit it here — that's `/spk-glossary`.
-- Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
 - Do not pin technologies/versions unless required by the user or a hard repo/contract constraint. If a technology choice is an implementation preference, record it in `plan`, not in `spec`.
 - Refine instead of guessing: if the request implies multiple feature slugs or multiple independent specs, stop and ask for one concrete feature.
 - Size discipline: target `spec.md` ≤ ~250 lines. If you exceed it, compress — an oversized spec is usually scope creep, not depth; split the feature instead.
@@ -73,12 +71,5 @@ If any check fails: fix it and re-run the checklist. After **2 fix rounds** that
 
 - Write/patch `spec.md` (patch > rewrite).
 - Summarize: goal, scope, AC list, open questions/blockers in the response; do not create extra derived recap files just for this summary.
-- End with standard end block (see AGENTS.md), exact shape:
-  ```
-  Slug: <slug>
-  Status: <phase label>
-  Artifacts: <paths>
-  Blockers: <none | reason>
-  Ready for: /spk-inspect <slug>   (or /spk-plan <slug>)
-  ```
-- Final line (mandatory): `Ready for: /spk-inspect <slug>` or `Ready for: /spk-plan <slug>`. Prefer `/spk-inspect` (deep quality review — constitution alignment, AC completeness, ambiguity) when ambiguity, risk, or open questions remain; prefer `/spk-plan` when the spec passed self-validation and looks solid.
+- End with the canonical end block from `AGENTS.md` (Slug / Status / Artifacts / Blockers / Ready for).
+- Final line (mandatory): `Ready for: /spk-tasks <slug>` by default (plan is optional). Use `/spk-inspect <slug>` first only when ambiguity, risk, or open questions remain; use `/spk-plan <slug>` first only when the feature needs design work (multiple realistic options, data-model/contract changes, migration/rollout, or cross-boundary impact).

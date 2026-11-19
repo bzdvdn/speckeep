@@ -2,25 +2,25 @@
 
 Основной контекст: `.speckeep/`. Языки: docs=[DOCS_LANGUAGE], agent=[AGENT_LANGUAGE], comments=[COMMENTS_LANGUAGE]
 
-Цепочка workflow: `constitution → spec → [inspect, опционально] → plan → tasks → implement → archive`; `verify` — опциональный on-demand аудит (всегда доступен, по умолчанию пропускается). Уважайте `workflow.verify` в `.speckeep/speckeep.yaml`: `required` возвращает verify как обязательный гейт перед archive.
+Цепочка: `constitution → spec → [inspect, опц.] → [plan, опц.] → tasks → implement → archive`; `verify` — опциональный аудит (по умолчанию пропускается). `/spk-propose` — дефолт для новой фичи (spec+tasks за один проход): используй напрямую и не грузи `sdd`-роутер; `/spk-spec` — только для неоднозначных/мульти-фичевых идей; plan — opt-in для фич с дизайном. `workflow.verify` в `.speckeep/speckeep.yaml`: `required` делает verify обязательным гейтом перед archive.
 
 Базовые правила:
 
-- ⚠️ **CRITICAL — Repository map first**: **НЕ** используйте `ls`, `find`, glob для первичной навигации. Прочитайте `REPOSITORY_MAP.md` в первую очередь — он содержит полную карту репозитория. Это экономит токены и соблюдает workflow discipline. Читайте карту один раз за сессию, переиспользуйте заметки; перечитывайте только если сами обновили карту в этой же сессии.
-- Пути/конфиг: читайте `.speckeep/speckeep.yaml` ≤ 1 раза за сессию; если конфига нет, defaults: `<specs_dir>=specs/active`, `<archive_dir>=specs/archived`, constitution=`CONSTITUTION.md`.
-- Конституция: загружайте `.speckeep/constitution.summary.md` сначала, если файл существует; только при его отсутствии переходите к `project.constitution_file` (по умолчанию `CONSTITUTION.md`).
-- Доменный язык: если `.speckeep/glossary.md` существует, прочитайте его один раз за сессию и переиспользуйте термины в spec/plan/tasks; никогда не вводите синоним термину, который он уже определяет. Файл опционален и создаётся/обновляется только через `/spk-glossary` — не генерируйте его неявно из другой фазы.
-- Ветки: только `/spk-spec` и `/spk-propose` могут переключать/создавать `feature/<slug>` (или `--branch`). Остальные фазы должны уже быть на нужной ветке.
-- Скрипты: `check-ready[SCRIPT_EXT] <phase> <slug>` запускайте только перед гейтируемыми фазами цепочки (`constitution`, `spec`, `propose`, `inspect`, `plan`, `tasks`, `implement`, `verify`, `converge`; `archive` — через CLI). Вспомогательные команды (`repo-map`, `module-context`, `glossary`, `challenge`, `handoff`, `recap`, `scope`, `rollback`, `hotfix`) — не фазы и readiness-гейта не имеют, для них скрипт не запускать. Доверяйте stdout/exit code; исходники `.speckeep/scripts/*` не читать.
-- Скиллы: workflow SpecKeep поставляется как `sdd` skill-pack в вашей skills-директории (`<инструмент>/skills/sdd/` — корневой `SKILL.md` + тонкие файлы по фазам в `phases/`). Предпочтительно загружать подходящий фазовый скилл; он делегирует на канонический промпт в `.speckeep/templates/prompts/*` и гейтится через `speckeep check`/`guard`.
-- Scope/load: по умолчанию только текущий slug; без широких репо-сканов; предпочитайте surfaces из `Touches:`.
-- Git safety: не делать `git commit/push/tag` и PR без явной просьбы.
-- Done: никогда не отмечать задачу выполненной без observable proof (путь файла, вывод теста или команды). Каждый артефакт должен быть понятен коллеге без дополнительных объяснений.
-- Proof: доказательство каждой завершённой задачи — строка `Proof:` в `tasks.md` непосредственно под отмеченной задачей: `Proof: <kind> <path> [<anchor>]` (`kind` = `code|test|docs|chore`). Задача `[x]` без `Proof:` — ещё не завершена. `speckeep trace`, `speckeep doctor` и архивные проверки читают evidence только из строк `Proof:` в `tasks.md`.
-- Trace-атрибуция: сразу после создания `feature/<slug>` зафиксируйте базу через `./.speckeep/scripts/run-speckeep[SCRIPT_EXT] trace init <slug>`. `Touches:` — это план, а `speckeep trace <slug> --files` показывает фактические изменения (drift виден как `Unmapped`); `speckeep trace --file <path>` находит спеки и задачи, менявшие файл, включая архив.
-- Токен-дисциплина: оставаясь в **той же фазе** — продолжайте в текущей сессии (пользователь отвечает `continue`); НЕ вызывайте ту же slash-команду/скилл повторно — это перезагружает весь промпт. Новую команду зовите только при переходе в **другую фазу** или после очистки контекста. Строка `Готово к` называет следующую фазу + вопрос `continue?`, а не повторный запуск текущей команды.
-- End block: каждая фаза завершается компактным summary: `Slug`, `Status`, `Artifacts`, `Blockers`, `Готово к`. `Готово к` — это `speckeep archive`, когда все задачи `[x]` имеют `Proof:` (или после `verify: pass`), КРОМЕ случая `workflow.verify: required`, когда сначала `/spk-verify`. При blocked используйте `Вернуться к`.
-  - Канонический end block (точная форма, единственный источник — фазовые prompt'ы ссылаются на него, не выводите локальный вариант):
+- ⚠️ **Repository map first**: для первичной навигации не используй `ls`/`find`/glob — сначала прочитай `REPOSITORY_MAP.md` (полная карта, экономит токены). Читай раз за сессию; перечитывай только после своего обновления карты.
+- Пути/конфиг: `.speckeep/speckeep.yaml` читай ≤ 1 раза за сессию — он задаёт `<specs_dir>`, `<archive_dir>` и `project.constitution_file`. Если конфига нет: `specs/active`, `specs/archived`, `CONSTITUTION.md`.
+- Конституция: сначала `.speckeep/constitution.summary.md`, если есть; иначе `project.constitution_file` из конфига.
+- Доменный язык: `.speckeep/glossary.md` читай раз за сессию и переиспользуй термины в spec/plan/tasks; не вводи синоним уже определённому термину. Файл опционален, создаётся только через `/spk-glossary`.
+- Ветки: только `/spk-spec`/`/spk-propose` переключают/создают `feature/<slug>` (или `--branch`); остальные фазы уже должны быть на нужной ветке.
+- Скрипты: `./.speckeep/scripts/check-ready[SCRIPT_EXT] <phase> <slug>` — только для гейтируемых фаз (`constitution`, `spec`, `propose`, `inspect`, `plan`, `tasks`, `implement`, `verify`, `converge`; `archive` — CLI). Aux-командам (`repo-map`, `module-context`, `glossary`, `challenge`, `handoff`, `recap`, `scope`, `rollback`, `hotfix`) гейт не нужен. Доверяй exit code; исходники `.speckeep/scripts/*` не читай.
+- Скиллы: workflow — skill-pack (`sdd`-роутер + `spk-<phase>/SKILL.md` на фазу). Грузи только нужный фазовый скилл; `sdd` — когда фаза неочевидна.
+- Scope/load: только текущий slug; без широких сканов; surfaces из `Touches:`.
+- Git: без `commit/push/tag` и PR без явной просьбы.
+- Done: задача закрыта только с observable proof (файл, тест, вывод команды); артефакт должен быть понятен коллеге без пояснений.
+- Proof: под каждой `[x]` задачей в `tasks.md` — строка `Proof: <kind> <path> [<anchor>]` (`kind` = `code|test|docs|chore`). Без `Proof:` задача не закрыта; `speckeep trace`, `doctor` и archive читают только эти строки.
+- Trace: сразу после `feature/<slug>` выполни `./.speckeep/scripts/run-speckeep[SCRIPT_EXT] trace init <slug>`. `Touches:` — план; `trace <slug> --files` — факт (`Unmapped` = drift); `trace --file <path>` — кто менял файл.
+- Токен-дисциплина: в той же фазе продолжай в сессии (`continue`); не перевызывай тот же slash/skill — это перезагрузка промпта. Переход фазы — ровно одна загрузка; новую команду — только при смене фазы или после очистки контекста. `Готово к` называет следующую фазу + `continue?`, а не повтор текущей команды.
+- End block: каждая фаза завершается каноническим блоком ниже (при blocked — `Вернуться к`).
+  - Канонический end block (точная форма, единственный источник — prompt'ы ссылаются на него, не выводи локальный вариант):
     ```
     Slug: <slug>
     Status: <фаза>
@@ -28,42 +28,14 @@
     Blockers: <none | причина>
     Готово к: <следующая команда>   (или "Вернуться к: /spk-<phase> <slug>" при blocked)
     ```
-- Политика verify-гейта (единственный источник — prompt'ы ссылаются на неё по имени; не ведите приватные копии):
-  - `workflow.verify: required` → verify — **обязательный гейт перед archive**: после implement/hotfix/handoff строка `Готово к` должна быть `/spk-verify <slug>`, а `speckeep archive` требует `verify.md` со `status: pass`.
-  - `workflow.verify: optional` (или отсутствует, по умолчанию) → verify — on-demand аудит; archive разрешён, когда все задачи `[x]` имеют `Proof:`. Присутствующий `verify.md` со status ≠ `pass` по-прежнему вето на archive.
-- Discovery: не запускать `speckeep ... --help` для разведки; используйте prompt-файлы и readiness scripts.
-- CLI: используйте `./.speckeep/scripts/run-speckeep[SCRIPT_EXT]` только для настоящих CLI-команд (напр. `doctor`, `check`, `trace`, `export`, `refresh`). Не запускайте `run-speckeep[SCRIPT_EXT] <phase>` вроде `spec`/`plan`/`tasks` — фазы выполняются как slash-команды, а артефакты пишутся напрямую.
-- Вывод в чат: не вставляйте большие `git diff`/полные файлы/простыни логов. Давайте краткое резюме изменений + список затронутых файлов; если нужны детали — покажите только небольшой фрагмент вокруг места правки.
-- Scope: не читайте и не меняйте артефакты других slug/спек, если текущая задача явно не требует (иначе это scope violation).
-- Don't invent: не вводите требований, зависимостей, scope или критериев приёмки, отсутствующих во входных артефактах текущей фазы.
-- Эскалация: если вы не можете честно завершить текущую фазу (нет артефакта, неоднозначный intent, небезопасное изменение, заблокированный гейт) — ОСТАНОВИТЕСЬ и сообщите `Вернуться к: /spk-<phase> <slug>` или задайте один точечный вопрос. Никогда не выдумывайте criterion приёмки, не прячьте пробелы и не угадывайте следующий шаг, чтобы избежать остановки — остановка с точной причиной это корректный результат.
+- Политика verify-гейта (единственный источник; prompt'ы ссылаются по имени):
+  - `workflow.verify: required` → verify обязателен перед archive: после implement/hotfix/handoff `Готово к` = `/spk-verify <slug>`; archive требует `verify.md` со `status: pass`.
+  - `workflow.verify: optional` (или нет ключа) → verify on-demand; archive разрешён, когда все `[x]` имеют `Proof:`. `verify.md` со status ≠ `pass` — вето на archive.
+- Discovery: не запускай `speckeep --help` для разведки; используй prompt-файлы и readiness scripts.
+- CLI: `./.speckeep/scripts/run-speckeep[SCRIPT_EXT]` — только для реальных CLI-команд (`doctor`, `check`, `trace`, `export`, `refresh`). Не запускай `run-speckeep[SCRIPT_EXT] <phase>`: фазы — slash-команды, артефакты пишутся напрямую.
+- Вывод: без больших `git diff`, полных файлов и простыней логов; краткое резюме + список файлов, детали — небольшим фрагментом.
+- Scope: не читай/меняй артефакты других slug без явной необходимости.
+- Don't invent: не добавляй требования, зависимости, scope или AC, которых нет во входных артефактах.
+- Эскалация: если фазу нельзя честно завершить (нет артефакта, неоднозначный intent, небезопасно, гейт заблокирован) — ОСТАНОВИСЬ и сообщи `Вернуться к: /spk-<phase> <slug>` или задай один точечный вопрос. Не выдумывай AC, не прячь пробелы и не угадывай шаг — остановка с точной причиной корректна.
 
-Команды (префикс: `/spk-`):
-
-- `/spk-constitution` → конституция
-- `/spk-propose` → one-shot: идея → spec + tasks (plan опционально), сразу к implement
-- `/spk-spec` → spec (branch-first)
-- `/spk-inspect` → опциональная глубокая проверка качества
-- `/spk-plan` → plan artifacts
-- `/spk-tasks` → tasks
-- `/spk-implement` → implement
-- `/spk-converge` → быстрый цикл закрытия: повторная проверка задач/proof, добавление follow-up задач, повтор до сходимости (легче verify)
-- `/spk-verify` → verify
-- `/spk-challenge` → адверсариальная проверка spec/plan (слепые зоны, непроверяемые AC)
-- `/spk-scope` → быстрая проверка границ фичи (in/out, риски)
-- `/spk-glossary` → создать/обновить общий доменный глоссарий (`.speckeep/glossary.md`)
-- `/spk-rollback` → откат выполненных задач фичи, возврат в незавершённое состояние
-- `/spk-recap` → обзор проекта: активные фичи, фаза, следующий шаг
-- `/spk-handoff` → handoff-документ сессии по одной фиче (продолжение без догадок)
-- `/spk-hotfix` → экстренное исправление вне цепочки фаз (≤ 3 файлов, без перепланирования)
-- `speckeep archive <slug> .` → CLI-only архив когда фича детерминированно доказана (все задачи `[x]` имеют `Proof:`) или после `verify: pass`; при `workflow.verify: required` архив требует `verify: pass`
-- `/spk-repo-map` → обновить `REPOSITORY_MAP.md` (см. выделенный prompt для политики + шаблона); держите секцию `## Modules & Context` как карту модулей/приложений
-- `/spk-module-context <path>` → документировать модуль/приложение: записать/обновить `<path>/CONTEXT.md` (purpose, как устроен, контракты, gotchas); зови вручную или после `implement`, когда модуль создан/перестроен
-
-Чеклист триггеров обновления (запускайте `/spk-repo-map`, если истинно хотя бы одно):
-
-- Добавлена или удалена верхнеуровневая кодовая директория/модуль.
-- Перемещены/переименованы ключевые исходники, меняющие навигацию.
-- Добавлены/удалены runtime/service/CLI entrypoints.
-- Существенно изменены границы подсистем (заметно поменялись where-to-edit пути).
-- Пользователь явно попросил обновить repo map.
+Справочник команд: `.speckeep/templates/commands.md` — только когда нужной команды нет в текущей фазе. Триггеры repo-map — в `.speckeep/templates/prompts/repo-map.md` (`/spk-repo-map`).

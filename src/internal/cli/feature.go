@@ -167,7 +167,7 @@ func featureFocusLine(state workflow.FeatureState, errors, warnings int) string 
 	case state.ReadyFor == "plan":
 		return "write the plan artifacts"
 	case state.ReadyFor == "tasks":
-		return "decompose the plan into executable tasks"
+		return "turn the spec (or plan) into executable tasks"
 	case state.ReadyFor == "implement":
 		if state.TasksOpen > 0 {
 			return "finish the remaining open tasks"

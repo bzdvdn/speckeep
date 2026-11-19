@@ -187,7 +187,9 @@ func inferLifecycle(state *FeatureState, verifyRequired bool) {
 		} else {
 			state.Phase = "spec"
 		}
-		state.ReadyFor = "plan"
+		// Plan is opt-in for complex features; the default next step after
+		// spec/inspect is tasks (express lane).
+		state.ReadyFor = "tasks"
 	case !state.TasksExists:
 		if state.PlanExists {
 			state.Phase = "plan"
@@ -199,7 +201,13 @@ func inferLifecycle(state *FeatureState, verifyRequired bool) {
 		state.ReadyFor = "tasks"
 	case state.TasksTotal == 0:
 		// tasks.md exists but contains no checkboxes — treat as empty/incomplete
-		state.Phase = "plan"
+		if state.PlanExists {
+			state.Phase = "plan"
+		} else if hasValidInspect {
+			state.Phase = "inspect"
+		} else {
+			state.Phase = "spec"
+		}
 		state.ReadyFor = "tasks"
 	case state.TasksOpen > 0:
 		state.Phase = "implement"

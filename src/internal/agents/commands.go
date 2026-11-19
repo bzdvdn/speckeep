@@ -29,7 +29,7 @@ func DefaultCommands(shell string) []CommandDefinition {
 		},
 		{
 			Name:        "propose",
-			Description: "One-shot: turn an idea into spec + tasks (plan optional) and go straight to implement",
+			Description: "Recommended default for a new feature: idea → spec + tasks (plan optional), straight to implement",
 			PromptPath:  ".speckeep/templates/prompts/propose.md",
 			Extras:      []string{scriptPath("check-ready", normalizedShell) + " propose"},
 			Category:    "workflow",
@@ -46,7 +46,7 @@ func DefaultCommands(shell string) []CommandDefinition {
 		},
 		{
 			Name:        "plan",
-			Description: "Create or update plan artifacts for one feature",
+			Description: "Optional design artifacts for one feature (design-heavy work only)",
 			PromptPath:  ".speckeep/templates/prompts/plan.md",
 			Extras:      []string{scriptPath("check-ready", normalizedShell) + " plan"},
 			Category:    "workflow",

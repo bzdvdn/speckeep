@@ -78,6 +78,7 @@ func Files(settings LanguageSettings) ([]File, error) {
 		{RelativePath: "templates/inspect.md", TargetPath: "templates/inspect.md", Mode: 0o644, Language: settings.Docs},
 		{RelativePath: "templates/verify.md", TargetPath: "templates/verify.md", Mode: 0o644, Language: settings.Docs},
 		{RelativePath: "templates/agents-snippet.md", TargetPath: "templates/agents-snippet.md", Mode: 0o644, Language: settings.Agent},
+		{RelativePath: "templates/commands.md", TargetPath: "templates/commands.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/constitution.md", TargetPath: "templates/prompts/constitution.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/spec.md", TargetPath: "templates/prompts/spec.md", Mode: 0o644, Language: settings.Agent},
 		{RelativePath: "templates/prompts/propose.md", TargetPath: "templates/prompts/propose.md", Mode: 0o644, Language: settings.Agent},

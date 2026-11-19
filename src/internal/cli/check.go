@@ -269,9 +269,9 @@ func printCheck(cmd *cobra.Command, state workflow.FeatureState, result checkRes
 		"verify: " + verifyArtifactLine(w, state.VerifyExists, state.VerifyStatus, verifyRequired),
 	})
 
-	if state.SpecExists && !state.PlanExists && state.Phase != "archive" {
+	if state.SpecExists && !state.PlanExists && !state.TasksExists && state.Phase != "archive" {
 		fmt.Fprintln(w)
-		fmt.Fprintln(w, "hint:     plan.md is optional for small changes — express mode: /spk-tasks works straight from spec.md")
+		fmt.Fprintln(w, "hint:     plan.md is optional — /spk-tasks works straight from spec.md; use /spk-plan only for design-heavy work")
 	}
 	if state.TasksExists && state.TasksTotal > 0 && state.TasksOpen == 0 {
 		fmt.Fprintln(w)

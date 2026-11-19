@@ -45,11 +45,11 @@ func TestPromptsNextCommandsMatchStateMachine(t *testing.T) {
 		phase   string
 		prompts []string
 	}{
-		{phase: "spec", prompts: []string{"inspect"}},              // blocked → "Return to: /spk-spec <slug>"
-		{phase: "inspect", prompts: []string{"spec"}},              // optional deep review branch
-		{phase: "plan", prompts: []string{"spec", "inspect"}},      // spec + inspect next command
-		{phase: "tasks", prompts: []string{"plan"}},                // post-plan
-		{phase: "implement", prompts: []string{"tasks", "verify"}}, // post-tasks + verify concerns path
+		{phase: "spec", prompts: []string{"inspect"}},                  // blocked → "Return to: /spk-spec <slug>"
+		{phase: "inspect", prompts: []string{"spec"}},                  // optional deep review branch
+		{phase: "plan", prompts: []string{"spec", "inspect"}},          // optional design branch
+		{phase: "tasks", prompts: []string{"spec", "inspect", "plan"}}, // default next step (plan is optional)
+		{phase: "implement", prompts: []string{"tasks", "verify"}},     // post-tasks + verify concerns path
 		{phase: "verify", prompts: []string{"implement", "handoff", "hotfix"}},
 		{phase: "archive", prompts: []string{"implement", "handoff", "hotfix", "verify"}},
 	}

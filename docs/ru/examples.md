@@ -174,7 +174,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 ## 3. Проверка Spec через Inspect
 
 Используйте этот шаг, когда фича неоднозначная, рискованная или нужен формальный quality gate.  
-Если спецификация уже ясная и низкорисковая, можно сразу переходить к `/spk-plan <slug>`.
+Если спецификация уже ясная и низкорисковая, можно сразу переходить к `/spk-tasks <slug>`; `/spk-plan <slug>` — только если фиче нужен дизайн.
 
 Пример запроса:
 
@@ -198,7 +198,9 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 - непонятно покрытие для manual retry overrides
 - есть открытый вопрос про ownership scheduler logic
 
-## 4. Создание Plan Package
+## 4. Создание Plan Package (опционально)
+
+План — opt-in: для маленькой/низкорисковой фичи пропустите этот шаг и идите сразу к tasks. Используйте его только когда фиче нужен дизайн (несколько реалистичных вариантов, изменения data-model/contracts, migration/rollout или cross-boundary impact).
 
 Пример запроса:
 
@@ -231,7 +233,7 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 
 Ожидаемое поведение агента:
 
-- использовать `plan.md` как decomposition entrypoint
+- использовать `plan.md` при наличии, иначе `spec.md`, как decomposition entrypoint
 - подтягивать spec, contracts или data model только при необходимости
 - создать `specs/active/partner-scheduling/tasks.md`
 - включить acceptance-to-task coverage
@@ -395,7 +397,7 @@ speckeep doctor my-project
 
 ## Рецепты
 
-Основной жизненный цикл (`constitution → spec → plan → tasks → implement → archive`)
+Основной жизненный цикл (`constitution → spec → [plan, optional] → tasks → implement → archive`)
 описан выше. Эти рецепты — про второстепенные команды: когда каждая из них
 окупается, конкретный before/after и чего от неё не стоит ждать.
 
@@ -490,11 +492,11 @@ Slug: invoice-idempotency-keys
 Status: spec
 Artifacts: specs/active/invoice-idempotency-keys/spec.md
 Blockers: none
-Ready for: /spk-plan invoice-idempotency-keys
+Ready for: /spk-tasks invoice-idempotency-keys
 ```
 
-Отсюда фича проходит по обычной цепочке (`plan → tasks → implement →
-archive`, см. walkthrough выше) точно так же, как в greenfield-проекте —
+Отсюда фича проходит по обычной цепочке (`tasks → implement → archive`;
+plan — opt-in, см. walkthrough выше) точно так же, как в greenfield-проекте —
 единственное отличие, которое привносит brownfield, — на шагах constitution
 и spec, где агент ограничен реальной формой кодовой базы, а не чистым
 листом.
@@ -524,7 +526,7 @@ archive`, см. walkthrough выше) точно так же, как в greenfie
 
 Если первая же фича уже кажется слишком большой, чтобы заспекать чисто
 (затрагивает несколько сервисов, неясное владение, реальный риск дизайна) —
-это законный сигнал запустить `/spk-inspect` перед `/spk-plan`, а не повод
+это законный сигнал запустить `/spk-inspect` перед `/spk-tasks` (или `/spk-plan`, если решили планировать), а не повод
 защитно расширять spec, чтобы покрыть побольше.
 
 ### Рецепт: Alignment Pass спрашивает прежде, чем гадать
@@ -684,7 +686,7 @@ Out of scope:
 - На какой идентификатор "partner" завязан override?
 ```
 
-Используйте это перед `/spk-plan`, когда риск scope creep кажется высоким,
+Используйте это перед `/spk-tasks` (или `/spk-plan`, если решили планировать), когда риск scope creep кажется высоким,
 или в любой момент, когда коллега спрашивает "погоди, а эта фича ещё и X
 делает?".
 
@@ -951,7 +953,7 @@ speckeep self check
 
 ```text
 installed: v1.2.0
-latest:    v1.2.2
+latest:    v1.3.0
 update available — run `speckeep self upgrade`
 ```
 
@@ -960,9 +962,9 @@ speckeep self upgrade
 ```
 
 ```text
-downloading speckeep_v1.2.2_linux_amd64.tar.gz...
+downloading speckeep_v1.3.0_linux_amd64.tar.gz...
 sha256 verified
-replaced: /home/you/.local/bin/speckeep (v1.2.0 -> v1.2.2)
+replaced: /home/you/.local/bin/speckeep (v1.2.0 -> v1.3.0)
 ```
 
 Ставил через npm? Обновляйся через npm — `self upgrade` управляет только нативным бинарником:

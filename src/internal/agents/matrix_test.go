@@ -6,6 +6,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	"speckeep/src/internal/templates"
 )
 
 func expectedPathsForTarget(target string, commands []CommandDefinition) []string {
@@ -176,4 +178,81 @@ func TestAgentArtifactMatrix(t *testing.T) {
 			}
 		}
 	}
+}
+
+// TestSkillFootprintBudgets keeps generated skills lean: the root sdd skill
+// stays a router, and each phase skill may add only a small scaffolding on top
+// of its inlined prompt body (frontmatter, readiness line, source pointer).
+func TestSkillFootprintBudgets(t *testing.T) {
+	const rootBudget = 1700
+	const scaffoldingBudget = 700
+
+	for _, lang := range []string{"en", "ru"} {
+		files, err := FilesForTarget("claude", lang, "sh")
+		if err != nil {
+			t.Fatalf("%s: FilesForTarget returned error: %v", lang, err)
+		}
+		byPath := make(map[string]string, len(files))
+		for _, f := range files {
+			byPath[f.Path] = f.Content
+		}
+
+		root := byPath[".claude/skills/sdd/SKILL.md"]
+		if root == "" {
+			t.Fatalf("%s: root sdd skill missing", lang)
+		}
+		if len(root) > rootBudget {
+			t.Errorf("%s root sdd skill is %d bytes, over budget %d — keep it a router", lang, len(root), rootBudget)
+		}
+
+		for _, cmd := range DefaultCommands("sh") {
+			path := ".claude/skills/spk-" + cmd.Name + "/SKILL.md"
+			content := byPath[path]
+			if content == "" {
+				t.Fatalf("%s: phase skill %s missing", lang, path)
+			}
+			body, err := templates.PromptContent(lang, cmd.Name, "sh")
+			if err != nil {
+				t.Fatalf("%s: PromptContent(%s): %v", lang, cmd.Name, err)
+			}
+			if limit := len(body) + scaffoldingBudget; len(content) > limit {
+				t.Errorf("%s %s is %d bytes, over budget %d (prompt %d + %d scaffolding)", lang, path, len(content), limit, len(body), scaffoldingBudget)
+			}
+		}
+	}
+}
+
+// TestProposeMarkedAsDefaultEntry keeps the propose command description aligned
+// with the routing rule: agents pick propose for a new feature from this text.
+func TestProposeMarkedAsDefaultEntry(t *testing.T) {
+	var propose *CommandDefinition
+	for i := range DefaultCommands("sh") {
+		cmd := DefaultCommands("sh")[i]
+		if cmd.Name == "propose" {
+			propose = &cmd
+			break
+		}
+	}
+	if propose == nil {
+		t.Fatal("propose command not found")
+	}
+	for _, want := range []string{"Recommended default", "spec + tasks"} {
+		if !strings.Contains(propose.Description, want) {
+			t.Errorf("propose description %q missing %q", propose.Description, want)
+		}
+	}
+
+	files, err := FilesForTarget("claude", "en", "sh")
+	if err != nil {
+		t.Fatalf("FilesForTarget returned error: %v", err)
+	}
+	for _, f := range files {
+		if f.Path == ".claude/skills/spk-propose/SKILL.md" {
+			if !strings.Contains(f.Content, "Recommended default") {
+				t.Errorf("generated spk-propose skill must advertise the default entry in its frontmatter")
+			}
+			return
+		}
+	}
+	t.Fatal("generated spk-propose skill not found")
 }

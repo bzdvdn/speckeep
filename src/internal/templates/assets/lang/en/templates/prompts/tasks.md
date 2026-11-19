@@ -41,7 +41,6 @@ Stop if: both `plan.md` and a usable `spec.md` are missing/vague, or any `AC-*` 
 - Do not implement or edit source code in the tasks phase.
 - Do not assume `research.md` should exist; only reference it when the plan explicitly depends on it.
 - Domain language: if `.speckeep/glossary.md` exists, read it once and reuse its terms; do not introduce a new synonym for a term it already defines.
-- Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
 - Size discipline: target `tasks.md` ≤ ~150 lines; a task list that overflows is usually scope creep — split phases or compress before proceeding.
 - Run the pre-phase readiness script (see AGENTS.md: Scripts).
 
@@ -61,12 +60,5 @@ If any check fails: fix it and re-run the checklist. After **2 fix rounds** that
 
 - Write/patch `tasks.md` (avoid full rewrites for small changes).
 - Summarize: phases, main surfaces, AC coverage, blockers.
-- End with standard end block (see AGENTS.md), exact shape:
-  ```
-  Slug: <slug>
-  Status: <phase label>
-  Artifacts: <paths>
-  Blockers: <none | reason>
-  Ready for: /spk-implement <slug>
-  ```
+- End with the canonical end block from `AGENTS.md` (Slug / Status / Artifacts / Blockers / Ready for).
 - Final line: `Ready for: /spk-implement <slug>`

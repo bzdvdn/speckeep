@@ -59,7 +59,8 @@ These include:
 - `constitution.md`
 - spec, plan, tasks, and archive templates
 - prompts for `constitution`, `spec`, `inspect`, `plan`, `tasks`, `implement`, and `verify`
-- localized `agents-snippet.md`
+- localized `agents-snippet.md` (the always-on `AGENTS.md` block)
+- localized `commands.md` (on-demand command reference, loaded only when needed)
 
 Shared shell scripts live in:
 
@@ -76,7 +77,7 @@ The `templates` package assembles these assets into the generated `.speckeep/` w
 - `amazonq`, `gemini`, `jules`, `cline`, `continue`
 - `devin`, `goose`, `refact`, `codiumate`, `qwen-code`
 
-All targets share one renderer (`skill_pack.go`): a lightweight `sdd/SKILL.md` overview skill (progressive-disclosure entry point for ambiguous requests) plus one independent, directly slash-invocable `spk-<phase>/SKILL.md` skill per phase, laid into each target's skills directory (`targetSkillDirs`). Per-command wrapper generation and the user-facing skills-management subsystem were removed; each phase skill inlines the canonical prompt body from `.speckeep/templates/prompts/` at render time (via `templates.PromptContent`) so an agent reads full phase instructions from a single file instead of following a pointer, while the prompt file remains the single authored source. The deterministic CLI (`check`/`guard`/`converge`) is the verification spine that skills call as gates.
+All targets share one renderer (`skill_pack.go`): a lightweight `sdd/SKILL.md` router (routing + gates; full command reference lives in `.speckeep/templates/commands.md`) plus one independent, directly slash-invocable `spk-<phase>/SKILL.md` skill per phase, laid into each target's skills directory (`targetSkillDirs`). Per-command wrapper generation and the user-facing skills-management subsystem were removed; each phase skill inlines the canonical prompt body from `.speckeep/templates/prompts/` at render time (via `templates.PromptContent`) so an agent reads full phase instructions from a single file instead of following a pointer, while the prompt file remains the single authored source. Phase skills add only a one-line `AGENTS.md` pointer, readiness line, and source reference — no duplicated rule blocks — so each load stays lean. The deterministic CLI (`check`/`guard`/`converge`) is the verification spine that skills call as gates.
 
 Phase skills are independent top-level directories (`spk-spec/SKILL.md`, `spk-plan/SKILL.md`, ...) rather than nested resource files under one composite skill (`sdd/phases/*.md`), because skill loaders such as Claude Code only ever slash-invoke a top-level `<dir>/SKILL.md` — a nested file is reachable only when the model decides to open it, never by the user typing a command. `agents.LegacySkillPhasePaths` covers cleanup of the older nested layout for any workspace refreshed before this change.
 

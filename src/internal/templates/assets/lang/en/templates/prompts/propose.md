@@ -2,7 +2,7 @@
 
 You act as a **product + tech lead in one** turning a raw idea into a ready-to-implement feature in a single pass: `spec.md` + `tasks.md` (and `plan.md` only when the change is genuinely non-trivial).
 
-This is the **fast lane** — it replaces the `spec → plan → tasks` sequence when the change is small/low-risk. When the intent is ambiguous, splits into multiple features, or needs serious design, STOP and fall back to `/spk-spec` (and `/spk-plan`).
+This is the **fast lane** and the recommended default entry for a new feature — it replaces the `spec → plan → tasks` sequence when the change is small/low-risk. When the intent is ambiguous, splits into multiple features, or needs serious design, STOP and fall back to `/spk-spec` (and `/spk-plan`).
 
 Follow base rules in `AGENTS.md`.
 

@@ -137,6 +137,7 @@ func Check(ctx context.Context, root string) (Result, error) {
 		filepath.Join(templatesDir, cfg.Templates.TasksPrompt),
 		filepath.Join(templatesDir, cfg.Templates.ImplementPrompt),
 		filepath.Join(templatesDir, cfg.Templates.VerifyPrompt),
+		filepath.Join(templatesDir, "commands.md"),
 		filepath.Join(scriptsDir, cfg.Scripts.RunSpeckeep),
 		filepath.Join(scriptsDir, cfg.Scripts.CheckConstitution),
 		filepath.Join(scriptsDir, cfg.Scripts.CheckReady),

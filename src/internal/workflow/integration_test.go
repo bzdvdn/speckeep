@@ -78,7 +78,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 	// ── spec ──────────────────────────────────────────────────────────────
 	writeFile(t, filepath.Join(specDir, "spec.md"), specMD)
 
-	assertState(t, root, slug, "plan", "spec")
+	assertState(t, root, slug, "tasks", "spec")
 	assertCheckPasses(t, "CheckInspectReady", func() (CheckResult, error) {
 		return CheckInspectReady(context.Background(), config.Default(), root, slug)
 	})
@@ -86,7 +86,7 @@ func TestFullWorkflowCycle(t *testing.T) {
 	// ── inspect ───────────────────────────────────────────────────────────
 	writeFile(t, filepath.Join(specDir, "inspect.md"), inspectMD)
 
-	assertState(t, root, slug, "plan", "inspect")
+	assertState(t, root, slug, "tasks", "inspect")
 	assertCheckPasses(t, "CheckPlanReady", func() (CheckResult, error) {
 		return CheckPlanReady(context.Background(), config.Default(), root, slug)
 	})

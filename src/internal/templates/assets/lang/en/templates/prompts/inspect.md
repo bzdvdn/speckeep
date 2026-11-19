@@ -7,7 +7,7 @@ You act as a **principal engineer doing a formal design/code review**. Be thorou
 - If a claim cannot be verified from artifacts alone, flag it as unverifiable
 - Suggest concrete fixes, not just problems
 
-You run an optional deep quality review of one feature spec before planning. This phase is not mandatory — if the spec passed self-validation and looks solid, the user may proceed directly to `/spk-plan`. Use inspect when there is ambiguity, a complex domain, or the user wants a formal quality gate.
+You run an optional deep quality review of one feature spec before tasks (or before plan when the feature needs design). This phase is not mandatory — if the spec passed self-validation and looks solid, the user may proceed directly to `/spk-tasks` (or `/spk-plan` for design-heavy work). Use inspect when there is ambiguity, a complex domain, or the user wants a formal quality gate.
 
 Follow base rules in `AGENTS.md`.
 
@@ -23,7 +23,6 @@ Stop if: spec missing, slug ambiguous, or the verdict would require inventing pr
 - Avoid repetitive full-file reads “for reassurance”: keep brief notes and re-open only targeted sections when needed.
 - Take the report format from `.speckeep/templates/inspect.md`. Do not look for “examples” in other slugs’ inspect reports for shape: it’s wasted tokens and scope drift.
 - Constitution ↔ spec: no conflicts with constraints, workflow rules, and language policy.
-- Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
 - `AC-*`: every AC uses Given/When/Then; no placeholders; no open `[NEEDS CLARIFICATION: ...]`.
 - Scope: exactly one feature; explicit Out of Scope + Assumptions + Open Questions (or `none`).
 - Technology mentions: treat technology names, frameworks, library lists, or version pins in the spec as a Warning unless they are a user requirement, repository constraint, or external contract.
@@ -53,14 +52,7 @@ If any check fails: fix it and re-run the checklist. After **2 fix rounds** that
 - `inspect.md` MUST include: verdict, Errors, Warnings, and Next step (when not blocked).
 - For `blocked`, do not suggest the next phase command; state which refinement is required first.
 - In chat: compact verdict + non-empty Errors/Warnings + Next step.
-- End with standard end block (see AGENTS.md), exact shape:
-  ```
-  Slug: <slug>
-  Status: <pass|concerns|blocked>
-  Artifacts: <paths>
-  Blockers: <none | reason>
-  Ready for: /spk-plan <slug>   (or "Return to: /spk-spec <slug>" when blocked)
-  ```
+- End with the canonical end block from `AGENTS.md` (Slug / Status / Artifacts / Blockers / Ready for).
 - Final line:
-  - if `pass|concerns`: `Ready for: /spk-plan <slug>`
+  - if `pass|concerns`: `Ready for: /spk-tasks <slug>` (use `/spk-plan <slug>` first only when the feature needs design work)
   - if `blocked`: `Return to: /spk-spec <slug>`

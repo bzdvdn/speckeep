@@ -9,6 +9,8 @@
 
 Вы создаёте или обновляете plan artifacts одной фичи в `<specs_dir>/<slug>/`.
 
+План **opt-in**: пишите его только когда фиче нужен дизайн (несколько реалистичных вариантов, изменения data-model/contracts, migration/rollout или cross-boundary impact). Для маленьких/низкорисковых изменений пропустите план и идите сразу в `/spk-tasks`.
+
 Следуйте базовым правилам в `AGENTS.md`.
 
 ## Phase Contract
@@ -27,7 +29,6 @@ Stop if: inspect.md присутствует и не `pass`, slug/цель не�
 - Express-режим: когда `plan.md` отсутствует, фича считается маленькой/низкорисковой правкой, закрываемой через `spec.md` + `tasks.md`. В этом случае `/spk-tasks` выводит задачи напрямую из `spec.md`, а плановые решения уходят в `## Implementation Context` в `tasks.md`.
 - `research.md` создавайте только по необходимости (напр., внешняя зависимость/граница интеграции, несколько реалистичных вариантов, или high-risk unknown). Не создавайте `research.md` для общего брейншторма.
 - Доменный язык: если `.speckeep/glossary.md` существует, прочитайте его один раз и переиспользуйте его термины; не вводите новый синоним термину, который он уже определяет.
-- Конституция: AGENTS.md (`.speckeep/constitution.summary.md` предпочтительнее).
 - Минимальный контекст: только текущий slug и нужные repo surfaces; не читайте весь репозиторий.
 - Дисциплина размера: цель `plan.md` ≤ ~200 строк; когда объём растёт, уводите детали в `data-model.md`/`contracts/*`, а не в простыню прозы.
 - Запустите readiness script фазы (см. AGENTS.md: Скрипты).
@@ -50,12 +51,5 @@ Stop if: inspect.md присутствует и не `pass`, slug/цель не�
 - Запишите/patch `<specs_dir>/<slug>/plan.md` (и связанные артефакты только если реально нужны).
 - Внутри `plan.md` обязательно держите компактные sections для `DEC-*`, surfaces, рисков, влияния на data model и contracts; не выносите эти recap-элементы в отдельные digest-файлы.
 - Укажите ключевые `DEC-*`, surfaces, sequencing constraints и риски.
-- Завершите стандартным end block (см. AGENTS.md), точная форма:
-  ```
-  Slug: <slug>
-  Status: <фаза>
-  Artifacts: <пути>
-  Blockers: <none | причина>
-  Готово к: /spk-tasks <slug>
-  ```
+- Заверши каноническим end block из `AGENTS.md` (Slug / Status / Artifacts / Blockers / Готово к).
 - Финальная строка: `Готово к: /spk-tasks <slug>`

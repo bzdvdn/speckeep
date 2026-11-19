@@ -174,7 +174,7 @@ In that case, the spec slug can still stay `partner-scheduling` while the workin
 ## 3. Inspect the Spec
 
 Use this step when the feature is ambiguous, high-risk, or you want a formal quality gate.  
-If the spec is already clear and low-risk, you may proceed directly to `/spk-plan <slug>`.
+If the spec is already clear and low-risk, you may proceed directly to `/spk-tasks <slug>`; use `/spk-plan <slug>` only when the feature needs design work.
 
 User request:
 
@@ -198,7 +198,9 @@ Typical findings:
 - unclear acceptance coverage for manual retry overrides
 - open question about scheduler ownership
 
-## 4. Create a Plan Package
+## 4. Create a Plan Package (optional)
+
+Plan is opt-in: skip this section for a small/low-risk feature and go straight to tasks. Use it only when the feature needs design work (multiple realistic options, data-model/contracts changes, migration/rollout, or cross-boundary impact).
 
 User request:
 
@@ -231,7 +233,7 @@ User request:
 
 Expected agent behavior:
 
-- use `plan.md` as the decomposition entrypoint
+- use `plan.md` when present, otherwise `spec.md`, as the decomposition entrypoint
 - pull in spec, contracts, or data model only when needed
 - produce `specs/active/partner-scheduling/tasks.md`
 - include acceptance-to-task coverage
@@ -404,7 +406,7 @@ Use this when a project changes its preferred agent mix over time.
 
 ## Recipes
 
-The core lifecycle (`constitution → spec → plan → tasks → implement → archive`)
+The core lifecycle (`constitution → spec → [plan, optional] → tasks → implement → archive`)
 is covered above. These recipes cover the secondary commands: when each one
 earns its cost, a concrete before/after, and what not to expect from it.
 
@@ -493,11 +495,11 @@ Slug: invoice-idempotency-keys
 Status: spec
 Artifacts: specs/active/invoice-idempotency-keys/spec.md
 Blockers: none
-Ready for: /spk-plan invoice-idempotency-keys
+Ready for: /spk-tasks invoice-idempotency-keys
 ```
 
 From here the feature runs through the normal chain
-(`plan → tasks → implement → archive`, see the walkthrough above) exactly
+(`tasks → implement → archive`; plan is opt-in, see the walkthrough above) exactly
 as it would in a greenfield project — the only difference brownfield
 introduces is at the constitution and spec steps, where the agent is
 constrained to the codebase's actual shape instead of a blank slate.
@@ -526,7 +528,7 @@ constrained to the codebase's actual shape instead of a blank slate.
 
 If the first feature already feels too big to spec cleanly (touches several
 services, unclear ownership, real design risk), that's a legitimate signal
-to run `/spk-inspect` before `/spk-plan` — not a reason to widen the spec to
+to run `/spk-inspect` before `/spk-tasks` (or `/spk-plan` when you choose to plan) — not a reason to widen the spec to
 cover more ground defensively.
 
 ### Recipe: The Alignment Pass Asks Before It Guesses
@@ -682,7 +684,7 @@ Clarify questions:
 - Which "partner" identity does the override key on?
 ```
 
-Use this before `/spk-plan` when scope creep risk feels high, or any time a
+Use this before `/spk-tasks` (or `/spk-plan` when you choose to plan) when scope creep risk feels high, or any time a
 teammate asks "wait, is this feature also going to do X?"
 
 ### Recipe: Closing Out a "Mostly Done" Feature With `/spk-converge`
@@ -943,7 +945,7 @@ speckeep self check
 
 ```text
 installed: v1.2.0
-latest:    v1.2.2
+latest:    v1.3.0
 update available — run `speckeep self upgrade`
 ```
 
@@ -952,9 +954,9 @@ speckeep self upgrade
 ```
 
 ```text
-downloading speckeep_v1.2.2_linux_amd64.tar.gz...
+downloading speckeep_v1.3.0_linux_amd64.tar.gz...
 sha256 verified
-replaced: /home/you/.local/bin/speckeep (v1.2.0 -> v1.2.2)
+replaced: /home/you/.local/bin/speckeep (v1.2.0 -> v1.3.0)
 ```
 
 Installed via npm? Update through npm instead — `self upgrade` manages the native binary only:

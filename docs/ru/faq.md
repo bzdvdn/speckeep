@@ -66,7 +66,7 @@
 Нет. Предполагаемая цепочка строгая:
 
 ```text
-constitution -> spec -> [inspect, опционально] -> plan -> tasks -> implement -> verify -> archive
+constitution -> spec -> [inspect, опционально] -> [plan, опционально] -> tasks -> implement -> [verify, опционально] -> archive
 ```
 
 `plan` зависит от уже существующей spec.

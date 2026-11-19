@@ -3,7 +3,7 @@
 ## Strict Phase Chain
 
 ```text
-constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> archive
+constitution -> spec -> [inspect, optional] -> [plan, optional] -> tasks -> implement -> archive
 ```
 
 `verify` is an optional on-demand audit: it is always available but skipped by default in the normal workflow.
@@ -19,6 +19,10 @@ Two lighter lanes keep features closing fast without artifact bloat:
 For new projects (Greenfield), work begins with an extended **Constitution** phase (using the `--foundation` flag) that codifies both the process rules and the project's technical foundation.
 
 SpecKeep assumes branch-based delivery: each active feature should be developed in its own git branch, with the feature spec and artifact set acting as the shared source of truth instead of a mutable global memory file. The default branch naming convention is `feature/<slug>`.
+
+### Starting the next feature
+
+After a feature is archived and merged, start the next one in a fresh session. Use `/spk-propose` (recommended default — `spec.md` + `tasks.md` in one pass, then `/spk-implement`) or `/spk-spec` when the idea is ambiguous. A natural-language request such as "build X with SpecKeep" routes to `/spk-propose`; name `/spk-spec` or `/spk-plan` explicitly to override. `plan` is opt-in: run `/spk-plan` only for design-heavy work (multiple realistic options, data-model/contracts changes, migration/rollout, or cross-boundary impact). A new feature legitimately re-loads its phase skills; within one session, never re-run a phase you are already in.
 
 ## Phase Responsibilities
 
@@ -96,7 +100,7 @@ If the request is ambiguous, combines multiple features, or asks to derive one s
 
 Checks consistency and quality for a single feature. It can flag missing scenarios, weak acceptance criteria, constitutional conflicts, plan drift, or missing task coverage.
 
-`inspect` is optional before `plan`. Planning may proceed without an inspect report when the spec is clear and low-risk.
+`inspect` is optional before `tasks` (or before `plan` when the feature needs design). Tasks may proceed without an inspect report when the spec is clear and low-risk.
 If an inspect report is present, it must have a valid non-blocking status (`pass` or `concerns`) to proceed.
 
 `--delta`: incremental re-check mode. After a `spec --amend`, re-checks only the changed sections instead of running a full inspection. Preserves valid findings from the previous report. Falls back to full inspection when changes are too broad (>50% rewritten).
@@ -161,6 +165,8 @@ The goal is to catch obvious drift, not to run a full architectural review. Usef
 
 ### `plan`
 
+Optional/opt-in: use plan only when the feature needs design work (multiple realistic options, data-model/contracts changes, migration/rollout, or cross-boundary impact). For small/low-risk changes, skip to `tasks`.
+
 Produces technical design artifacts for one feature package:
 
 - `plan.md`
@@ -170,7 +176,7 @@ Produces technical design artifacts for one feature package:
 
 ### `tasks`
 
-Turns the plan artifacts into executable tasks. `tasks.md` lives next to other feature artifacts inside `specs/active/<slug>/`.
+Turns the plan (when present) or the spec into executable tasks. `tasks.md` lives next to other feature artifacts inside `specs/active/<slug>/`.
 
 SpecKeep uses **Lazy Decomposition** to keep context narrow:
 

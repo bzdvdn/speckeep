@@ -228,6 +228,7 @@ func TestLanguageTemplatesUseShellPlaceholder(t *testing.T) {
 	for _, language := range []string{"en", "ru"} {
 		for _, target := range []string{
 			"templates/agents-snippet.md",
+			"templates/commands.md",
 			"templates/prompts/propose.md",
 			"templates/prompts/verify.md",
 			"templates/prompts/converge.md",
@@ -252,6 +253,7 @@ func TestPromptScriptRefsResolveToGeneratedWrappers(t *testing.T) {
 	refRe := regexp.MustCompile(`scripts/([a-z0-9-]+)\[SCRIPT_EXT\]`)
 	targets := []string{
 		"templates/agents-snippet.md",
+		"templates/commands.md",
 		"templates/prompts/propose.md",
 		"templates/prompts/verify.md",
 		"templates/prompts/converge.md",
@@ -584,7 +586,7 @@ func TestImplementPromptSupportsFullRunAndScopedExecution(t *testing.T) {
 		"Ready for: speckeep converge <slug>",
 		"If open tasks remain",
 		"Do not emit `/spk-implement <slug>` when no tasks remain",
-		"End with standard end block (see AGENTS.md), exact shape:",
+		"End with the canonical end block from `AGENTS.md`",
 	}
 	for _, snippet := range requiredSnippets {
 		if !strings.Contains(content, snippet) {
@@ -611,10 +613,11 @@ func TestSpecPromptDefinesDeterministicStagedMode(t *testing.T) {
 		"staged mode is canceled",
 		"Do not pin technologies/versions unless required",
 		".speckeep/constitution.summary.md",
+		"/spk-tasks <slug>",
 		"/spk-inspect <slug>",
 		"/spk-plan <slug>",
 		"Final line (mandatory): `Ready for:",
-		"End with standard end block (see AGENTS.md), exact shape:",
+		"End with the canonical end block from `AGENTS.md`",
 	}
 	for _, snippet := range requiredSnippets {
 		if !strings.Contains(content, snippet) {
@@ -669,7 +672,7 @@ func TestPlanPromptDefinesConcreteResearchTriggers(t *testing.T) {
 		"Do not create `research.md` for generic brainstorming",
 		".speckeep/constitution.summary.md",
 		"Ready for: /spk-tasks <slug>",
-		"End with standard end block (see AGENTS.md), exact shape:",
+		"End with the canonical end block from `AGENTS.md`",
 	}
 	for _, snippet := range requiredSnippets {
 		if !strings.Contains(content, snippet) {
@@ -888,10 +891,20 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			target: "templates/prompts/spec.md",
 			want: []string{
 				".speckeep/constitution.summary.md",
+				"/spk-tasks <slug>",
 				"/spk-inspect <slug>",
 				"/spk-plan <slug>",
 				"Final line (mandatory): `Ready for:",
-				"End with standard end block (see AGENTS.md), exact shape:",
+				"End with the canonical end block from `AGENTS.md`",
+			},
+		},
+		{
+			target: "templates/prompts/inspect.md",
+			want: []string{
+				".speckeep/constitution.summary.md",
+				"Ready for: /spk-tasks <slug>",
+				"/spk-plan <slug>",
+				"End with the canonical end block from `AGENTS.md`",
 			},
 		},
 		{
@@ -899,7 +912,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			want: []string{
 				".speckeep/constitution.summary.md",
 				"Ready for: /spk-tasks <slug>",
-				"End with standard end block (see AGENTS.md), exact shape:",
+				"End with the canonical end block from `AGENTS.md`",
 			},
 		},
 		{
@@ -907,7 +920,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			want: []string{
 				".speckeep/constitution.summary.md",
 				"Ready for: /spk-implement <slug>",
-				"End with standard end block (see AGENTS.md), exact shape:",
+				"End with the canonical end block from `AGENTS.md`",
 			},
 		},
 		{
@@ -915,7 +928,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			want: []string{
 				"Default scope: only the **first unfinished phase**",
 				".speckeep/constitution.summary.md",
-				"End with standard end block (see AGENTS.md), exact shape:",
+				"End with the canonical end block from `AGENTS.md`",
 				"Proof: <kind> <path> [<anchor>]",
 				"Ready for: speckeep converge <slug>",
 			},
@@ -924,7 +937,7 @@ func TestPhasePromptsIncludeExplicitNextCommandGuidance(t *testing.T) {
 			target: "templates/prompts/verify.md",
 			want: []string{
 				".speckeep/constitution.summary.md",
-				"End with standard end block (see AGENTS.md), exact shape:",
+				"End with the canonical end block from `AGENTS.md`",
 				"Return to: /spk-<phase> <slug>",
 				"Ready for: speckeep archive <slug> .",
 			},
@@ -1310,4 +1323,63 @@ func languageAssetSet(t *testing.T, language string) []string {
 
 	sort.Strings(files)
 	return files
+}
+
+// TestContextFootprintBudgets guards the always-on and per-phase prompt
+// footprint. AGENTS.md (agents-snippet) is loaded every session, and the core
+// phase prompts are loaded once per phase; silent growth here is the main
+// regression risk for token usage.
+func TestContextFootprintBudgets(t *testing.T) {
+	core := []string{"spec", "inspect", "plan", "tasks", "implement", "verify"}
+	budgets := map[string]struct {
+		snippet     int
+		corePrompts int
+	}{
+		"en": {snippet: 6300, corePrompts: 33500},
+		"ru": {snippet: 7700, corePrompts: 53500},
+	}
+
+	for lang, budget := range budgets {
+		snippet, err := localizedFileContent(lang, "templates/agents-snippet.md")
+		if err != nil {
+			t.Fatalf("%s agents-snippet: %v", lang, err)
+		}
+		if len(snippet) > budget.snippet {
+			t.Errorf("%s agents-snippet is %d bytes, over budget %d — trim always-on context", lang, len(snippet), budget.snippet)
+		}
+
+		total := 0
+		for _, name := range core {
+			content, err := localizedFileContent(lang, "templates/prompts/"+name+".md")
+			if err != nil {
+				t.Fatalf("%s prompt %s: %v", lang, name, err)
+			}
+			total += len(content)
+		}
+		if total > budget.corePrompts {
+			t.Errorf("%s core prompts total %d bytes, over budget %d — dedupe against AGENTS.md", lang, total, budget.corePrompts)
+		}
+	}
+}
+
+// TestAgentsSnippetRoutesNewFeaturesToPropose guards the default entry point:
+// a new-feature request must route directly to /spk-propose, without first
+// loading the sdd router.
+func TestAgentsSnippetRoutesNewFeaturesToPropose(t *testing.T) {
+	wantByLang := map[string]string{
+		"en": "skip the `sdd` router",
+		"ru": "не грузи `sdd`-роутер",
+	}
+	for lang, want := range wantByLang {
+		content, err := localizedFileContent(lang, "templates/agents-snippet.md")
+		if err != nil {
+			t.Fatalf("%s agents-snippet: %v", lang, err)
+		}
+		if !strings.Contains(content, "/spk-propose") {
+			t.Errorf("%s agents-snippet must route new features to /spk-propose", lang)
+		}
+		if !strings.Contains(content, want) {
+			t.Errorf("%s agents-snippet must tell the agent to %q for a new feature", lang, want)
+		}
+	}
 }

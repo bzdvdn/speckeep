@@ -47,12 +47,8 @@ func ValidateProject(ctx context.Context, root string) ([]Finding, error) {
 		if state.InspectLegacy {
 			findings = append(findings, Finding{Level: "warning", Message: fmt.Sprintf("legacy inspect report path in use for slug %s; run speckeep feature repair %s or speckeep migrate", state.Slug, state.Slug)})
 		}
-		if state.PlanExists && !state.InspectExists {
-			findings = append(findings, Finding{Level: "error", Message: fmt.Sprintf("plan exists without mandatory inspect report for slug %s", state.Slug)})
-		}
-		if state.TasksExists && !state.PlanExists {
-			findings = append(findings, Finding{Level: "error", Message: fmt.Sprintf("tasks exist without matching plan for slug %s", state.Slug)})
-		}
+		// Inspect and plan are optional: the express lane closes a feature
+		// from spec.md + tasks.md, and plan is opt-in for complex work.
 		if state.VerifyExists && !state.TasksExists {
 			findings = append(findings, Finding{Level: "error", Message: fmt.Sprintf("verify report exists without tasks for slug %s", state.Slug)})
 		}

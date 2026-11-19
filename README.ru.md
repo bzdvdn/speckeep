@@ -35,8 +35,8 @@
 
 ```bash
 # 0. Установить — рекомендуем npm (или npx без глобальной установки)
-npm install -g speckeep@1.2.2
-# npx speckeep@1.2.2 demo ./my-demo
+npm install -g speckeep@1.3.0
+# npx speckeep@1.3.0 demo ./my-demo
 
 # 1. Попробовать сразу — без настройки проекта
 speckeep demo ./my-demo
@@ -77,9 +77,9 @@ speckeep решает это через **discipline per token** — миним�
 ## Workflow
 
 ```
-constitution → spec → [inspect] → plan → tasks → implement → archive
+constitution → spec → [inspect] → [plan] → tasks → implement → archive
 ```
-`verify` — опциональный on-demand аудит; archive разрешён, когда каждая задача `[x]` имеет `Proof:` (или после `verify: pass`).
+`verify` — опциональный on-demand аудит; archive разрешён, когда каждая задача `[x]` имеет `Proof:` (или после `verify: pass`). Новую фичу начинайте с `/spk-propose` (рекомендуемый дефолт): запрос вида «сделай X по SpecKeep» ведёт туда; `/spk-plan` — opt-in для фич с дизайном.
 
 Каждая фаза загружает только минимум контекста. Опциональные команды на любой фазе: `/spk-challenge`, `/spk-handoff`, `/spk-hotfix`, `/spk-scope`, `/spk-recap`.
 
@@ -133,19 +133,19 @@ speckeep add-agent | list-agents | remove-agent | cleanup-agents [path]
 
 ## Установка
 
-**Рекомендуем npm** (актуальный релиз: **v1.2.2**). Npm-launcher скачивает подходящий нативный бинарник для вашей ОС/архитектуры, поэтому с PATH обычно нет проблем:
+**Рекомендуем npm** (актуальный релиз: **v1.3.0**). Npm-launcher скачивает подходящий нативный бинарник для вашей ОС/архитектуры, поэтому с PATH обычно нет проблем:
 
 ```bash
-npm install -g speckeep@1.2.2
+npm install -g speckeep@1.3.0
 
 # или запуск без глобальной установки
-npx speckeep@1.2.2 init my-project --lang ru --agents claude
+npx speckeep@1.3.0 init my-project --lang ru --agents claude
 ```
 
 **Нативный установщик (Linux / macOS):**
 
 ```bash
-VERSION=v1.2.2
+VERSION=v1.3.0
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 # --add-to-path регистрирует директорию установки в PATH
 ```
@@ -153,10 +153,10 @@ curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts
 **Windows (PowerShell):**
 
 ```powershell
-npm install -g speckeep@1.2.2
+npm install -g speckeep@1.3.0
 
 # Нативная альтернатива
-$version="v1.2.2"
+$version="v1.3.0"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -183,7 +183,7 @@ speckeep self upgrade   # скачивание, sha256-проверка и за�
 **Сборка из исходников:**
 
 ```bash
-go build -ldflags "-X speckeep/src/internal/cli.Version=v1.2.2" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v1.3.0" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 **CI:**

@@ -8,7 +8,7 @@ func NewRootCmd() *cobra.Command {
 		Short: "A lightweight project context kit for development agents and humans",
 		Long: `speckeep — specification-driven development kit for agents and humans
 
-Strict phase chain: constitution → spec → [inspect, optional] → plan → tasks → implement → verify → archive
+Phase chain: constitution → spec → [inspect, optional] → [plan, optional] → tasks → implement → verify → archive (propose is the recommended default entry)
 
 Quick start:
   speckeep init . --lang en --shell sh --agents codex
@@ -20,7 +20,7 @@ For agents (Kilocode/Claude/Cursor):
   /spk-propose "feature idea"              — one-shot: idea → spec + tasks (plan optional)
   /spk-spec --name "feature name"          — create a spec
   /spk-spec --amend                        — targeted spec edit
-  /spk-plan <slug> [--research|--update]   — create a plan
+  /spk-plan <slug> [--research|--update]   — optional: design-heavy plan
   /spk-tasks <slug>                        — decompose into tasks
   /spk-implement <slug>                    — implement tasks
   /spk-converge <slug>                    — fast loop: re-check tasks/proofs, append follow-ups until converged
@@ -32,7 +32,7 @@ Optional commands (any phase):
   /spk-hotfix <slug>                       — emergency fix
   /spk-rollback <slug>                     — roll back completed tasks
   /spk-scope <slug>                        — scope boundary check
-/spk-recap                               — recap active features
+  /spk-recap                               — recap active features
   /spk-module-context <path>                — document a module/app: write/refresh <path>/CONTEXT.md (repo-map covers the map)
 
 CLI commands:

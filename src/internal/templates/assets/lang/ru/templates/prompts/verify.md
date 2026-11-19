@@ -25,7 +25,6 @@ Stop if: `tasks.md` отсутствует или slug неоднозначен.
 - При записи `<specs_dir>/<slug>/verify.md` всегда включайте YAML frontmatter (используйте `.speckeep/templates/verify.md` как формат). Модели часто забывают блок `---`, а он обязателен для определения archive_readiness.
 - Начинайте с `tasks.md`: каждая `[x]` задача должна иметь observable proof в репо (файл/тест/выход команды).
 - Если есть `./.speckeep/scripts/verify-task-state[SCRIPT_EXT]` — запустите именно этот wrapper-скрипт (slug первым аргументом) как cheap first pass. Публичной команды `speckeep verify-task-state` нет — не вызывайте её.
-- Конституция: AGENTS.md (`.speckeep/constitution.summary.md` предпочтительнее).
 - Если сохраняете отчёт в файл, используйте `.speckeep/templates/verify.md` как формат и пишите в `<specs_dir>/<slug>/verify.md`. Не ищите «примеры» verify-отчётов в других slug ради формы.
 - Соберите traceability как дешёвую проверку целостности: используйте `./.speckeep/scripts/trace[SCRIPT_EXT] <slug>` (и при необходимости `./.speckeep/scripts/trace[SCRIPT_EXT] <slug> --tests`). Он читает строки `Proof:` из `tasks.md`; это не заменяет proof, но помогает быстро найти пробелы/осиротевшие записи и отсутствующие файлы/якоря.
 - Отсутствующие или явно неполные строки `Proof:` в `tasks.md` — это пробелы в evidence, а не косметика: если завершённая задача не имеет ожидаемого proof, не игнорируйте это молча.
@@ -68,14 +67,7 @@ Stop if: `tasks.md` отсутствует или slug неоднозначен.
 - Общий **feature verdict**: `pass|concerns|blocked` + список конкретных несоответствий (task/AC → evidence).
 - Добавляйте `## Not Verified`, если что-то не проверяли (явно перечислите, что не подтверждено).
 - Явно перечисляйте пробелы proof, если для завершённых задач отсутствуют или частично отсутствуют строки `Proof:` в `tasks.md`.
-- Завершите стандартным end block (см. AGENTS.md), точная форма:
-  ```
-  Slug: <slug>
-  Status: pass|concerns|blocked
-  Artifacts: <пути>
-  Blockers: <none | причина>
-  Готово к: speckeep archive <slug> .   (или "Вернуться к: /spk-<phase> <slug>" при не-pass)
-  ```
+- Заверши каноническим end block из `AGENTS.md` (Slug / Status / Artifacts / Blockers / Готово к).
 - Если `pass` — финальная строка: `Готово к: speckeep archive <slug> .`
 - Если `concerns` — финальная строка: `Готово к: /spk-implement <slug>` (закрыть пробелы proof) — или `Вернуться к: /spk-tasks <slug>`, если это проблемы покрытия задачами.
 - Если `blocked` — финальная строка: `Вернуться к: /spk-<phase> <slug>` (самая узкая ранняя фаза, которая реально может исправить).

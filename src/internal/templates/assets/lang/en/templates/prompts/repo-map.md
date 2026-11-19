@@ -23,6 +23,15 @@ Stop if: no structural changes detected (check trigger checklist first).
 - Exclude from indexing: `src/internal/agents/**`, `.speckeep/**`, `specs/archived/**`, `.git/**`, `bin/**`, `demo/**`, `docs/**`, `TESTS/**`, `node_modules/**`, `vendor/**`, `dist/**`, `build/**`, `coverage/**`.
 - Note: project settings are already sourced from `.speckeep/speckeep.yaml`; do not duplicate that config in the map.
 
+## Trigger checklist
+
+Run `/spk-repo-map` only when at least one is true:
+- Added or removed a top-level code directory/module.
+- Moved/renamed key source paths that change navigation.
+- Added/removed runtime/service/CLI entrypoints.
+- Reshaped subsystem boundaries (where-to-edit paths changed materially).
+- User explicitly requested a repo map refresh.
+
 ## Template
 
 ```md

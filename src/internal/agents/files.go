@@ -206,35 +206,11 @@ func scriptPath(name, shell string) string {
 	return "./.speckeep/scripts/" + name + ext
 }
 
-func proofHint(lang string) string {
-	if lang == "ru" {
-		return "Доказанность: каждая закрытая задача в `tasks.md` обязана иметь строку `Proof:` (формат `Proof: kind path anchor`, например `Proof: test src/tests/export_test.go TestRunExport`). Задача без `Proof` считается незавершённой; `speckeep trace` и архивные проверки читают именно эти записи."
-	}
-	return "Evidence: every completed task in `tasks.md` must carry a `Proof:` line (format `Proof: kind path anchor`, e.g. `Proof: test src/tests/export_test.go TestRunExport`). A task without `Proof` is not complete; `speckeep trace` and archive gates read exactly these records."
-}
-
-func antiPatternHint(lang string) string {
-	if lang == "ru" {
-		return `Запрещено:
-- пропускать readiness scripts
-- расширять scope / перепланировать во время implement
-- отмечать done без observable proof
-- делать git commit/push/tag или PR без явной просьбы
-- читать весь репозиторий вместо минимального среза`
-	}
-	return `Do not:
-- skip readiness scripts
-- expand scope / re-plan during implement
-- mark done without observable proof
-- run git commit/push/tag or open a PR unless explicitly asked
-- read the full repo instead of the minimum slice`
-}
-
 func workflowChainHint(lang string) string {
 	if lang == "ru" {
-		return "Цепочка workflow: constitution → spec → [inspect, опционально] → plan → tasks → implement → archive; verify — опциональный on-demand аудит; propose — one-shot быстрая полоса; converge — быстрый цикл закрытия. Уважайте `workflow.verify` в `.speckeep/speckeep.yaml`. Archive — CLI-only: `speckeep archive <slug> .`."
+		return "Цепочка workflow: constitution → spec → [inspect, опционально] → [plan, опционально] → tasks → implement → archive; propose — рекомендуемый дефолтный вход; plan — opt-in для дизайна; verify — опциональный on-demand аудит; converge — быстрый цикл закрытия. Уважайте `workflow.verify` в `.speckeep/speckeep.yaml`. Archive — CLI-only: `speckeep archive <slug> .`."
 	}
-	return "Workflow chain: constitution → spec → [inspect, optional] → plan → tasks → implement → archive; verify is an optional on-demand audit; propose is the one-shot fast lane; converge is the fast closing loop. Respect `workflow.verify` in `.speckeep/speckeep.yaml`. Archive is CLI-only: `speckeep archive <slug> .`."
+	return "Workflow chain: constitution → spec → [inspect, optional] → [plan, optional] → tasks → implement → archive; propose is the recommended default entry; plan is opt-in for design; verify is an optional on-demand audit; converge is the fast closing loop. Respect `workflow.verify` in `.speckeep/speckeep.yaml`. Archive is CLI-only: `speckeep archive <slug> .`."
 }
 
 func titleCase(value string) string {

@@ -252,98 +252,56 @@ func LegacyOpenCodeCommandPaths(commands []CommandDefinition) []string {
 }
 
 func renderRootSkill(commands []CommandDefinition, lang, shell string) string {
-	var phaseLines, auxLines []string
+	var phaseNames, auxNames []string
 	for _, cmd := range commands {
-		line := fmt.Sprintf("- `/spk-%s` — %s", cmd.Name, cmd.Description)
+		name := "/spk-" + cmd.Name
 		if hasReadyCheck(cmd.Name) {
-			phaseLines = append(phaseLines, line)
+			phaseNames = append(phaseNames, name)
 			continue
 		}
-		auxLines = append(auxLines, line)
+		auxNames = append(auxNames, name)
 	}
-	phases := strings.Join(phaseLines, "\n")
-	aux := strings.Join(auxLines, "\n")
+	phases := strings.Join(phaseNames, ", ")
+	aux := strings.Join(auxNames, ", ")
 	scripts := checkReadyScript(shell) + " <phase> <slug>"
 
 	if lang == "ru" {
 		return fmt.Sprintf(`---
 name: sdd
-description: SpecKeep — spec-driven development. Use when the user asks to propose, spec, inspect, plan, decompose, implement, converge, or verify a feature.
+description: SpecKeep — SDD-роутер. Используй только когда фаза неочевидна из запроса; каждый /spk-<phase> самодостаточен.
 ---
 
 # SpecKeep / SDD
 
-Цепочка: constitution → spec → [inspect, опционально] → plan → tasks → implement → archive. Verify — опциональный аудит по требованию; propose — one-shot быстрая полоса; converge — быстрый цикл закрытия.
+Цепочка: constitution → spec → [inspect, опционально] → [plan, опционально] → tasks → implement → archive. propose — рекомендуемый дефолтный вход (spec+tasks); plan — opt-in для дизайна; verify — опциональный аудит; converge — быстрый цикл закрытия.
 
-Каждая фаза — независимый skill, вызывается напрямую слэш-командой: %[3]s
+Если фаза известна — вызывай /spk-<phase> напрямую, не загружай этот роутер. Для новой фичи/идеи — сразу /spk-propose (роутер не грузи). Полный справочник команд: .speckeep/templates/commands.md.
 
-## Как выполнять фазу
+Гейты: speckeep check <slug> перед завершением фазы; speckeep converge <slug> (или speckeep guard .) перед закрытием. Задача выполнена только со строкой Proof: под [x]. Завершай каноническим end block из AGENTS.md. Readiness: %[1]s.
 
-1. Если фаза уже известна — вызови её напрямую: /spk-<фаза> (каждый такой skill самодостаточен, полные инструкции внутри). Этот sdd-skill нужен только когда фаза не очевидна из запроса.
-2. Сначала прочитай .speckeep/constitution.summary.md (fallback: CONSTITUTION.md).
-3. Branch-first: работай с feature/<slug> (ветку создаёт/переключает только spec/propose).
-4. Держи контекст узким: текущий slug + surfaces из Touches:.
-5. Readiness-скрипт %[1]s — только для гейтируемых фаз, доверяй exit-коду; у вспомогательных команд гейта нет.
-6. Каждую фазу завершай end block (Slug / Status / Artifacts / Blockers / Готово к) и сохраняй точную финальную строку промпта.
+Фазы: %[2]s
 
-## Гейты (не пропускать)
-
-- speckeep check <slug> перед завершением фазы.
-- speckeep converge <slug> (быстрый цикл) или speckeep guard . (CI) перед закрытием.
-- Задача выполнена только со строкой Proof: под её [x] в tasks.md.
-
-## Фазы (каждая — отдельный вызываемый skill)
-
-%[2]s
-
-## Вспомогательные команды (вне цепочки фаз, readiness-гейта нет)
-
-%[5]s
-
-## Ограничения
-
-%[4]s
-`, scripts, phases, "`/spk-<phase>`", antiPatternHint(lang), aux)
+Вспомогательные (без гейта): %[3]s
+`, scripts, phases, aux)
 	}
 
 	return fmt.Sprintf(`---
 name: sdd
-description: SpecKeep — spec-driven development. Use when the user asks to propose, spec, inspect, plan, decompose, implement, converge, or verify a feature, or starts spec-driven development.
+description: SpecKeep — SDD router. Use only when the phase is not obvious from the request; each /spk-<phase> skill is self-contained.
 ---
 
 # SpecKeep / SDD
 
-Workflow: constitution → spec → [inspect, optional] → plan → tasks → implement → archive. Verify is an optional on-demand audit; propose is the one-shot fast lane; converge is the fast closing loop.
+Chain: constitution → spec → [inspect, optional] → [plan, optional] → tasks → implement → archive. propose — recommended default entry (spec+tasks); plan — opt-in for design; verify — optional audit; converge — fast closing loop.
 
-Every phase is its own independent skill, invoked directly with %[3]s
+If the phase is known, invoke /spk-<phase> directly — do not load this router. For a new feature idea, use /spk-propose directly (skip this router). Full command reference: .speckeep/templates/commands.md.
 
-## How to run a phase
+Gates: speckeep check <slug> before finishing a phase; speckeep converge <slug> (or speckeep guard .) before closing. A task is done only with a Proof: line under [x]. End with the canonical end block from AGENTS.md. Readiness: %[1]s.
 
-1. If the phase is already known, invoke it directly: /spk-<phase> (each is self-contained with full instructions inline). Reach for this sdd overview skill only when the phase isn't obvious from the request.
-2. Read .speckeep/constitution.summary.md first (fallback: CONSTITUTION.md).
-3. Branch-first: work on feature/<slug> (only spec/propose may create/switch the branch).
-4. Keep context narrow: current slug + Touches: surfaces only.
-5. Run the readiness script %[1]s only for the gated phases and trust its exit code; auxiliary commands have no gate.
-6. End every phase with the end block (Slug / Status / Artifacts / Blockers / Ready for) and preserve the prompt's exact final line.
+Phases: %[2]s
 
-## Gates (never skip)
-
-- speckeep check <slug> before finishing a phase.
-- speckeep converge <slug> (fast loop) or speckeep guard . (CI) before closing.
-- A task is done only with a Proof: line under its [x] in tasks.md.
-
-## Phases (each a separately invocable skill)
-
-%[2]s
-
-## Auxiliary commands (outside the phase chain, no readiness gate)
-
-%[5]s
-
-## Constraints
-
-%[4]s
-`, scripts, phases, "`/spk-<phase>`", antiPatternHint(lang), aux)
+Auxiliary (no gate): %[3]s
+`, scripts, phases, aux)
 }
 
 // readyCheckPhases lists the phases that have a real readiness gate behind
@@ -420,16 +378,9 @@ description: SpecKeep-фаза «%s» — %s.
 
 ---
 
-Напоминания:
+Следуй AGENTS.md; гейт: speckeep check <slug> → исправь находки или сообщи blocker. Заверши каноническим end block'ом и сохрани точную финальную строку промпта. Источник: %s.
 
-%s- Создавай/правь только артефакты, которые называет промпт выше; контекст — текущий slug и surfaces из Touches:.
-- Не расширяй scope, не перепланируй, не коммить без явной просьбы.
-- Заверши фазу end block и сохрани точную финальную строку промпта.
-- Гейт: speckeep check <slug> → исправь находки или сообщи blocker.
-- Канонический источник (синхронизируется автоматически): %s
-
-%s
-`, command.Name, command.Name, command.Description, command.Name, body, checkReady, promptPath, proofHint(lang)), nil
+%s`, command.Name, command.Name, command.Description, command.Name, body, promptPath, checkReady), nil
 	}
 
 	return fmt.Sprintf(`---
@@ -443,16 +394,9 @@ description: SpecKeep phase "%s" — %s.
 
 ---
 
-Reminders:
+Follow AGENTS.md; gate: speckeep check <slug> → fix findings or report a blocker. End with the canonical end block and keep the prompt's exact final line. Source: %s.
 
-%s- Write/patch only the artifacts named above; keep context to the current slug and Touches: surfaces.
-- Do not expand scope, re-plan, or commit without being asked.
-- End with the end block and preserve the prompt's exact final line.
-- Gate: speckeep check <slug> → fix findings or report a blocker.
-- Canonical source (kept in sync automatically): %s
-
-%s
-`, command.Name, command.Name, command.Description, command.Name, body, checkReady, promptPath, proofHint(lang)), nil
+%s`, command.Name, command.Name, command.Description, command.Name, body, promptPath, checkReady), nil
 }
 
 // renderFlatCommand renders a plain, frontmatter-free markdown command file
@@ -478,15 +422,7 @@ func renderFlatCommand(command CommandDefinition, lang, invokePrefix, shell stri
 
 %s
 
----
-
-Напоминания:
-
-%s- Создавай/правь только артефакты, которые называет промпт выше; контекст — текущий slug и surfaces из Touches:.
-- Не расширяй scope, не перепланируй, не коммить без явной просьбы.
-- Заверши фазу end block и сохрани точную финальную строку промпта.
-- Гейт: speckeep check <slug> → исправь находки или сообщи blocker.
-- Канонический источник (синхронизируется автоматически): %s
+%sСледуй AGENTS.md; гейт: speckeep check <slug>. Заверши каноническим end block'ом. Источник: %s.
 `, invoke, command.Description, body, checkReady, promptPath), nil
 	}
 
@@ -496,15 +432,7 @@ func renderFlatCommand(command CommandDefinition, lang, invokePrefix, shell stri
 
 %s
 
----
-
-Reminders:
-
-%s- Write/patch only the artifacts named above; keep context to the current slug and Touches: surfaces.
-- Do not expand scope, re-plan, or commit without being asked.
-- End with the end block and preserve the prompt's exact final line.
-- Gate: speckeep check <slug> → fix findings or report a blocker.
-- Canonical source (kept in sync automatically): %s
+%sFollow AGENTS.md; gate: speckeep check <slug>. End with the canonical end block. Source: %s.
 `, invoke, command.Description, body, checkReady, promptPath), nil
 }
 

@@ -86,7 +86,7 @@ func TestCheckWarnsOnDeprecatedSpeckeepCommands(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadFile(AGENTS.md) returned error: %v", err)
 	}
-	text := strings.Replace(string(content), "Use `Return to` when blocked.", "Legacy `/speckeep.archive` unused.", 1)
+	text := string(content) + "\nLegacy `/speckeep.archive` unused.\n"
 	if err := os.WriteFile(agentsPath, []byte(text), 0o644); err != nil {
 		t.Fatalf("WriteFile(AGENTS.md) returned error: %v", err)
 	}
@@ -128,7 +128,7 @@ func TestCheckDoesNotWarnOnSpeckeepYamlConfigPath(t *testing.T) {
 	}
 }
 
-func TestCheckErrorsWhenPlanSkipsMandatoryInspect(t *testing.T) {
+func TestCheckAllowsPlanWithoutInspect(t *testing.T) {
 	root := t.TempDir()
 
 	_, err := project.Initialize(root, project.InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"})
@@ -158,15 +158,10 @@ func TestCheckErrorsWhenPlanSkipsMandatoryInspect(t *testing.T) {
 		t.Fatalf("Check returned error: %v", err)
 	}
 
-	var found bool
 	for _, finding := range result.Findings {
 		if finding.Level == "error" && strings.Contains(finding.Message, "mandatory inspect report") {
-			found = true
-			break
+			t.Fatalf("plan must not require an inspect report (inspect is optional), got %+v", result.Findings)
 		}
-	}
-	if !found {
-		t.Fatalf("expected missing inspect error, got %+v", result.Findings)
 	}
 }
 

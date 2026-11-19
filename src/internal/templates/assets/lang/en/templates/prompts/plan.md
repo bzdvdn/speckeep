@@ -9,6 +9,8 @@ You act as a **tech lead** designing the implementation approach. Prioritise sou
 
 You create or update plan artifacts for one feature in `<specs_dir>/<slug>/`.
 
+Plan is **opt-in**: write it only when the feature needs design work (multiple realistic options, data-model/contract changes, migration/rollout, or cross-boundary impact). For small/low-risk changes, skip plan and go straight to `/spk-tasks`.
+
 Follow base rules in `AGENTS.md`.
 
 ## Phase Contract
@@ -27,7 +29,6 @@ Stop if: inspect.md is present and not `pass`, the goal is ambiguous, or plannin
 - Express mode: when `plan.md` is absent the feature is a small/low-risk change closed from `spec.md` + `tasks.md`. In that case `/spk-tasks` derives tasks from `spec.md` directly; plan-level decisions go into `tasks.md` `## Implementation Context` instead.
 - Create `research.md` only when needed (e.g., external dependency/integration boundary, multiple realistic implementation options, or a high-risk unknown). Do not create `research.md` for generic brainstorming.
 - Domain language: if `.speckeep/glossary.md` exists, read it once and reuse its terms; do not introduce a new synonym for a term it already defines.
-- Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
 - Minimum context: current slug only; narrow repo reads (no full-repo scans).
 - Size discipline: target `plan.md` ≤ ~200 lines; when it grows, push detail into `data-model.md`/`contracts/*` instead of padding prose.
 - Run the pre-phase readiness script (see AGENTS.md: Scripts).
@@ -50,12 +51,5 @@ If any check fails: fix it and re-run the checklist. After **2 fix rounds** that
 - Write/patch `<specs_dir>/<slug>/plan.md` (create additional artifacts only when justified).
 - Inside `plan.md`, keep compact sections for `DEC-*`, surfaces, risks, and data-model/contract impact; do not move that recap into separate digest files.
 - Summarize key `DEC-*`, surfaces, sequencing constraints, and risks.
-- End with standard end block (see AGENTS.md), exact shape:
-  ```
-  Slug: <slug>
-  Status: <phase label>
-  Artifacts: <paths>
-  Blockers: <none | reason>
-  Ready for: /spk-tasks <slug>
-  ```
+- End with the canonical end block from `AGENTS.md` (Slug / Status / Artifacts / Blockers / Ready for).
 - Final line: `Ready for: /spk-tasks <slug>`

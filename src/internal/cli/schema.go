@@ -49,9 +49,9 @@ Examples:
 			}
 
 			fmt.Fprintf(cmd.OutOrStdout(), "\nAvailable schemas:\n")
-			fmt.Fprintf(cmd.OutOrStdout(), "  default       - constitution -> spec -> [inspect, optional] -> plan -> tasks -> implement -> verify -> archive\n")
-			fmt.Fprintf(cmd.OutOrStdout(), "  research-first - constitution -> spec -> [inspect, optional] -> plan -> research -> tasks -> implement -> verify -> archive\n")
-			fmt.Fprintf(cmd.OutOrStdout(), "  lite          - spec -> plan -> tasks -> implement (no inspect/verify)\n")
+			fmt.Fprintf(cmd.OutOrStdout(), "  default       - constitution -> spec -> [inspect, optional] -> [plan, optional] -> tasks -> implement -> verify -> archive\n")
+			fmt.Fprintf(cmd.OutOrStdout(), "  research-first - constitution -> spec -> [inspect, optional] -> [plan, optional] -> research -> tasks -> implement -> verify -> archive\n")
+			fmt.Fprintf(cmd.OutOrStdout(), "  lite          - spec -> [plan, optional] -> tasks -> implement (no inspect/verify)\n")
 
 			return nil
 		},
@@ -106,10 +106,10 @@ Examples:
 func getSchemaPhases(schema string) []string {
 	switch schema {
 	case "research-first":
-		return []string{"constitution", "spec", "inspect", "plan", "research", "tasks", "implement", "verify", "archive"}
+		return []string{"constitution", "spec", "inspect (optional)", "plan (optional)", "research", "tasks", "implement", "verify (optional)", "archive"}
 	case "lite":
-		return []string{"spec", "plan", "tasks", "implement"}
+		return []string{"spec", "plan (optional)", "tasks", "implement"}
 	default:
-		return []string{"constitution", "spec", "inspect", "plan", "tasks", "implement", "verify", "archive"}
+		return []string{"constitution", "spec", "inspect (optional)", "plan (optional)", "tasks", "implement", "verify (optional)", "archive"}
 	}
 }

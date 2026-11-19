@@ -25,7 +25,6 @@ Stop if: `tasks.md` missing or slug ambiguous.
 - When writing `<specs_dir>/<slug>/verify.md`, always include YAML frontmatter (use `.speckeep/templates/verify.md` as the format). Models commonly forget the `---` block — it is mandatory for archive readiness detection.
 - Start from `tasks.md`: every `[x]` task must have observable proof in the repo (file/test/command output).
 - If `./.speckeep/scripts/verify-task-state[SCRIPT_EXT]` exists, run that wrapper script directly (slug first) as a cheap first pass. There is no public `speckeep verify-task-state` command — do not call it.
-- Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
 - If you persist the report to a file, use `.speckeep/templates/verify.md` as the format and write to `<specs_dir>/<slug>/verify.md`. Do not look for “examples” in other slugs’ verify reports for shape.
 - Collect traceability as a cheap integrity check: use `./.speckeep/scripts/trace[SCRIPT_EXT] <slug>` (and `./.speckeep/scripts/trace[SCRIPT_EXT] <slug> --tests` when needed). It reads `Proof:` lines from `tasks.md`; this does not replace proof, but quickly highlights gaps/orphaned entries and missing files/anchors.
 - Missing or clearly incomplete `Proof:` lines in `tasks.md` are evidence gaps, not cosmetic issues: if a completed task lacks expected proof coverage, do not silently overlook it.
@@ -68,14 +67,7 @@ If any check fails: fix it and re-run the checklist. After **2 fix rounds** that
 - Overall **feature verdict**: `pass|concerns|blocked` + concrete mismatches (task/AC → evidence).
 - Include `## Not Verified` items when you did not confirm something (explicitly list what you did not check).
 - Explicitly call out proof gaps when `Proof:` lines in `tasks.md` are missing or partial for completed tasks.
-- End with standard end block (see AGENTS.md), exact shape:
-  ```
-  Slug: <slug>
-  Status: pass|concerns|blocked
-  Artifacts: <paths>
-  Blockers: <none | reason>
-  Ready for: speckeep archive <slug> .   (or "Return to: /spk-<phase> <slug>" when not pass)
-  ```
+- End with the canonical end block from `AGENTS.md` (Slug / Status / Artifacts / Blockers / Ready for).
 - If `pass`, final line: `Ready for: speckeep archive <slug> .`
 - If `concerns`, final line: `Ready for: /spk-implement <slug>` (close the proof gaps) — or `Return to: /spk-tasks <slug>` when the gaps are task coverage issues.
 - If `blocked`, final line: `Return to: /spk-<phase> <slug>` (narrowest earlier phase that can honestly fix it).

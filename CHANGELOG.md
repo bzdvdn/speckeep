@@ -7,6 +7,34 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.3.0] - 2026-11-19
+
+### Added
+
+- **On-demand command reference** (`.speckeep/templates/commands.md`, EN/RU): the full command list, archive guidance, and default-entry note live here instead of the always-on `AGENTS.md` block. Load it only when the current phase did not name the command you need.
+
+### Changed
+
+- **Lower always-on and per-phase token footprint**: the managed `AGENTS.md` block no longer embeds the full command list or the repo-map trigger checklist; it points to the on-demand `.speckeep/templates/commands.md` and the repo-map prompt. The repo-map/config/constitution rules were shortened, with `project.constitution_file` treated as configurable and defaults applied only when `.speckeep/speckeep.yaml` is absent. The RU snippet was additionally compressed from ~9.3 KB to ~7.3 KB without dropping rules. The `sdd` skill is now a compact router instead of a second copy of workflow/gate rules.
+- **Lean generated phase skills**: `spk-<phase>/SKILL.md` and flat/Gemini commands no longer repeat the five-bullet reminder block or `proofHint`; they keep a one-line `AGENTS.md` pointer, the readiness line, and a source reference. Root `sdd` skill dropped from ~3 KB to ~1.2 KB (EN) / ~1.6 KB (RU); the snippet shrank ~28% in both languages.
+- **Prompts reference the canonical block instead of forking it**: core phase prompts no longer duplicate the end-block shape, constitution resolution, or verify policy from `AGENTS.md`; they keep only phase-specific rules and the required `Ready for` literals.
+- **Token discipline clarified**: a phase transition loads the next prompt exactly once; within a phase, continue in-session.
+- **Plan is now opt-in**: the default lifecycle is `spec → tasks` (or `/spk-propose` → `/spk-implement`), and `/spk-plan` is used only for design-heavy work. The state machine no longer advertises `plan` as the next step after `spec`, and the validator no longer errors on `tasks` without `plan` or `plan` without `inspect` (both are optional). The spec prompt now says "(plan is optional)" and `speckeep check` hints that `/spk-plan` is only for design-heavy work. Docs gained a "Starting the next feature" section.
+- **New-feature routing defaults to propose**: the managed `AGENTS.md` block and `sdd` router now send a "build something new" request directly to `/spk-propose` (skipping the router), reserve `/spk-spec` for ambiguous or multi-feature ideas, and keep `/spk-plan` opt-in. The generated `spk-propose` description advertises it as the recommended default, so OpenCode/Cursor/Codex select it; Claude Code users invoke `/spk-propose` explicitly.
+
+### Fixed
+
+- **Optional-plan hint no longer nags after tasks exist**: `speckeep check` shows the "plan.md is optional" hint only while the next step is `tasks`; it no longer appears at `implement`/`verify` for express-lane features.
+- **`archive --restore` no longer suggests `/spk-plan`**: restore now tells the user to run `speckeep check <slug>` to pick the correct resume step.
+- **Empty `tasks.md` without `plan.md` no longer reports phase `plan`**: the empty-tasks state falls back to `spec`/`inspect`, matching the opt-in plan model.
+- **Onboarding and help text aligned with propose-first**: `speckeep init` next steps now start with `/spk-propose` and mark `/spk-plan` optional; CLI help and docs examples/MVP/glossary no longer imply plan is a required step.
+
+### Testing
+
+- Added `TestContextFootprintBudgets` and `TestSkillFootprintBudgets` to fail on growth of the always-on snippet, core prompt total, root `sdd` skill, or per-phase skill scaffolding.
+- Added guards for the optional-plan hint (`TestCheckOptionalPlanHintOnlyBeforeTasks`) and empty-tasks phase inference (`TestEmptyTasksWithoutPlanDoesNotReportPlanPhase`).
+- `doctor` now checks for the generated `templates/commands.md`.
+
 ## [v1.2.3] - 2026-11-17
 
 ### Added
@@ -532,4 +560,7 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [1.1.1]: https://github.com/bzdvdn/speckeep/releases/tag/v1.1.1
 [1.2.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.2.0
 [1.2.1]: https://github.com/bzdvdn/speckeep/releases/tag/v1.2.1
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.2.1...HEAD
+[1.2.2]: https://github.com/bzdvdn/speckeep/releases/tag/v1.2.2
+[1.2.3]: https://github.com/bzdvdn/speckeep/releases/tag/v1.2.3
+[1.3.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.3.0
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.3.0...HEAD

@@ -401,7 +401,7 @@ func TestInitAndStatusCommandsFollowFeatureLifecycle(t *testing.T) {
 
 	checkStatus(statusPayload{
 		Phase:         "spec",
-		ReadyFor:      "plan",
+		ReadyFor:      "tasks",
 		Blocked:       false,
 		SpecExists:    true,
 		InspectExists: false,
@@ -418,7 +418,7 @@ func TestInitAndStatusCommandsFollowFeatureLifecycle(t *testing.T) {
 
 	checkStatus(statusPayload{
 		Phase:         "inspect",
-		ReadyFor:      "plan",
+		ReadyFor:      "tasks",
 		Blocked:       false,
 		SpecExists:    true,
 		InspectExists: true,
@@ -626,7 +626,7 @@ func TestFeatureCommandShowsDetailedWorkflowView(t *testing.T) {
 	if err != nil {
 		t.Fatalf("feature command returned error: %v", err)
 	}
-	if !strings.Contains(stdout, "inspect_status: concerns") || !strings.Contains(stdout, "ready_for: plan") || !strings.Contains(stdout, "issues:") || !strings.Contains(stdout, "focus: write the plan artifacts") || strings.Contains(stdout, "verify_path:") {
+	if !strings.Contains(stdout, "inspect_status: concerns") || !strings.Contains(stdout, "ready_for: tasks") || !strings.Contains(stdout, "issues:") || !strings.Contains(stdout, "focus: turn the spec (or plan) into executable tasks") || strings.Contains(stdout, "verify_path:") {
 		t.Fatalf("unexpected feature output: %s", stdout)
 	}
 }
@@ -683,7 +683,7 @@ func TestFeatureCommandShowsStructuredCheckDetails(t *testing.T) {
 	if err != nil {
 		t.Fatalf("feature command returned error: %v", err)
 	}
-	if !strings.Contains(stdout, "check_issues: warnings=6") {
+	if !strings.Contains(stdout, "check_issues: warnings=7") {
 		t.Fatalf("expected structured check summary in feature output, got %s", stdout)
 	}
 	if !strings.Contains(stdout, "check_detail: warning [structure] missing section:") {
@@ -720,7 +720,7 @@ func TestFeatureCommandJSONIncludesStructuredCheckDetails(t *testing.T) {
 	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
 		t.Fatalf("failed to parse feature json output %q: %v", stdout, err)
 	}
-	if payload.CheckSummary.Warnings != 6 {
+	if payload.CheckSummary.Warnings != 7 {
 		t.Fatalf("expected structured warnings in feature json, got %q", stdout)
 	}
 	found := false
@@ -752,10 +752,10 @@ func TestCheckCommandShowsStructuredCheckSummary(t *testing.T) {
 	if err != nil {
 		t.Fatalf("check command returned error: %v", err)
 	}
-	if !strings.Contains(stdout, "checks:   warnings=6") {
+	if !strings.Contains(stdout, "checks:   warnings=7") {
 		t.Fatalf("expected check summary in output, got %s", stdout)
 	}
-	if !strings.Contains(stdout, "warning_categories=structure=3,ambiguity=2") {
+	if !strings.Contains(stdout, "warning_categories=structure=3,ambiguity=2,readiness=2") {
 		t.Fatalf("expected categorized warning summary, got %s", stdout)
 	}
 	if !strings.Contains(stdout, "detail:   warning [structure] missing section:") {
@@ -794,7 +794,7 @@ func TestCheckCommandJSONIncludesStructuredFindings(t *testing.T) {
 	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
 		t.Fatalf("failed to parse check json output %q: %v", stdout, err)
 	}
-	if payload.CheckSummary.Warnings != 6 {
+	if payload.CheckSummary.Warnings != 7 {
 		t.Fatalf("expected warnings in check summary, got %q", stdout)
 	}
 	if payload.CheckSummary.WarningCategories["ambiguity"] == 0 {
@@ -845,8 +845,8 @@ func TestCheckCommandBlocksWhenReadinessErrorsPresent(t *testing.T) {
 	if !payload.Blocked || payload.Verdict != "blocked" {
 		t.Fatalf("expected blocked verdict in json output, got %q", stdout)
 	}
-	if payload.NextCommand != "/spk-plan demo" {
-		t.Fatalf("expected next_command plan, got %q", payload.NextCommand)
+	if payload.NextCommand != "/spk-tasks demo" {
+		t.Fatalf("expected next_command tasks (plan is optional), got %q", payload.NextCommand)
 	}
 	if payload.CheckSummary.Errors == 0 {
 		t.Fatalf("expected errors > 0, got %q", stdout)
@@ -894,8 +894,8 @@ func TestCheckCommandResolvesCustomSpecsDir(t *testing.T) {
 	if payload.Artifacts.Inspect.Present {
 		t.Fatalf("expected inspect present=false in json output, got %q", stdout)
 	}
-	if payload.NextCommand != "/spk-plan demo" {
-		t.Fatalf("expected next_command plan, got %q", payload.NextCommand)
+	if payload.NextCommand != "/spk-tasks demo" {
+		t.Fatalf("expected next_command tasks (plan is optional), got %q", payload.NextCommand)
 	}
 }
 
@@ -1332,5 +1332,36 @@ func TestInternalLinkAgentsCommandUsesCLIBackend(t *testing.T) {
 	}
 	if !strings.Contains(string(content), strings.TrimSpace(string(snippet))) {
 		t.Fatalf("expected linked agents file to contain snippet, got %q", string(content))
+	}
+}
+
+// TestCheckOptionalPlanHintOnlyBeforeTasks ensures the "plan is optional" hint
+// appears when the next step is tasks, and stops nagging once tasks exist.
+func TestCheckOptionalPlanHintOnlyBeforeTasks(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	specPath := filepath.Join(ensureSpecDir(t, root, "demo"), "spec.md")
+	specContent := "# Demo\n\n## Goal\nx\n\n## Requirements\n- RQ-001 x\n\n## Acceptance Criteria\n### AC-001 Demo\n- Given x\n- When y\n- Then z\n"
+	if err := os.WriteFile(specPath, []byte(specContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+
+	stdout, _, _ := executeRoot(t, "check", "demo", root)
+	if !strings.Contains(stdout, "plan.md is optional") {
+		t.Fatalf("expected optional-plan hint before tasks, got %s", stdout)
+	}
+
+	tasksContent := "# Tasks\n\n## Phase 1: Foundation\n- [ ] T1.1 do — outcome: y; Touches: src/demo.go\n\n## Surface Map\n| src/demo.go | T1.1 |\n\n## Acceptance Coverage\n- AC-001 -> T1.1\n"
+	if err := os.WriteFile(filepath.Join(ensureSpecDir(t, root, "demo"), "tasks.md"), []byte(tasksContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks) returned error: %v", err)
+	}
+
+	stdout, _, _ = executeRoot(t, "check", "demo", root)
+	if strings.Contains(stdout, "plan.md is optional") {
+		t.Fatalf("optional-plan hint must not nag after tasks exist, got %s", stdout)
 	}
 }

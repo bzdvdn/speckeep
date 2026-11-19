@@ -22,7 +22,6 @@ Stop if: `tasks.md` missing or slug ambiguous.
 - After appending follow-ups, implement them (or hand off to `/spk-implement <slug>`), then re-run the converge gate.
 - Repeat until the gate reports `converged`, with a hard stop after **2 converge+fix rounds**: stop and state the remaining gaps with a concrete next step (usually `Return to: /spk-verify <slug>` or `speckeep archive` blocks).
 - Converge is not redesign: report mismatches, append exactly the missing work, never expand scope.
-- Constitution: AGENTS.md (`.speckeep/constitution.summary.md` preferred).
 - Size discipline: follow-ups should stay small; if a follow-up explodes into a design problem, `Return to: /spk-plan <slug>` instead of growing the task list.
 
 ## Self-Check (mandatory before finishing)
