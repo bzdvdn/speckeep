@@ -68,6 +68,6 @@ If any check fails: fix it and re-run the checklist. After **2 fix rounds** that
 - Include `## Not Verified` items when you did not confirm something (explicitly list what you did not check).
 - Explicitly call out proof gaps when `Proof:` lines in `tasks.md` are missing or partial for completed tasks.
 - End with the canonical end block from `AGENTS.md` (Slug / Status / Artifacts / Blockers / Ready for).
-- If `pass`, final line: `Ready for: speckeep archive <slug> .`
+- If `pass`, final line: `Ready for: speckeep archive <slug> . (alt: speckeep finish <slug> . for local merge)`
 - If `concerns`, final line: `Ready for: /spk-implement <slug>` (close the proof gaps) — or `Return to: /spk-tasks <slug>` when the gaps are task coverage issues.
 - If `blocked`, final line: `Return to: /spk-<phase> <slug>` (narrowest earlier phase that can honestly fix it).

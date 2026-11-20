@@ -7,6 +7,23 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **`--specs-root <dir>`** for `init` and `refresh`: sets `paths.specs_dir=<dir>/active` and `paths.archive_dir=<dir>/archived` in one flag. Explicit `--specs-dir`/`--archive-dir` remain exact-path overrides for backward compatibility.
+- **`speckeep finish <slug>`**: local-merge close for a completed feature. It archives the feature, commits the archive snapshot on the feature branch, merges with `--no-ff` into the base branch (`main`, then `master`, or a user-named local branch via `--into dev`), and deletes the local feature branch. Supports `--branch`, `--keep-branch`, `--dry-run`, and `--json`. Never pushes or deletes remote branches.
+
+### Changed
+
+- **Close guidance offers archive or finish**: archive-ready prompts end with `speckeep archive <slug> . (alt: speckeep finish <slug> . for local merge)`, and `speckeep check` prints `alt: speckeep finish <slug> .` when the feature branch is checked out, the worktree is clean, and a base branch exists. `archive` remains the primary/safe default; `finish` is only for an explicit merge/close request.
+
+### Fixed
+
+- **Archive gates are status-aware**: `status: completed` now enforces closed tasks, `Proof:` on every `[x]` task, and the verify policy (a `Proof:` that references a missing file is rejected). `superseded`, `abandoned`, `rejected`, and `deferred` skip those gates so they can park incomplete work; they still require an explicit `--reason`. Migration: an existing `completed` feature without `Proof:` must add evidence or be archived with a non-completed status and a reason.
+
+### Testing
+
+- Added `finish` lifecycle tests (success, dry-run, dirty tree, merge conflict, already-archived rerun, missing Proof, keep-branch, branch/target preconditions), archive Proof enforcement tests, and prompt/`check` alt-command consistency tests.
+
 ## [v1.3.0] - 2026-11-19
 
 ### Added

@@ -1335,8 +1335,8 @@ func TestContextFootprintBudgets(t *testing.T) {
 		snippet     int
 		corePrompts int
 	}{
-		"en": {snippet: 6300, corePrompts: 33500},
-		"ru": {snippet: 7700, corePrompts: 53500},
+		"en": {snippet: 6600, corePrompts: 33500},
+		"ru": {snippet: 8000, corePrompts: 53500},
 	}
 
 	for lang, budget := range budgets {
@@ -1380,6 +1380,42 @@ func TestAgentsSnippetRoutesNewFeaturesToPropose(t *testing.T) {
 		}
 		if !strings.Contains(content, want) {
 			t.Errorf("%s agents-snippet must tell the agent to %q for a new feature", lang, want)
+		}
+	}
+}
+
+// TestArchiveReadyPromptsOfferFinishAlt keeps the local-close alternative in
+// every prompt that suggests archive: archive stays primary, finish is the
+// explicit alt for local merge.
+func TestArchiveReadyPromptsOfferFinishAlt(t *testing.T) {
+	prompts := []string{"converge", "verify", "hotfix", "handoff", "module-context", "implement"}
+	for _, lang := range []string{"en", "ru"} {
+		for _, name := range prompts {
+			content, err := localizedFileContent(lang, "templates/prompts/"+name+".md")
+			if err != nil {
+				t.Fatalf("%s prompt %s: %v", lang, name, err)
+			}
+			for _, want := range []string{"speckeep archive <slug>", "speckeep finish <slug>"} {
+				if !strings.Contains(content, want) {
+					t.Errorf("%s %s.md missing %q", lang, name, want)
+				}
+			}
+		}
+	}
+}
+
+// TestCloseGuidanceMentionsFinishTargetBranch keeps the agent guidance explicit
+// about merging into a user-named branch (e.g. --into dev).
+func TestCloseGuidanceMentionsFinishTargetBranch(t *testing.T) {
+	for _, lang := range []string{"en", "ru"} {
+		for _, target := range []string{"templates/agents-snippet.md", "templates/commands.md"} {
+			content, err := localizedFileContent(lang, target)
+			if err != nil {
+				t.Fatalf("%s/%s: %v", lang, target, err)
+			}
+			if !strings.Contains(content, "--into") {
+				t.Errorf("%s/%s must mention --into for a user-named target branch", lang, target)
+			}
 		}
 	}
 }

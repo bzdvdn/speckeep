@@ -42,6 +42,6 @@
   Status: module-context
   Artifacts: <path>/CONTEXT.md
   Blockers: <none | причина>
-  Готово к: /spk-<фаза> <slug>   (или "speckeep archive <slug> ." когда простаиваешь)
+  Готово к: /spk-<фаза> <slug>   (или "speckeep archive <slug> ." когда простаиваешь; alt: "speckeep finish <slug> ." для локального merge)
   ```
 - Финальная строка: `Готово к: /spk-<фаза> <slug>` (вернуться в вызвавшую фазу).

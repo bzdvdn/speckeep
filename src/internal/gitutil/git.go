@@ -205,6 +205,84 @@ func TrackedDirty(ctx context.Context, root string) bool {
 	return err == nil && strings.TrimSpace(stdout) != ""
 }
 
+// BranchExists reports whether a local branch exists.
+func BranchExists(ctx context.Context, root, branch string) (bool, error) {
+	return branchExists(ctx, root, branch)
+}
+
+// Checkout switches to an existing local branch.
+func Checkout(ctx context.Context, root, branch string) error {
+	_, _, err := run(ctx, root, "git", "checkout", branch)
+	return err
+}
+
+// MergeNoFF merges branch into the current branch with an explicit merge
+// commit (--no-ff), never opening an editor.
+func MergeNoFF(ctx context.Context, root, branch string) error {
+	_, _, err := run(ctx, root, "git", "merge", "--no-ff", "--no-edit", branch)
+	return err
+}
+
+// AbortMerge aborts an in-progress merge. It is a no-op when no merge is in
+// progress.
+func AbortMerge(ctx context.Context, root string) error {
+	_, _, err := run(ctx, root, "git", "merge", "--abort")
+	return err
+}
+
+// DeleteBranch deletes a local branch only when it is fully merged (-d).
+func DeleteBranch(ctx context.Context, root, branch string) error {
+	_, _, err := run(ctx, root, "git", "branch", "-d", branch)
+	return err
+}
+
+// WorktreeClean reports whether the worktree (tracked and untracked files) is
+// clean. Ignored files do not count.
+func WorktreeClean(ctx context.Context, root string) (bool, error) {
+	stdout, _, err := run(ctx, root, "git", "status", "--porcelain")
+	if err != nil {
+		return false, err
+	}
+	return strings.TrimSpace(stdout) == "", nil
+}
+
+// CommitAll stages every change and commits it with the given message.
+func CommitAll(ctx context.Context, root, message string) error {
+	if _, _, err := run(ctx, root, "git", "add", "-A"); err != nil {
+		return err
+	}
+	_, _, err := run(ctx, root, "git", "commit", "-m", message)
+	return err
+}
+
+// DefaultTargetBranch returns "main" when it exists, otherwise "master".
+func DefaultTargetBranch(ctx context.Context, root string) (string, error) {
+	for _, branch := range []string{"main", "master"} {
+		exists, err := branchExists(ctx, root, branch)
+		if err != nil {
+			return "", err
+		}
+		if exists {
+			return branch, nil
+		}
+	}
+	return "", fmt.Errorf("neither main nor master exists; pass --into <branch>")
+}
+
+// CommitsAhead returns the number of commits reachable from branch but not from
+// target.
+func CommitsAhead(ctx context.Context, root, target, branch string) (int, error) {
+	stdout, _, err := run(ctx, root, "git", "rev-list", "--count", target+".."+branch)
+	if err != nil {
+		return 0, err
+	}
+	count := 0
+	if _, err := fmt.Sscanf(strings.TrimSpace(stdout), "%d", &count); err != nil {
+		return 0, fmt.Errorf("parse commit count %q: %w", stdout, err)
+	}
+	return count, nil
+}
+
 func parseNameStatus(out string) []DiffFile {
 	fields := strings.Split(out, "\x00")
 	var files []DiffFile

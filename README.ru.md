@@ -67,6 +67,7 @@ speckeep решает это через **discipline per token** — миним�
 - **Express-полоса** — крошечные/низкорисковые фичи пропускают `plan.md`/`data-model.md` и закрываются через `spec.md` + `tasks.md`
 - **One-shot propose** (`/spk-propose`) — идея → `spec.md` + `tasks.md` за один проход, сразу к implement
 - **Миграция на лету** (`speckeep import openspec|speckit`) — конвертация feature packages из OpenSpec/Spec Kit в наш layout за секунды
+- **Локальное закрытие** (`speckeep finish`) — archive, merge `--no-ff` и удаление локальной feature-ветки; `archive` остаётся для PR/ручного merge
 - **Компактный архив** (`--compact`) — хранит только `summary.md` + git-указатель вместо копий всех артефактов
 - **Контекст модуля** (`/spk-module-context`) — попросить агента написать/обновить `CONTEXT.md` папки («что/как/зачем»), проиндексированную в `REPOSITORY_MAP.md`, чтобы агент, заходя в модуль/приложение, не терял контекст
 
@@ -79,7 +80,7 @@ speckeep решает это через **discipline per token** — миним�
 ```
 constitution → spec → [inspect] → [plan] → tasks → implement → archive
 ```
-`verify` — опциональный on-demand аудит; archive разрешён, когда каждая задача `[x]` имеет `Proof:` (или после `verify: pass`). Новую фичу начинайте с `/spk-propose` (рекомендуемый дефолт): запрос вида «сделай X по SpecKeep» ведёт туда; `/spk-plan` — opt-in для фич с дизайном.
+`verify` — опциональный on-demand аудит; `completed`-архив требует `Proof:` у каждой задачи `[x]` (или `verify: pass`), а `deferred`/`abandoned` могут архивировать незавершённую работу с указанием причины. Новую фичу начинайте с `/spk-propose` (рекомендуемый дефолт): запрос вида «сделай X по SpecKeep» ведёт туда; `/spk-plan` — opt-in для фич с дизайном.
 
 Каждая фаза загружает только минимум контекста. Опциональные команды на любой фазе: `/spk-challenge`, `/spk-handoff`, `/spk-hotfix`, `/spk-scope`, `/spk-recap`.
 
@@ -302,7 +303,7 @@ speckeep check eksport-otchetov-v-csv
   Proof: test src/tests/export_test.go TestExportFlow
 ```
 
-`Proof: <kind> <path> [<anchor>]`, где `kind` — `code|test|docs|chore`. Отмеченная задача без записи `Proof:` не завершена — `speckeep check` и `speckeep archive` блокируют её. Evidence читается только из `tasks.md`; trace-маркеров в исходном коде нет.
+`Proof: <kind> <path> [<anchor>]`, где `kind` — `code|test|docs|chore`. Отмеченная задача без записи `Proof:` не завершена — `speckeep check` и `archive` со статусом `completed` блокируют её. Evidence читается только из `tasks.md`; trace-маркеров в исходном коде нет.
 
 Проверьте:
 

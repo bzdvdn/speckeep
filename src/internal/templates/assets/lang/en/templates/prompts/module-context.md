@@ -42,6 +42,6 @@ Stop if: the path is outside the repository, or documenting would require specul
   Status: module-context
   Artifacts: <path>/CONTEXT.md
   Blockers: <none | reason>
-  Ready for: /spk-<phase> <slug>   (or "speckeep archive <slug> ." when idle)
+  Ready for: /spk-<phase> <slug>   (or "speckeep archive <slug> ." when idle; alt: "speckeep finish <slug> ." for local merge)
   ```
 - Final line: `Ready for: /spk-<phase> <slug>` (resume the calling phase).

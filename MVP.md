@@ -123,7 +123,7 @@ Dependency rules:
 - `tasks` depends on the constitution and one spec (plus the plan when present)
 - `implement` depends on the constitution and one task list
 - `verify` (optional audit) depends on the constitution and one task list
-- `archive` depends on one existing spec and archives the related feature artifacts; allowed once all `[x]` tasks carry a `Proof:` entry, or after `verify: pass`
+- `archive` depends on one existing spec and archives the related feature artifacts; `completed` requires all `[x]` tasks to carry `Proof:` and the verify policy to pass, while non-completed statuses may archive incomplete work with an explicit reason
 
 ## Optional workflow commands
 
@@ -269,7 +269,7 @@ The verify phase must:
 
 ## Archive workflow
 
-`archive` is agent-driven.
+Archive is CLI-only. For local merge workflows, `speckeep finish <slug>` wraps the same archive with a `--no-ff` merge into the base branch and deletion of the local feature branch; `archive` remains the default for PR/manual merge and for deferred/abandoned features.
 
 Inputs:
 

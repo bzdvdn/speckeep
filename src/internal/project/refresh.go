@@ -29,6 +29,7 @@ type RefreshOptions struct {
 	AgentTargets     []string
 	DryRun           bool
 	ConstitutionFile string
+	SpecsRoot        string
 	SpecsDir         string
 	ArchiveDir       string
 }
@@ -77,16 +78,21 @@ func Refresh(root string, options RefreshOptions) (RefreshResult, error) {
 		cfg.Project.ConstitutionFile = value
 	}
 
-	if strings.TrimSpace(options.SpecsDir) != "" {
-		value := strings.TrimSpace(options.SpecsDir)
+	resolvedSpecsDir, resolvedArchiveDir, err := resolveSpecsRoot(options.SpecsRoot, options.SpecsDir, options.ArchiveDir)
+	if err != nil {
+		return RefreshResult{}, err
+	}
+
+	if strings.TrimSpace(resolvedSpecsDir) != "" {
+		value := strings.TrimSpace(resolvedSpecsDir)
 		if filepath.IsAbs(value) {
 			return RefreshResult{}, fmt.Errorf("specs-dir must be a relative path, got %q", value)
 		}
 		cfg.Paths.SpecsDir = filepath.ToSlash(filepath.Clean(value))
 	}
 
-	if strings.TrimSpace(options.ArchiveDir) != "" {
-		value := strings.TrimSpace(options.ArchiveDir)
+	if strings.TrimSpace(resolvedArchiveDir) != "" {
+		value := strings.TrimSpace(resolvedArchiveDir)
 		if filepath.IsAbs(value) {
 			return RefreshResult{}, fmt.Errorf("archive-dir must be a relative path, got %q", value)
 		}

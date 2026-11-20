@@ -21,4 +21,4 @@ Stop if: tasks.md отсутствует.
   - Если blocked: `Вернуться к: /spk-<phase> <slug>`
   - Если готово к следующей фазе: `Готово к: /spk-<next> <slug>`
   - Если всё готово и `workflow.verify: required`: `Готово к: /spk-verify <slug>`
-  - Если всё готово и `workflow.verify` — `optional`/отсутствует: `Готово к: speckeep archive <slug> .`
+  - Если всё готово и `workflow.verify` — `optional`/отсутствует: `Готово к: speckeep archive <slug> . (alt: speckeep finish <slug> . для локального merge)`

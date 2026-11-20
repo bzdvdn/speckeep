@@ -42,6 +42,7 @@ CLI commands:
   speckeep check . --all                 — all features table
   speckeep dashboard .                   — visual dashboard
   speckeep archive <slug> . [--compact]  — archive verified feature (+ git-pointer mode)
+  speckeep finish <slug> .               — archive + merge --no-ff + delete local branch
   speckeep trace <slug> . [--tests]      — Proof traceability
   speckeep trace <slug> . --files        — changed files mapped to tasks
   speckeep trace --file <path> .         — which specs/tasks changed a file
@@ -86,6 +87,7 @@ Documentation:
 	cmd.AddCommand(newRiskCmd())
 	cmd.AddCommand(newInternalCmd())
 	cmd.AddCommand(newArchiveCmd())
+	cmd.AddCommand(newFinishCmd())
 	cmd.AddCommand(newListArchiveCmd())
 	cmd.AddCommand(newConvergeCmd())
 	cmd.AddCommand(newGuardCmd())

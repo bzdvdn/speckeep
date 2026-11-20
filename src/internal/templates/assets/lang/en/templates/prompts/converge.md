@@ -36,4 +36,4 @@ If any check fails: fix it and re-run the loop. After **2 fix rounds** that stil
 ## Output expectations
 
 - Verdict line: `Status: converged` or `Status: gaps-found` (+ the remaining gap list).
-- `Ready for: speckeep archive <slug> .` when converged; otherwise `Next: <follow-up tasks> — then re-run speckeep converge <slug>`.
+- `Ready for: speckeep archive <slug> . (alt: speckeep finish <slug> . for local merge)` when converged; otherwise `Next: <follow-up tasks> — then re-run speckeep converge <slug>`.

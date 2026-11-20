@@ -131,3 +131,82 @@ func writeMinimalFeature(t *testing.T, root, slug string) string {
 	}
 	return specDir
 }
+
+func TestArchiveCompletedBlocksWhenClosedTaskHasNoProof(t *testing.T) {
+	root := t.TempDir()
+	initTestProject(t, root)
+	specDir := ensureSpecDir(t, root, "demo")
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte("# demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(specDir, "tasks.md"), []byte("# Tasks\n\n## Phase 1\n- [x] T1.1 done without proof\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks) returned error: %v", err)
+	}
+
+	_, stderr, err := executeRoot(t, "archive", "demo", root, "--status", "completed")
+	if err == nil {
+		t.Fatalf("expected completed archive to block on missing Proof")
+	}
+	if !strings.Contains(stderr, "without Proof") {
+		t.Fatalf("unexpected stderr: %s", stderr)
+	}
+}
+
+func TestArchiveDeferredDoesNotRequireProof(t *testing.T) {
+	root := t.TempDir()
+	initTestProject(t, root)
+	specDir := ensureSpecDir(t, root, "demo")
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte("# demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(specDir, "tasks.md"), []byte("# Tasks\n\n## Phase 1\n- [x] T1.1 deferred work\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks) returned error: %v", err)
+	}
+
+	if _, stderr, err := executeRoot(t, "archive", "demo", root, "--status", "deferred", "--reason", "parked"); err != nil {
+		t.Fatalf("deferred archive should not require Proof, got: %v\nstderr: %s", err, stderr)
+	}
+}
+
+func TestArchiveNonCompletedStatusesAllowIncompleteWork(t *testing.T) {
+	for _, status := range []string{"deferred", "superseded", "abandoned", "rejected"} {
+		t.Run(status, func(t *testing.T) {
+			root := t.TempDir()
+			initTestProject(t, root)
+			specDir := ensureSpecDir(t, root, "demo")
+			if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte("# demo\n"), 0o644); err != nil {
+				t.Fatalf("WriteFile(spec) returned error: %v", err)
+			}
+			if err := os.WriteFile(filepath.Join(specDir, "tasks.md"), []byte("# Tasks\n\n## Phase 1\n- [ ] T1.1 still open\n"), 0o644); err != nil {
+				t.Fatalf("WriteFile(tasks) returned error: %v", err)
+			}
+
+			if _, stderr, err := executeRoot(t, "archive", "demo", root, "--status", status, "--reason", "parked"); err != nil {
+				t.Fatalf("%s archive should allow open tasks, got: %v\nstderr: %s", status, err, stderr)
+			}
+
+			cfg, err := config.Load(context.Background(), root)
+			if err != nil {
+				t.Fatalf("config.Load returned error: %v", err)
+			}
+			archiveDir, _ := cfg.ArchiveDir(root)
+			if entries, err := os.ReadDir(filepath.Join(archiveDir, "demo")); err != nil || len(entries) != 1 {
+				t.Fatalf("expected one archive snapshot for %s, entries=%v err=%v", status, entries, err)
+			}
+		})
+	}
+}
+
+func TestArchiveDeferredIgnoresNonPassVerify(t *testing.T) {
+	root := t.TempDir()
+	initTestProject(t, root)
+	specDir := writeMinimalFeature(t, root, "demo")
+	verifyContent := "---\nreport_type: verify\nslug: demo\nstatus: concerns\ngenerated_at: 2026-08-13\n---\n# Verify Report: demo\n"
+	if err := os.WriteFile(filepath.Join(specDir, "verify.md"), []byte(verifyContent), 0o644); err != nil {
+		t.Fatalf("WriteFile(verify) returned error: %v", err)
+	}
+
+	if _, stderr, err := executeRoot(t, "archive", "demo", root, "--status", "deferred", "--reason", "parked"); err != nil {
+		t.Fatalf("deferred archive should ignore a non-pass verify, got: %v\nstderr: %s", err, stderr)
+	}
+}

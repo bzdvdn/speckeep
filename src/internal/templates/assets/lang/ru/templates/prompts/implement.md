@@ -61,6 +61,6 @@ Stop if: `tasks.md` отсутствует, следующая задача не
   - Ссылайтесь на `/spk-implement <slug>` снова только для свежей сессии (контекст очищен), которой нужно пере-войти в реализацию.
 - Если открытых задач нет (у всех `[x]` есть строка `Proof:`), финальная строка зависит от `workflow.verify`:
   - `required`: `Готово к: /spk-verify <slug>`
-  - `optional` (по умолчанию/нет ключа): `Готово к: speckeep converge <slug>` (быстрый цикл закрытия; затем `speckeep archive <slug> .` при `converged`; полный аудит остаётся доступен через `/spk-verify <slug>`)
+  - `optional` (по умолчанию/нет ключа): `Готово к: speckeep converge <slug>` (быстрый цикл закрытия; затем `speckeep archive <slug> . (alt: speckeep finish <slug> . для локального merge)` при `converged`; полный аудит остаётся доступен через `/spk-verify <slug>`)
 - Заверши каноническим end block из `AGENTS.md` (Slug / Status / Artifacts / Blockers / Готово к).
 - Не выводите `/spk-implement <slug>`, когда задач не осталось, и не выводите строку converge/verify/archive, пока остались открытые задачи.

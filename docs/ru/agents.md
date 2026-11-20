@@ -139,6 +139,8 @@ Agent-facing workflow в SpecKeep:
 
 После `verify: pass` предпочитайте явный CLI-шаг `speckeep archive <slug> .`, чтобы архивирование оставалось вне reasoning-loop агента. Для `archive` статус по умолчанию — `completed`; для non-`completed` статусов нужен явный `--reason`. Для `completed` нормально (и дешево) сначала переиспользовать `verify-task-state.sh` перед созданием снимка.
 
+Для локального merge workflow `speckeep finish <slug> .` оборачивает archive: merge `--no-ff` в базовую ветку и удаление локальной feature-ветки. Требует checked out feature/hotfix-ветку и чистое worktree; никогда не делает push и не удаляет remote-ветки. В промптах `archive` — основной close, `finish` — явный alt для запроса merge/close.
+
 ## Команды обслуживания
 
 Управлять agent targets лучше через публичный CLI:

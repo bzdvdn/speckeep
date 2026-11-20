@@ -32,6 +32,7 @@ Core rules:
   - `workflow.verify: optional` (or absent, default) → verify is an on-demand audit; archive is allowed once all `[x]` tasks carry `Proof:` entries. A `verify.md` present with status ≠ `pass` is still a veto on archive.
 - Discovery: do not run `speckeep ... --help` for discovery; use prompt files and readiness scripts instead.
 - CLI: use `./.speckeep/scripts/run-speckeep[SCRIPT_EXT]` only for actual CLI commands (e.g. `doctor`, `check`, `trace`, `export`, `refresh`). Do not run `run-speckeep[SCRIPT_EXT] <phase>` like `spec`/`plan`/`tasks` — phases are slash-commands that write artifacts directly.
+- Close: `speckeep archive` is the default (PR/manual merge, deferred/abandoned). Only when the user explicitly asks to merge/close a local feature branch, use `speckeep finish` (archive + merge --no-ff + delete local branch). If the user names a target branch (e.g. `dev`, `release/1.4`), pass `--into <branch>`; it must exist locally. Never push or delete remote branches.
 - Chat output: do not paste large `git diff`s/full files/long logs. Provide a concise change summary + the list of touched files; if details are needed, show only a small snippet around the edit.
 - Scope: do not read or modify artifacts from other slugs/specs unless the current task explicitly requires it (otherwise it’s a scope violation).
 - Don't invent: do not introduce requirements, dependencies, scope, or passing criteria absent from current phase inputs.

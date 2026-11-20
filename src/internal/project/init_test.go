@@ -848,3 +848,114 @@ func TestRefreshDryRunDoesNotMoveSpecsOrArchiveDirsOrUpdateConfig(t *testing.T) 
 		t.Fatalf("did not expect new specs dir to be created on dry-run, got err=%v", err)
 	}
 }
+
+func TestInitializeWithSpecsRoot(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+		SpecsRoot:   "docs/specs",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	cfg, err := config.Load(context.Background(), root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	if got, want := cfg.Paths.SpecsDir, "docs/specs/active"; got != want {
+		t.Fatalf("specs_dir = %q, want %q", got, want)
+	}
+	if got, want := cfg.Paths.ArchiveDir, "docs/specs/archived"; got != want {
+		t.Fatalf("archive_dir = %q, want %q", got, want)
+	}
+	for _, rel := range []string{
+		filepath.Join("docs", "specs", "active", ".gitkeep"),
+		filepath.Join("docs", "specs", "archived", ".gitkeep"),
+	} {
+		if _, err := os.Stat(filepath.Join(root, rel)); err != nil {
+			t.Fatalf("expected %s to exist: %v", rel, err)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(root, "specs", "active")); !os.IsNotExist(err) {
+		t.Fatalf("default specs/active should not be created when --specs-root is used, stat err=%v", err)
+	}
+}
+
+func TestInitializeSpecsRootExactOverrides(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+		SpecsRoot:   "docs/specs",
+		SpecsDir:    "custom/active",
+		ArchiveDir:  "custom/archive",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	cfg, err := config.Load(context.Background(), root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	if got, want := cfg.Paths.SpecsDir, "custom/active"; got != want {
+		t.Fatalf("specs_dir = %q, want %q", got, want)
+	}
+	if got, want := cfg.Paths.ArchiveDir, "custom/archive"; got != want {
+		t.Fatalf("archive_dir = %q, want %q", got, want)
+	}
+}
+
+func TestInitializeRejectsAbsoluteSpecsRoot(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := Initialize(root, InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+		SpecsRoot:   filepath.Join(root, "docs", "specs"),
+	})
+	if err == nil {
+		t.Fatal("expected absolute --specs-root to be rejected")
+	}
+	if !strings.Contains(err.Error(), "specs-root must be a relative path") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestRefreshWithSpecsRoot(t *testing.T) {
+	root := t.TempDir()
+
+	if _, err := Initialize(root, InitOptions{InitGit: false, DefaultLang: "en", Shell: "sh"}); err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	if _, err := Refresh(root, RefreshOptions{SpecsRoot: "docs/specs"}); err != nil {
+		t.Fatalf("Refresh returned error: %v", err)
+	}
+
+	cfg, err := config.Load(context.Background(), root)
+	if err != nil {
+		t.Fatalf("config.Load returned error: %v", err)
+	}
+	if got, want := cfg.Paths.SpecsDir, "docs/specs/active"; got != want {
+		t.Fatalf("specs_dir = %q, want %q", got, want)
+	}
+	if got, want := cfg.Paths.ArchiveDir, "docs/specs/archived"; got != want {
+		t.Fatalf("archive_dir = %q, want %q", got, want)
+	}
+	for _, rel := range []string{
+		filepath.Join("docs", "specs", "active", ".gitkeep"),
+		filepath.Join("docs", "specs", "archived", ".gitkeep"),
+	} {
+		if _, err := os.Stat(filepath.Join(root, rel)); err != nil {
+			t.Fatalf("expected %s to exist: %v", rel, err)
+		}
+	}
+}

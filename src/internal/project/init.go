@@ -27,6 +27,7 @@ type InitOptions struct {
 	AgentLang        string
 	CommentsLang     string
 	Shell            string
+	SpecsRoot        string
 	SpecsDir         string
 	ArchiveDir       string
 	ConstitutionFile string
@@ -103,11 +104,15 @@ func Initialize(root string, options InitOptions) (InitResult, error) {
 		cfg.Runtime.Shell = shell
 		cfg.Scripts = config.ScriptDefaultsForShell(shell)
 		cfg.Agents.Targets = normalizedAgentTargets
-		if strings.TrimSpace(options.SpecsDir) != "" {
-			cfg.Paths.SpecsDir = strings.TrimSpace(options.SpecsDir)
+		resolvedSpecsDir, resolvedArchiveDir, err := resolveSpecsRoot(options.SpecsRoot, options.SpecsDir, options.ArchiveDir)
+		if err != nil {
+			return InitResult{}, err
 		}
-		if strings.TrimSpace(options.ArchiveDir) != "" {
-			cfg.Paths.ArchiveDir = strings.TrimSpace(options.ArchiveDir)
+		if strings.TrimSpace(resolvedSpecsDir) != "" {
+			cfg.Paths.SpecsDir = strings.TrimSpace(resolvedSpecsDir)
+		}
+		if strings.TrimSpace(resolvedArchiveDir) != "" {
+			cfg.Paths.ArchiveDir = strings.TrimSpace(resolvedArchiveDir)
 		}
 		if strings.TrimSpace(options.ConstitutionFile) != "" {
 			value := strings.TrimSpace(options.ConstitutionFile)

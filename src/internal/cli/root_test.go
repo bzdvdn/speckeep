@@ -1365,3 +1365,63 @@ func TestCheckOptionalPlanHintOnlyBeforeTasks(t *testing.T) {
 		t.Fatalf("optional-plan hint must not nag after tasks exist, got %s", stdout)
 	}
 }
+
+func TestInitCommandSupportsSpecsRoot(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh", "--specs-root", "docs/specs"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+
+	cfg, err := config.Load(context.Background(), root)
+	if err != nil {
+		t.Fatalf("Load config returned error: %v", err)
+	}
+	if got, want := cfg.Paths.SpecsDir, "docs/specs/active"; got != want {
+		t.Fatalf("expected specs_dir=%q, got %q", want, got)
+	}
+	if got, want := cfg.Paths.ArchiveDir, "docs/specs/archived"; got != want {
+		t.Fatalf("expected archive_dir=%q, got %q", want, got)
+	}
+	for _, rel := range []string{
+		filepath.Join("docs", "specs", "active", ".gitkeep"),
+		filepath.Join("docs", "specs", "archived", ".gitkeep"),
+	} {
+		if _, err := os.Stat(filepath.Join(root, rel)); err != nil {
+			t.Fatalf("expected %s to exist: %v", rel, err)
+		}
+	}
+}
+
+func TestRefreshCommandCanMoveSpecsRoot(t *testing.T) {
+	root := t.TempDir()
+
+	if _, _, err := executeRoot(t, "init", root, "--git=false", "--lang", "en", "--shell", "sh"); err != nil {
+		t.Fatalf("init command returned error: %v", err)
+	}
+	specPath := filepath.Join(root, "specs", "active", "demo", "spec.md")
+	if err := os.MkdirAll(filepath.Dir(specPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll returned error: %v", err)
+	}
+	if err := os.WriteFile(specPath, []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+
+	if _, _, err := executeRoot(t, "refresh", root, "--specs-root", "docs/specs"); err != nil {
+		t.Fatalf("refresh command returned error: %v", err)
+	}
+
+	cfg, err := config.Load(context.Background(), root)
+	if err != nil {
+		t.Fatalf("Load config returned error: %v", err)
+	}
+	if got, want := cfg.Paths.SpecsDir, "docs/specs/active"; got != want {
+		t.Fatalf("expected specs_dir=%q, got %q", want, got)
+	}
+	if got, want := cfg.Paths.ArchiveDir, "docs/specs/archived"; got != want {
+		t.Fatalf("expected archive_dir=%q, got %q", want, got)
+	}
+	if _, err := os.Stat(filepath.Join(root, "docs", "specs", "active", "demo", "spec.md")); err != nil {
+		t.Fatalf("expected feature to move to the new specs root: %v", err)
+	}
+}

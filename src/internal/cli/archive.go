@@ -152,16 +152,34 @@ func archiveFeature(root, slug, status, reason string, copyMode, compact bool) (
 		return result, fmt.Errorf("no spec or hotfix found for %s", slug)
 	}
 
-	if !state.VerifyExists {
-		if cfg.Workflow.VerifyRequired() {
-			return result, fmt.Errorf("verify.md not found - run verify before archiving")
+	// Only completed archives require a finished, proven feature. Non-completed
+	// statuses (deferred/abandoned/rejected/superseded) may park incomplete work.
+	if status == "completed" {
+		if !state.VerifyExists {
+			if cfg.Workflow.VerifyRequired() {
+				return result, fmt.Errorf("verify.md not found - run verify before archiving")
+			}
+		} else if state.VerifyStatus != workflow.StatusPass {
+			return result, fmt.Errorf("verify status is %s - fix before archiving", state.VerifyStatus)
 		}
-	} else if state.VerifyStatus != workflow.StatusPass {
-		return result, fmt.Errorf("verify status is %s - fix before archiving", state.VerifyStatus)
-	}
 
-	if state.TasksOpen > 0 {
-		return result, fmt.Errorf("%d tasks still open - complete before archiving", state.TasksOpen)
+		if state.TasksOpen > 0 {
+			return result, fmt.Errorf("%d tasks still open - complete before archiving", state.TasksOpen)
+		}
+
+		proofResult, proofErr := workflow.CheckProofs(context.Background(), cfg, root, slug)
+		if proofErr != nil {
+			return result, fmt.Errorf("check proofs: %w", proofErr)
+		}
+		if proofResult.Failed {
+			var gaps []string
+			for _, line := range proofResult.Lines {
+				if strings.HasPrefix(line, "ERROR: ") {
+					gaps = append(gaps, strings.TrimPrefix(line, "ERROR: "))
+				}
+			}
+			return result, fmt.Errorf("archive blocked by evidence gaps: %s", strings.Join(gaps, "; "))
+		}
 	}
 
 	// Create archive directory

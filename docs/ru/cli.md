@@ -48,6 +48,7 @@ powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.c
 ```bash
 speckeep init
 speckeep init my-project --lang ru --shell sh
+speckeep init my-project --lang ru --shell sh --specs-root docs/specs
 speckeep init my-project --lang ru --shell sh --specs-dir .speckeep/specifications --archive-dir .speckeep/artifacts/archive --constitution-file docs/constitution.md
 speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --shell powershell --agents claude --agents cursor
 ```
@@ -57,8 +58,9 @@ speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --she
 - `--git` инициализирует Git-репозиторий; по умолчанию включен
 - `--lang` задает базовый язык; по умолчанию `en`
 - `--shell` выбирает семейство генерируемых workflow scripts; обязателен: `sh` или `powershell`
-- `--specs-dir` переопределяет директорию спецификаций (advanced)
-- `--archive-dir` переопределяет директорию архива (advanced)
+- `--specs-root` задаёт корень спек: `<root>/active` для фич и `<root>/archived` для архива (рекомендуется для кастомного layout)
+- `--specs-dir` переопределяет **точную** директорию активных спек (advanced)
+- `--archive-dir` переопределяет **точную** директорию архива (advanced)
 - `--constitution-file` переопределяет путь к конституции проекта (advanced)
 - `--docs-lang` задает язык генерируемой документации
 - `--agent-lang` задает язык генерируемых промтов и guidance для агентов
@@ -80,9 +82,9 @@ speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --she
 	Эта команда не обновляет:
 
 	- файл конституции (`project.constitution_file`, по умолчанию `CONSTITUTION.md`)
-	- содержимое `specs_dir/**` (но может безопасно перенести директорию при `--specs-dir`)
+	- содержимое `specs_dir/**` (но может безопасно перенести директорию при `--specs-root` или точном `--specs-dir`)
 	- содержимое `specs_dir/<slug>/plan/**`
-	- содержимое `archive_dir/**` (но может безопасно перенести директорию при `--archive-dir`)
+	- содержимое `archive_dir/**` (но может безопасно перенести директорию при `--specs-root` или точном `--archive-dir`)
 
 Lean-модель артефактов теперь является дефолтной для generated guidance и readiness checks. В существующих feature package ещё могут лежать legacy `summary.md`, `spec.digest.md` или `plan.digest.md`, но refresh их больше не требует, а новые workspace на них не опираются.
 
@@ -99,8 +101,9 @@ speckeep refresh my-project --agent-lang ru --json
 	- `--lang`, `--docs-lang`, `--agent-lang`, `--comments-lang` переопределяют существующие language settings из config
 	- `--shell` переопределяет семейство генерируемых workflow scripts
 	- `--constitution-file` переопределяет путь к конституции в config (и безопасно переносит существующий файл, когда это возможно)
-	- `--specs-dir` переопределяет `paths.specs_dir` (и безопасно переносит существующую директорию спецификаций, когда это возможно)
-	- `--archive-dir` переопределяет `paths.archive_dir` (и безопасно переносит существующую директорию архива, когда это возможно)
+	- `--specs-root` задаёт `<root>/active` + `<root>/archived` и безопасно переносит существующие директории, когда это возможно
+	- `--specs-dir` переопределяет `paths.specs_dir` точно (и безопасно переносит существующую директорию спецификаций, когда это возможно)
+	- `--archive-dir` переопределяет `paths.archive_dir` точно (и безопасно переносит существующую директорию архива, когда это возможно)
 	- `--agents` переопределяет набор включенных project-local agent targets
 	- `--dry-run` показывает pending changes без записи на диск
 	- `--json` выводит результат refresh в JSON
@@ -381,6 +384,29 @@ speckeep demo ./my-demo --agents claude
 ```bash
 speckeep export export-report
 speckeep export export-report my-project --output export-report-bundle.md
+```
+
+### `speckeep finish <slug> [path]`
+
+Локальное закрытие: архивирует завершённую фичу, коммитит архивный снимок на feature-ветке, мерджит ветку в базовую через `--no-ff` и удаляет локальную feature-ветку.
+
+Предусловия: archive-ready (`Proof:` у каждой `[x]` задачи, verify-policy соблюдена), checked out feature/hotfix-ветка, чистое worktree и существующая **локальная** target-ветка (по умолчанию `main`, затем `master`; переопределяется `--into`, например `--into dev`).
+
+Флаги:
+
+- `--into <branch>` — target-ветка
+- `--branch <name>` — feature/hotfix-ветка (по умолчанию `feature/<slug>` или `hotfix/<slug>`)
+- `--keep-branch` — не удалять локальную feature-ветку после merge
+- `--dry-run` — проверить и показать план без изменений
+- `--json` — машинно-читаемый вывод
+
+Никогда не делает push и не удаляет remote-ветки. Используйте `speckeep archive`, если merge идёт через PR, или для deferred/abandoned фич.
+
+```bash
+speckeep finish export-report .
+speckeep finish export-report . --into main
+speckeep finish export-report . --into dev
+speckeep finish export-report . --dry-run
 ```
 
 ### `speckeep list-archive [path]`

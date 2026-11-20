@@ -139,6 +139,8 @@ Generated skills include:
 
 After `verify: pass`, prefer the explicit CLI follow-up `speckeep archive <slug> .` so archiving stays outside the agent reasoning loop. Default archive status is `completed`; non-`completed` statuses require an explicit `--reason`. For `completed`, it is fine (and cheap) to reuse `verify-task-state.sh` before creating the snapshot.
 
+For local merge workflows, `speckeep finish <slug> .` wraps archive with a `--no-ff` merge into the base branch and deletes the local feature branch. It requires the feature/hotfix branch checked out and a clean worktree; it never pushes or deletes remote branches. Prompts offer `archive` as the primary close and `finish` as the explicit alt for a merge/close request.
+
 ## Maintenance Commands
 
 Use the public CLI to manage agent targets safely:

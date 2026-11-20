@@ -48,6 +48,7 @@ Examples:
 ```bash
 speckeep init
 speckeep init my-project --lang en --shell sh
+speckeep init my-project --lang en --shell sh --specs-root docs/specs
 speckeep init my-project --lang en --shell sh --specs-dir .speckeep/specifications --archive-dir .speckeep/artifacts/archive --constitution-file docs/constitution.md
 speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --shell powershell --agents claude --agents cursor
 ```
@@ -57,8 +58,9 @@ Important flags:
 - `--git` initializes a Git repository when true; default is enabled
 - `--lang` sets the base language; default is `en`
 - `--shell` selects the generated workflow script family; required: `sh` or `powershell`
-- `--specs-dir` overrides the specs directory (advanced)
-- `--archive-dir` overrides the archive directory (advanced)
+- `--specs-root` sets the specs root: `<root>/active` for features and `<root>/archived` for the archive (recommended for custom layouts)
+- `--specs-dir` overrides the **exact** active specs directory (advanced)
+- `--archive-dir` overrides the **exact** archive directory (advanced)
 - `--constitution-file` overrides the constitution file path (advanced)
 - `--docs-lang` sets the generated documentation language
 - `--agent-lang` sets the generated prompt and agent guidance language
@@ -80,9 +82,9 @@ This command updates:
 This command does not update:
 
 - the constitution file (`project.constitution_file`, default: `CONSTITUTION.md`)
-- contents under `specs_dir/**` (but it can safely move the directory with `--specs-dir`)
+- contents under `specs_dir/**` (but it can safely move the directory with `--specs-root` or exact `--specs-dir`)
 - contents under `specs_dir/<slug>/plan/**`
-- contents under `archive_dir/**` (but it can safely move the directory with `--archive-dir`)
+- contents under `archive_dir/**` (but it can safely move the directory with `--specs-root` or exact `--archive-dir`)
 
 Lean artifact layout is now the default for generated guidance and readiness checks. Existing feature packages may still contain legacy `summary.md`, `spec.digest.md`, or `plan.digest.md`, but refresh no longer requires them and new workspaces do not depend on them.
 
@@ -99,8 +101,9 @@ Important flags:
 - `--lang`, `--docs-lang`, `--agent-lang`, `--comments-lang` override the existing configured languages
 - `--shell` overrides the generated workflow script family
 - `--constitution-file` overrides the configured constitution file path (and safely moves the existing file when possible)
-- `--specs-dir` overrides `paths.specs_dir` (and safely moves the existing specs directory when possible)
-- `--archive-dir` overrides `paths.archive_dir` (and safely moves the existing archive directory when possible)
+- `--specs-root` sets `<root>/active` + `<root>/archived` and safely moves the existing directories when possible
+- `--specs-dir` overrides `paths.specs_dir` exactly (and safely moves the existing specs directory when possible)
+- `--archive-dir` overrides `paths.archive_dir` exactly (and safely moves the existing archive directory when possible)
 - `--agents` overrides enabled project-local agent targets
 - `--dry-run` reports pending managed changes without writing them
 - `--json` outputs the refresh result as JSON
@@ -373,6 +376,29 @@ Use `--output <file>` to write to a file instead of stdout.
 ```bash
 speckeep export export-report
 speckeep export export-report my-project --output export-report-bundle.md
+```
+
+### `speckeep finish <slug> [path]`
+
+Local-merge close: archives the completed feature, commits the archive snapshot on the feature branch, merges the branch into the base branch with `--no-ff`, and deletes the local feature branch.
+
+Preconditions: archive-ready (`Proof:` on every `[x]` task, verify policy met), the feature/hotfix branch checked out, a clean worktree, and an existing **local** target branch (default: `main`, then `master`; override with `--into`, e.g. `--into dev`).
+
+Flags:
+
+- `--into <branch>` — target branch
+- `--branch <name>` — feature/hotfix branch (default: `feature/<slug>` or `hotfix/<slug>`)
+- `--keep-branch` — keep the local feature branch after merging
+- `--dry-run` — validate and print the plan without changing anything
+- `--json` — machine-readable output
+
+Never pushes and never deletes a remote branch. Use `speckeep archive` when merging via a pull request, or for deferred/abandoned features.
+
+```bash
+speckeep finish export-report .
+speckeep finish export-report . --into main
+speckeep finish export-report . --into dev
+speckeep finish export-report . --dry-run
 ```
 
 ### `speckeep list-archive [path]`

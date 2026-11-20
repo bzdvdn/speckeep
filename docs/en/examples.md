@@ -369,7 +369,7 @@ speckeep archive partner-scheduling .
 
 Expected CLI behavior:
 
-- for `completed` status, validate verify/task prerequisites and stop with a clear error if open tasks remain
+- for `completed` status, validate verify/task prerequisites and stop with a clear error if open tasks remain or closed tasks lack `Proof:` entries
 - copy the feature package into `specs/archived/partner-scheduling/<YYYY-MM-DD>/`
 - write `summary.md`
 

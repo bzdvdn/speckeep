@@ -4,6 +4,8 @@ Load this file only when the current phase did not name the command you need. Ph
 
 Default for a new feature: `/spk-propose` → `/spk-implement`. A request like "build X with SpecKeep" routes to `/spk-propose`; name `/spk-spec` for an ambiguous or multi-feature idea, or `/spk-plan` for design work. Plan is opt-in.
 
+`Ready for` may include an `(alt: ...)` parenthetical; the first command is the primary/safe default.
+
 ## Phases (readiness-gated)
 
 - `/spk-constitution` — create/update the project constitution
@@ -30,6 +32,7 @@ Run `./.speckeep/scripts/check-ready[SCRIPT_EXT] <phase> <slug>` before a gated 
 - `/spk-rollback` — roll back completed tasks
 - `/spk-hotfix` — emergency fix outside the phase chain (≤ 3 files, no re-planning)
 
-## Archive (CLI-only)
+## Close (CLI-only)
 
-- `speckeep archive <slug> .` — only when the feature is deterministically proven (all `[x]` tasks have `Proof:`) or after `verify: pass`; with `workflow.verify: required`, archive requires `verify: pass`.
+- `speckeep archive <slug> .` — default: archive artifacts only (PR/manual merge, deferred/abandoned). Completed archives require closed tasks, `Proof:` on every `[x]` task, and `verify: pass` when `workflow.verify: required`; non-completed statuses may park incomplete work. Legacy completed features without `Proof:` must add evidence or be archived with a non-completed status and a reason.
+- `speckeep finish <slug> .` — local close: archive + commit the snapshot + merge `--no-ff` into the base branch + delete the local feature branch. Use only when the user explicitly asks to merge/close. If the user names a target branch, pass `--into <branch>` (e.g. `--into dev`); it must exist locally. Never pushes or deletes remote branches.

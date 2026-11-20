@@ -13,6 +13,7 @@ func newInitCmd() *cobra.Command {
 	var agentLang string
 	var commentsLang string
 	var shell string
+	var specsRoot string
 	var specsDir string
 	var archiveDir string
 	var constitutionFile string
@@ -29,7 +30,7 @@ Creates the .speckeep/ directory structure (config/templates/scripts), creates t
 Notes:
   - Template files are created only if missing (existing files are kept).
   - The managed SpecKeep block in AGENTS.md is inserted/updated automatically.`,
-		Example: "  speckeep init . --lang en --shell sh --agents codex\n  speckeep init /path/to/repo --git=false --lang en --shell sh",
+		Example: "  speckeep init . --lang en --shell sh --agents codex\n  speckeep init . --specs-root docs/specs --lang en --shell sh\n  speckeep init /path/to/repo --git=false --lang en --shell sh",
 		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.Print(renderSpecgateBanner(cmd))
@@ -46,6 +47,7 @@ Notes:
 				AgentLang:        agentLang,
 				CommentsLang:     commentsLang,
 				Shell:            shell,
+				SpecsRoot:        specsRoot,
 				SpecsDir:         specsDir,
 				ArchiveDir:       archiveDir,
 				ConstitutionFile: constitutionFile,
@@ -67,8 +69,9 @@ Notes:
 	cmd.Flags().StringVar(&agentLang, "agent-lang", "", "language for generated agent prompts and AGENTS guidance: en or ru")
 	cmd.Flags().StringVar(&commentsLang, "comments-lang", "", "preferred language for code comments: en or ru")
 	cmd.Flags().StringVar(&shell, "shell", "", "shell for generated workflow scripts: sh or powershell")
-	cmd.Flags().StringVar(&specsDir, "specs-dir", "", "override specs directory (advanced): e.g. specs or docs/specs")
-	cmd.Flags().StringVar(&archiveDir, "archive-dir", "", "override archive directory (advanced): e.g. archive or docs/archive")
+	cmd.Flags().StringVar(&specsRoot, "specs-root", "", "override the specs root: use <root>/active and <root>/archived (recommended for custom layouts)")
+	cmd.Flags().StringVar(&specsDir, "specs-dir", "", "override the exact active specs directory (advanced): e.g. specs or docs/specs")
+	cmd.Flags().StringVar(&archiveDir, "archive-dir", "", "override the exact archive directory (advanced): e.g. archive or docs/archive")
 	cmd.Flags().StringVar(&constitutionFile, "constitution-file", "", "override constitution file path (advanced): e.g. CONSTITUTION.md or docs/constitution.md")
 	cmd.Flags().StringSliceVar(&agentTargets, "agents", nil, "generate project-local agent command files for one or more targets: "+agents.TargetOptionsText()+", all")
 	cmd.Flags().StringSliceVar(&legacyAgentTargets, "agent", nil, "deprecated alias for --agents")

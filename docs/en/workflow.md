@@ -224,7 +224,7 @@ For every completed task (`[x]`) in `tasks.md`, write a `Proof:` line directly u
 
 - format: `Proof: <kind> <path> [<anchor>]`, where `kind` is `code|test|docs|chore`, `path` is a repo-root-relative path, and `anchor` is the owning function/test/type name (optional but recommended)
 - examples: `Proof: code src/handlers/export.go ExportHandler`, `Proof: test src/tests/export_test.go TestExportFlow`, `Proof: docs docs/export.md`
-- a `[x]` task without at least one `Proof:` entry is NOT done; `speckeep check` and `speckeep archive` block it
+- a `[x]` task without at least one `Proof:` entry is NOT done; `speckeep check` and a `completed` archive block it
 - `Proof:` entries MUST point to existing files (missing file is a hardened error); anchors SHOULD resolve to owning symbols (missing anchor is a warning)
 
 Change attribution is separate from proof: `Touches:` records what a task plans to change, while `Proof:` records the evidence. Right after creating `feature/<slug>`, pin the base commit with `speckeep trace init <slug>`; `speckeep trace <slug> --files` then shows the actual diff mapped to tasks, and `speckeep trace --file <path>` answers "which spec changed this file" across active and archived features. Archive stores the mapping in `changes.json`.
@@ -290,9 +290,13 @@ Note: generated `.speckeep/scripts/*` wrappers compute the project root from the
 
 Copies a completed, superseded, rejected, abandoned, or deferred feature package into `specs/archived/<slug>/<YYYY-MM-DD>/`.
 
-Archive is CLI-only and allowed when the feature is deterministically proven — every `[x]` task has at least one `Proof:` entry — or after `verify: pass`. A `verify.md` present with status other than `pass` vetoes archiving. The archive script validates task and proof state internally and returns a clear error if prerequisites are not met. Default archive status is `completed`; other statuses (`superseded`, `abandoned`, `rejected`, `deferred`) require an explicit `--reason`.
+Archive is CLI-only. For `completed`, the feature must be deterministically proven — no open tasks, every `[x]` task has a valid `Proof:`, and the verify policy is satisfied; a `verify.md` with status other than `pass` vetoes archiving. `superseded`, `abandoned`, `rejected`, and `deferred` skip those gates and may archive incomplete work (they still require an explicit `--reason`). Default archive status is `completed`. Legacy `completed` features without `Proof:` must add evidence or be archived with a non-completed status and a reason.
 
 `--compact` archives lean: it stores only `summary.md` plus a `snapshot.sha` git pointer (branch + commit + file list) instead of copying every artifact — the full history already lives in git. Restore (`--restore`) re-creates the files via `git show`. Compact requires committed artifacts and a git repo.
+
+### `finish`
+
+Local-merge close for a completed feature: `speckeep finish <slug> .` archives the feature, commits the archive snapshot on the feature branch, merges the branch into the base branch with `--no-ff`, and deletes the local feature branch. It requires the feature/hotfix branch checked out and a clean worktree; the target defaults to `main`, then `master` (`--into <branch>` overrides, e.g. `--into dev`; the branch must exist locally). It never pushes and never deletes remote branches. Use `archive` instead when merging via a pull request, or for deferred/abandoned features.
 
 ## Why This Chain Exists
 

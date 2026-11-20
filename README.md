@@ -67,6 +67,7 @@ speckeep solves this with **discipline per token** — minimal file-based struct
 - **Express lane** — tiny/low-risk features skip `plan.md`/`data-model.md` and close from `spec.md` + `tasks.md`
 - **One-shot propose** (`/spk-propose`) — idea → `spec.md` + `tasks.md` in a single pass, straight to implement
 - **Drop-in migration** (`speckeep import openspec|speckit`) — convert OpenSpec/Spec Kit feature packages into speckeep layout in seconds
+- **Local finish** (`speckeep finish`) — archive, merge `--no-ff`, and delete the local feature branch; `archive` remains for PR/manual merge
 - **Compact archive** (`--compact`) — keep only `summary.md` + git pointer instead of copying every artifact
 - **Module context** (`/spk-module-context`) — ask the agent to write/refresh a folder's `CONTEXT.md` ("what/how/why"), indexed from `REPOSITORY_MAP.md` so agents onboarding into a module/app don't lose context
 
@@ -79,7 +80,7 @@ Results in practice: agents produce correct code on first try more often, handof
 ```
 constitution → spec → [inspect] → [plan] → tasks → implement → archive
 ```
-`verify` is an optional on-demand audit; archive is allowed once every `[x]` task carries a `Proof:` entry (or after `verify: pass`). Start a new feature with `/spk-propose` (recommended default): a natural-language request like "build X with SpecKeep" routes there; `/spk-plan` is opt-in for design-heavy work.
+`verify` is an optional on-demand audit; a `completed` archive requires every `[x]` task to carry a `Proof:` entry (or `verify: pass`), while `deferred`/`abandoned` can archive incomplete work with a reason. Start a new feature with `/spk-propose` (recommended default): a natural-language request like "build X with SpecKeep" routes there; `/spk-plan` is opt-in for design-heavy work.
 
 Each phase loads only the minimum context. Optional workflow commands available at any phase: `/spk-challenge`, `/spk-handoff`, `/spk-hotfix`, `/spk-scope`, `/spk-recap`.
 
@@ -300,7 +301,7 @@ During implementation, record evidence for each completed task as a `Proof:` lin
   Proof: test src/tests/export_test.go TestExportFlow
 ```
 
-`Proof: <kind> <path> [<anchor>]`, where `kind` is `code|test|docs|chore`. A checked task without a `Proof:` entry is not done — `speckeep check` and `speckeep archive` block it. Evidence is read only from `tasks.md`; there are no trace markers in source code.
+`Proof: <kind> <path> [<anchor>]`, where `kind` is `code|test|docs|chore`. A checked task without a `Proof:` entry is not done — `speckeep check` and a `completed` archive block it. Evidence is read only from `tasks.md`; there are no trace markers in source code.
 
 Verify with:
 

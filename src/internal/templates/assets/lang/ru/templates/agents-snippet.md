@@ -33,6 +33,7 @@
   - `workflow.verify: optional` (или нет ключа) → verify on-demand; archive разрешён, когда все `[x]` имеют `Proof:`. `verify.md` со status ≠ `pass` — вето на archive.
 - Discovery: не запускай `speckeep --help` для разведки; используй prompt-файлы и readiness scripts.
 - CLI: `./.speckeep/scripts/run-speckeep[SCRIPT_EXT]` — только для реальных CLI-команд (`doctor`, `check`, `trace`, `export`, `refresh`). Не запускай `run-speckeep[SCRIPT_EXT] <phase>`: фазы — slash-команды, артефакты пишутся напрямую.
+- Close: по умолчанию `speckeep archive` (PR/ручной merge, deferred/abandoned). Только если пользователь явно просит merge/close локальной feature-ветки — `speckeep finish` (archive + merge --no-ff + удаление локальной ветки). Если пользователь называет target-ветку (`dev`, `release/1.4`), передай `--into <branch>`; она должна существовать локально. Никогда не push и не удаляй remote-ветки.
 - Вывод: без больших `git diff`, полных файлов и простыней логов; краткое резюме + список файлов, детали — небольшим фрагментом.
 - Scope: не читай/меняй артефакты других slug без явной необходимости.
 - Don't invent: не добавляй требования, зависимости, scope или AC, которых нет во входных артефактах.

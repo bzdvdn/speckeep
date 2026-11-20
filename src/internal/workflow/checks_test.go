@@ -716,3 +716,35 @@ func TestCheckPlanContentDetectsACMismatch(t *testing.T) {
 		t.Fatalf("expected plan_unknown_ac_reference for AC-999, got %+v", result.Findings)
 	}
 }
+
+func TestCheckArchiveReadyAllowsDeferredWithOpenTasks(t *testing.T) {
+	root := t.TempDir()
+
+	_, err := project.Initialize(root, project.InitOptions{
+		InitGit:     false,
+		DefaultLang: "en",
+		Shell:       "sh",
+	})
+	if err != nil {
+		t.Fatalf("Initialize returned error: %v", err)
+	}
+
+	specDir := filepath.Join(checksSpecsDir(t, root), "demo")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll(specDir) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(specDir, "spec.md"), []byte("# Demo\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(spec) returned error: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(specDir, "tasks.md"), []byte("- [ ] T1.1 open\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile(tasks) returned error: %v", err)
+	}
+
+	result, err := CheckArchiveReady(context.Background(), config.Default(), root, "demo", "deferred", "parked")
+	if err != nil {
+		t.Fatalf("CheckArchiveReady returned error: %v", err)
+	}
+	if result.Failed {
+		t.Fatalf("deferred archive should allow open tasks, got %+v", result.Lines)
+	}
+}

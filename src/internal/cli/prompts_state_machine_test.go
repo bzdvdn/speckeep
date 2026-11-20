@@ -51,7 +51,7 @@ func TestPromptsNextCommandsMatchStateMachine(t *testing.T) {
 		{phase: "tasks", prompts: []string{"spec", "inspect", "plan"}}, // default next step (plan is optional)
 		{phase: "implement", prompts: []string{"tasks", "verify"}},     // post-tasks + verify concerns path
 		{phase: "verify", prompts: []string{"implement", "handoff", "hotfix"}},
-		{phase: "archive", prompts: []string{"implement", "handoff", "hotfix", "verify"}},
+		{phase: "archive", prompts: []string{"implement", "converge", "handoff", "hotfix", "verify"}},
 	}
 
 	for _, tc := range cases {

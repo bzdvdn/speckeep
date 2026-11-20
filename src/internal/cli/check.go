@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"speckeep/src/internal/config"
+	"speckeep/src/internal/gitutil"
 	"speckeep/src/internal/workflow"
 )
 
@@ -17,6 +18,7 @@ type checkResult struct {
 	Phase         string                  `json:"phase"`
 	Verdict       string                  `json:"verdict"`
 	NextCommand   string                  `json:"next_command,omitempty"`
+	AltCommand    string                  `json:"alt_command,omitempty"`
 	Blocked       bool                    `json:"blocked"`
 	Artifacts     checkArtifacts          `json:"artifacts"`
 	CheckSummary  *checkFindingSummary    `json:"check_summary,omitempty"`
@@ -197,6 +199,7 @@ func buildCheckResult(ctx context.Context, cfg config.Config, root string, state
 	}
 
 	result.NextCommand = nextCommand(state)
+	result.AltCommand = finishAltCommand(ctx, root, state)
 
 	phaseResult, err := phaseCheckResult(ctx, cfg, root, state)
 	if err != nil {
@@ -242,6 +245,35 @@ func nextCommand(state workflow.FeatureState) string {
 	}
 }
 
+func finishAltCommand(ctx context.Context, root string, state workflow.FeatureState) string {
+	if state.Archived || state.Blocked || state.ReadyFor != "archive" {
+		return ""
+	}
+	if !gitutil.IsRepository(ctx, root) {
+		return ""
+	}
+	branch := "feature/" + state.Slug
+	if state.HotfixExists && !state.SpecExists {
+		branch = "hotfix/" + state.Slug
+	}
+	exists, err := gitutil.BranchExists(ctx, root, branch)
+	if err != nil || !exists {
+		return ""
+	}
+	current, err := gitutil.CurrentBranch(ctx, root)
+	if err != nil || current != branch {
+		return ""
+	}
+	if _, err := gitutil.DefaultTargetBranch(ctx, root); err != nil {
+		return ""
+	}
+	clean, err := gitutil.WorktreeClean(ctx, root)
+	if err != nil || !clean {
+		return ""
+	}
+	return "speckeep finish " + state.Slug + " ."
+}
+
 func printCheck(cmd *cobra.Command, state workflow.FeatureState, result checkResult, verifyRequired bool) {
 	w := cmd.OutOrStdout()
 
@@ -254,12 +286,16 @@ func printCheck(cmd *cobra.Command, state workflow.FeatureState, result checkRes
 		verdictLine = styleError(w, "blocked")
 	}
 
-	printPanel(w, "speckeep check", []string{
+	panel := []string{
 		"feature: " + state.Slug,
 		"phase: " + strings.ToUpper(state.Phase),
 		"verdict: " + verdictLine,
 		"next: " + nextLine,
-	})
+	}
+	if result.AltCommand != "" {
+		panel = append(panel, "alt: "+styleCmd(w, result.AltCommand))
+	}
+	printPanel(w, "speckeep check", panel)
 
 	printPanel(w, "Artifacts", []string{
 		"spec: " + artifactLine(w, state.SpecExists, ""),
@@ -290,6 +326,9 @@ func printCheck(cmd *cobra.Command, state workflow.FeatureState, result checkRes
 	fmt.Fprintf(w, "verdict:  %s\n", result.Verdict)
 	if result.NextCommand != "" {
 		fmt.Fprintf(w, "next:     %s\n", result.NextCommand)
+	}
+	if result.AltCommand != "" {
+		fmt.Fprintf(w, "alt:      %s\n", result.AltCommand)
 	}
 	if result.CheckSummary != nil && (result.CheckSummary.Errors > 0 || result.CheckSummary.Warnings > 0) {
 		fmt.Fprintf(w, "checks:   %s\n", renderCheckSummary(*result.CheckSummary))

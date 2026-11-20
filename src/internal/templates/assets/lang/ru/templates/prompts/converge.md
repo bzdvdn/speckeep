@@ -36,4 +36,4 @@
 ## Ожидания по выводу
 
 - Строка вердикта: `Status: converged` или `Status: gaps-found` (+ список оставшихся разрывов).
-- При сходимости: `Ready for: speckeep archive <slug> .`; иначе: `Next: <follow-up задачи> — затем повторите speckeep converge <slug>`.
+- При сходимости: `Ready for: speckeep archive <slug> . (alt: speckeep finish <slug> . для локального merge)`; иначе: `Next: <follow-up задачи> — затем повторите speckeep converge <slug>`.

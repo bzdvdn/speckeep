@@ -61,6 +61,6 @@ Stop if: `tasks.md` is missing, the next task is not concrete, execution require
   - Reference `/spk-implement <slug>` again only for a fresh session (cleared context) that needs to re-enter implementation.
 - If no open tasks remain (every `[x]` task carries a `Proof:` line), final line depends on `workflow.verify`:
   - `required`: `Ready for: /spk-verify <slug>`
-  - `optional` (default/absent): `Ready for: speckeep converge <slug>` (fast closing loop; then `speckeep archive <slug> .` once converged; a full audit remains available via `/spk-verify <slug>`)
+  - `optional` (default/absent): `Ready for: speckeep converge <slug>` (fast closing loop; then `speckeep archive <slug> . (alt: speckeep finish <slug> . for local merge)` once converged; a full audit remains available via `/spk-verify <slug>`)
 - End with the canonical end block from `AGENTS.md` (Slug / Status / Artifacts / Blockers / Ready for).
 - Do not emit `/spk-implement <slug>` when no tasks remain, and do not emit a converge/verify/archive line while open tasks remain.
