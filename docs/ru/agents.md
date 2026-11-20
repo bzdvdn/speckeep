@@ -107,6 +107,7 @@ Agent-facing workflow в SpecKeep:
 - `/spk-grill` — опциональное pre-spec интервью: раскрывает design tree до появления spec (без артефактов по умолчанию, cap 3 раунда / 12 вопросов).
 - `/spk-research` — опциональное техническое research: исследует конкретную неизвестность и пишет cited `research.md`.
 - `/spk-diagnose` — опциональный bug-цикл (reproduce → minimize → hypothesize → instrument → fix → regression); если причина известна — `/spk-hotfix`.
+- `/spk-resume` — тонкое возобновление в сессии: печатает пакет состояния ≤8 строк (фаза, задачи, следующая открытая задача, блокеры) и передаёт управление фазовому скиллу. Без артефакта; `/spk-handoff` — когда вывод нужно передать другому.
 - `/spk-repo-map` — ведёт `REPOSITORY_MAP.md` («что где»: entrypoints, ключевые пути, where-to-edit и индекс `## Modules & Context`).
 - `/spk-module-context <path>` — агент читает папку и пишет/обновляет `<path>/CONTEXT.md` (purpose, как устроен, контракты, gotchas). `REPOSITORY_MAP.md` указывает на эти файлы, чтобы агент, заходя в модуль/приложение, стартовал с его контекста, а не выводил архитектуру заново.
 

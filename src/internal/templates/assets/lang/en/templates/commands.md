@@ -31,6 +31,7 @@ Run `./.speckeep/scripts/check-ready[SCRIPT_EXT] <phase> <slug>` before a gated 
 - `/spk-challenge` — adversarial review of spec/plan
 - `/spk-scope` — quick scope boundary check
 - `/spk-handoff` — session handoff doc for one feature
+- `/spk-resume` — minimal in-session resume: state packet + next task (no artifact)
 - `/spk-recap` — project overview: active features, phase, next step
 - `/spk-rollback` — roll back completed tasks
 - `/spk-hotfix` — emergency fix outside the phase chain (≤ 3 files, no re-planning)

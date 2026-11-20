@@ -40,6 +40,11 @@ generated_at: <YYYY-MM-DD>
 
 - none
 
+## Review
+
+- findings only, max 10: `blocker|major|minor — <path>:<line> — <why>`
+- `skipped (no diff)` when no git diff is available
+
 ## Questions
 
 - none

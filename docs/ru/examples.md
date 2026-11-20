@@ -815,6 +815,27 @@ Next command: /spk-implement partner-scheduling --tasks T2.1
 Вставьте это в новую сессию (или передайте коллеге) — и следующий агент
 получает всё нужное без перечитывания `spec.md`/`plan.md` целиком.
 
+### Рецепт: Возобновление на месте через `/spk-resume`
+
+Какую проблему решает: вы садитесь продолжать фичу и не хотите перечитывать
+четыре артефакта или ждать handoff-документ.
+
+```text
+/spk-resume partner-scheduling
+```
+
+```text
+Slug: partner-scheduling
+Phase: implement
+Tasks: 2/6 (next: T2.1 — подключить lookup override в scheduler)
+Blockers: none
+Artifacts: spec, plan, tasks
+Готово к: /spk-implement partner-scheduling
+```
+
+Затем вызовите названный фазовый скилл. `/spk-resume` ничего не пишет в репо;
+`/spk-handoff` — когда пакет нужно передать другому человеку.
+
 ### Рецепт: Обзор всего проекта через `/spk-recap`
 
 Какую проблему решает: "какое состояние у всего?" по нескольким активным

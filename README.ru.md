@@ -83,7 +83,7 @@ constitution → spec → [inspect] → [plan] → tasks → implement → archi
 ```
 `verify` — опциональный on-demand аудит; `completed`-архив требует `Proof:` у каждой задачи `[x]` (или `verify: pass`), а `deferred`/`abandoned` могут архивировать незавершённую работу с указанием причины. Новую фичу начинайте с `/spk-propose` (рекомендуемый дефолт): запрос вида «сделай X по SpecKeep» ведёт туда; `/spk-plan` — opt-in для фич с дизайном.
 
-Каждая фаза загружает только минимум контекста. Опциональные команды на любой фазе: `/spk-grill`, `/spk-research`, `/spk-diagnose`, `/spk-challenge`, `/spk-handoff`, `/spk-hotfix`, `/spk-scope`, `/spk-recap`.
+Каждая фаза загружает только минимум контекста. Опциональные команды на любой фазе: `/spk-grill`, `/spk-research`, `/spk-diagnose`, `/spk-challenge`, `/spk-handoff`, `/spk-resume`, `/spk-hotfix`, `/spk-scope`, `/spk-recap`.
 
 ---
 

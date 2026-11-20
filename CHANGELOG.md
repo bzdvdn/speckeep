@@ -9,6 +9,7 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **`/spk-resume`**: optional thin resume for a fresh session. It prints an ≤8-line state packet (phase, tasks done/total, next open task, blockers, present artifacts) and hands over to the phase skill. It creates no artifact and is explicitly distinct from `/spk-handoff` (which produces a shareable handoff document).
 - **`/spk-research`**: optional technical research that resolves 1–5 concrete unknowns against primary sources and writes a cited `research.md`.
 - **`/spk-diagnose`**: optional bug diagnosis loop (reproduce → minimize → hypothesize → instrument → fix → regression) with a hard cap and a clear boundary against `/spk-hotfix`.
 - **`/spk-grill`**: optional pre-spec interview that resolves a design tree in rounds, with a recommended answer per question and a hard cap of 3 rounds / 12 questions. It writes no artifacts by default and ends by suggesting `/spk-propose` or `/spk-spec`.
@@ -17,7 +18,9 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- **Further context-footprint reduction**: the managed `AGENTS.md` block, `sdd` router, and core phase prompts were compressed (compact role sections, template references instead of inline examples, readiness centralized in generated skills). EN `AGENTS.md` is ~5.0 KB and RU ~6.9 KB; core prompts are ~30 KB EN / ~37 KB RU.
+- **Verify now has two axes**: alongside AC/evidence coverage, `/spk-verify` reviews the implemented diff for engineering standards (duplication, dead code, unhandled errors, weakened tests) and records findings in a `## Review` section of `verify.md`. Findings are capped at 10, use `blocker|major|minor — path:line — why`, and only `blocker` forces the verdict to `blocked`; `verify` stays the single quality gate.
+- **Spec evolution is allowed during implement**: if implementation reveals a missing requirement, the agent updates `spec.md` and `tasks.md` together (new/amended `AC-*` plus the covering task) instead of stopping. `converge`/`check` still block when an AC has no task coverage (`acceptance_not_covered`, `unknown_acceptance_reference`).
+- **Further context-footprint reduction**: the managed `AGENTS.md` block, `sdd` router, and core phase prompts were compressed (compact role sections, template references instead of inline examples, readiness centralized in generated skills). EN `AGENTS.md` is ~5.0 KB and RU ~6.9 KB; core prompts are ~31 KB EN / ~39 KB RU.
 - **Close guidance offers archive or finish**: archive-ready prompts end with `speckeep archive <slug> . (alt: speckeep finish <slug> . for local merge)`, and `speckeep check` prints `alt: speckeep finish <slug> .` when the feature branch is checked out, the worktree is clean, and a base branch exists. `archive` remains the primary/safe default; `finish` is only for an explicit merge/close request.
 
 ### Fixed
@@ -27,6 +30,7 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Testing
 
 - Added `finish` lifecycle tests (success, dry-run, dirty tree, merge conflict, already-archived rerun, missing Proof, keep-branch, branch/target preconditions), archive Proof enforcement tests, and prompt/`check` alt-command consistency tests.
+- Extended prompt contracts: `verify` must keep its `## Review` section and `blocker` severity gate; `resume` is capped at 8 output lines, must not create artifacts, and must stay distinct from `handoff`.
 
 ## [v1.3.0] - 2026-11-19
 

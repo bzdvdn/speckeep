@@ -40,6 +40,11 @@ generated_at: <YYYY-MM-DD>
 
 - none
 
+## Review
+
+- только находки, до 10: `blocker|major|minor — <path>:<line> — <почему>`
+- `skipped (no diff)`, если git diff недоступен
+
 ## Questions
 
 - none

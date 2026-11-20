@@ -813,6 +813,27 @@ Paste that into a fresh session (or hand it to a teammate) and the next
 agent has everything it needs without re-reading `spec.md`/`plan.md` end to
 end.
 
+### Recipe: Resuming In-Place With `/spk-resume`
+
+Problem this solves: you sit down to continue a feature and don't want to
+re-read four artifacts or wait for a handoff document.
+
+```text
+/spk-resume partner-scheduling
+```
+
+```text
+Slug: partner-scheduling
+Phase: implement
+Tasks: 2/6 (next: T2.1 — wire the scheduler override lookup)
+Blockers: none
+Artifacts: spec, plan, tasks
+Ready for: /spk-implement partner-scheduling
+```
+
+Then invoke the named phase skill. `/spk-resume` writes nothing to the repo;
+use `/spk-handoff` when the packet must be shared with someone else.
+
 ### Recipe: A Project-Wide Status Read With `/spk-recap`
 
 Problem this solves: "what's the state of everything?" across several

@@ -365,6 +365,16 @@ func renderPhaseSkill(command CommandDefinition, lang, shell string) (string, er
 	}
 	body = strings.TrimSpace(dropLeadingHeading(body))
 
+	// Auxiliary commands have no readiness gate and often define their own
+	// output shape (recap/scope/resume explicitly forbid the end block), so
+	// the generic gate/end-block reminder would contradict them.
+	followEN := "Follow AGENTS.md; gate: speckeep check <slug> → fix findings or report a blocker. End with the canonical end block and keep the prompt's exact final line."
+	followRU := "Следуй AGENTS.md; гейт: speckeep check <slug> → исправь находки или сообщи blocker. Заверши каноническим end block'ом и сохрани точную финальную строку промпта."
+	if !hasReadyCheck(command.Name) {
+		followEN = "Follow AGENTS.md. No readiness gate. Keep the prompt's exact final line and output format."
+		followRU = "Следуй AGENTS.md. Гейта готовности нет. Сохрани точную финальную строку и формат вывода промпта."
+	}
+
 	if lang == "ru" {
 		return fmt.Sprintf(`---
 name: spk-%s
@@ -377,9 +387,9 @@ description: SpecKeep-фаза «%s» — %s.
 
 ---
 
-Следуй AGENTS.md; гейт: speckeep check <slug> → исправь находки или сообщи blocker. Заверши каноническим end block'ом и сохрани точную финальную строку промпта. Источник: %s.
+%s Источник: %s.
 
-%s`, command.Name, command.Name, command.Description, command.Name, body, promptPath, checkReady), nil
+%s`, command.Name, command.Name, command.Description, command.Name, body, followRU, promptPath, checkReady), nil
 	}
 
 	return fmt.Sprintf(`---
@@ -393,9 +403,9 @@ description: SpecKeep phase "%s" — %s.
 
 ---
 
-Follow AGENTS.md; gate: speckeep check <slug> → fix findings or report a blocker. End with the canonical end block and keep the prompt's exact final line. Source: %s.
+%s Source: %s.
 
-%s`, command.Name, command.Name, command.Description, command.Name, body, promptPath, checkReady), nil
+%s`, command.Name, command.Name, command.Description, command.Name, body, followEN, promptPath, checkReady), nil
 }
 
 // renderFlatCommand renders a plain, frontmatter-free markdown command file
@@ -414,6 +424,13 @@ func renderFlatCommand(command CommandDefinition, lang, invokePrefix, shell stri
 	}
 	body = strings.TrimSpace(dropLeadingHeading(body))
 
+	followEN := "Follow AGENTS.md; gate: speckeep check <slug>. End with the canonical end block."
+	followRU := "Следуй AGENTS.md; гейт: speckeep check <slug>. Заверши каноническим end block'ом."
+	if !hasReadyCheck(command.Name) {
+		followEN = "Follow AGENTS.md. No readiness gate; keep the prompt's output format."
+		followRU = "Следуй AGENTS.md. Гейта готовности нет; сохрани формат вывода промпта."
+	}
+
 	if lang == "ru" {
 		return fmt.Sprintf(`# %s
 
@@ -421,8 +438,8 @@ func renderFlatCommand(command CommandDefinition, lang, invokePrefix, shell stri
 
 %s
 
-%sСледуй AGENTS.md; гейт: speckeep check <slug>. Заверши каноническим end block'ом. Источник: %s.
-`, invoke, command.Description, body, checkReady, promptPath), nil
+%s%s Источник: %s.
+`, invoke, command.Description, body, checkReady, followRU, promptPath), nil
 	}
 
 	return fmt.Sprintf(`# %s
@@ -431,8 +448,8 @@ func renderFlatCommand(command CommandDefinition, lang, invokePrefix, shell stri
 
 %s
 
-%sFollow AGENTS.md; gate: speckeep check <slug>. End with the canonical end block. Source: %s.
-`, invoke, command.Description, body, checkReady, promptPath), nil
+%s%s Source: %s.
+`, invoke, command.Description, body, checkReady, followEN, promptPath), nil
 }
 
 // renderGeminiCommand renders a Gemini CLI custom-command TOML file
@@ -453,6 +470,11 @@ func renderGeminiCommand(command CommandDefinition, lang, shell string) (string,
 	reminders := "Reminders: " + runFirst + "write/patch only the named artifacts; " +
 		"do not expand scope or commit without being asked; end with the end block; " +
 		"gate with speckeep check <slug>; canonical source: " + promptPath
+	if !hasReadyCheck(command.Name) {
+		reminders = "Reminders: write/patch only the named artifacts; " +
+			"do not expand scope or commit without being asked; no readiness gate; " +
+			"keep the prompt's output format; canonical source: " + promptPath
+	}
 	if lang == "ru" {
 		runFirst = ""
 		if hasReadyCheck(command.Name) {
@@ -461,6 +483,11 @@ func renderGeminiCommand(command CommandDefinition, lang, shell string) (string,
 		reminders = "Напоминания: " + runFirst + "создавай/правь только названные артефакты; " +
 			"не расширяй scope и не коммить без просьбы; заверши end block'ом; " +
 			"гейт speckeep check <slug>; канонический источник: " + promptPath
+		if !hasReadyCheck(command.Name) {
+			reminders = "Напоминания: создавай/правь только названные артефакты; " +
+				"не расширяй scope и не коммить без просьбы; гейта готовности нет; " +
+				"сохрани формат вывода промпта; канонический источник: " + promptPath
+		}
 	}
 
 	description := strings.ReplaceAll(command.Description, `"`, `'`)

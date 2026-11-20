@@ -1335,8 +1335,8 @@ func TestContextFootprintBudgets(t *testing.T) {
 		snippet     int
 		corePrompts int
 	}{
-		"en": {snippet: 5500, corePrompts: 31000},
-		"ru": {snippet: 7600, corePrompts: 39000},
+		"en": {snippet: 5500, corePrompts: 33500},
+		"ru": {snippet: 7600, corePrompts: 41500},
 	}
 
 	for lang, budget := range budgets {
@@ -1454,13 +1454,13 @@ func TestPromptContracts(t *testing.T) {
 			finalCommands: []string{"/spk-implement <slug>"},
 		},
 		{
-			name: "implement", maxEN: 6700, maxRU: 6400,
+			name: "implement", maxEN: 7000, maxRU: 7250,
 			required:      append(append([]string{}, common...), "Proof:", "Touches:", "scope violation", "## Output expectations"),
 			finalCommands: []string{"speckeep converge <slug>", "/spk-verify <slug>"},
 		},
 		{
-			name: "verify", maxEN: 6800, maxRU: 6100,
-			required:      append(append([]string{}, common...), "## Self-Check", "Proof:", "Verification Matrix", "Not Verified", "concerns", "blocked", "speckeep archive <slug>", "speckeep finish <slug>"),
+			name: "verify", maxEN: 8400, maxRU: 8900,
+			required:      append(append([]string{}, common...), "## Self-Check", "Proof:", "Verification Matrix", "## Review", "blocker", "Not Verified", "concerns", "blocked", "speckeep archive <slug>", "speckeep finish <slug>"),
 			finalCommands: []string{"speckeep archive <slug>", "speckeep finish <slug>"},
 		},
 	}
@@ -1531,6 +1531,45 @@ func TestGrillPromptContract(t *testing.T) {
 		for _, want := range tc.required {
 			if !strings.Contains(content, want) {
 				t.Errorf("%s grill prompt missing %q", tc.lang, want)
+			}
+		}
+	}
+}
+
+// TestResumePromptContract guards the thin in-session resume: minimal packet,
+// no artifacts, and an explicit boundary against /spk-handoff.
+func TestResumePromptContract(t *testing.T) {
+	cases := []struct {
+		lang     string
+		max      int
+		required []string
+	}{
+		{
+			lang: "en", max: 1800,
+			required: []string{
+				"not `/spk-handoff`", "at most 8 lines", "No files created",
+				"next open task", "Blockers:", "Stop if", "Ready for: /spk-",
+			},
+		},
+		{
+			lang: "ru", max: 2800,
+			required: []string{
+				"не `/spk-handoff`", "не более 8 строк", "Файлы не создаются",
+				"следующую открытую задачу", "Blockers:", "Stop if", "Готово к: /spk-",
+			},
+		},
+	}
+	for _, tc := range cases {
+		content, err := localizedFileContent(tc.lang, "templates/prompts/resume.md")
+		if err != nil {
+			t.Fatalf("%s resume prompt: %v", tc.lang, err)
+		}
+		if len(content) > tc.max {
+			t.Errorf("%s resume prompt is %d bytes, over budget %d", tc.lang, len(content), tc.max)
+		}
+		for _, want := range tc.required {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s resume prompt missing %q", tc.lang, want)
 			}
 		}
 	}

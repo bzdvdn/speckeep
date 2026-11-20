@@ -139,9 +139,12 @@ func TestReadinessReminderOnlyForReadyCheckPhases(t *testing.T) {
 			t.Fatalf("phase %q must advertise readiness", phase)
 		}
 	}
-	for _, phase := range []string{"handoff", "challenge", "scope", "glossary", "recap", "hotfix", "repo-map", "rollback"} {
+	for _, phase := range []string{"handoff", "resume", "challenge", "scope", "glossary", "recap", "hotfix", "repo-map", "rollback"} {
 		if got := content(phase); strings.Contains(got, "check-ready.sh") {
 			t.Fatalf("phase %q has no readiness check and must not advertise one", phase)
+		}
+		if got := content(phase); strings.Contains(got, "gate: speckeep check") {
+			t.Fatalf("phase %q has no readiness gate and must not advertise `speckeep check` as a gate", phase)
 		}
 	}
 }

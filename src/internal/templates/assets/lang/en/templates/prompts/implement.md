@@ -10,7 +10,7 @@ Follow base rules in `AGENTS.md` (paths, git, load discipline, readiness scripts
 
 Inputs: `.speckeep/constitution.summary.md` (preferred when present) or `project.constitution_file` (default: `CONSTITUTION.md`), `<specs_dir>/<slug>/tasks.md`.
 Outputs: repo changes limited to the active task `Touches:` + updated checkboxes in `tasks.md`.
-Stop if: `tasks.md` is missing, the next task is not concrete, execution requires inventing new tasks/AC, or you cannot produce observable proof for the active task before closing.
+Stop if: `tasks.md` is missing, the next task is not concrete, the gap cannot be expressed as a concrete AC/task update, or you cannot produce observable proof for the active task before closing.
 
 ## Execution Rules
 
@@ -28,6 +28,7 @@ Stop if: `tasks.md` is missing, the next task is not concrete, execution require
 - Tests: run only targeted package/tests. Do not run `go test ./...` unless explicitly requested. Do not paste long logs; summarize and include only the last lines when needed.
 - Do not assume `research.md` should exist; only read it if a task explicitly depends on it.
 - No redesign / re-planning. If the task cannot be implemented safely from current artifacts → stop and request refinement.
+- **Spec evolution**: if implementation reveals a missing requirement or a wrong assumption, update `spec.md` and `tasks.md` **together in one step** — new/amended `AC-*` plus a task that covers it — then continue. Never leave the spec ahead of the tasks. This is the only allowed artifact edit during implement; anything larger (new scope, design change) → stop and return to `/spk-tasks` or `/spk-plan`.
 - Prefer minimal patches over full-file rewrites. Do not rewrite a whole file “for simplicity” unless strictly necessary.
 - Record a `Proof: <kind> <path> [<anchor>]` line under every checked task (`kind` = `code|test|docs|chore`); the full rule and examples are in `AGENTS.md`. A `[x]` task without a valid `Proof:` is not done; if proof cannot reference an existing file → stop and explain.
 - Final line: apply the **Verify gate policy** from `AGENTS.md` (`workflow.verify` in `.speckeep/speckeep.yaml`): `required` → end with `/spk-verify`; `optional`/absent → archive allowed once every `[x]` has `Proof:`.

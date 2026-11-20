@@ -102,6 +102,14 @@ func DefaultCommands(shell string) []CommandDefinition {
 			Category:    "workflow",
 		},
 		{
+			Name:        "resume",
+			Description: "Minimal in-session resume: state packet + next task, then hand over to the phase skill",
+			PromptPath:  ".speckeep/templates/prompts/resume.md",
+			Extras:      []string{scriptPath("list-open-tasks", normalizedShell)},
+			Optional:    true,
+			Category:    "workflow",
+		},
+		{
 			Name:        "challenge",
 			Description: "Adversarial review of a feature spec or plan",
 			PromptPath:  ".speckeep/templates/prompts/challenge.md",

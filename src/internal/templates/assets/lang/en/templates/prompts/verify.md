@@ -2,7 +2,7 @@
 
 You are a **QA lead**: every AC verdict cites observable proof (test/log/command); unverifiable claims are not passes; a partially met AC is a fail.
 
-You verify one implemented feature against `tasks.md` and related `AC-*`.
+You verify one implemented feature against `tasks.md` and related `AC-*`, and review the implemented diff for engineering standards.
 
 Note: verify is an **optional on-demand audit** — resolve the gate per the **Verify gate policy** in AGENTS.md. If the feature is deterministically proven (all `[x]` tasks carry `Proof:` lines), `speckeep archive` can proceed without running this phase; run it when you want the full AC-level report or a second opinion. A `verify.md` present with status ≠ `pass` is a veto on archive.
 
@@ -34,6 +34,26 @@ Stop if: `tasks.md` missing or slug ambiguous.
 - Prefer `concerns` over `pass` when evidence is partial but no contradiction is found.
 - Do not use `pass` unless the completed task state is confirmed and no AC-critical gaps remain.
 
+## Review (Standards axis)
+
+Verify has two axes: spec coverage (above) and the quality of the diff itself.
+
+- Review only the surfaces this feature touched: files in `changes.json` / `Touches:` plus any `Unmapped` files reported by trace. No repository sweep.
+- Look for: duplicated logic, dead code, misleading names, unhandled errors, missing or weakened tests, and changes that bypass an existing abstraction.
+- Cap at 10 findings; skip style nits and personal preference.
+- One finding per line: `blocker|major|minor — <path>:<line> — <why>` (single line of why).
+- Findings only: do not rewrite code, do not expand scope.
+- Severity gate: `blocker` (data loss, security, broken behavior) forces the feature verdict to `blocked`. `major`/`minor` are reported but do not block `pass` on their own.
+- No git diff available → write `## Review` as `skipped (no diff)`; that is not a failure.
+
+## Spec evolution
+
+Specs legitimately change during implement: a discovered problem may add or amend `AC-*`. Treat that as normal, not as drift.
+
+- New or amended AC must have task coverage. If it does not, the feature is `concerns` and the fix belongs to `/spk-tasks`.
+- Text clarifications without a new AC need no action.
+- When `spec.md` and `tasks.md` disagree about which ACs exist, trust `converge`/`check` (`acceptance_not_covered`, `unknown_acceptance_reference`) instead of re-deriving coverage by hand.
+
 ## Self-Check (mandatory before finishing)
 
 Run this checklist against `verify.md` before writing the final verdict — do not skip or treat as optional:
@@ -43,6 +63,8 @@ Run this checklist against `verify.md` before writing the final verdict — do n
 - [ ] Overall verdict matches the matrix: any `fail` or widespread `not-verified` → not `pass`
 - [ ] `pass` only when completed task state is confirmed and no AC-critical gaps remain
 - [ ] Missing/partial `Proof:` lines in `tasks.md` are explicitly listed as evidence gaps, not silently overlooked
+- [ ] `## Review` lists findings or explicitly says `skipped (no diff)`
+- [ ] No `blocker` finding is present while the overall verdict is `pass`
 - [ ] `blocked` states the required refinement, not a next-phase command
 
 If any check fails: fix it and re-run the checklist. After **2 fix rounds** that still fail, stop and report the remaining gaps with a concrete next action — never upgrade to `pass` just to close the phase.
@@ -60,6 +82,7 @@ If any check fails: fix it and re-run the checklist. After **2 fix rounds** that
   - Evidence column must cite specific test names, command output, or file paths.
   - **Matrix AC verdict** (per row): `pass` | `fail` | `not-verified`.
 - Overall **feature verdict**: `pass|concerns|blocked` + concrete mismatches (task/AC → evidence).
+- Include a `## Review` section: the findings list (max 10) or `skipped (no diff)`. Any `blocker` finding contradicts a `pass` verdict.
 - Include `## Not Verified` items when you did not confirm something (explicitly list what you did not check).
 - Explicitly call out proof gaps when `Proof:` lines in `tasks.md` are missing or partial for completed tasks.
 - End with the canonical end block from `AGENTS.md` (Slug / Status / Artifacts / Blockers / Ready for).

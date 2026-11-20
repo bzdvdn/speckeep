@@ -107,6 +107,7 @@ Auxiliary commands support navigation and coordination, notably:
 - `/spk-grill` — optional pre-spec interview: resolves the design tree before a spec exists (no artifacts by default, capped at 3 rounds / 12 questions).
 - `/spk-research` — optional technical research: investigates a concrete unknown and writes a cited `research.md`.
 - `/spk-diagnose` — optional bug diagnosis loop (reproduce → minimize → hypothesize → instrument → fix → regression); use `/spk-hotfix` when the cause is already known.
+- `/spk-resume` — thin in-session resume: prints an ≤8-line state packet (phase, tasks, next open task, blockers) and hands over to the phase skill. No artifact; use `/spk-handoff` when the output must be shared.
 - `/spk-repo-map` — maintains `REPOSITORY_MAP.md` ("what is where": entrypoints, key paths, where-to-edit, and the `## Modules & Context` index).
 - `/spk-module-context <path>` — the agent reads a folder and writes/refreshes `<path>/CONTEXT.md` (purpose, how it works, contracts, gotchas). `REPOSITORY_MAP.md` points to these files so agents onboarding into a module/app start from its context instead of re-deriving the architecture.
 
