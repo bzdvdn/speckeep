@@ -68,6 +68,7 @@ speckeep решает это через **discipline per token** — миним�
 - **One-shot propose** (`/spk-propose`) — идея → `spec.md` + `tasks.md` за один проход, сразу к implement
 - **Миграция на лету** (`speckeep import openspec|speckit`) — конвертация feature packages из OpenSpec/Spec Kit в наш layout за секунды
 - **Локальное закрытие** (`speckeep finish`) — archive, merge `--no-ff` и удаление локальной feature-ветки; `archive` остаётся для PR/ручного merge
+- **Опциональные дисциплины** — `/spk-grill` (pre-spec интервью), `/spk-research` (cited `research.md`), `/spk-diagnose` (ограниченная диагностика бага)
 - **Компактный архив** (`--compact`) — хранит только `summary.md` + git-указатель вместо копий всех артефактов
 - **Контекст модуля** (`/spk-module-context`) — попросить агента написать/обновить `CONTEXT.md` папки («что/как/зачем»), проиндексированную в `REPOSITORY_MAP.md`, чтобы агент, заходя в модуль/приложение, не терял контекст
 
@@ -122,11 +123,14 @@ speckeep guard [path] [--slug <slug>] [--json]
 speckeep import <openspec|speckit> [path] [--json]
 speckeep demo [path]
 speckeep archive <slug> [path] [--compact]
+speckeep finish <slug> [path] [--into <branch>] [--dry-run]
 speckeep list-archive [path] [--status <status>] [--since <YYYY-MM-DD>] [--json]
 speckeep self check | self upgrade
 speckeep migrate [path]
 speckeep add-agent | list-agents | remove-agent | cleanup-agents [path]
 ```
+
+Кастомный layout: `speckeep init my-project --specs-root docs/specs` создаёт `docs/specs/active` и `docs/specs/archived`; `--specs-dir` / `--archive-dir` остаются точными override-флагами.
 
 Агентская поддержка **skills-first**: `speckeep init --agents opencode,claude` раскладывает композитный SpecKeep `sdd` skill-pack (корневой `SKILL.md` плюс самодостаточные скиллы по фазам, каждый со своими полными инструкциями) в стандартную skills-директорию таргета (`.opencode/skills/`, `.claude/skills/`, …). CLI остаётся детерминированным остовом, который скиллы зовут как гейты (`check`, `converge`, `guard`).
 

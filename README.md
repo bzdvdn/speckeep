@@ -68,6 +68,7 @@ speckeep solves this with **discipline per token** — minimal file-based struct
 - **One-shot propose** (`/spk-propose`) — idea → `spec.md` + `tasks.md` in a single pass, straight to implement
 - **Drop-in migration** (`speckeep import openspec|speckit`) — convert OpenSpec/Spec Kit feature packages into speckeep layout in seconds
 - **Local finish** (`speckeep finish`) — archive, merge `--no-ff`, and delete the local feature branch; `archive` remains for PR/manual merge
+- **Optional discipline loops** — `/spk-grill` (pre-spec design interview), `/spk-research` (cited `research.md`), `/spk-diagnose` (bounded bug diagnosis)
 - **Compact archive** (`--compact`) — keep only `summary.md` + git pointer instead of copying every artifact
 - **Module context** (`/spk-module-context`) — ask the agent to write/refresh a folder's `CONTEXT.md` ("what/how/why"), indexed from `REPOSITORY_MAP.md` so agents onboarding into a module/app don't lose context
 
@@ -122,11 +123,14 @@ speckeep guard [path] [--slug <slug>] [--json]
 speckeep import <openspec|speckit> [path] [--json]
 speckeep demo [path]
 speckeep archive <slug> [path] [--compact]
+speckeep finish <slug> [path] [--into <branch>] [--dry-run]
 speckeep list-archive [path] [--status <status>] [--since <YYYY-MM-DD>] [--json]
 speckeep self check | self upgrade
 speckeep migrate [path]
 speckeep add-agent | list-agents | remove-agent | cleanup-agents [path]
 ```
+
+Custom layout: `speckeep init my-project --specs-root docs/specs` creates `docs/specs/active` and `docs/specs/archived`; `--specs-dir` / `--archive-dir` remain exact overrides.
 
 Agent support is **skills-first**: `speckeep init --agents opencode,claude` lays a composite SpecKeep `sdd` skill pack (a root `SKILL.md` plus one self-contained per-phase skill file, each inlining its full phase instructions) into each target's standard skills directory (`.opencode/skills/`, `.claude/skills/`, …). The CLI stays the deterministic spine that skills call as gates (`check`, `converge`, `guard`).
 
