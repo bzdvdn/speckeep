@@ -26,6 +26,8 @@
 - `/spk-module-context <path>` — записать/обновить `<path>/CONTEXT.md`
 - `/spk-glossary` — создать/обновить `.speckeep/glossary.md`
 - `/spk-grill` — опциональное pre-spec интервью: раскрыть design tree до spec
+- `/spk-research` — опциональное техническое research: cited `research.md`
+- `/spk-diagnose` — опциональный bug-цикл: reproduce → minimize → hypothesize → fix → regression
 - `/spk-challenge` — адверсариальная проверка spec/plan
 - `/spk-scope` — быстрая проверка границ фичи
 - `/spk-handoff` — handoff-документ сессии по одной фиче

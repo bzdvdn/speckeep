@@ -1535,3 +1535,56 @@ func TestGrillPromptContract(t *testing.T) {
 		}
 	}
 }
+
+// TestResearchAndDiagnosePromptContracts guards the two optional discipline
+// loops: cited research and a bounded diagnosis cycle.
+func TestResearchAndDiagnosePromptContracts(t *testing.T) {
+	cases := []struct {
+		lang, name string
+		max        int
+		required   []string
+	}{
+		{
+			lang: "en", name: "research", max: 2200,
+			required: []string{
+				"research.md", "primary source", "Source:", "1–5 specific unknowns",
+				"Do not implement code", "Stop if", "Ready for: /spk-plan <slug>",
+			},
+		},
+		{
+			lang: "ru", name: "research", max: 3300,
+			required: []string{
+				"research.md", "primary source", "Источник:", "1–5 конкретных unknowns",
+				"Не реализуй код", "Stop if", "Готово к: /spk-plan <slug>",
+			},
+		},
+		{
+			lang: "en", name: "diagnose", max: 2900,
+			required: []string{
+				"Reproduce", "Minimize", "Hypothesize", "Instrument", "Regression",
+				"3 hypotheses / 2 fix cycles", "Stop if", "/spk-hotfix <slug>",
+			},
+		},
+		{
+			lang: "ru", name: "diagnose", max: 4300,
+			required: []string{
+				"Reproduce", "Minimize", "Hypothesize", "Instrument", "Regression",
+				"3 гипотезы / 2 цикла фиксов", "Stop if", "/spk-hotfix <slug>",
+			},
+		},
+	}
+	for _, tc := range cases {
+		content, err := localizedFileContent(tc.lang, "templates/prompts/"+tc.name+".md")
+		if err != nil {
+			t.Fatalf("%s %s prompt: %v", tc.lang, tc.name, err)
+		}
+		if len(content) > tc.max {
+			t.Errorf("%s %s prompt is %d bytes, over budget %d", tc.lang, tc.name, len(content), tc.max)
+		}
+		for _, want := range tc.required {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s %s prompt missing %q", tc.lang, tc.name, want)
+			}
+		}
+	}
+}

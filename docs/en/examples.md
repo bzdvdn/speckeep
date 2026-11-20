@@ -598,6 +598,17 @@ stops and falls back to `/spk-spec` instead of forcing a shallow plan into
 `tasks.md`. That's a `Blockers:` line, not a bug: propose is deliberately
 narrow so it never race-drafts a feature that actually needed design.
 
+### Recipe: Resolving a Technical Unknown With `/spk-research`
+
+Problem this solves: the plan depends on external behavior you don't know, and guessing would bake a wrong constraint into the design.
+
+```text
+/spk-research export-report Does the vendor API support cursor pagination
+for result sets above 10k rows?
+```
+
+The agent defines 1–5 specific unknowns, checks primary sources (official docs, source, issue tracker, benchmarks) plus repo evidence, and writes `specs/active/export-report/research.md` with `Source:` citations. It does not write code or rewrite spec/plan; if no primary source exists, it stops with a blocker instead of guessing.
+
 ### Recipe: Shared Domain Glossary With `/spk-glossary`
 
 Problem this solves: without a shared vocabulary, `spec.md` calls it a
@@ -737,6 +748,16 @@ The agent then appends a `## Converge Follow-ups` section to `tasks.md`:
 it reports `converged`. This is lighter than `/spk-verify`: no persisted
 report, just tasks/coverage brought back in sync — the right tool when the
 feature is 90% there, not when you need a full audit trail.
+
+### Recipe: Diagnosing a Hard Bug With `/spk-diagnose`
+
+Problem this solves: the cause is unknown, so a hotfix would be guessing. `diagnose` forces a reproduction and a root cause first.
+
+```text
+/spk-diagnose export-report Export returns 500 for reports with zero rows.
+```
+
+The agent reproduces, minimizes, ranks 1–3 hypotheses, instruments, fixes one confirmed cause, adds a regression test, and reports root cause + proof. If the fix needs more than 3 files or a design change, it stops and suggests `/spk-spec`; if the cause is already known and small, use `/spk-hotfix` instead.
 
 ### Recipe: An Emergency Fix With `/spk-hotfix`
 

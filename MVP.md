@@ -130,6 +130,8 @@ Dependency rules:
 Available at any phase:
 
 - `/spk-grill`: optional pre-spec interview — resolve the design tree before writing a spec
+- `/spk-research`: optional technical research — investigate a concrete unknown and write a cited `research.md`
+- `/spk-diagnose`: optional bug diagnosis loop — reproduce, minimize, hypothesize, fix, regression-test
 - `/spk-challenge`: adversarial review of spec or plan — finds weak assumptions, untestable AC, scope drift
 - `/spk-propose`: one-shot fast lane — idea → `spec.md` + `tasks.md` (plan optional), straight to implement; falls back to `/spk-spec` on ambiguity
 - `/spk-converge`: fast closing loop — re-checks an implemented feature cheaply, appends follow-up tasks, repeats until converged (lighter than verify)

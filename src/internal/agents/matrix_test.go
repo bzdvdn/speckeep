@@ -184,7 +184,7 @@ func TestAgentArtifactMatrix(t *testing.T) {
 // stays a router, and each phase skill may add only a small scaffolding on top
 // of its inlined prompt body (frontmatter, readiness line, source pointer).
 func TestSkillFootprintBudgets(t *testing.T) {
-	const rootBudget = 1400
+	const rootBudget = 1700
 	const scaffoldingBudget = 700
 
 	for _, lang := range []string{"en", "ru"} {

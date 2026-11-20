@@ -26,6 +26,8 @@ Run `./.speckeep/scripts/check-ready[SCRIPT_EXT] <phase> <slug>` before a gated 
 - `/spk-module-context <path>` — write/refresh `<path>/CONTEXT.md`
 - `/spk-glossary` — create/update `.speckeep/glossary.md`
 - `/spk-grill` — optional pre-spec interview: resolve the design tree before a spec
+- `/spk-research` — optional technical research: write a cited `research.md`
+- `/spk-diagnose` — optional bug diagnosis loop: reproduce → minimize → hypothesize → fix → regression
 - `/spk-challenge` — adversarial review of spec/plan
 - `/spk-scope` — quick scope boundary check
 - `/spk-handoff` — session handoff doc for one feature
