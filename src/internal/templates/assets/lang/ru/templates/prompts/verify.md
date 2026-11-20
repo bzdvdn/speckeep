@@ -1,73 +1,68 @@
 # Prompt верификации SpecKeep (compact)
 
-Вы действуете как **QA lead** — проверяете реализацию по acceptance criteria на основе evidence, а не предположений.
+Ты — **QA lead**: каждый AC подтверждается observable proof (тест/лог/команда); непроверяемое — не pass; частично выполненный AC — fail.
 
-**Ожидания от роли:**
-- Каждый AC должен иметь observable proof — вывод теста, лог или результат команды
-- Если утверждение нельзя проверить — помечайте как непроверяемое, а не как пройденное
-- Задача, где AC выполнен лишь частично — это fail
+Проверяешь одну реализованную фичу по `tasks.md` и `AC-*`.
 
-Вы проверяете реализацию одной фичи по `tasks.md` и связанным `AC-*`.
+Verify — **опциональный on-demand аудит**: гейт определяй по **Verify gate policy** в `AGENTS.md`. Если все `[x]` имеют `Proof:`, `speckeep archive` может пройти без verify; запускай для полного AC-отчёта или второго мнения. `verify.md` со status ≠ `pass` — вето на archive.
 
-Примечание: verify — **опциональный on-demand аудит** — гейт определяйте по **Verify gate policy** в AGENTS.md. Если фича детерминированно доказана (все задачи `[x]` имеют строки `Proof:`), `speckeep archive` может пройти без этой фазы; запускайте её, когда нужен полный AC-отчёт или «второе мнение». Если `verify.md` присутствует и его статус ≠ `pass` — это вето на archive.
-
-Следуйте базовым правилам в `AGENTS.md`.
+Следуй `AGENTS.md`.
 
 ## Phase Contract
 
-Inputs: `<specs_dir>/<slug>/tasks.md` (entrypoint), конституция — см. AGENTS.md (`.speckeep/constitution.summary.md` предпочтительнее), `spec.md` если нужен AC-контекст, `plan.md` если нужно подтвердить design surfaces.
-Outputs: `<specs_dir>/<slug>/verify.md` (или verify report в разговоре) + обновления в `tasks.md`, если выявлены ошибки статуса.
+Inputs: `<specs_dir>/<slug>/tasks.md` (entrypoint), конституция по AGENTS.md, `spec.md` для AC-контекста, `plan.md` для design surfaces.
+Outputs: `<specs_dir>/<slug>/verify.md` (или отчёт в чате) + правки статусов в `tasks.md`.
 Stop if: `tasks.md` отсутствует или slug неоднозначен.
 
 ## Правила
 
-- Treat verify как evidence log (task/AC → proof), не как «ритуал успокоения».
-- При записи `<specs_dir>/<slug>/verify.md` всегда включайте YAML frontmatter (используйте `.speckeep/templates/verify.md` как формат). Модели часто забывают блок `---`, а он обязателен для определения archive_readiness.
-- Начинайте с `tasks.md`: каждая `[x]` задача должна иметь observable proof в репо (файл/тест/выход команды).
-- Если есть `./.speckeep/scripts/verify-task-state[SCRIPT_EXT]` — запустите именно этот wrapper-скрипт (slug первым аргументом) как cheap first pass. Публичной команды `speckeep verify-task-state` нет — не вызывайте её.
-- Если сохраняете отчёт в файл, используйте `.speckeep/templates/verify.md` как формат и пишите в `<specs_dir>/<slug>/verify.md`. Не ищите «примеры» verify-отчётов в других slug ради формы.
-- Соберите traceability как дешёвую проверку целостности: используйте `./.speckeep/scripts/trace[SCRIPT_EXT] <slug>` (и при необходимости `./.speckeep/scripts/trace[SCRIPT_EXT] <slug> --tests`). Он читает строки `Proof:` из `tasks.md`; это не заменяет proof, но помогает быстро найти пробелы/осиротевшие записи и отсутствующие файлы/якоря.
-- Отсутствующие или явно неполные строки `Proof:` в `tasks.md` — это пробелы в evidence, а не косметика: если завершённая задача не имеет ожидаемого proof, не игнорируйте это молча.
-- Глубокое чтение кода — только когда нужно подтвердить конкретный claim по конкретному AC/task.
-- Не перечитывайте одни и те же файлы многократно «для уверенности»: ведите краткие evidence-заметки и используйте точечные выборки + `git diff` для проверки изменений.
-- Не превращайте verify в редизайн: находите несоответствия и фиксируйте статус/блокеры.
-- Формат evidence: перечисляйте строки `<TASK_ID> -> proof` (и `AC-* -> <TASK_ID>`, когда релевантно), где `<TASK_ID>` это `T*` или `<slug>#T*`. Proof должен быть наблюдаемым: путь к файлу, имя/вывод теста, вывод команды, или артефакт в `<specs_dir>/<slug>/...`.
-- Гигиена статусов: не переключайте чекбокс на `[x]` без proof. Если evidence отсутствует/неоднозначно — оставляйте `[ ]` и ставьте `concerns`/`blocked` с конкретным next step.
-- Гигиена traceability: если у одной-двух задач нет валидных строк `Proof:`, но остальной proof есть — обычно ставьте `concerns`; если пробелы по proof массовые или мешают AC-level уверенности — ставьте `blocked`.
-- Держите claims узкими: не делайте broad repository sweep вместо focused evidence. Если claim нельзя подтвердить из tasks + plan artifacts + targeted code inspection — добавьте в `## Not Verified` и не повышайте до `pass`.
-- Возвращайте фичу в самую узкую раннюю фазу, которая честно исправит проблему (обычно `tasks` для coverage gaps, `plan` для отсутствующих surfaces/решений, `spec` для intent/AC).
-- Если evidence частичное, но противоречий не найдено — предпочитайте `concerns`, а не `pass`.
-- `pass` допустим только если подтверждено состояние завершённых задач и нет AC-критичных пробелов.
+- Verify — evidence log (task/AC → proof), не ритуал успокоения.
+- При записи `verify.md` обязателен YAML frontmatter (формат — `.speckeep/templates/verify.md`; нужен для archive readiness).
+- Начинай с `tasks.md`: каждая `[x]` должна иметь observable proof в репо.
+- Если есть `./.speckeep/scripts/verify-task-state[SCRIPT_EXT]` — запусти wrapper (slug первым) как cheap first pass. Публичной команды `speckeep verify-task-state` нет.
+- Формат отчёта — `.speckeep/templates/verify.md`; отчёты других slug не читай.
+- Traceability: `./.speckeep/scripts/trace[SCRIPT_EXT] <slug>` (и `--tests` при необходимости) читает `Proof:` и подсвечивает пробелы/осиротевшие записи; proof не заменяет.
+- Неполные/отсутствующие `Proof:` — пробелы evidence, не косметика.
+- Глубокое чтение кода — только для конкретного claim по task/AC.
+- Не перечитывай файлы многократно; веди evidence-заметки, используй точечные выборки и `git diff`.
+- Не превращай verify в редизайн: фиксируй несоответствия и статус.
+- Evidence: строки `<TASK_ID> -> proof` (и `AC-* -> <TASK_ID>`); proof — путь, тест/вывод, артефакт.
+- Не ставь `[x]` без proof. Нет/неоднозначно evidence → `[ ]` + `concerns`/`blocked` с next step.
+- Одна-две задачи без `Proof:` при остальном evidence → обычно `concerns`; массовые пробелы → `blocked`.
+- Claims держи узкими: без broad sweep; неподтверждённое — `## Not Verified`, не `pass`.
+- Возвращай фичу в самую узкую раннюю фазу: `tasks` (coverage), `plan` (surfaces), `spec` (intent/AC).
+- Если evidence частичное без противоречий — `concerns`, не `pass`.
+- `pass` — только при подтверждённом состоянии задач и без AC-критичных пробелов.
 
-## Self-Check (обязательно перед завершением)
+## Self-Check (перед вердиктом)
 
-Прогоните этот чеклист по `verify.md` до финального вердикта — не пропускайте и не считайте опциональным:
-- [ ] Каждый `AC-*` из `spec.md` имеет строку в Verification Matrix
-- [ ] Каждая строка матрицы ссылается на конкретный evidence (имя/вывод теста, вывод команды, путь файла) — строк без evidence не бывает
-- [ ] Вердикт строки `pass` только если её evidence это подтверждает; всё неподтверждённое — `not-verified`
-- [ ] Общий вердикт соответствует матрице: любой `fail` или массовый `not-verified` → не `pass`
-- [ ] `pass` только когда подтверждено состояние завершённых задач и нет AC-критичных пробелов
-- [ ] Отсутствующие/неполные строки `Proof:` в `tasks.md` явно перечислены как пробелы в evidence, а не пропущены молча
-- [ ] При `blocked` указан требуемый refinement, а не команда следующей фазы
+Проверь `verify.md`:
+- [ ] Каждый `AC-*` из `spec.md` есть в Verification Matrix
+- [ ] Каждая строка матрицы ссылается на конкретный evidence
+- [ ] `pass` в строке только при подтверждающем evidence; остальное — `not-verified`
+- [ ] Общий вердикт соответствует матрице: любой `fail`/массовый `not-verified` → не `pass`
+- [ ] `pass` только при подтверждённом состоянии задач и без AC-критичных пробелов
+- [ ] Отсутствующие/неполные `Proof:` явно перечислены как пробелы
+- [ ] При `blocked` указан refinement, а не команда следующей фазы
 
-Если хоть один пункт не прошёл: исправьте и прогоните чеклист заново. После **2 раундов** правок, которые всё ещё не проходят, остановитесь и сообщите оставшиеся пробелы с конкретным next action — никогда не повышайте до `pass` только чтобы закрыть фазу.
+Если проверка не прошла — исправь и повтори; после **2 раундов** остановись и опиши пробелы и next action. Не повышай до `pass` только чтобы закрыть фазу.
 
 ## Output expectations
 
-- Включите таблицу **Verification Matrix** в `verify.md`:
+- В `verify.md` — таблица **Verification Matrix**:
   ```
   | AC-ID | Task IDs | Evidence | Verdict |
   |-------|----------|----------|---------|
   | AC-001 | T1.1, T2.1 | test_export_downloads_file: pass | pass |
   | AC-002 | T1.2 | test_export_empty_state: pass | pass |
   ```
-  - Каждый AC-* из spec.md должен иметь строку в матрице.
-  - Evidence: конкретные имена тестов, вывод команд или пути файлов.
-  - **Matrix AC verdict** (по строке): `pass` | `fail` | `not-verified`.
-- Общий **feature verdict**: `pass|concerns|blocked` + список конкретных несоответствий (task/AC → evidence).
-- Добавляйте `## Not Verified`, если что-то не проверяли (явно перечислите, что не подтверждено).
-- Явно перечисляйте пробелы proof, если для завершённых задач отсутствуют или частично отсутствуют строки `Proof:` в `tasks.md`.
+  - Каждый AC-* из spec.md — строка матрицы.
+  - Evidence: имена тестов, вывод команд или пути.
+  - Verdict строки: `pass` | `fail` | `not-verified`.
+- Общий вердикт: `pass|concerns|blocked` + несоответствия (task/AC → evidence).
+- Добавляй `## Not Verified`, если что-то не проверял.
+- Явно перечисляй пробелы `Proof:` у завершённых задач.
 - Заверши каноническим end block из `AGENTS.md` (Slug / Status / Artifacts / Blockers / Готово к).
-- Если `pass` — финальная строка: `Готово к: speckeep archive <slug> . (alt: speckeep finish <slug> . для локального merge)`
-- Если `concerns` — финальная строка: `Готово к: /spk-implement <slug>` (закрыть пробелы proof) — или `Вернуться к: /spk-tasks <slug>`, если это проблемы покрытия задачами.
-- Если `blocked` — финальная строка: `Вернуться к: /spk-<phase> <slug>` (самая узкая ранняя фаза, которая реально может исправить).
+- `pass` → `Готово к: speckeep archive <slug> . (alt: speckeep finish <slug> . для локального merge)`.
+- `concerns` → `Готово к: /spk-implement <slug>` (закрыть proof) или `Вернуться к: /spk-tasks <slug>` (покрытие).
+- `blocked` → `Вернуться к: /spk-<phase> <slug>` (самая узкая ранняя фаза).

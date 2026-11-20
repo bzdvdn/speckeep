@@ -254,54 +254,53 @@ func LegacyOpenCodeCommandPaths(commands []CommandDefinition) []string {
 func renderRootSkill(commands []CommandDefinition, lang, shell string) string {
 	var phaseNames, auxNames []string
 	for _, cmd := range commands {
-		name := "/spk-" + cmd.Name
 		if hasReadyCheck(cmd.Name) {
-			phaseNames = append(phaseNames, name)
+			phaseNames = append(phaseNames, cmd.Name)
 			continue
 		}
-		auxNames = append(auxNames, name)
+		auxNames = append(auxNames, cmd.Name)
 	}
 	phases := strings.Join(phaseNames, ", ")
 	aux := strings.Join(auxNames, ", ")
-	scripts := checkReadyScript(shell) + " <phase> <slug>"
+	readiness := checkReadyScript(shell) + " <phase> <slug>"
 
 	if lang == "ru" {
 		return fmt.Sprintf(`---
 name: sdd
-description: SpecKeep — SDD-роутер. Используй только когда фаза неочевидна из запроса; каждый /spk-<phase> самодостаточен.
+description: SpecKeep — SDD-роутер. Используй только когда фаза неочевидна; каждый /spk-<phase> самодостаточен.
 ---
 
 # SpecKeep / SDD
 
-Цепочка: constitution → spec → [inspect, опционально] → [plan, опционально] → tasks → implement → archive. propose — рекомендуемый дефолтный вход (spec+tasks); plan — opt-in для дизайна; verify — опциональный аудит; converge — быстрый цикл закрытия.
+Цепочка: constitution → spec → [inspect, опц.] → [plan, опц.] → tasks → implement → archive. Новая фича/идея → сразу /spk-propose (роутер не грузи); plan — opt-in для дизайна.
 
-Если фаза известна — вызывай /spk-<phase> напрямую, не загружай этот роутер. Для новой фичи/идеи — сразу /spk-propose (роутер не грузи). Полный справочник команд: .speckeep/templates/commands.md.
+Маршрут: новая фича → propose; неясно → spec; дизайн → plan; есть tasks → implement; close → archive (PR) или finish (local); застрял → check/recap.
 
-Гейты: speckeep check <slug> перед завершением фазы; speckeep converge <slug> (или speckeep guard .) перед закрытием. Задача выполнена только со строкой Proof: под [x]. Завершай каноническим end block из AGENTS.md. Readiness: %[1]s.
+Если фаза известна — вызывай /spk-<phase> напрямую. Гейты: speckeep check <slug> по фазам; speckeep converge <slug> или speckeep guard . перед закрытием. Readiness: %[3]s (только гейтируемые фазы). End block/close — в AGENTS.md. Справочник: .speckeep/templates/commands.md.
 
-Фазы: %[2]s
+Фазы (префикс /spk-): %[1]s
 
-Вспомогательные (без гейта): %[3]s
-`, scripts, phases, aux)
+Вспомогательные (без гейта): %[2]s
+`, phases, aux, readiness)
 	}
 
 	return fmt.Sprintf(`---
 name: sdd
-description: SpecKeep — SDD router. Use only when the phase is not obvious from the request; each /spk-<phase> skill is self-contained.
+description: SpecKeep — SDD router. Use only when the phase is unclear; each /spk-<phase> is self-contained.
 ---
 
 # SpecKeep / SDD
 
-Chain: constitution → spec → [inspect, optional] → [plan, optional] → tasks → implement → archive. propose — recommended default entry (spec+tasks); plan — opt-in for design; verify — optional audit; converge — fast closing loop.
+Chain: constitution → spec → [inspect, optional] → [plan, optional] → tasks → implement → archive. New feature idea → /spk-propose directly (skip this router); plan is opt-in for design.
 
-If the phase is known, invoke /spk-<phase> directly — do not load this router. For a new feature idea, use /spk-propose directly (skip this router). Full command reference: .speckeep/templates/commands.md.
+Route: new feature → propose; unclear → spec; design → plan; tasks exist → implement; close → archive (PR) or finish (local); stuck → check/recap.
 
-Gates: speckeep check <slug> before finishing a phase; speckeep converge <slug> (or speckeep guard .) before closing. A task is done only with a Proof: line under [x]. End with the canonical end block from AGENTS.md. Readiness: %[1]s.
+If the phase is known, invoke /spk-<phase> directly. Gates: speckeep check <slug> per phase; speckeep converge <slug> or speckeep guard . before closing. Readiness: %[3]s (gated phases only). End block/close are in AGENTS.md. Reference: .speckeep/templates/commands.md.
 
-Phases: %[2]s
+Phases (prefix /spk-): %[1]s
 
-Auxiliary (no gate): %[3]s
-`, scripts, phases, aux)
+Auxiliary (no gate): %[2]s
+`, phases, aux, readiness)
 }
 
 // readyCheckPhases lists the phases that have a real readiness gate behind

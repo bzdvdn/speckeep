@@ -14,6 +14,7 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Further context-footprint reduction**: the managed `AGENTS.md` block, `sdd` router, and core phase prompts were compressed (compact role sections, template references instead of inline examples, readiness centralized in generated skills). EN `AGENTS.md` is ~5.0 KB and RU ~6.9 KB; core prompts are ~30 KB EN / ~37 KB RU.
 - **Close guidance offers archive or finish**: archive-ready prompts end with `speckeep archive <slug> . (alt: speckeep finish <slug> . for local merge)`, and `speckeep check` prints `alt: speckeep finish <slug> .` when the feature branch is checked out, the worktree is clean, and a base branch exists. `archive` remains the primary/safe default; `finish` is only for an explicit merge/close request.
 
 ### Fixed

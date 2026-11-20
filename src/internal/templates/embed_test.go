@@ -1335,8 +1335,8 @@ func TestContextFootprintBudgets(t *testing.T) {
 		snippet     int
 		corePrompts int
 	}{
-		"en": {snippet: 6600, corePrompts: 33500},
-		"ru": {snippet: 8000, corePrompts: 53500},
+		"en": {snippet: 5500, corePrompts: 31000},
+		"ru": {snippet: 7600, corePrompts: 39000},
 	}
 
 	for lang, budget := range budgets {
@@ -1415,6 +1415,80 @@ func TestCloseGuidanceMentionsFinishTargetBranch(t *testing.T) {
 			}
 			if !strings.Contains(content, "--into") {
 				t.Errorf("%s/%s must mention --into for a user-named target branch", lang, target)
+			}
+		}
+	}
+}
+
+// TestPromptContracts guards the meaning of the core phase prompts: required
+// sections, safety anchors, final routing commands, and per-prompt budgets.
+// It catches both accidental rule removal during compression and silent growth.
+func TestPromptContracts(t *testing.T) {
+	type contract struct {
+		name          string
+		maxEN, maxRU  int
+		required      []string
+		finalCommands []string
+	}
+
+	common := []string{"## Phase Contract", "Stop if", "AGENTS.md"}
+	contracts := []contract{
+		{
+			name: "spec", maxEN: 5900, maxRU: 8300,
+			required:      append(append([]string{}, common...), "## Self-Check", "## Alignment Pass", "AC-", "/spk-inspect <slug>", "/spk-plan <slug>"),
+			finalCommands: []string{"/spk-tasks <slug>"},
+		},
+		{
+			name: "inspect", maxEN: 4600, maxRU: 6150,
+			required:      append(append([]string{}, common...), "## Self-Check", "/spk-plan <slug>"),
+			finalCommands: []string{"/spk-tasks <slug>"},
+		},
+		{
+			name: "plan", maxEN: 4400, maxRU: 6000,
+			required:      append(append([]string{}, common...), "## Self-Check", "DEC-", "data-model"),
+			finalCommands: []string{"/spk-tasks <slug>"},
+		},
+		{
+			name: "tasks", maxEN: 4100, maxRU: 5500,
+			required:      append(append([]string{}, common...), "## Self-Check", "Touches:", "Surface Map", "Implementation Context"),
+			finalCommands: []string{"/spk-implement <slug>"},
+		},
+		{
+			name: "implement", maxEN: 6700, maxRU: 6400,
+			required:      append(append([]string{}, common...), "Proof:", "Touches:", "scope violation", "## Output expectations"),
+			finalCommands: []string{"speckeep converge <slug>", "/spk-verify <slug>"},
+		},
+		{
+			name: "verify", maxEN: 6800, maxRU: 6100,
+			required:      append(append([]string{}, common...), "## Self-Check", "Proof:", "Verification Matrix", "Not Verified", "concerns", "blocked", "speckeep archive <slug>", "speckeep finish <slug>"),
+			finalCommands: []string{"speckeep archive <slug>", "speckeep finish <slug>"},
+		},
+	}
+
+	for _, lang := range []string{"en", "ru"} {
+		finalMarker := "Ready for"
+		if lang == "ru" {
+			finalMarker = "Готово к"
+		}
+		for _, tc := range contracts {
+			content, err := localizedFileContent(lang, "templates/prompts/"+tc.name+".md")
+			if err != nil {
+				t.Fatalf("%s prompt %s: %v", lang, tc.name, err)
+			}
+			limit := tc.maxEN
+			if lang == "ru" {
+				limit = tc.maxRU
+			}
+			if len(content) > limit {
+				t.Errorf("%s %s prompt is %d bytes, over budget %d", lang, tc.name, len(content), limit)
+			}
+			if !strings.Contains(content, finalMarker) {
+				t.Errorf("%s %s prompt lost the %q final marker", lang, tc.name, finalMarker)
+			}
+			for _, want := range append(append([]string{}, tc.required...), tc.finalCommands...) {
+				if !strings.Contains(content, want) {
+					t.Errorf("%s %s prompt missing %q", lang, tc.name, want)
+				}
 			}
 		}
 	}

@@ -25,9 +25,9 @@
 
 ## Правила
 
-- Минимальный контекст: только текущий slug и нужные repo surfaces; никаких full-repo сканов.
+- Контекст: текущий slug + нужные surfaces; без full-repo сканов.
 - Используй `.speckeep/templates/spec.md` и `.speckeep/templates/tasks.md` как каркас; никогда не ищи форму в чужих slug.
-- Дисциплина размера: `spec.md` ≤ ~80 строк, `tasks.md` ≤ ~150 строк; переполнение обычно значит, что идея слишком большая для propose — остановись и возвращайся на `/spk-spec`.
+- Размер: `spec.md` ≤ ~80 строк, `tasks.md` ≤ ~150 строк; переполнение — идея слишком большая для propose, вернись на `/spk-spec`.
 - Каждый `AC-*` маппится на ≥ 1 задачу; у каждой задачи есть `Touches:` и измеримый outcome.
 - Если модель данных меняется — создай `data-model.md`; иначе строка `Data model: no change` живёт в `tasks.md` → `Implementation Context` или в `plan.md`.
 - Конституция: AGENTS.md (`.speckeep/constitution.summary.md` предпочтительнее).
