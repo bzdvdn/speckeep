@@ -627,6 +627,19 @@ once per session and reuse its terms — they will not introduce a new
 synonym for something it already defines. Nothing else changes: no gate, no
 required re-read, no mandatory update on every feature.
 
+### Recipe: Stress-Testing an Idea With `/spk-grill`
+
+Problem this solves: a raw idea has too many unresolved branches to write a good spec, and the normal one-round alignment pass is not enough.
+
+```text
+/spk-grill Add idempotency keys to POST /invoices so retried client requests
+don't create duplicates.
+```
+
+Expected behavior: the agent asks the current design-tree frontier in rounds (1–5 questions each, each with a recommended answer), finds facts itself, and stops when the frontier is empty or after **3 rounds / 12 questions**. It writes no files; at the end it summarizes settled decisions and open questions and suggests `/spk-propose` (or `/spk-spec` for a design-heavy feature).
+
+Use it when the idea is high-risk or genuinely ambiguous. For a normal feature, `/spk-spec`'s one-round alignment pass is enough; `/spk-challenge` reviews an existing spec/plan instead.
+
 ### Recipe: Finding Blind Spots With `/spk-challenge`
 
 Problem this solves: `/spk-spec` and `/spk-inspect` are written to converge

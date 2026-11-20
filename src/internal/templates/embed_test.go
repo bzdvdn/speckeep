@@ -1493,3 +1493,45 @@ func TestPromptContracts(t *testing.T) {
 		}
 	}
 }
+
+// TestGrillPromptContract guards the optional pre-spec interview: design-tree
+// rounds, a hard cap, no artifacts by default, and a clear next lane.
+func TestGrillPromptContract(t *testing.T) {
+	type contract struct {
+		lang     string
+		max      int
+		required []string
+	}
+	contracts := []contract{
+		{
+			lang: "en", max: 3000,
+			required: []string{
+				"frontier", "Recommended", "3 rounds / 12 questions",
+				"no spec, tasks, or code", "Do not create `grill.md`",
+				"Stop if", "Ready for: /spk-propose <slug>",
+			},
+		},
+		{
+			lang: "ru", max: 4300,
+			required: []string{
+				"frontier", "Рекомендация", "3 раунда / 12 вопросов",
+				"без spec/tasks/code", "Не создавай `grill.md`",
+				"Stop if", "Готово к: /spk-propose <slug>",
+			},
+		},
+	}
+	for _, tc := range contracts {
+		content, err := localizedFileContent(tc.lang, "templates/prompts/grill.md")
+		if err != nil {
+			t.Fatalf("%s grill prompt: %v", tc.lang, err)
+		}
+		if len(content) > tc.max {
+			t.Errorf("%s grill prompt is %d bytes, over budget %d", tc.lang, len(content), tc.max)
+		}
+		for _, want := range tc.required {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s grill prompt missing %q", tc.lang, want)
+			}
+		}
+	}
+}

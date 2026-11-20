@@ -9,6 +9,7 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **`/spk-grill`**: optional pre-spec interview that resolves a design tree in rounds, with a recommended answer per question and a hard cap of 3 rounds / 12 questions. It writes no artifacts by default and ends by suggesting `/spk-propose` or `/spk-spec`.
 - **`--specs-root <dir>`** for `init` and `refresh`: sets `paths.specs_dir=<dir>/active` and `paths.archive_dir=<dir>/archived` in one flag. Explicit `--specs-dir`/`--archive-dir` remain exact-path overrides for backward compatibility.
 - **`speckeep finish <slug>`**: local-merge close for a completed feature. It archives the feature, commits the archive snapshot on the feature branch, merges with `--no-ff` into the base branch (`main`, then `master`, or a user-named local branch via `--into dev`), and deletes the local feature branch. Supports `--branch`, `--keep-branch`, `--dry-run`, and `--json`. Never pushes or deletes remote branches.
 

@@ -82,7 +82,7 @@ constitution → spec → [inspect] → [plan] → tasks → implement → archi
 ```
 `verify` is an optional on-demand audit; a `completed` archive requires every `[x]` task to carry a `Proof:` entry (or `verify: pass`), while `deferred`/`abandoned` can archive incomplete work with a reason. Start a new feature with `/spk-propose` (recommended default): a natural-language request like "build X with SpecKeep" routes there; `/spk-plan` is opt-in for design-heavy work.
 
-Each phase loads only the minimum context. Optional workflow commands available at any phase: `/spk-challenge`, `/spk-handoff`, `/spk-hotfix`, `/spk-scope`, `/spk-recap`.
+Each phase loads only the minimum context. Optional workflow commands available at any phase: `/spk-grill`, `/spk-challenge`, `/spk-handoff`, `/spk-hotfix`, `/spk-scope`, `/spk-recap`.
 
 ---
 

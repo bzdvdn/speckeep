@@ -274,7 +274,7 @@ description: SpecKeep — SDD-роутер. Используй только ко
 
 Цепочка: constitution → spec → [inspect, опц.] → [plan, опц.] → tasks → implement → archive. Новая фича/идея → сразу /spk-propose (роутер не грузи); plan — opt-in для дизайна.
 
-Маршрут: новая фича → propose; неясно → spec; дизайн → plan; есть tasks → implement; close → archive (PR) или finish (local); застрял → check/recap.
+Маршрут: новая фича → propose; неясно → spec; сырая/рискованная идея → grill (опц.); дизайн → plan; есть tasks → implement; close → archive (PR) или finish (local); застрял → check/recap.
 
 Если фаза известна — вызывай /spk-<phase> напрямую. Гейты: speckeep check <slug> по фазам; speckeep converge <slug> или speckeep guard . перед закрытием. Readiness: %[3]s (только гейтируемые фазы). End block/close — в AGENTS.md. Справочник: .speckeep/templates/commands.md.
 
@@ -293,7 +293,7 @@ description: SpecKeep — SDD router. Use only when the phase is unclear; each /
 
 Chain: constitution → spec → [inspect, optional] → [plan, optional] → tasks → implement → archive. New feature idea → /spk-propose directly (skip this router); plan is opt-in for design.
 
-Route: new feature → propose; unclear → spec; design → plan; tasks exist → implement; close → archive (PR) or finish (local); stuck → check/recap.
+Route: new feature → propose; unclear → spec; raw/high-risk idea → grill (optional); design → plan; tasks exist → implement; close → archive (PR) or finish (local); stuck → check/recap.
 
 If the phase is known, invoke /spk-<phase> directly. Gates: speckeep check <slug> per phase; speckeep converge <slug> or speckeep guard . before closing. Readiness: %[3]s (gated phases only). End block/close are in AGENTS.md. Reference: .speckeep/templates/commands.md.
 

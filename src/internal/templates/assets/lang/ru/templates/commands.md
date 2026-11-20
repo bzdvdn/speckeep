@@ -25,6 +25,7 @@
 - `/spk-repo-map` — обновить `REPOSITORY_MAP.md` (триггеры: см. `.speckeep/templates/prompts/repo-map.md`)
 - `/spk-module-context <path>` — записать/обновить `<path>/CONTEXT.md`
 - `/spk-glossary` — создать/обновить `.speckeep/glossary.md`
+- `/spk-grill` — опциональное pre-spec интервью: раскрыть design tree до spec
 - `/spk-challenge` — адверсариальная проверка spec/plan
 - `/spk-scope` — быстрая проверка границ фичи
 - `/spk-handoff` — handoff-документ сессии по одной фиче

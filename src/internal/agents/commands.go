@@ -102,6 +102,14 @@ func DefaultCommands(shell string) []CommandDefinition {
 			Category:    "workflow",
 		},
 		{
+			Name:        "grill",
+			Description: "Optional pre-spec interview: resolve the design tree before writing a spec",
+			PromptPath:  ".speckeep/templates/prompts/grill.md",
+			Extras:      nil,
+			Optional:    true,
+			Category:    "workflow",
+		},
+		{
 			Name:        "scope",
 			Description: "Quick scope boundary check for a feature",
 			PromptPath:  ".speckeep/templates/prompts/scope.md",

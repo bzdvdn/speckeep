@@ -25,6 +25,7 @@ Run `./.speckeep/scripts/check-ready[SCRIPT_EXT] <phase> <slug>` before a gated 
 - `/spk-repo-map` — update `REPOSITORY_MAP.md` (triggers: see `.speckeep/templates/prompts/repo-map.md`)
 - `/spk-module-context <path>` — write/refresh `<path>/CONTEXT.md`
 - `/spk-glossary` — create/update `.speckeep/glossary.md`
+- `/spk-grill` — optional pre-spec interview: resolve the design tree before a spec
 - `/spk-challenge` — adversarial review of spec/plan
 - `/spk-scope` — quick scope boundary check
 - `/spk-handoff` — session handoff doc for one feature
