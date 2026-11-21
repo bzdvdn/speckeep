@@ -17,9 +17,7 @@ Inputs: `.speckeep/constitution.summary.md` (предпочтительно, е�
 Outputs: список конкретных risks/findings + что нужно изменить (где и почему).
 Stop if: артефакт отсутствует.
 
-## Разрешение путей
-
-- Определите `<specs_dir>` из `.speckeep/speckeep.yaml` (читать ≤ 1 раза за сессию). Если конфиг отсутствует — используйте `specs/active`.
+Пути: по `AGENTS.md` (`<specs_dir>` из конфига, по умолчанию `specs/active`).
 
 ## Output expectations
 

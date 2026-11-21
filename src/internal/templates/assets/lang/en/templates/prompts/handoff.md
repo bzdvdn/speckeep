@@ -10,9 +10,7 @@ Inputs: current phase (state), `<specs_dir>/<slug>/tasks.md`, recent changes (fi
 Outputs: handoff summary.
 Stop if: tasks.md is missing.
 
-## Path Resolution
-
-- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `specs/active`.
+Paths: follow `AGENTS.md` (`<specs_dir>` from config, default `specs/active`).
 
 ## Output expectations
 

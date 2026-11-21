@@ -12,9 +12,7 @@ Inputs: `<specs_dir>/<slug>/spec.md` и/или `<specs_dir>/<slug>/plan.md`.
 Outputs: отчёт о границах scope.
 Stop if: не существует ни spec.md, ни plan.md.
 
-## Разрешение путей
-
-- Определите `<specs_dir>` из `.speckeep/speckeep.yaml` (читать ≤ 1 раза за сессию). Если конфиг отсутствует — используйте `specs/active`.
+Пути: по `AGENTS.md` (`<specs_dir>` из конфига, по умолчанию `specs/active`).
 
 ## Output expectations
 

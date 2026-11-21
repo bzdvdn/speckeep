@@ -12,9 +12,7 @@ Inputs: `<specs_dir>/<slug>/spec.md` and/or `<specs_dir>/<slug>/plan.md`.
 Outputs: scope boundary report.
 Stop if: neither spec.md nor plan.md exists.
 
-## Path Resolution
-
-- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `specs/active`.
+Paths: follow `AGENTS.md` (`<specs_dir>` from config, default `specs/active`).
 
 ## Output expectations
 

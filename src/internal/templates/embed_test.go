@@ -817,7 +817,7 @@ func TestPromptsDefineScopeTripwiresForRefinement(t *testing.T) {
 		{
 			target: "templates/prompts/verify.md",
 			want: []string{
-				"Deep code reads only",
+				"Read code only to confirm",
 			},
 		},
 	}
@@ -1335,8 +1335,8 @@ func TestContextFootprintBudgets(t *testing.T) {
 		snippet     int
 		corePrompts int
 	}{
-		"en": {snippet: 5500, corePrompts: 33500},
-		"ru": {snippet: 7600, corePrompts: 41500},
+		"en": {snippet: 5500, corePrompts: 30500},
+		"ru": {snippet: 7200, corePrompts: 39700},
 	}
 
 	for lang, budget := range budgets {
@@ -1434,7 +1434,7 @@ func TestPromptContracts(t *testing.T) {
 	common := []string{"## Phase Contract", "Stop if", "AGENTS.md"}
 	contracts := []contract{
 		{
-			name: "spec", maxEN: 5900, maxRU: 8300,
+			name: "spec", maxEN: 5200, maxRU: 7300,
 			required:      append(append([]string{}, common...), "## Self-Check", "## Alignment Pass", "AC-", "/spk-inspect <slug>", "/spk-plan <slug>"),
 			finalCommands: []string{"/spk-tasks <slug>"},
 		},
@@ -1459,7 +1459,7 @@ func TestPromptContracts(t *testing.T) {
 			finalCommands: []string{"speckeep converge <slug>", "/spk-verify <slug>"},
 		},
 		{
-			name: "verify", maxEN: 8400, maxRU: 8900,
+			name: "verify", maxEN: 6700, maxRU: 8100,
 			required:      append(append([]string{}, common...), "## Self-Check", "Proof:", "Verification Matrix", "## Review", "blocker", "Not Verified", "concerns", "blocked", "speckeep archive <slug>", "speckeep finish <slug>"),
 			finalCommands: []string{"speckeep archive <slug>", "speckeep finish <slug>"},
 		},

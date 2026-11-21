@@ -17,22 +17,16 @@ Stop if: `tasks.md` отсутствует или slug неоднозначен.
 ## Правила
 
 - Verify — evidence log (task/AC → proof), не ритуал успокоения.
-- При записи `verify.md` обязателен YAML frontmatter (формат — `.speckeep/templates/verify.md`; нужен для archive readiness).
-- Начинай с `tasks.md`: каждая `[x]` должна иметь observable proof в репо.
+- Начинай с `tasks.md`: каждая `[x]` должна иметь observable proof в репо (файл/тест/вывод команды).
 - Если есть `./.speckeep/scripts/verify-task-state[SCRIPT_EXT]` — запусти wrapper (slug первым) как cheap first pass. Публичной команды `speckeep verify-task-state` нет.
-- Формат отчёта — `.speckeep/templates/verify.md`; отчёты других slug не читай.
-- Traceability: `./.speckeep/scripts/trace[SCRIPT_EXT] <slug>` (и `--tests` при необходимости) читает `Proof:` и подсвечивает пробелы/осиротевшие записи; proof не заменяет.
-- Неполные/отсутствующие `Proof:` — пробелы evidence, не косметика.
-- Глубокое чтение кода — только для конкретного claim по task/AC.
-- Не перечитывай файлы многократно; веди evidence-заметки, используй точечные выборки и `git diff`.
-- Не превращай verify в редизайн: фиксируй несоответствия и статус.
-- Evidence: строки `<TASK_ID> -> proof` (и `AC-* -> <TASK_ID>`); proof — путь, тест/вывод, артефакт.
-- Не ставь `[x]` без proof. Нет/неоднозначно evidence → `[ ]` + `concerns`/`blocked` с next step.
-- Одна-две задачи без `Proof:` при остальном evidence → обычно `concerns`; массовые пробелы → `blocked`.
-- Claims держи узкими: без broad sweep; неподтверждённое — `## Not Verified`, не `pass`.
-- Возвращай фичу в самую узкую раннюю фазу: `tasks` (coverage), `plan` (surfaces), `spec` (intent/AC).
-- Если evidence частичное без противоречий — `concerns`, не `pass`.
-- `pass` — только при подтверждённом состоянии задач и без AC-критичных пробелов.
+- Запись отчёта: `<specs_dir>/<slug>/verify.md` в формате `.speckeep/templates/verify.md`. YAML frontmatter обязателен для archive readiness; форму отчётов других slug не копируй.
+- Traceability: `./.speckeep/scripts/trace[SCRIPT_EXT] <slug>` (и `--tests`) читает `Proof:` и подсвечивает пробелы, осиротевшие записи, отсутствующие файлы/анкоры. Proof не заменяет.
+- Неполные/отсутствующие `Proof:` — пробелы evidence: одна-две задачи → `concerns`; массово или потеряна AC-уверенность → `blocked`. Не игнорируй их.
+- Evidence: строки `<TASK_ID> -> proof` (и `AC-* -> <TASK_ID>`); `<TASK_ID>` — `T*` или `<slug>#T*`; proof — путь, тест/вывод, артефакт.
+- Читай код только для конкретного claim по task/AC; без broad sweep. Неподтверждённое → `Not Verified`, не `pass`.
+- Не ставь `[x]` без proof: оставь `[ ]` и поставь `concerns`/`blocked` с конкретным next step.
+- Не превращай verify в редизайн: фиксируй несоответствия и блокеры, scope не расширяй.
+- Если evidence частичное — `concerns`, не `pass`; `pass` требует подтверждённого состояния задач и отсутствия AC-критичных пробелов.
 
 ## Review (ось стандартов)
 
@@ -61,7 +55,6 @@ Stop if: `tasks.md` отсутствует или slug неоднозначен.
 - [ ] Каждая строка матрицы ссылается на конкретный evidence
 - [ ] `pass` в строке только при подтверждающем evidence; остальное — `not-verified`
 - [ ] Общий вердикт соответствует матрице: любой `fail`/массовый `not-verified` → не `pass`
-- [ ] `pass` только при подтверждённом состоянии задач и без AC-критичных пробелов
 - [ ] Отсутствующие/неполные `Proof:` явно перечислены как пробелы
 - [ ] `## Review` содержит находки или явно `skipped (no diff)`
 - [ ] Нет `blocker`-находки при общем вердикте `pass`
@@ -71,20 +64,10 @@ Stop if: `tasks.md` отсутствует или slug неоднозначен.
 
 ## Output expectations
 
-- В `verify.md` — таблица **Verification Matrix**:
-  ```
-  | AC-ID | Task IDs | Evidence | Verdict |
-  |-------|----------|----------|---------|
-  | AC-001 | T1.1, T2.1 | test_export_downloads_file: pass | pass |
-  | AC-002 | T1.2 | test_export_empty_state: pass | pass |
-  ```
-  - Каждый AC-* из spec.md — строка матрицы.
-  - Evidence: имена тестов, вывод команд или пути.
-  - Verdict строки: `pass` | `fail` | `not-verified`.
+- В `verify.md` — **Verification Matrix**: `| AC-ID | Task IDs | Evidence | Verdict |`, по строке на каждый `AC-*` из `spec.md`. Evidence — имя теста/вывод, вывод команды или путь; verdict строки — `pass|fail|not-verified`.
 - Общий вердикт: `pass|concerns|blocked` + несоответствия (task/AC → evidence).
-- Секция `## Review`: список находок (до 10) или `skipped (no diff)`. Любая `blocker`-находка противоречит вердикту `pass`.
+- Секция `## Review`: находки (до 10) или `skipped (no diff)`. Любая `blocker`-находка противоречит вердикту `pass`.
 - Добавляй `## Not Verified`, если что-то не проверял.
-- Явно перечисляй пробелы `Proof:` у завершённых задач.
 - Заверши каноническим end block из `AGENTS.md` (Slug / Status / Artifacts / Blockers / Готово к).
 - `pass` → `Готово к: speckeep archive <slug> . (alt: speckeep finish <slug> . для локального merge)`.
 - `concerns` → `Готово к: /spk-implement <slug>` (закрыть proof) или `Вернуться к: /spk-tasks <slug>` (покрытие).

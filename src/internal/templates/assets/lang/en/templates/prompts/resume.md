@@ -10,9 +10,7 @@ Inputs: `speckeep status <slug> . --json` (preferred) or `./.speckeep/scripts/li
 Outputs: at most 8 lines in chat. No files created or modified.
 Stop if: the slug has no artifacts → suggest `/spk-propose <slug>` for a new feature, or `speckeep list-specs .` when the slug is wrong.
 
-## Path Resolution
-
-- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `specs/active`.
+Paths: follow `AGENTS.md` (`<specs_dir>` from config, default `specs/active`).
 
 ## Rules
 

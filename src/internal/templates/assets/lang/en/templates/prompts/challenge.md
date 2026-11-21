@@ -17,9 +17,7 @@ Inputs: constitution per AGENTS.md (`.speckeep/constitution.summary.md` preferre
 Outputs: concrete findings + minimal fixes (where/why).
 Stop if: the artifact is missing.
 
-## Path Resolution
-
-- Resolve `<specs_dir>` from `.speckeep/speckeep.yaml` (read ≤1 time per session). If the config is missing, use `specs/active`.
+Paths: follow `AGENTS.md` (`<specs_dir>` from config, default `specs/active`).
 
 ## Output expectations
 
