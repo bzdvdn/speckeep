@@ -52,15 +52,13 @@ AGENTS.md
 
 ## Public CLI Surface
 
-The public CLI stays intentionally small:
+The CLI is intentionally operational: workspace management, inspection, traceability, and closing. Day-to-day spec/plan/tasks/implement work stays agent-facing.
 
-- `speckeep init [path]`
-- `speckeep add-agent [path]`
-- `speckeep list-agents [path]`
-- `speckeep remove-agent [path]`
-- `speckeep cleanup-agents [path]`
-- `speckeep doctor [path]`
-- `speckeep list-specs [path]`
-- `speckeep show-spec <name> [path]`
+- **Workspace**: `init`, `refresh`, `add-agent`, `list-agents`, `remove-agent`, `cleanup-agents`, `doctor`, `migrate`, `import`
+- **Features**: `list-specs`, `show-spec`, `features`, `feature`, `feature repair`, `status`, `check`, `risk`, `export`, `context`
+- **Traceability**: `trace`, `trace init`, `trace --files`, `trace --file`, `trace rebuild`
+- **Close**: `archive`, `finish`, `converge`, `guard`, `list-archive`
+- **Scaffolding**: `demo`, `explore`, `schema`
+- **Self**: `self check`, `self upgrade`
 
-Creation and evolution of specs, plans, tasks, and implementation are agent-facing workflows, not public CLI subcommands.
+Each command, flag, and exit-code contract is documented in the [CLI Reference](/en/cli).

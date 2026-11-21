@@ -52,15 +52,13 @@ AGENTS.md
 
 ## Публичный CLI
 
-Публичная поверхность CLI намеренно маленькая:
+CLI намеренно операционный: управление воркспейсом, проверки, трассируемость и закрытие. Ежедневная работа со spec/plan/tasks/implement остаётся agent-facing.
 
-- `speckeep init [path]`
-- `speckeep add-agent [path]`
-- `speckeep list-agents [path]`
-- `speckeep remove-agent [path]`
-- `speckeep cleanup-agents [path]`
-- `speckeep doctor [path]`
-- `speckeep list-specs [path]`
-- `speckeep show-spec <name> [path]`
+- **Workspace**: `init`, `refresh`, `add-agent`, `list-agents`, `remove-agent`, `cleanup-agents`, `doctor`, `migrate`, `import`
+- **Фичи**: `list-specs`, `show-spec`, `features`, `feature`, `feature repair`, `status`, `check`, `risk`, `export`, `context`
+- **Трассируемость**: `trace`, `trace init`, `trace --files`, `trace --file`, `trace rebuild`
+- **Закрытие**: `archive`, `finish`, `converge`, `guard`, `list-archive`
+- **Скаффолдинг**: `demo`, `explore`, `schema`
+- **Self**: `self check`, `self upgrade`
 
-Создание и развитие spec, plan, tasks и implement остаются agent-facing workflow, а не публичными subcommand'ами CLI.
+Каждая команда, флаг и контракт exit code описаны в [Справочнике CLI](/ru/cli).

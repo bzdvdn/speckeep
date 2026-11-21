@@ -347,16 +347,18 @@ Add a user-selectable dark theme for the dashboard and settings pages.
 - подтвердить, что завершенные задачи достаточно соответствуют текущему состоянию реализации
 - выпустить легкий verification report
 - начинать с `.speckeep/scripts/verify-task-state.sh partner-scheduling`, если сначала нужно только подтвердить состояние задач
-- использовать `.speckeep/templates/verify-report.md`, если отчет нужно сохранить в файл
+- использовать `.speckeep/templates/verify.md`, если отчет нужно сохранить в файл
 - по умолчанию использовать `specs/active/partner-scheduling/verify.md`, если путь явно не указан
 
 ## 8. Архивация Фичи
 
-CLI-шаг, разрешенный при детерминированной доказанности фичи (все задачи `[x]` имеют записи `Proof:`) или после `verify: pass`:
+CLI-шаг закрытия: для `completed` все задачи закрыты, у каждой `[x]` есть `Proof:`, verify-policy соблюдена; non-completed статусы требуют `--reason`.
 
 ```bash
 speckeep archive partner-scheduling .
 ```
+
+Если нужно закрыть ветку локально, используйте `speckeep finish partner-scheduling .` — команда архивирует, коммитит снимок, мерджит через `--no-ff` в `main`/`master` (или `--into <branch>`) и удаляет локальную feature-ветку. Push не выполняется.
 
 Ожидаемое поведение CLI:
 
@@ -1007,8 +1009,8 @@ speckeep self check
 ```
 
 ```text
-installed: v1.2.0
-latest:    v1.3.0
+installed: v1.3.0
+latest:    v1.4.0
 update available — run `speckeep self upgrade`
 ```
 
@@ -1017,9 +1019,9 @@ speckeep self upgrade
 ```
 
 ```text
-downloading speckeep_v1.3.0_linux_amd64.tar.gz...
+downloading speckeep_v1.4.0_linux_amd64.tar.gz...
 sha256 verified
-replaced: /home/you/.local/bin/speckeep (v1.2.0 -> v1.3.0)
+replaced: /home/you/.local/bin/speckeep (v1.3.0 -> v1.4.0)
 ```
 
 Ставил через npm? Обновляйся через npm — `self upgrade` управляет только нативным бинарником:

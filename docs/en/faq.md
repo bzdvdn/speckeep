@@ -28,6 +28,19 @@ Archive a feature when it is no longer active in the main workflow, for example 
 
 The archive keeps historical context without bloating the active workspace.
 
+## Should I use `archive` or `finish`?
+
+- `speckeep archive <slug> .` is the default and the safe choice: it closes the artifact package only, and you merge through a PR or by hand afterwards. Use it for `completed`, `deferred`, `superseded`, `abandoned`, and `rejected` features.
+- `speckeep finish <slug> .` is the local-merge shortcut: archive + commit the snapshot + `merge --no-ff` into `main`/`master` (or `--into <branch>`) + delete the local feature branch. Use it only when you explicitly want the branch closed locally. It never pushes or deletes remote branches.
+
+## Does `verify` review code quality?
+
+Yes. `verify` has two axes: AC/evidence coverage and a standards review of the implemented diff (duplicated logic, dead code, misleading names, unhandled errors, weakened tests). Findings are capped at 10, recorded in `## Review`, and only `blocker` forces `blocked`. Review never rewrites code — it reports.
+
+## Implementation revealed a gap in the spec — what now?
+
+That is normal, not drift. Update `spec.md` and `tasks.md` together: add or amend the `AC-*` and add the task that covers it, then continue. Never leave the spec ahead of the tasks. If the gap is a design or scope change, stop and return to `/spk-plan` or `/spk-tasks`. `converge` and `check` also report an AC with no task coverage.
+
 ## What is the difference between `remove-agent` and `cleanup-agents`?
 
 `remove-agent` updates `.speckeep/speckeep.yaml` and removes generated files for the selected enabled targets.
@@ -78,3 +91,14 @@ Identifiers such as `AC-001` make traceability cheaper and clearer across specs,
 ## What is `verify` for?
 
 `verify` is a lightweight confirmation phase after `implement`. It helps answer whether the feature is aligned enough with tasks, specs, plan artifacts, and project rules to move toward archive or completion claims.
+
+## How much context does SpecKeep add?
+
+Less than the code you read. Typical numbers in v1.4.0:
+
+- always-on guidance (`AGENTS.md`): ~5.3 KB EN / ~6.9 KB RU
+- one phase prompt: ~1–8 KB, plus ~0.4 KB of skill scaffolding
+- a full feature lifecycle (spec → tasks → implement → verify): ~22 KB EN / ~27 KB RU
+- the `sdd` router (only when the phase is unclear): ~1.2 KB
+
+That is roughly 1.3–1.5k tokens per session and 3–7k tokens per feature. The dominant cost is repository reading, not prompts, so the levers that matter are `REPOSITORY_MAP.md`, `Touches:`, `trace --files`, review scoped to `changes.json`, and `/spk-resume`. Run `speckeep context <slug>` to see what each artifact costs in a specific feature.

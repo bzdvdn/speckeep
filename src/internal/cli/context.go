@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,6 +15,8 @@ import (
 )
 
 func newContextCmd() *cobra.Command {
+	var jsonOutput bool
+
 	cmd := &cobra.Command{
 		Use:   "context <slug> [path]",
 		Short: "Show context budget for a feature",
@@ -44,6 +47,21 @@ Examples:
 
 			contextInfo := calculateContextBudget(root, slug, state, cfg)
 
+			if jsonOutput {
+				payload := contextReport{
+					Slug:        slug,
+					Phase:       state.Phase,
+					Phases:      contextInfo.Phases,
+					TotalTokens: totalContextTokens(contextInfo),
+				}
+				encoded, err := json.MarshalIndent(payload, "", "  ")
+				if err != nil {
+					return err
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), string(encoded))
+				return nil
+			}
+
 			fmt.Fprintf(cmd.OutOrStdout(), "Context Budget for: %s\n", slug)
 			fmt.Fprintf(cmd.OutOrStdout(), "Phase: %s\n\n", state.Phase)
 
@@ -70,15 +88,32 @@ Examples:
 		},
 	}
 
+	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output the context budget as JSON")
 	return cmd
 }
 
+// contextReport is the machine-readable shape of `speckeep context --json`.
+type contextReport struct {
+	Slug        string         `json:"slug"`
+	Phase       string         `json:"phase"`
+	Phases      []PhaseContext `json:"phases"`
+	TotalTokens int            `json:"total_tokens"`
+}
+
+func totalContextTokens(info ContextBudget) int {
+	total := 0
+	for _, phase := range info.Phases {
+		total += phase.EstimatedTokens
+	}
+	return total
+}
+
 type PhaseContext struct {
-	Name            string
-	Path            string
-	Exists          bool
-	EstimatedTokens int
-	Description     string
+	Name            string `json:"name"`
+	Path            string `json:"path"`
+	Exists          bool   `json:"exists"`
+	EstimatedTokens int    `json:"estimated_tokens"`
+	Description     string `json:"description"`
 }
 
 type ContextBudget struct {

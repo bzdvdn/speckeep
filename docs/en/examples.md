@@ -356,16 +356,18 @@ Expected agent behavior:
 - confirm that completed tasks match the current implementation state closely enough
 - produce a lightweight verification report
 - start with `.speckeep/scripts/verify-task-state.sh partner-scheduling` when task-state confirmation is enough
-- use `.speckeep/templates/verify-report.md` when the report should be persisted
+- use `.speckeep/templates/verify.md` when the report should be persisted
 - default to `specs/active/partner-scheduling/verify.md` when no explicit path is provided
 
 ## 8. Archive the Feature
 
-CLI follow-up after `verify: pass`:
+CLI close: for `completed`, all tasks are closed, every `[x]` carries `Proof:`, and the verify policy is satisfied; non-completed statuses require `--reason`.
 
 ```bash
 speckeep archive partner-scheduling .
 ```
+
+To close the branch locally instead, use `speckeep finish partner-scheduling .` — it archives, commits the snapshot, merges with `--no-ff` into `main`/`master` (or `--into <branch>`), and deletes the local feature branch. It never pushes.
 
 Expected CLI behavior:
 
@@ -999,8 +1001,8 @@ speckeep self check
 ```
 
 ```text
-installed: v1.2.0
-latest:    v1.3.0
+installed: v1.3.0
+latest:    v1.4.0
 update available — run `speckeep self upgrade`
 ```
 
@@ -1009,9 +1011,9 @@ speckeep self upgrade
 ```
 
 ```text
-downloading speckeep_v1.3.0_linux_amd64.tar.gz...
+downloading speckeep_v1.4.0_linux_amd64.tar.gz...
 sha256 verified
-replaced: /home/you/.local/bin/speckeep (v1.2.0 -> v1.3.0)
+replaced: /home/you/.local/bin/speckeep (v1.3.0 -> v1.4.0)
 ```
 
 Installed via npm? Update through npm instead — `self upgrade` manages the native binary only:

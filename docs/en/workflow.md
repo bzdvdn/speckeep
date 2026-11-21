@@ -203,6 +203,8 @@ Executes unfinished tasks and updates `tasks.md`.
 - Sub-tasks MUST NOT change the `AC-*` mapping of the parent task.
 - If decomposition reveals a plan-level flaw, the agent MUST stop and request a plan update.
 
+**Spec evolution** is allowed and expected: implementation often reveals a missing requirement or a wrong assumption. In that case update `spec.md` and `tasks.md` together — new or amended `AC-*` plus the task that covers it — and continue. Never leave the spec ahead of the tasks. Anything larger (new scope, design change) is still a stop: return to `/spk-tasks` or `/spk-plan`. Structural drift stays deterministic: `converge` and `check` report `acceptance_not_covered` and `unknown_acceptance_reference` when the AC set and task coverage disagree.
+
 Default behavior should remain full-run: without explicit scope flags, SpecKeep continues through all unfinished tasks in task-list order.
 
 Selective execution is allowed when the user explicitly narrows scope:
@@ -235,7 +237,7 @@ Those phase-status updates should follow the project's configured agent language
 
 Optional on-demand audit: verify runs a lightweight post-implementation check to confirm that completed work is aligned enough with tasks and project rules to move forward safely. It is always available but skipped by default — the normal workflow proceeds from `implement` straight to `archive`.
 
-Verification uses **traceability data** collected via `./.speckeep/scripts/trace.* <slug>`, which reads `Proof:` lines from `tasks.md` to confirm that implementation matches task claims and acceptance criteria. The verify phase never scans source code for annotations.
+Verification uses **traceability data** collected via `./.speckeep/scripts/trace.* <slug>`, which reads `Proof:` lines from `tasks.md` to confirm that implementation matches task claims and acceptance criteria. The verify phase never scans source code for annotations; it reads the touched diff only for the standards review.
 
 A full verification report should use a stable structure:
 
@@ -245,9 +247,17 @@ A full verification report should use a stable structure:
 - `## Checks`
 - `## Errors`
 - `## Warnings`
+- `## Review`
 - `## Questions`
 - `## Not Verified`
 - `## Next Step`
+
+`verify` covers two axes:
+
+- **Spec coverage** — every `AC-*` has evidence and every completed task has a valid `Proof:`.
+- **Standards** — the implemented diff is reviewed for duplicated logic, dead code, misleading names, unhandled errors, weakened tests, and changes that bypass existing abstractions. Review is scoped to the files this feature touched (`changes.json` / `Touches:` plus `Unmapped` drift).
+
+Review findings are capped at 10 and recorded as `blocker|major|minor — path:line — why`. Findings are reported, not fixed. Only `blocker` forces the verdict to `blocked`; `major`/`minor` do not block `pass`. If no diff is available, the section says `skipped (no diff)`.
 
 Recommended report details:
 
@@ -276,11 +286,11 @@ Use `concerns` rather than `pass` when the evidence is partial but no concrete c
 
 `--persist`: write the report to `specs/active/<slug>/verify.md` in addition to conversation output. Without this flag, the report stays in the conversation only.
 
-Use `.speckeep/templates/verify-report.md` as the canonical template when the report is written to disk.
+Use `.speckeep/templates/verify.md` as the canonical template when the report is written to disk.
 
 Persisted verify reports should start with the same machine-readable metadata block used by inspect reports: `report_type`, `slug`, `status`, `docs_language`, and `generated_at`.
 
-When available, SpecKeep should prefer `.speckeep/scripts/check-verify-ready.sh <slug>` as the cheap readiness pass before deeper verification.
+When available, SpecKeep should prefer `./.speckeep/scripts/check-ready.sh verify <slug>` as the cheap readiness pass before deeper verification.
 
 Use `.speckeep/scripts/verify-task-state.sh <slug>` as the cheapest first-pass helper when you only need task-state confirmation.
 
@@ -297,6 +307,35 @@ Archive is CLI-only. For `completed`, the feature must be deterministically prov
 ### `finish`
 
 Local-merge close for a completed feature: `speckeep finish <slug> .` archives the feature, commits the archive snapshot on the feature branch, merges the branch into the base branch with `--no-ff`, and deletes the local feature branch. It requires the feature/hotfix branch checked out and a clean worktree; the target defaults to `main`, then `master` (`--into <branch>` overrides, e.g. `--into dev`; the branch must exist locally). It never pushes and never deletes remote branches. Use `archive` instead when merging via a pull request, or for deferred/abandoned features.
+
+## Optional Commands
+
+These commands sit beside the phase chain. None of them is a gate and none is required for a normal feature.
+
+| Command | Use it when | Artifact |
+|---|---|---|
+| `/spk-grill` | the idea is raw and the design tree is unresolved | none |
+| `/spk-research` | a technical unknown must be resolved from primary sources | `research.md` |
+| `/spk-diagnose` | a bug's cause is unknown | none (fix + regression test) |
+| `/spk-hotfix` | the cause is known and the fix is small | `hotfix.md` |
+| `/spk-challenge` | a spec or plan needs an adversarial pass | none |
+| `/spk-scope` | you need an in/out boundary check | none |
+| `/spk-resume` | a fresh session must pick up the feature quickly | none |
+| `/spk-handoff` | the state must be shared with a person or another session | handoff summary |
+| `/spk-recap` | you want a project-wide status board | none |
+| `/spk-converge` | you want the cheap implement → check → fix loop instead of full verify | none |
+| `/spk-rollback` | completed tasks must return to unfinished | `tasks.md` |
+
+`/spk-grill` and `/spk-research` end by pointing at `/spk-propose` or `/spk-spec`; they never write a spec themselves. `/spk-resume` writes nothing and is deliberately thinner than `/spk-handoff`.
+
+## Closing a Feature
+
+| Situation | Use |
+|---|---|
+| merge through a pull request | `speckeep archive <slug> .`, then push the branch and open a PR |
+| merge locally, no PR | `speckeep finish <slug> .` (optionally `--into <branch>`) |
+| park unfinished work | `speckeep archive <slug> . --status deferred --reason "<why>"` |
+| supersede or abandon | `speckeep archive <slug> . --status superseded --reason "<why>"` (or `abandoned`) |
 
 ## Why This Chain Exists
 

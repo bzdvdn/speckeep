@@ -36,6 +36,42 @@ A lightweight post-implementation check that confirms whether a feature is align
 
 The phase and storage area used to preserve a historical snapshot of a finished or inactive feature package.
 
+## Finish
+
+The local-merge close: archive + commit the snapshot + `merge --no-ff` into the base branch + delete the local feature branch. Never pushes or deletes remote branches.
+
+## Archive Status
+
+The reason recorded on an archived package: `completed`, `superseded`, `abandoned`, `rejected`, or `deferred`. Only `completed` enforces closed tasks, `Proof:`, and the verify policy; the others park incomplete work and require `--reason`.
+
+## Proof
+
+The evidence line under a completed task in `tasks.md`: `Proof: <kind> <path> [<anchor>]`. `trace`, `check`, `doctor`, and the archive gate read only these lines.
+
+## Converge
+
+A cheap closing loop that re-checks completed tasks, `Proof:`, declared surfaces, and AC coverage, then reports gaps so follow-up tasks can be appended and the check re-run. Lighter than `verify` — it produces no report file.
+
+## Grill
+
+An optional pre-spec interview that resolves a design tree in rounds with a recommended answer per question. Writes no artifacts by default.
+
+## Diagnose
+
+An optional bounded bug loop: reproduce → minimize → hypothesize → instrument → fix → regression test. Use hotfix instead when the cause is already known.
+
+## Resume
+
+A thin in-session handoff: a short state packet (phase, tasks, next open task, blockers) that creates no artifact. Use handoff when the state must be shared with a person.
+
+## Handoff
+
+A shareable summary of the current feature state so another session or teammate can continue without re-reading the artifact set.
+
+## Hotfix
+
+An emergency fix lane outside the phase chain for a known cause and a small, bounded diff.
+
 ## Data Model
 
 A plan artifact that describes entities, structures, relationships, and important invariants needed for implementation.

@@ -133,12 +133,13 @@ Generated skills include:
 - when the input comes from a local prompt file, it should prefer top-of-file `name:` and optional `slug:` metadata over a generic filename
 - if the request is ambiguous, multi-feature, URL-like, or tries to derive one spec from multiple constitutional changes, it should stop and ask for one concrete feature
 
-`verify` is intentionally lightweight:
+`verify` is intentionally lightweight but two-axis:
 
 - it starts from `tasks.md`
 - it can use `.speckeep/scripts/verify-task-state.sh <slug>` as a cheap first-pass helper
 - `.speckeep/scripts/*` wrappers compute the project root and pass it via `--root`, so they can be executed from any working directory
 - it reads deeper artifacts only when needed to confirm a concrete claim
+- besides AC/evidence coverage, it reviews the implemented diff for standards (duplication, dead code, unclear names, unhandled errors, weakened tests), capped at 10 findings and written to `## Review`; only `blocker` findings force `blocked`
 - it is meant to confirm readiness for archive or follow-up refinement, not to become a heavy review engine
 
 After `verify: pass`, prefer the explicit CLI follow-up `speckeep archive <slug> .` so archiving stays outside the agent reasoning loop. Default archive status is `completed`; non-`completed` statuses require an explicit `--reason`. For `completed`, it is fine (and cheap) to reuse `verify-task-state.sh` before creating the snapshot.

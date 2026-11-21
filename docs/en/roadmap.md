@@ -10,6 +10,20 @@ SpecKeep should continue to position itself between heavier spec-driven systems 
 - lighter than spec-kit
 - optimized for agent-first workflows on real codebases
 
+## Current State — v1.4.0
+
+Shipped:
+
+- phase chain: `constitution → spec → [inspect] → [plan] → tasks → implement → verify → archive`, with `verify` optional by default
+- fast lanes: `/spk-propose` (spec + tasks in one pass) and `/spk-converge` (cheap closing loop)
+- optional commands: grill, research, diagnose, hotfix, challenge, scope, resume, handoff, recap, rollback
+- two-axis verify: AC evidence plus a bounded diff review (touched files only, ≤10 findings, `blocker`-only gate)
+- status-aware archive: `completed` enforces closed tasks, `Proof:`, and the verify policy; parked statuses require a reason
+- closing: `archive` for PR/manual merge and `finish` for a local `--no-ff` merge (no push, no remote branch deletion)
+- token footprint: ~5.3 KB EN / ~6.9 KB RU always-on; `speckeep context <slug>` reports per-artifact cost
+
+The iterations below describe direction, not a contract; shipped behavior is tracked in `CHANGELOG.md`.
+
 ## Release Focus
 
 The immediate goal for SpecKeep is not to match heavier SDD systems in phase count, artifact count, or automation depth.
@@ -109,7 +123,7 @@ Safe direction:
 Use caution with:
 
 - reading code by default during verify
-- turning verify into a heavy review or QA engine
+- turning verify into a heavy review or QA engine — the v1.4 standards review stays bounded: touched files only, ≤10 findings, `blocker`-only gate
 
 ### Why this matters
 

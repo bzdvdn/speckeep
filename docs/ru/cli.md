@@ -5,27 +5,27 @@
 **Рекомендуемый способ — npm**: пакет скачивает подходящий нативный бинарник для твоей ОС/архитектуры и не требует ручной настройки `PATH`:
 
 ```bash
-# Глобальная установка (актуальный релиз: v1.3.0)
-npm install -g speckeep@1.3.0
+# Глобальная установка (актуальный релиз: v1.4.0)
+npm install -g speckeep@1.4.0
 
 # Или запуск без глобальной установки
-npx speckeep@1.3.0 init my-project --lang ru --agents claude
+npx speckeep@1.4.0 init my-project --lang ru --agents claude
 ```
 
 Linux/macOS через нативный установщик:
 
 ```bash
-VERSION=v1.3.0
+VERSION=v1.4.0
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 Windows (PowerShell):
 
 ```powershell
-npm install -g speckeep@1.3.0
+npm install -g speckeep@1.4.0
 
 # Нативная альтернатива
-$version="v1.3.0"
+$version="v1.4.0"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -36,6 +36,32 @@ powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.c
 - Windows: установи `$env:SPECKEEP_ADD_TO_PATH=1` или запускай скрипт с `-AddToPath`
 
 **Обновление:** `speckeep self upgrade` обновляет нативную установку на месте. Если ставил через npm — используй `npm install -g speckeep@latest`.
+
+## Коды выхода
+
+SpecKeep использует два кода выхода:
+
+| Код | Смысл |
+|---|---|
+| `0` | успех; для гейт-команды — проверка пройдена |
+| `1` | ошибка, неверное использование или проваленный гейт |
+
+Команды, пригодные как CI-гейты:
+
+| Команда | Выходит с `1`, когда |
+|---|---|
+| `speckeep check <slug>` | фича заблокирована (нет артефактов или провалены readiness-проверки) |
+| `speckeep check --all` | заблокирована хотя бы одна фича |
+| `speckeep guard` | хотя бы одна активная фича не готова к закрытию |
+| `speckeep converge <slug>` | остаются пробелы (открытые задачи, невалидный `Proof:`, непокрытые AC) |
+| `speckeep archive` / `speckeep finish` | не выполнены предусловия (открытые задачи, нет `Proof:`, вето verify, грязное worktree, конфликт merge) |
+
+Примечания:
+
+- `speckeep doctor` сообщает о проблемах, но выходит с `0`; реагируйте на находки, а не на код.
+- `speckeep self check` — read-only и тоже выходит с `0`.
+- Все остальные команды выходят с `1` только при реальной ошибке или неверном использовании.
+- С `--json` гейт-команды сохраняют те же коды и сначала печатают payload, поэтому CI может разбирать вывод и опираться на статус.
 
 ## Команды
 
@@ -138,6 +164,14 @@ speckeep add-agent my-project --agents claude --agents codex
 - `.speckeep/constitution.summary.md` стоит сохранить как компактный policy layer
 - перед нормализацией старых feature packages сначала выполните `speckeep refresh . --dry-run`, чтобы увидеть managed changes без записи
 
+### `completed`-архив теперь требует proof
+
+С 1.4.0 архив со статусом `completed` строго гейтится: нет открытых задач, у каждой `[x]` есть валидный `Proof:`, verify-policy соблюдена. `Proof:`, указывающий на отсутствующий файл, отклоняется. Если у старой фичи нет пригодного evidence, добавьте строки `Proof:` или отложите её с non-completed статусом и причиной:
+
+```bash
+speckeep archive legacy-feature . --status deferred --reason "pre-1.4 work without proof"
+```
+
 ### `speckeep doctor [path]`
 
 Проверяет здоровье workspace.
@@ -192,6 +226,15 @@ speckeep dashboard
 
 Используй `--dry-run`, чтобы посмотреть изменения без применения, и `--json` для структурированного вывода.
 
+### `speckeep status <slug> [path]`
+
+Компактное состояние фичи: текущая фаза, `ready_for`, флаг blocked, наличие артефактов, счётчики задач и следующая slash-команда. Самый дешёвый способ возобновить сессию — на нём построен `/spk-resume`.
+
+```bash
+speckeep status export-report
+speckeep status export-report --json
+```
+
 ### `speckeep features [path]`
 
 Показывает workflow-состояние по всем найденным фичам.
@@ -234,6 +277,15 @@ speckeep check export-report
 speckeep check export-report my-project --json
 speckeep check my-project --all
 speckeep check my-project --all --json
+```
+
+### `speckeep context <slug> [path]`
+
+Показывает оценку контекстного бюджета фичи: сколько токенов даёт каждый артефакт (constitution summary, spec, inspect, plan, tasks, data model, verify), итог и предупреждение выше 50k токенов. Помогает заметить раздутый spec или слишком подробный plan до того, как они начнут стоить токенов в каждой сессии.
+
+```bash
+speckeep context export-report
+speckeep context export-report --json
 ```
 
 ### `speckeep trace [slug] [path]`
@@ -349,6 +401,18 @@ speckeep import speckit ./spec-kit-project
 speckeep import openspec . --json
 ```
 
+### `speckeep risk <slug> [path]`
+
+Оценивает риск фичи по сигналам spec/tasks и рекомендует строгость spec — например, стоит ли запускать `/spk-inspect` или `/spk-plan`. Read-only эвристика, не гейт.
+
+### `speckeep explore [path]`
+
+Создаёт лёгкое exploration-workspace для неструктурированного исследования до появления spec. Флаги: `--slug`, `--branch`, `--name`; slug по умолчанию берётся из текущей ветки. Используйте, когда требования неясны, затем переходите к `/spk-spec` или `/spk-propose`.
+
+### `speckeep schema`
+
+Показывает граф зависимостей артефактов. `--set <preset>` переключает на предопределённую схему.
+
 ### `speckeep self check` / `speckeep self upgrade`
 
 Управление установленным бинарником.
@@ -384,6 +448,33 @@ speckeep demo ./my-demo --agents claude
 ```bash
 speckeep export export-report
 speckeep export export-report my-project --output export-report-bundle.md
+```
+
+### `speckeep archive <slug> [path]`
+
+Переносит feature package в `<archive_dir>/<slug>/<YYYY-MM-DD>/` (по умолчанию `specs/archived/`). Archive — способ закрытия по умолчанию: не мерджит, не коммитит и не пушит.
+
+Статусы:
+
+| Статус | Гейты |
+|---|---|
+| `completed` (по умолчанию) | нет открытых задач, валидный `Proof:` у каждой `[x]`, verify-policy соблюдена; `verify.md` со статусом ≠ `pass` блокирует |
+| `superseded`, `abandoned`, `rejected`, `deferred` | пропускают эти гейты; требуют явный `--reason` |
+
+Флаги:
+
+- `--status <status>` — статус архива (по умолчанию `completed`)
+- `--reason "<text>"` — обязателен для non-completed статусов
+- `--compact` — хранить `summary.md` + git-указатель (`snapshot.sha`) вместо копий артефактов
+- `--copy` — оставить оригиналы на месте (copy-only)
+- `--restore` — восстановить архивную фичу вместо архивации
+- `--json` — машинный вывод
+
+```bash
+speckeep archive export-report .
+speckeep archive export-report . --status deferred --reason "ждём API v2"
+speckeep archive export-report . --compact
+speckeep archive export-report . --restore
 ```
 
 ### `speckeep finish <slug> [path]`

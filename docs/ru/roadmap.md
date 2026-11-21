@@ -10,6 +10,20 @@ SpecKeep должен и дальше занимать позицию между
 - легче, чем spec-kit
 - лучше приспособлен для agent-first workflow на реальных кодовых базах
 
+## Текущее состояние — v1.4.0
+
+Что уже есть:
+
+- цепочка фаз: `constitution → spec → [inspect] → [plan] → tasks → implement → verify → archive`, `verify` по умолчанию опционален
+- быстрые полосы: `/spk-propose` (spec + tasks за проход) и `/spk-converge` (дешёвый цикл закрытия)
+- опциональные команды: grill, research, diagnose, hotfix, challenge, scope, resume, handoff, recap, rollback
+- двухосевой verify: AC evidence плюс ограниченное ревью diff (только затронутые файлы, ≤10 находок, гейт только по `blocker`)
+- status-aware archive: `completed` требует закрытых задач, `Proof:` и verify-policy; паркующие статусы требуют причину
+- закрытие: `archive` для PR/ручного merge и `finish` для локального `--no-ff` merge (без push и удаления remote-веток)
+- токен-футпринт: ~5.3 KB EN / ~6.9 KB RU always-on; `speckeep context <slug>` показывает стоимость артефактов
+
+Итерации ниже описывают направление, а не контракт; фактическое поведение фиксируется в `CHANGELOG.md`.
+
 ## Фокус Первого Релиза
 
 Ближайшая задача SpecKeep не в том, чтобы догнать более тяжелые SDD-системы по количеству фаз, артефактов или автоматизации.
@@ -109,7 +123,7 @@ Release filter: `verify` должен оставаться легким слое
 Требует осторожности:
 
 - читать код по умолчанию во время verify
-- превращать verify в тяжелый review или QA engine
+- превращать verify в тяжелый review или QA engine — ревью стандартов в v1.4 ограничено: только затронутые файлы, ≤10 находок, гейт только по `blocker`
 
 ### Почему это важно
 

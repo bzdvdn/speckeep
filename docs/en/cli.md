@@ -5,27 +5,27 @@
 **npm is the recommended install path** — it ships the matching native binary for your OS/arch and avoids PATH surprises:
 
 ```bash
-# Global install (current release: v1.3.0)
-npm install -g speckeep@1.3.0
+# Global install (current release: v1.4.0)
+npm install -g speckeep@1.4.0
 
 # Or run without a global install
-npx speckeep@1.3.0 init my-project --lang en --agents claude
+npx speckeep@1.4.0 init my-project --lang en --agents claude
 ```
 
 Linux/macOS via the native installer:
 
 ```bash
-VERSION=v1.3.0
+VERSION=v1.4.0
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 Windows (PowerShell):
 
 ```powershell
-npm install -g speckeep@1.3.0
+npm install -g speckeep@1.4.0
 
 # Native alternative
-$version="v1.3.0"
+$version="v1.4.0"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -36,6 +36,32 @@ To also add the native install directory to `PATH`:
 - Windows: set `$env:SPECKEEP_ADD_TO_PATH=1` or run the script with `-AddToPath`
 
 **Updates:** `speckeep self upgrade` upgrades a native install in place. If you installed via npm, use `npm install -g speckeep@latest` instead.
+
+## Exit Codes
+
+SpecKeep uses two exit codes:
+
+| Code | Meaning |
+|---|---|
+| `0` | success; for a gate command, the check passed |
+| `1` | error, invalid usage, or a failed gate |
+
+Commands that work as CI gates:
+
+| Command | Exits `1` when |
+|---|---|
+| `speckeep check <slug>` | the feature is blocked (missing artifacts or failed readiness checks) |
+| `speckeep check --all` | any feature is blocked |
+| `speckeep guard` | any active feature is not closeable (not archive-ready) |
+| `speckeep converge <slug>` | gaps remain (open tasks, invalid `Proof:`, uncovered AC) |
+| `speckeep archive` / `speckeep finish` | preconditions fail (open tasks, missing `Proof:`, verify veto, dirty worktree, merge conflict) |
+
+Notes:
+
+- `speckeep doctor` reports problems but exits `0`; act on its findings, not on the exit code.
+- `speckeep self check` is read-only and exits `0`.
+- Every other command exits `1` only on an actual error or invalid usage.
+- With `--json`, gate commands keep the same exit codes and print the payload first, so CI can parse output and still rely on the status.
 
 ## Commands
 
@@ -138,6 +164,14 @@ If your active feature folders still contain `summary.md`, `spec.digest.md`, or 
 - keep `.speckeep/constitution.summary.md` as the compact policy layer
 - run `speckeep refresh . --dry-run` first to preview managed guidance changes before normalizing older feature packages
 
+### Completed archives now require proof
+
+Since 1.4.0 a `completed` archive is strictly gated: no open tasks, a valid `Proof:` on every `[x]` task, and the verify policy. A `Proof:` that points to a missing file is rejected. If an older feature has no usable evidence, either add `Proof:` lines or park it with a non-completed status and a reason:
+
+```bash
+speckeep archive legacy-feature . --status deferred --reason "pre-1.4 work without proof"
+```
+
 ### `speckeep doctor [path]`
 
 Checks workspace health.
@@ -192,6 +226,15 @@ Current repair scope includes:
 
 Use `--dry-run` to preview changes and `--json` for structured output.
 
+### `speckeep status <slug> [path]`
+
+Compact state for one feature: current phase, `ready_for`, blocked flag, artifact presence, task counts, and the next slash command. This is the cheapest way to resume a session — `/spk-resume` is built on it.
+
+```bash
+speckeep status export-report
+speckeep status export-report --json
+```
+
 ### `speckeep features [path]`
 
 Lists workflow status across all discovered features.
@@ -234,6 +277,15 @@ speckeep check export-report
 speckeep check export-report my-project --json
 speckeep check my-project --all
 speckeep check my-project --all --json
+```
+
+### `speckeep context <slug> [path]`
+
+Shows the estimated context budget for one feature: how many tokens each artifact contributes (constitution summary, spec, inspect, plan, tasks, data model, verify), the total, and a warning above 50k tokens. Use it to catch an oversized spec or an over-detailed plan before it costs tokens in every session.
+
+```bash
+speckeep context export-report
+speckeep context export-report --json
 ```
 
 ### `speckeep trace [slug] [path]`
@@ -341,6 +393,18 @@ speckeep import speckit ./spec-kit-project
 speckeep import openspec . --json
 ```
 
+### `speckeep risk <slug> [path]`
+
+Assesses feature risk from spec/tasks signals and recommends spec rigor — for example whether `/spk-inspect` or `/spk-plan` is worth running. Read-only heuristic, not a gate.
+
+### `speckeep explore [path]`
+
+Creates a lightweight exploration workspace for unstructured investigation before a spec exists. Flags: `--slug`, `--branch`, `--name`; the slug defaults to the current branch. Use it when requirements are unclear, then continue with `/spk-spec` or `/spk-propose`.
+
+### `speckeep schema`
+
+Shows the artifact dependency graph. `--set <preset>` switches to a predefined schema.
+
 ### `speckeep self check` / `speckeep self upgrade`
 
 Manages the installed binary.
@@ -376,6 +440,33 @@ Use `--output <file>` to write to a file instead of stdout.
 ```bash
 speckeep export export-report
 speckeep export export-report my-project --output export-report-bundle.md
+```
+
+### `speckeep archive <slug> [path]`
+
+Moves a feature package into `<archive_dir>/<slug>/<YYYY-MM-DD>/` (default `specs/archived/`). Archive is the default close: it does not merge, commit, or push.
+
+Statuses:
+
+| Status | Gates |
+|---|---|
+| `completed` (default) | no open tasks, valid `Proof:` on every `[x]` task, verify policy satisfied; a `verify.md` with status other than `pass` vetoes |
+| `superseded`, `abandoned`, `rejected`, `deferred` | skip those gates; require an explicit `--reason` |
+
+Flags:
+
+- `--status <status>` — archive status (default `completed`)
+- `--reason "<text>"` — required for non-completed statuses
+- `--compact` — store `summary.md` + a git pointer (`snapshot.sha`) instead of copying artifacts
+- `--copy` — keep the originals in place (copy-only mode)
+- `--restore` — restore an archived feature instead of archiving
+- `--json` — machine-readable output
+
+```bash
+speckeep archive export-report .
+speckeep archive export-report . --status deferred --reason "waiting for API v2"
+speckeep archive export-report . --compact
+speckeep archive export-report . --restore
 ```
 
 ### `speckeep finish <slug> [path]`

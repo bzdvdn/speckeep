@@ -7,9 +7,12 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.4.0] - 2026-11-21
+
 ### Added
 
 - **`/spk-resume`**: optional thin resume for a fresh session. It prints an ≤8-line state packet (phase, tasks done/total, next open task, blockers, present artifacts) and hands over to the phase skill. It creates no artifact and is explicitly distinct from `/spk-handoff` (which produces a shareable handoff document).
+- **`speckeep context --json`**: the context-budget command now emits a machine-readable payload (`slug`, `phase`, per-artifact `estimated_tokens`, `total_tokens`) instead of only text.
 - **`/spk-research`**: optional technical research that resolves 1–5 concrete unknowns against primary sources and writes a cited `research.md`.
 - **`/spk-diagnose`**: optional bug diagnosis loop (reproduce → minimize → hypothesize → instrument → fix → regression) with a hard cap and a clear boundary against `/spk-hotfix`.
 - **`/spk-grill`**: optional pre-spec interview that resolves a design tree in rounds, with a recommended answer per question and a hard cap of 3 rounds / 12 questions. It writes no artifacts by default and ends by suggesting `/spk-propose` or `/spk-spec`.
@@ -21,10 +24,12 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Verify now has two axes**: alongside AC/evidence coverage, `/spk-verify` reviews the implemented diff for engineering standards (duplication, dead code, unhandled errors, weakened tests) and records findings in a `## Review` section of `verify.md`. Findings are capped at 10, use `blocker|major|minor — path:line — why`, and only `blocker` forces the verdict to `blocked`; `verify` stays the single quality gate.
 - **Spec evolution is allowed during implement**: if implementation reveals a missing requirement, the agent updates `spec.md` and `tasks.md` together (new/amended `AC-*` plus the covering task) instead of stopping. `converge`/`check` still block when an AC has no task coverage (`acceptance_not_covered`, `unknown_acceptance_reference`).
 - **Further context-footprint reduction**: the managed `AGENTS.md` block, `sdd` router, and core phase prompts were compressed (compact role sections, template references instead of inline examples, readiness centralized in generated skills). Deduplicated verify rules (proof-gap guidance and claim scoping stated once), tightened the spec alignment pass and self-check, and replaced per-prompt path-resolution blocks in aux commands with an `AGENTS.md` reference. EN `AGENTS.md` is ~5.0 KB and RU ~6.7 KB; core prompts are ~30 KB EN / ~39 KB RU. Budgets were re-tightened so growth fails the tests.
+- **Aux skill footers are accurate**: generated skills for commands without a readiness gate (recap, scope, handoff, resume, and other auxiliary commands) no longer claim a `speckeep check` gate or a mandatory end block.
 - **Close guidance offers archive or finish**: archive-ready prompts end with `speckeep archive <slug> . (alt: speckeep finish <slug> . for local merge)`, and `speckeep check` prints `alt: speckeep finish <slug> .` when the feature branch is checked out, the worktree is clean, and a base branch exists. `archive` remains the primary/safe default; `finish` is only for an explicit merge/close request.
 
 ### Fixed
 
+- **Docs match the product**: workflow, FAQ, CLI reference, overview, configuration, glossary, and roadmap now document the two-axis verify, spec evolution during implement, the `archive` vs `finish` decision, archive statuses, the optional command set, an exit-code contract for CI, and a full `speckeep.yaml` key reference; the previously missing CLI commands (`archive`, `status`, `context`, `risk`, `explore`, `schema`) are documented, and stale template/script references (`verify-report.md`, `check-verify-ready.sh`) were replaced with the real paths.
 - **Archive gates are status-aware**: `status: completed` now enforces closed tasks, `Proof:` on every `[x]` task, and the verify policy (a `Proof:` that references a missing file is rejected). `superseded`, `abandoned`, `rejected`, and `deferred` skip those gates so they can park incomplete work; they still require an explicit `--reason`. Migration: an existing `completed` feature without `Proof:` must add evidence or be archived with a non-completed status and a reason.
 
 ### Testing
@@ -588,4 +593,5 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [1.2.2]: https://github.com/bzdvdn/speckeep/releases/tag/v1.2.2
 [1.2.3]: https://github.com/bzdvdn/speckeep/releases/tag/v1.2.3
 [1.3.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.3.0
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.3.0...HEAD
+[1.4.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.4.0
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.4.0...HEAD

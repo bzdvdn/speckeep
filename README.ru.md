@@ -35,8 +35,8 @@
 
 ```bash
 # 0. Установить — рекомендуем npm (или npx без глобальной установки)
-npm install -g speckeep@1.3.0
-# npx speckeep@1.3.0 demo ./my-demo
+npm install -g speckeep@1.4.0
+# npx speckeep@1.4.0 demo ./my-demo
 
 # 1. Попробовать сразу — без настройки проекта
 speckeep demo ./my-demo
@@ -138,19 +138,19 @@ speckeep add-agent | list-agents | remove-agent | cleanup-agents [path]
 
 ## Установка
 
-**Рекомендуем npm** (актуальный релиз: **v1.3.0**). Npm-launcher скачивает подходящий нативный бинарник для вашей ОС/архитектуры, поэтому с PATH обычно нет проблем:
+**Рекомендуем npm** (актуальный релиз: **v1.4.0**). Npm-launcher скачивает подходящий нативный бинарник для вашей ОС/архитектуры, поэтому с PATH обычно нет проблем:
 
 ```bash
-npm install -g speckeep@1.3.0
+npm install -g speckeep@1.4.0
 
 # или запуск без глобальной установки
-npx speckeep@1.3.0 init my-project --lang ru --agents claude
+npx speckeep@1.4.0 init my-project --lang ru --agents claude
 ```
 
 **Нативный установщик (Linux / macOS):**
 
 ```bash
-VERSION=v1.3.0
+VERSION=v1.4.0
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 # --add-to-path регистрирует директорию установки в PATH
 ```
@@ -158,10 +158,10 @@ curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts
 **Windows (PowerShell):**
 
 ```powershell
-npm install -g speckeep@1.3.0
+npm install -g speckeep@1.4.0
 
 # Нативная альтернатива
-$version="v1.3.0"
+$version="v1.4.0"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -188,7 +188,7 @@ speckeep self upgrade   # скачивание, sha256-проверка и за�
 **Сборка из исходников:**
 
 ```bash
-go build -ldflags "-X speckeep/src/internal/cli.Version=v1.3.0" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v1.4.0" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 **CI:**
