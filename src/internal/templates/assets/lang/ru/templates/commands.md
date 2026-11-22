@@ -2,14 +2,14 @@
 
 Загружайте этот файл только когда текущая фаза не назвала нужную команду. Промпты фаз лежат в `.speckeep/templates/prompts/`; каждый skill `/spk-<phase>` самодостаточен.
 
-Дефолт для новой фичи: `/spk-propose` → `/spk-implement`. Запрос вида «сделай X по SpecKeep» ведёт в `/spk-propose`; для неоднозначной/мульти-фичевой идеи назови `/spk-spec`, для дизайна — `/spk-plan`. План — opt-in.
+Дефолт для новой фичи: `/spk-propose` → `/spk-implement` для маленького/среднего низкорискового изменения. Запрос вида «сделай X по SpecKeep» ведёт туда; `data-model.md` и `contracts/api.md` в propose разрешены. Дизайн-тяжёлые (архитектурные варианты, миграция/rollout, cross-boundary), неоднозначные или мульти-фичевые идеи — в `/spk-spec`; plan — opt-in после spec, и `propose` его никогда не пишет.
 
 `Ready for` может содержать `(alt: ...)`; первая команда — основной/безопасный вариант.
 
 ## Фазы (с readiness-гейтом)
 
 - `/spk-constitution` — создать/обновить конституцию проекта
-- `/spk-propose` — рекомендуемый дефолт: идея → spec + tasks (plan опционально), сразу к implement
+- `/spk-propose` — быстрая полоса для маленького/среднего низкорискового изменения: идея → spec + tasks (+ data-model/contracts при необходимости), сразу к implement (дизайн-тяжёлое → `/spk-spec`)
 - `/spk-spec` — написать spec (branch-first)
 - `/spk-inspect` — опциональная глубокая проверка качества
 - `/spk-plan` — opt-in plan artifacts (только когда фиче нужен дизайн)

@@ -2,14 +2,14 @@
 
 Load this file only when the current phase did not name the command you need. Phase prompts live in `.speckeep/templates/prompts/`; each `/spk-<phase>` skill is self-contained.
 
-Default for a new feature: `/spk-propose` → `/spk-implement`. A request like "build X with SpecKeep" routes to `/spk-propose`; name `/spk-spec` for an ambiguous or multi-feature idea, or `/spk-plan` for design work. Plan is opt-in.
+Default for a new feature: `/spk-propose` → `/spk-implement` for a small/medium low-risk change. A request like "build X with SpecKeep" routes there; `data-model.md` and `contracts/api.md` are allowed in propose. Design-heavy (architectural options, migration/rollout, cross-boundary), ambiguous, or multi-feature ideas go to `/spk-spec`; plan is opt-in after spec and `propose` never writes it.
 
 `Ready for` may include an `(alt: ...)` parenthetical; the first command is the primary/safe default.
 
 ## Phases (readiness-gated)
 
 - `/spk-constitution` — create/update the project constitution
-- `/spk-propose` — recommended default: idea → spec + tasks (plan optional), straight to implement
+- `/spk-propose` — fast lane for a small/medium low-risk change: idea → spec + tasks (+ data-model/contracts when needed), straight to implement (design-heavy → `/spk-spec`)
 - `/spk-spec` — write spec (branch-first)
 - `/spk-inspect` — optional deep quality review
 - `/spk-plan` — opt-in design artifacts (only when the feature needs design)

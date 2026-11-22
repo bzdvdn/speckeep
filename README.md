@@ -35,8 +35,8 @@ English · [Русский](README.ru.md) · [Docs](https://bzdvdn.github.io/spe
 
 ```bash
 # 0. Install — npm is the recommended path (or use npx without installing)
-npm install -g speckeep@1.4.0
-# npx speckeep@1.4.0 demo ./my-demo
+npm install -g speckeep@1.4.1
+# npx speckeep@1.4.1 demo ./my-demo
 
 # 1. Try it instantly — no project setup needed
 speckeep demo ./my-demo
@@ -65,7 +65,7 @@ speckeep solves this with **discipline per token** — minimal file-based struct
 - **Fast closing loop** (`/spk-converge`) — turn implementation gaps into follow-up tasks and iterate until converged
 - **CI gate** (`speckeep guard`) — machine-verifiable "is every feature closeable now?"
 - **Express lane** — tiny/low-risk features skip `plan.md`/`data-model.md` and close from `spec.md` + `tasks.md`
-- **One-shot propose** (`/spk-propose`) — idea → `spec.md` + `tasks.md` in a single pass, straight to implement
+- **Express propose** (`/spk-propose`) — small/medium low-risk idea → `spec.md` + `tasks.md` (+ `data-model.md`/contracts when needed), straight to implement (design-heavy → `/spk-spec`)
 - **Drop-in migration** (`speckeep import openspec|speckit`) — convert OpenSpec/Spec Kit feature packages into speckeep layout in seconds
 - **Local finish** (`speckeep finish`) — archive, merge `--no-ff`, and delete the local feature branch; `archive` remains for PR/manual merge
 - **Optional discipline loops** — `/spk-grill` (pre-spec design interview), `/spk-research` (cited `research.md`), `/spk-diagnose` (bounded bug diagnosis)
@@ -81,7 +81,7 @@ Results in practice: agents produce correct code on first try more often, handof
 ```
 constitution → spec → [inspect] → [plan] → tasks → implement → archive
 ```
-`verify` is an optional on-demand audit; a `completed` archive requires every `[x]` task to carry a `Proof:` entry (or `verify: pass`), while `deferred`/`abandoned` can archive incomplete work with a reason. Start a new feature with `/spk-propose` (recommended default): a natural-language request like "build X with SpecKeep" routes there; `/spk-plan` is opt-in for design-heavy work.
+`verify` is an optional on-demand audit; a `completed` archive requires every `[x]` task to carry a `Proof:` entry (or `verify: pass`), while `deferred`/`abandoned` can archive incomplete work with a reason. Start a small or medium, low-risk feature with `/spk-propose`: a natural-language request like "build X with SpecKeep" routes there, and it may add `data-model.md`/`contracts/api.md`. `/spk-spec` is only for several features, a breaking change/migration, or cross-service work; `/spk-plan` is opt-in after spec, and `propose` never writes a plan.
 
 Each phase loads only the minimum context. Optional workflow commands available at any phase: `/spk-grill`, `/spk-research`, `/spk-diagnose`, `/spk-challenge`, `/spk-handoff`, `/spk-resume`, `/spk-hotfix`, `/spk-scope`, `/spk-recap`.
 
@@ -152,19 +152,19 @@ It installs speckeep, detects changed `specs/active/<slug>/` features, and runs 
 
 ## Install
 
-**Recommended — npm** (current release: **v1.4.0**). The npm launcher downloads the matching native binary for your OS/arch, so PATH usually just works:
+**Recommended — npm** (current release: **v1.4.1**). The npm launcher downloads the matching native binary for your OS/arch, so PATH usually just works:
 
 ```bash
-npm install -g speckeep@1.4.0
+npm install -g speckeep@1.4.1
 
 # or run without a global install
-npx speckeep@1.4.0 init my-project --lang en --agents claude
+npx speckeep@1.4.1 init my-project --lang en --agents claude
 ```
 
 **Native installer (Linux / macOS):**
 
 ```bash
-VERSION=v1.4.0
+VERSION=v1.4.1
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 # --add-to-path registers the install directory in PATH
 ```
@@ -172,10 +172,10 @@ curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts
 **Windows (PowerShell):**
 
 ```powershell
-npm install -g speckeep@1.4.0
+npm install -g speckeep@1.4.1
 
 # Native alternative
-$version="v1.4.0"
+$version="v1.4.1"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -202,7 +202,7 @@ speckeep self upgrade   # download, sha256-verify, and replace in place
 **Build from source:**
 
 ```bash
-go build -ldflags "-X speckeep/src/internal/cli.Version=v1.4.0" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v1.4.1" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 ---

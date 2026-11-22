@@ -21,8 +21,8 @@ Built with **Go 1.26+**.
 ## Quick Start
 
 ```bash
-# npm is the recommended install path (current release: v1.4.0)
-npm install -g speckeep@1.4.0
+# npm is the recommended install path (current release: v1.4.1)
+npm install -g speckeep@1.4.1
 
 speckeep init my-project --lang en --agents claude --agents codex
 ```

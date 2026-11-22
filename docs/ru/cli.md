@@ -5,27 +5,27 @@
 **Рекомендуемый способ — npm**: пакет скачивает подходящий нативный бинарник для твоей ОС/архитектуры и не требует ручной настройки `PATH`:
 
 ```bash
-# Глобальная установка (актуальный релиз: v1.4.0)
-npm install -g speckeep@1.4.0
+# Глобальная установка (актуальный релиз: v1.4.1)
+npm install -g speckeep@1.4.1
 
 # Или запуск без глобальной установки
-npx speckeep@1.4.0 init my-project --lang ru --agents claude
+npx speckeep@1.4.1 init my-project --lang ru --agents claude
 ```
 
 Linux/macOS через нативный установщик:
 
 ```bash
-VERSION=v1.4.0
+VERSION=v1.4.1
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 Windows (PowerShell):
 
 ```powershell
-npm install -g speckeep@1.4.0
+npm install -g speckeep@1.4.1
 
 # Нативная альтернатива
-$version="v1.4.0"
+$version="v1.4.1"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -99,7 +99,7 @@ speckeep init my-project --docs-lang ru --agent-lang en --comments-lang en --she
 
 Эта команда обновляет:
 
-- `.speckeep/spk-yaml`
+- `.speckeep/speckeep.yaml`
 - `.speckeep/templates/**`
 - `.speckeep/scripts/**`
 - project-local agent skill packs
@@ -144,7 +144,7 @@ speckeep add-agent my-project --agents claude --agents codex
 
 ### `speckeep list-agents [path]`
 
-Показывает включенные agent targets из `.speckeep/spk-yaml`.
+Показывает включенные agent targets из `.speckeep/speckeep.yaml`.
 
 ### `speckeep remove-agent [path]`
 
@@ -166,7 +166,7 @@ speckeep add-agent my-project --agents claude --agents codex
 
 ### `completed`-архив теперь требует proof
 
-С 1.4.0 архив со статусом `completed` строго гейтится: нет открытых задач, у каждой `[x]` есть валидный `Proof:`, verify-policy соблюдена. `Proof:`, указывающий на отсутствующий файл, отклоняется. Если у старой фичи нет пригодного evidence, добавьте строки `Proof:` или отложите её с non-completed статусом и причиной:
+С 1.4.1 архив со статусом `completed` строго гейтится: нет открытых задач, у каждой `[x]` есть валидный `Proof:`, verify-policy соблюдена. `Proof:`, указывающий на отсутствующий файл, отклоняется. Если у старой фичи нет пригодного evidence, добавьте строки `Proof:` или отложите её с non-completed статусом и причиной:
 
 ```bash
 speckeep archive legacy-feature . --status deferred --reason "pre-1.4 work without proof"
@@ -197,8 +197,16 @@ speckeep archive legacy-feature . --status deferred --reason "pre-1.4 work witho
 - Статус (READY/BLOCKED)
 - Текущую ветку Git (с пометкой `!!` при несоответствии слагу фичи)
 
+Опции:
+
+- `--all` — включить архивные фичи
+- `--archived` — показать только архивные фичи
+- `--json` — машинный вывод
+
 ```bash
 speckeep dashboard
+speckeep dashboard --all
+speckeep dashboard --archived --json
 ```
 
 ### `speckeep feature <slug> [path]`
@@ -411,7 +419,19 @@ speckeep import openspec . --json
 
 ### `speckeep schema`
 
-Показывает граф зависимостей артефактов. `--set <preset>` переключает на предопределённую схему.
+Показывает граф зависимостей артефактов. Без флагов печатает текущую схему и порядок фаз; `--show` делает то же самое явно.
+
+`--set <preset>` переключает схему проекта:
+
+- `default` — `constitution → spec → [inspect] → [plan] → tasks → implement → verify → archive`
+- `research-first` — то же, но `research` перед `tasks`
+- `lite` — `spec → [plan] → tasks → implement` (без inspect/verify)
+
+```bash
+speckeep schema
+speckeep schema --show
+speckeep schema --set research-first
+```
 
 ### `speckeep self check` / `speckeep self upgrade`
 
@@ -436,6 +456,8 @@ Workspace заполнен примером фичи (`export-report`) на фа
 speckeep demo
 speckeep demo ./my-demo --agents claude
 ```
+
+Флаги: `--agents <targets>` выбирает генерируемые agent-артефакты, `--shell sh|powershell` — семейство скриптов.
 
 ### `speckeep export <slug> [path]`
 

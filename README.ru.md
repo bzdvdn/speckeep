@@ -35,8 +35,8 @@
 
 ```bash
 # 0. Установить — рекомендуем npm (или npx без глобальной установки)
-npm install -g speckeep@1.4.0
-# npx speckeep@1.4.0 demo ./my-demo
+npm install -g speckeep@1.4.1
+# npx speckeep@1.4.1 demo ./my-demo
 
 # 1. Попробовать сразу — без настройки проекта
 speckeep demo ./my-demo
@@ -65,7 +65,7 @@ speckeep решает это через **discipline per token** — миним�
 - **Быстрый цикл закрытия** (`/spk-converge`) — превращает разрывы реализации в follow-up задачи и повторяет до сходимости
 - **CI-гейт** (`speckeep guard`) — машино-проверяемый ответ «можно ли прямо сейчас закрыть каждую фичу?»
 - **Express-полоса** — крошечные/низкорисковые фичи пропускают `plan.md`/`data-model.md` и закрываются через `spec.md` + `tasks.md`
-- **One-shot propose** (`/spk-propose`) — идея → `spec.md` + `tasks.md` за один проход, сразу к implement
+- **Express propose** (`/spk-propose`) — маленькая/средняя низкорисковая идея → `spec.md` + `tasks.md` (+ `data-model.md`/contracts при необходимости), сразу к implement (дизайн-тяжёлое → `/spk-spec`)
 - **Миграция на лету** (`speckeep import openspec|speckit`) — конвертация feature packages из OpenSpec/Spec Kit в наш layout за секунды
 - **Локальное закрытие** (`speckeep finish`) — archive, merge `--no-ff` и удаление локальной feature-ветки; `archive` остаётся для PR/ручного merge
 - **Опциональные дисциплины** — `/spk-grill` (pre-spec интервью), `/spk-research` (cited `research.md`), `/spk-diagnose` (ограниченная диагностика бага)
@@ -81,7 +81,7 @@ speckeep решает это через **discipline per token** — миним�
 ```
 constitution → spec → [inspect] → [plan] → tasks → implement → archive
 ```
-`verify` — опциональный on-demand аудит; `completed`-архив требует `Proof:` у каждой задачи `[x]` (или `verify: pass`), а `deferred`/`abandoned` могут архивировать незавершённую работу с указанием причины. Новую фичу начинайте с `/spk-propose` (рекомендуемый дефолт): запрос вида «сделай X по SpecKeep» ведёт туда; `/spk-plan` — opt-in для фич с дизайном.
+`verify` — опциональный on-demand аудит; `completed`-архив требует `Proof:` у каждой задачи `[x]` (или `verify: pass`), а `deferred`/`abandoned` могут архивировать незавершённую работу с указанием причины. Маленькую или среднюю низкорисковую фичу начинайте с `/spk-propose`: запрос вида «сделай X по SpecKeep» ведёт туда, и propose может добавить `data-model.md`/`contracts/api.md`. `/spk-spec` — только для нескольких фич, ломающего изменения/миграции или работы на другом сервисе; `/spk-plan` — opt-in после spec, и `propose` никогда не пишет план.
 
 Каждая фаза загружает только минимум контекста. Опциональные команды на любой фазе: `/spk-grill`, `/spk-research`, `/spk-diagnose`, `/spk-challenge`, `/spk-handoff`, `/spk-resume`, `/spk-hotfix`, `/spk-scope`, `/spk-recap`.
 
@@ -138,19 +138,19 @@ speckeep add-agent | list-agents | remove-agent | cleanup-agents [path]
 
 ## Установка
 
-**Рекомендуем npm** (актуальный релиз: **v1.4.0**). Npm-launcher скачивает подходящий нативный бинарник для вашей ОС/архитектуры, поэтому с PATH обычно нет проблем:
+**Рекомендуем npm** (актуальный релиз: **v1.4.1**). Npm-launcher скачивает подходящий нативный бинарник для вашей ОС/архитектуры, поэтому с PATH обычно нет проблем:
 
 ```bash
-npm install -g speckeep@1.4.0
+npm install -g speckeep@1.4.1
 
 # или запуск без глобальной установки
-npx speckeep@1.4.0 init my-project --lang ru --agents claude
+npx speckeep@1.4.1 init my-project --lang ru --agents claude
 ```
 
 **Нативный установщик (Linux / macOS):**
 
 ```bash
-VERSION=v1.4.0
+VERSION=v1.4.1
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 # --add-to-path регистрирует директорию установки в PATH
 ```
@@ -158,10 +158,10 @@ curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts
 **Windows (PowerShell):**
 
 ```powershell
-npm install -g speckeep@1.4.0
+npm install -g speckeep@1.4.1
 
 # Нативная альтернатива
-$version="v1.4.0"
+$version="v1.4.1"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -188,7 +188,7 @@ speckeep self upgrade   # скачивание, sha256-проверка и за�
 **Сборка из исходников:**
 
 ```bash
-go build -ldflags "-X speckeep/src/internal/cli.Version=v1.4.0" -o bin/speckeep ./src/cmd/speckeep
+go build -ldflags "-X speckeep/src/internal/cli.Version=v1.4.1" -o bin/speckeep ./src/cmd/speckeep
 ```
 
 **CI:**

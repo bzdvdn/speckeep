@@ -184,7 +184,7 @@ func TestAgentArtifactMatrix(t *testing.T) {
 // stays a router, and each phase skill may add only a small scaffolding on top
 // of its inlined prompt body (frontmatter, readiness line, source pointer).
 func TestSkillFootprintBudgets(t *testing.T) {
-	const rootBudget = 1700
+	const rootBudget = 1750
 	const scaffoldingBudget = 700
 
 	for _, lang := range []string{"en", "ru"} {
@@ -218,6 +218,41 @@ func TestSkillFootprintBudgets(t *testing.T) {
 			if limit := len(body) + scaffoldingBudget; len(content) > limit {
 				t.Errorf("%s %s is %d bytes, over budget %d (prompt %d + %d scaffolding)", lang, path, len(content), limit, len(body), scaffoldingBudget)
 			}
+		}
+	}
+}
+
+// TestRouterSendsDesignHeavyToSpec keeps the sdd router aligned with the
+// propose/spec split: design-heavy ideas go through /spk-spec, not straight to
+// /spk-plan.
+func TestRouterSendsDesignHeavyToSpec(t *testing.T) {
+	for _, lang := range []string{"en", "ru"} {
+		files, err := FilesForTarget("claude", lang, "sh")
+		if err != nil {
+			t.Fatalf("%s: FilesForTarget returned error: %v", lang, err)
+		}
+		var root string
+		for _, f := range files {
+			if f.Path == ".claude/skills/sdd/SKILL.md" {
+				root = f.Content
+				break
+			}
+		}
+		if root == "" {
+			t.Fatalf("%s: root sdd skill missing", lang)
+		}
+		needles := map[string][]string{
+			"en": {"breaking", "/spk-spec", "small/medium"},
+			"ru": {"ломающее", "/spk-spec", "маленькая/средняя"},
+		}
+		for _, needle := range needles[lang] {
+			if !strings.Contains(root, needle) {
+				t.Errorf("%s: sdd router must send design-heavy ideas to /spk-spec (%q missing)", lang, needle)
+			}
+		}
+		banned := map[string]string{"en": "design → plan", "ru": "дизайн → plan"}
+		if strings.Contains(root, banned[lang]) {
+			t.Errorf("%s: sdd router still routes design straight to plan (%q)", lang, banned[lang])
 		}
 	}
 }

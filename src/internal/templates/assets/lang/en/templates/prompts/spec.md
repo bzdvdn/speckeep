@@ -55,4 +55,4 @@ If any check fails: fix it and re-run the checklist. After **2 fix rounds** that
 - Write/patch `spec.md` (patch > rewrite).
 - Summarize: goal, scope, AC list, open questions/blockers in the response; do not create extra derived recap files just for this summary.
 - End with the canonical end block from `AGENTS.md` (Slug / Status / Artifacts / Blockers / Ready for).
-- Final line (mandatory): `Ready for: /spk-tasks <slug>` by default (plan is optional). Use `/spk-inspect <slug>` first only when ambiguity, risk, or open questions remain; use `/spk-plan <slug>` first only when the feature needs design work (multiple realistic options, data-model/contract changes, migration/rollout, or cross-boundary impact).
+- Final line (mandatory): `Ready for: /spk-tasks <slug>` by default (plan is optional). Use `/spk-inspect <slug>` first only when ambiguity, risk, or open questions remain; use `/spk-plan <slug>` first only when the feature needs design work (more than one realistic option where the choice is architectural or hard to reverse, a schema migration/rollout or breaking contract change, or cross-service impact).

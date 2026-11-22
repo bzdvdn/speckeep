@@ -29,7 +29,7 @@ func DefaultCommands(shell string) []CommandDefinition {
 		},
 		{
 			Name:        "propose",
-			Description: "Recommended default for a new feature: idea → spec + tasks (plan optional), straight to implement",
+			Description: "Recommended default for a small/medium low-risk feature: idea → spec + tasks in one pass (design-heavy → /spk-spec)",
 			PromptPath:  ".speckeep/templates/prompts/propose.md",
 			Extras:      []string{scriptPath("check-ready", normalizedShell) + " propose"},
 			Category:    "workflow",

@@ -2,7 +2,7 @@
 
 Primary context: `.speckeep/`. Languages: docs=[DOCS_LANGUAGE], agent=[AGENT_LANGUAGE], comments=[COMMENTS_LANGUAGE]
 
-Workflow chain: `constitution → spec → [inspect, optional] → [plan, optional] → tasks → implement → archive`; `verify` is an optional on-demand audit (skipped by default). `/spk-propose` is the default for a new feature (spec + tasks in one pass): use it directly and skip the `sdd` router; `/spk-spec` only for ambiguous or multi-feature ideas; plan is opt-in for design-heavy work. Respect `workflow.verify` in `.speckeep/speckeep.yaml`: `required` restores verify as a mandatory pre-archive gate.
+Workflow chain: `constitution → spec → [inspect, optional] → [plan, optional] → tasks → implement → archive`; `verify` is an optional on-demand audit (skipped by default). `/spk-propose` is the default entry for a new feature when it is small/medium and low-risk (spec + tasks, plus `data-model.md`/contracts when needed): use it directly and skip the `sdd` router; `/spk-spec` only when the request spans several features, breaks an existing contract or stored data, or needs cross-service coordination; propose stays default for small/medium low-risk work, never writes `plan.md`, and records uncertainty as `## Open Questions`; plan is opt-in after spec. `workflow.verify: required` = mandatory verify before archive.
 
 Core rules:
 - ⚠️ **Repository map first**: do not use `ls`/`find`/glob for primary navigation — read `REPOSITORY_MAP.md` first (complete map, saves tokens). Read it once per session; re-read only after you updated the map yourself.

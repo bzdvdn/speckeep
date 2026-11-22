@@ -5,27 +5,27 @@
 **npm is the recommended install path** — it ships the matching native binary for your OS/arch and avoids PATH surprises:
 
 ```bash
-# Global install (current release: v1.4.0)
-npm install -g speckeep@1.4.0
+# Global install (current release: v1.4.1)
+npm install -g speckeep@1.4.1
 
 # Or run without a global install
-npx speckeep@1.4.0 init my-project --lang en --agents claude
+npx speckeep@1.4.1 init my-project --lang en --agents claude
 ```
 
 Linux/macOS via the native installer:
 
 ```bash
-VERSION=v1.4.0
+VERSION=v1.4.1
 curl -fsSL "https://raw.githubusercontent.com/bzdvdn/speckeep/${VERSION}/scripts/install.sh" | bash -s -- --version "${VERSION}"
 ```
 
 Windows (PowerShell):
 
 ```powershell
-npm install -g speckeep@1.4.0
+npm install -g speckeep@1.4.1
 
 # Native alternative
-$version="v1.4.0"
+$version="v1.4.1"
 $env:SPECKEEP_VERSION=$version
 powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.com/bzdvdn/speckeep/$version/scripts/install.ps1 | iex"
 ```
@@ -99,7 +99,7 @@ Refreshes only SpecKeep-managed generated artifacts in an existing project.
 
 This command updates:
 
-- `.speckeep/spk-yaml`
+- `.speckeep/speckeep.yaml`
 - `.speckeep/templates/**`
 - `.speckeep/scripts/**`
 - project-local agent skill packs
@@ -144,7 +144,7 @@ speckeep add-agent my-project --agents claude --agents codex
 
 ### `speckeep list-agents [path]`
 
-Lists enabled agent targets from `.speckeep/spk-yaml`.
+Lists enabled agent targets from `.speckeep/speckeep.yaml`.
 
 ### `speckeep remove-agent [path]`
 
@@ -166,7 +166,7 @@ If your active feature folders still contain `summary.md`, `spec.digest.md`, or 
 
 ### Completed archives now require proof
 
-Since 1.4.0 a `completed` archive is strictly gated: no open tasks, a valid `Proof:` on every `[x]` task, and the verify policy. A `Proof:` that points to a missing file is rejected. If an older feature has no usable evidence, either add `Proof:` lines or park it with a non-completed status and a reason:
+Since 1.4.1 a `completed` archive is strictly gated: no open tasks, a valid `Proof:` on every `[x]` task, and the verify policy. A `Proof:` that points to a missing file is rejected. If an older feature has no usable evidence, either add `Proof:` lines or park it with a non-completed status and a reason:
 
 ```bash
 speckeep archive legacy-feature . --status deferred --reason "pre-1.4 work without proof"
@@ -197,8 +197,16 @@ The dashboard includes:
 - Status (READY/BLOCKED)
 - Current Git branch (with `!!` warning if there is a mismatch with the feature slug)
 
+Options:
+
+- `--all` — include archived features
+- `--archived` — show only archived features
+- `--json` — machine-readable output
+
 ```bash
 speckeep dashboard
+speckeep dashboard --all
+speckeep dashboard --archived --json
 ```
 
 ### `speckeep feature <slug> [path]`
@@ -403,7 +411,19 @@ Creates a lightweight exploration workspace for unstructured investigation befor
 
 ### `speckeep schema`
 
-Shows the artifact dependency graph. `--set <preset>` switches to a predefined schema.
+Shows the artifact dependency graph. With no flags it prints the current schema and phase order; `--show` accepts the same request explicitly.
+
+`--set <preset>` switches the project schema:
+
+- `default` — `constitution → spec → [inspect] → [plan] → tasks → implement → verify → archive`
+- `research-first` — the same with `research` before `tasks`
+- `lite` — `spec → [plan] → tasks → implement` (no inspect/verify)
+
+```bash
+speckeep schema
+speckeep schema --show
+speckeep schema --set research-first
+```
 
 ### `speckeep self check` / `speckeep self upgrade`
 
@@ -428,6 +448,8 @@ The workspace is pre-populated with an example feature (`export-report`) at the 
 speckeep demo
 speckeep demo ./my-demo --agents claude
 ```
+
+Flags: `--agents <targets>` selects generated agent artifacts, `--shell sh|powershell` selects the script family.
 
 ### `speckeep export <slug> [path]`
 

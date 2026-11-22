@@ -2,7 +2,7 @@
 
 Контекст: `.speckeep/`. Языки: docs=[DOCS_LANGUAGE], agent=[AGENT_LANGUAGE], comments=[COMMENTS_LANGUAGE]
 
-Цепочка: `constitution → spec → [inspect, опц.] → [plan, опц.] → tasks → implement → archive`; `verify` — опц. аудит (по умолчанию пропускается). `/spk-propose` — дефолт для новой фичи (spec+tasks за проход): не грузи `sdd`-роутер; `/spk-spec` — только для неоднозначных/мульти-фичевых идей; plan — opt-in для дизайна. `workflow.verify` в конфиге: `required` = обязательный гейт перед archive.
+Цепочка: `constitution → spec → [inspect, опц.] → [plan, опц.] → tasks → implement → archive`; `verify` — опц. аудит (по умолчанию пропускается). `/spk-propose` — дефолтный вход для маленькой/средней низкорисковой фичи (spec+tasks, плюс `data-model.md`/contracts при необходимости): не грузи `sdd`-роутер; `/spk-spec` — только если несколько фич, ломает контракт/данные или нужно межсервисное согласование; propose — дефолт для маленьких/средних низкорисковых фич, `plan.md` не пишет, сомнения — в `## Open Questions`; plan — opt-in после spec. `workflow.verify: required` = обязательный гейт перед archive.
 
 Базовые правила:
 

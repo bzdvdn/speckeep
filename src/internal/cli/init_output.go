@@ -48,7 +48,7 @@ func printInitOutput(w io.Writer, result project.InitResult) {
 		"1. You're already in the project directory.",
 		"2. Start using slash commands with your AI agent:",
 		"   2.1 " + styleCmd(w, "/spk-constitution") + "  - Establish project principles",
-		"   2.2 " + styleCmd(w, "/spk-propose") + "       - Recommended: idea → spec + tasks",
+		"   2.2 " + styleCmd(w, "/spk-propose") + "       - Recommended: small/medium low-risk idea → spec + tasks",
 		"   2.3 " + styleCmd(w, "/spk-spec") + "          - Or write a spec first (branch-first)",
 		"   2.4 " + styleCmd(w, "/spk-plan") + "          - Optional: design-heavy plan",
 		"   2.5 " + styleCmd(w, "/spk-tasks") + "         - Generate tasks (skip if propose did it)",

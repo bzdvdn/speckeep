@@ -1370,6 +1370,12 @@ func TestAgentsSnippetRoutesNewFeaturesToPropose(t *testing.T) {
 		"en": "skip the `sdd` router",
 		"ru": "не грузи `sdd`-роутер",
 	}
+	// The default entry is propose only for small/low-risk work; design-heavy
+	// ideas must be routed to /spk-spec, and propose must not claim to write plans.
+	designByLang := map[string][]string{
+		"en": {"several features", "never writes `plan.md`"},
+		"ru": {"несколько фич", "не пишет"},
+	}
 	for lang, want := range wantByLang {
 		content, err := localizedFileContent(lang, "templates/agents-snippet.md")
 		if err != nil {
@@ -1380,6 +1386,65 @@ func TestAgentsSnippetRoutesNewFeaturesToPropose(t *testing.T) {
 		}
 		if !strings.Contains(content, want) {
 			t.Errorf("%s agents-snippet must tell the agent to %q for a new feature", lang, want)
+		}
+		for _, needle := range designByLang[lang] {
+			if !strings.Contains(content, needle) {
+				t.Errorf("%s agents-snippet must route design-heavy ideas to /spk-spec (%q missing)", lang, needle)
+			}
+		}
+	}
+}
+
+// TestProposeExpressOnlyContract guards the single propose decision rule:
+// propose is the express lane, hands design-heavy work to /spk-spec, and never
+// writes plan.md (that lane belongs to /spk-spec -> /spk-plan).
+func TestProposeExpressOnlyContract(t *testing.T) {
+	cases := []struct {
+		lang      string
+		max       int
+		required  []string
+		forbidden []string
+	}{
+		{
+			lang: "en", max: 6200,
+			required: []string{
+				"Escalation (rare)", "default is to stay here", "breaking change or a schema migration",
+				"coordinated across services or repos", "If unsure",
+				"Not signals", "two endpoints", "data-model.md", "contracts/api.md",
+				"Return to: /spk-spec <slug>", "Ready for: /spk-plan <slug>",
+				"Never create `plan.md`", "Stop if",
+			},
+			forbidden: []string{"planned"},
+		},
+		{
+			lang: "ru", max: 9600,
+			required: []string{
+				"Эскалация (редко)", "По умолчанию оставайся здесь", "ломающее изменение или миграция схемы",
+				"согласовывать между сервисами", "Если сомневаешься",
+				"Не сигналы", "две ручки", "data-model.md", "contracts/api.md",
+				"Вернуться к: /spk-spec <slug>", "Готово к: /spk-plan <slug>",
+				"Никогда не создавай `plan.md`", "Стоп, если",
+			},
+			forbidden: []string{"planned"},
+		},
+	}
+	for _, tc := range cases {
+		content, err := localizedFileContent(tc.lang, "templates/prompts/propose.md")
+		if err != nil {
+			t.Fatalf("%s propose prompt: %v", tc.lang, err)
+		}
+		if len(content) > tc.max {
+			t.Errorf("%s propose prompt is %d bytes, over budget %d", tc.lang, len(content), tc.max)
+		}
+		for _, want := range tc.required {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s propose prompt missing %q", tc.lang, want)
+			}
+		}
+		for _, banned := range tc.forbidden {
+			if strings.Contains(content, banned) {
+				t.Errorf("%s propose prompt still contains %q (planned lane must be gone)", tc.lang, banned)
+			}
 		}
 	}
 }

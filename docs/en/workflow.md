@@ -10,8 +10,7 @@ constitution -> spec -> [inspect, optional] -> [plan, optional] -> tasks -> impl
 
 Two lighter lanes keep features closing fast without artifact bloat:
 
-- **One-shot propose** (`/spk-propose`): idea → `spec.md` + `tasks.md` in a single pass (plan optional), straight to `implement`. Falls back to `/spk-spec` when the idea is ambiguous or spans multiple features.
-- **Express lane**: tiny/low-risk changes skip `plan.md` (and `data-model.md`). `/spk-tasks` derives tasks straight from `spec.md`; plan-level decisions land in `tasks.md` → `## Implementation Context`. The lifecycle allows a feature with `spec.md + tasks.md` to reach `implement` and `archive` without a separate plan.
+- **Express propose** (`/spk-propose`): a small or medium, low-risk idea → `spec.md` + `tasks.md` in one pass, straight to `implement`, plus `data-model.md` or `contracts/api.md` when the change really touches them. It never writes `plan.md`. It escalates only on hard signals — the request spans several features, a breaking change or schema migration with backfill, cross-service coordination or a security boundary, ACs that cannot be written without inventing decisions, or spec overflow. Uncertainty is recorded in `## Open Questions` and stays in propose.
 - **Converge loop** (`/spk-converge` / `speckeep converge <slug>`): after `implement`, re-checks task/proof/surface/AC coverage cheaply and reports gaps. The agent appends follow-up tasks and repeats until `converged` (hard stop after 2 fix rounds). Lighter than `verify` — no report file.
 
 `speckeep guard .` is the machine gate variant: exit 0 only when every active feature is archive-ready. Features living in an OpenSpec or Spec Kit workspace can be brought in with `speckeep import openspec|speckit .`.
@@ -22,7 +21,7 @@ SpecKeep assumes branch-based delivery: each active feature should be developed 
 
 ### Starting the next feature
 
-After a feature is archived and merged, start the next one in a fresh session. Use `/spk-propose` (recommended default — `spec.md` + `tasks.md` in one pass, then `/spk-implement`) or `/spk-spec` when the idea is ambiguous. A natural-language request such as "build X with SpecKeep" routes to `/spk-propose`; name `/spk-spec` or `/spk-plan` explicitly to override. `plan` is opt-in: run `/spk-plan` only for design-heavy work (multiple realistic options, data-model/contracts changes, migration/rollout, or cross-boundary impact). A new feature legitimately re-loads its phase skills; within one session, never re-run a phase you are already in.
+After a feature is archived and merged, start the next one in a fresh session. Use `/spk-propose` for a small, low-risk idea (`spec.md` + `tasks.md` in one pass, then `/spk-implement`) or `/spk-spec` when the idea is ambiguous, multi-feature, or design-heavy. A natural-language request such as "build X with SpecKeep" routes to `/spk-propose`; name `/spk-spec` explicitly to override. `plan` is opt-in and always comes after spec: `/spk-plan` only for design-heavy work (more than one realistic option with a real trade-off, data-model/contract changes, migration/rollout, or cross-boundary impact), and `/spk-propose` never writes it. A new feature legitimately re-loads its phase skills; within one session, never re-run a phase you are already in.
 
 ## Phase Responsibilities
 

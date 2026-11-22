@@ -120,10 +120,10 @@ Each prompt is designed to:
 
 Generated skills include:
 
-- **Workflow chain hint**: `constitution → spec → [inspect, optional] → [plan, optional] → tasks → implement → [verify, optional] → archive` — prevents agents from skipping required phases or jumping ahead. `/spk-propose` is the recommended default entry for a new feature (spec + tasks in one pass); plan is opt-in for design-heavy work.
+- **Workflow chain hint**: `constitution → spec → [inspect, optional] → [plan, optional] → tasks → implement → [verify, optional] → archive` — prevents agents from skipping required phases or jumping ahead. `/spk-propose` is the fast lane for a small/medium, low-risk feature (spec + tasks in one pass, plus `data-model.md`/contracts when needed); design-heavy, ambiguous, or multi-feature ideas go to `/spk-spec`, and plan is opt-in after spec.
 - **Script execution discipline**: explicit instruction to execute scripts as shell commands, trust stdout/exit code, and never read or inspect script source
 - **Lean phase skills**: each phase skill inlines its prompt plus a one-line `AGENTS.md` pointer, readiness line, and source reference. Canonical cross-phase rules (scope, git safety, `Proof:`, escalation) live in the managed `AGENTS.md` block instead of being duplicated per skill.
-- **New-feature routing**: a request to build something new, with no phase named, goes to `/spk-propose` directly (skip the `sdd` router). Use `/spk-spec` only for ambiguous or multi-feature ideas, and `/spk-plan` only for design-heavy work. In slash-command tools (Claude Code) invoke `/spk-propose` explicitly; in skill tools (OpenCode, Cursor, Codex) the agent selects `spk-propose` from its description.
+- **New-feature routing**: a request to build something new, with no phase named, goes to `/spk-propose` directly (skip the `sdd` router) when it is small or medium and low-risk. Use `/spk-spec` only for several features, a breaking change or schema migration, or cross-service/security-boundary work; `plan` is opt-in after spec, and `/spk-propose` never writes `plan.md` (it may still add `data-model.md`/`contracts/api.md`). In slash-command tools (Claude Code) invoke `/spk-propose` explicitly; in skill tools (OpenCode, Cursor, Codex) the agent selects `spk-propose` from its description.
 
 `spec` should stay branch-first:
 

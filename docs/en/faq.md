@@ -33,6 +33,10 @@ The archive keeps historical context without bloating the active workspace.
 - `speckeep archive <slug> .` is the default and the safe choice: it closes the artifact package only, and you merge through a PR or by hand afterwards. Use it for `completed`, `deferred`, `superseded`, `abandoned`, and `rejected` features.
 - `speckeep finish <slug> .` is the local-merge shortcut: archive + commit the snapshot + `merge --no-ff` into `main`/`master` (or `--into <branch>`) + delete the local feature branch. Use it only when you explicitly want the branch closed locally. It never pushes or deletes remote branches.
 
+## When should I use `/spk-propose` instead of `/spk-spec`?
+
+`/spk-propose` is the express lane for a small or medium, low-risk change: it writes `spec.md` + `tasks.md` and may add `data-model.md` or `contracts/api.md`; it never creates `plan.md`. The default is to stay in propose. It escalates only on hard signals: the request spans several features, a breaking change or schema migration with backfill, cross-service coordination or a security boundary, or ACs that cannot be written without inventing decisions. If you are unsure, stay in propose and record the uncertainty under `## Open Questions`; `/spk-plan` remains opt-in after the spec.
+
 ## Does `verify` review code quality?
 
 Yes. `verify` has two axes: AC/evidence coverage and a standards review of the implemented diff (duplicated logic, dead code, misleading names, unhandled errors, weakened tests). Findings are capped at 10, recorded in `## Review`, and only `blocker` forces `blocked`. Review never rewrites code — it reports.
@@ -94,7 +98,7 @@ Identifiers such as `AC-001` make traceability cheaper and clearer across specs,
 
 ## How much context does SpecKeep add?
 
-Less than the code you read. Typical numbers in v1.4.0:
+Less than the code you read. Typical numbers in v1.4.1:
 
 - always-on guidance (`AGENTS.md`): ~5.3 KB EN / ~6.9 KB RU
 - one phase prompt: ~1–8 KB, plus ~0.4 KB of skill scaffolding

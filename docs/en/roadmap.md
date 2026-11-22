@@ -10,12 +10,12 @@ SpecKeep should continue to position itself between heavier spec-driven systems 
 - lighter than spec-kit
 - optimized for agent-first workflows on real codebases
 
-## Current State — v1.4.0
+## Current State — v1.4.1
 
 Shipped:
 
 - phase chain: `constitution → spec → [inspect] → [plan] → tasks → implement → verify → archive`, with `verify` optional by default
-- fast lanes: `/spk-propose` (spec + tasks in one pass) and `/spk-converge` (cheap closing loop)
+- fast lanes: `/spk-propose` (spec + tasks in one pass, `data-model.md`/contracts when needed, no `plan.md`, hard-signal escalation only) and `/spk-converge` (cheap closing loop)
 - optional commands: grill, research, diagnose, hotfix, challenge, scope, resume, handoff, recap, rollback
 - two-axis verify: AC evidence plus a bounded diff review (touched files only, ≤10 findings, `blocker`-only gate)
 - status-aware archive: `completed` enforces closed tasks, `Proof:`, and the verify policy; parked statuses require a reason

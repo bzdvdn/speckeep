@@ -10,12 +10,12 @@ SpecKeep должен и дальше занимать позицию между
 - легче, чем spec-kit
 - лучше приспособлен для agent-first workflow на реальных кодовых базах
 
-## Текущее состояние — v1.4.0
+## Текущее состояние — v1.4.1
 
 Что уже есть:
 
 - цепочка фаз: `constitution → spec → [inspect] → [plan] → tasks → implement → verify → archive`, `verify` по умолчанию опционален
-- быстрые полосы: `/spk-propose` (spec + tasks за проход) и `/spk-converge` (дешёвый цикл закрытия)
+- быстрые полосы: `/spk-propose` (spec + tasks за проход, `data-model.md`/contracts при необходимости, без `plan.md`, эскалация только по жёстким сигналам) и `/spk-converge` (дешёвый цикл закрытия)
 - опциональные команды: grill, research, diagnose, hotfix, challenge, scope, resume, handoff, recap, rollback
 - двухосевой verify: AC evidence плюс ограниченное ревью diff (только затронутые файлы, ≤10 находок, гейт только по `blocker`)
 - status-aware archive: `completed` требует закрытых задач, `Proof:` и verify-policy; паркующие статусы требуют причину

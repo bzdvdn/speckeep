@@ -7,6 +7,20 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v1.4.1] - 2026-11-22
+
+### Changed
+
+- **Propose is the default lane**: `/spk-propose` no longer has a `planned` lane; it covers small/medium low-risk work end to end — `spec.md` + `tasks.md`, plus `data-model.md` or `contracts/api.md` when the change really touches them. It never writes `plan.md`, stays in propose when unsure (uncertainty goes to `## Open Questions`), and escalates only on hard signals: several features, a breaking change or schema migration with backfill, cross-service coordination or a security boundary, ACs that need invented decisions, or spec overflow. Escalation before drafting returns `/spk-spec`; after the spec it returns `/spk-plan`. The always-on guidance, `sdd` router, command reference, and docs were aligned with this rule.
+
+### Fixed
+
+- **Propose no longer over-escalates**: the previous wording let any sizeable or uncertain feature look like a `/spk-spec` case. Uncertainty now stays in propose as `## Open Questions`, additive API/data-model work (new endpoint, query, table, field) is explicitly not a signal, and a design need discovered after the spec hands off to `/spk-plan` instead of re-running the spec phase.
+
+### Testing
+
+- Added propose contract tests for the hard-signal list, the "not signals" list, both handoff targets, and the ban on writing `plan.md`; router and snippet tests keep design-heavy routing out of propose.
+
 ## [v1.4.0] - 2026-11-21
 
 ### Added
@@ -594,4 +608,5 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [1.2.3]: https://github.com/bzdvdn/speckeep/releases/tag/v1.2.3
 [1.3.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.3.0
 [1.4.0]: https://github.com/bzdvdn/speckeep/releases/tag/v1.4.0
-[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.4.0...HEAD
+[1.4.1]: https://github.com/bzdvdn/speckeep/releases/tag/v1.4.1
+[unreleased]: https://github.com/bzdvdn/speckeep/compare/v1.4.1...HEAD

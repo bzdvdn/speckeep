@@ -112,7 +112,7 @@ The intended agent workflow is strict:
 6. `implement`
 7. `archive`
 
-`inspect` and `verify` are optional on-demand audits (always available, skipped by default). `plan` is opt-in: small/low-risk features go straight to `tasks` from `spec.md`, and `/spk-propose` covers spec + tasks in one pass.
+`inspect` and `verify` are optional on-demand audits (always available, skipped by default). `plan` is opt-in: small/medium low-risk features go straight to `tasks` from `spec.md`, and `/spk-propose` covers spec + tasks (plus `data-model.md`/contracts when needed) without ever writing `plan.md`.
 
 Dependency rules:
 
@@ -133,7 +133,7 @@ Available at any phase:
 - `/spk-research`: optional technical research — investigate a concrete unknown and write a cited `research.md`
 - `/spk-diagnose`: optional bug diagnosis loop — reproduce, minimize, hypothesize, fix, regression-test
 - `/spk-challenge`: adversarial review of spec or plan — finds weak assumptions, untestable AC, scope drift
-- `/spk-propose`: one-shot fast lane — idea → `spec.md` + `tasks.md` (plan optional), straight to implement; falls back to `/spk-spec` on ambiguity
+- `/spk-propose`: express lane — small/medium low-risk idea → `spec.md` + `tasks.md` (+ `data-model.md`/contracts when needed), straight to implement; falls back to `/spk-spec` only on several features, breaking/migration, or cross-service work, and never writes `plan.md`
 - `/spk-converge`: fast closing loop — re-checks an implemented feature cheaply, appends follow-up tasks, repeats until converged (lighter than verify)
 - `/spk-handoff`: compact session handoff document for new sessions
 - `/spk-hotfix`: emergency fix outside standard chain (≤3 files, known root cause)
