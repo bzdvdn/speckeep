@@ -65,7 +65,7 @@ speckeep solves this with **discipline per token** — minimal file-based struct
 - **Fast closing loop** (`/spk-converge`) — turn implementation gaps into follow-up tasks and iterate until converged
 - **CI gate** (`speckeep guard`) — machine-verifiable "is every feature closeable now?"
 - **Express lane** — tiny/low-risk features skip `plan.md`/`data-model.md` and close from `spec.md` + `tasks.md`
-- **Express propose** (`/spk-propose`) — small/medium low-risk idea → `spec.md` + `tasks.md` (+ `data-model.md`/contracts when needed), straight to implement (design-heavy → `/spk-spec`)
+- **Express propose** (`/spk-propose`) — default lane: spec + tasks (+ `data-model.md`/contracts when needed), straight to implement; only hard signals escalate to `/spk-spec`
 - **Drop-in migration** (`speckeep import openspec|speckit`) — convert OpenSpec/Spec Kit feature packages into speckeep layout in seconds
 - **Local finish** (`speckeep finish`) — archive, merge `--no-ff`, and delete the local feature branch; `archive` remains for PR/manual merge
 - **Optional discipline loops** — `/spk-grill` (pre-spec design interview), `/spk-research` (cited `research.md`), `/spk-diagnose` (bounded bug diagnosis)

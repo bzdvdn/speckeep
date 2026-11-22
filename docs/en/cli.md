@@ -37,6 +37,18 @@ To also add the native install directory to `PATH`:
 
 **Updates:** `speckeep self upgrade` upgrades a native install in place. If you installed via npm, use `npm install -g speckeep@latest` instead.
 
+## Upgrading
+
+`speckeep self upgrade` (or `npm install -g speckeep@latest`) replaces the binary only. Phase prompts, templates, and generated skills live inside the project, so run `speckeep refresh .` after upgrading — otherwise the project keeps the old behavior.
+
+This matters for **1.4.1**: `/spk-propose` changed (no `planned` lane, never writes `plan.md`, hard-signal escalation). A project initialized with 1.4.0 keeps the old prompt until refreshed. Verify with:
+
+```bash
+grep -n "Escalation (rare)" .speckeep/templates/prompts/propose.md
+```
+
+`refresh` overwrites managed templates, so back up any local prompt edits first.
+
 ## Exit Codes
 
 SpecKeep uses two exit codes:

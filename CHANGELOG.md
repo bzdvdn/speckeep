@@ -16,6 +16,7 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 - **Propose no longer over-escalates**: the previous wording let any sizeable or uncertain feature look like a `/spk-spec` case. Uncertainty now stays in propose as `## Open Questions`, additive API/data-model work (new endpoint, query, table, field) is explicitly not a signal, and a design need discovered after the spec hands off to `/spk-plan` instead of re-running the spec phase.
+- **Docs and CLI help match 1.4.1**: workflow, FAQ, examples, agents, commands reference, glossary, and `--help` text use the hard-signal wording; the glossary defines `Propose`; the CLI reference gained an **Upgrading** section explaining that binary upgrades require `speckeep refresh .` because prompts and skills live in the project.
 
 ### Testing
 

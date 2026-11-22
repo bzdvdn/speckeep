@@ -48,7 +48,7 @@ Cover only what is relevant to this idea: actor/consumer, observable success, sc
 
 - Summarize settled decisions and unresolved questions.
 - Do not create `grill.md` or any other file by default.
-- Recommend the next lane: `/spk-propose <slug>` for a normal feature, or `/spk-spec <slug>` for an ambiguous/design-heavy one.
+- Recommend the next lane: `/spk-propose <slug>` by default, or `/spk-spec <slug>` only when the idea spans several features, breaks an existing contract, or needs cross-service work.
 - End with the standard end block (see AGENTS.md), exact shape:
 
 ```text

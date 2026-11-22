@@ -37,6 +37,18 @@ powershell -ExecutionPolicy Bypass -c "iwr -useb https://raw.githubusercontent.c
 
 **Обновление:** `speckeep self upgrade` обновляет нативную установку на месте. Если ставил через npm — используй `npm install -g speckeep@latest`.
 
+## Обновление
+
+`speckeep self upgrade` (или `npm install -g speckeep@latest`) заменяет только бинарник. Промпты фаз, шаблоны и сгенерированные скиллы живут в проекте, поэтому после обновления выполните `speckeep refresh .` — иначе проект продолжит работать по старым правилам.
+
+Это важно для **1.4.1**: `/spk-propose` изменился (нет полосы `planned`, `plan.md` не пишется, эскалация только по жёстким сигналам). Проект, инициализированный на 1.4.0, сохраняет старый промпт до refresh. Проверка:
+
+```bash
+grep -n "Escalation (rare)" .speckeep/templates/prompts/propose.md
+```
+
+`refresh` перезаписывает управляемые шаблоны — сохраните локальные правки промптов заранее.
+
 ## Коды выхода
 
 SpecKeep использует два кода выхода:

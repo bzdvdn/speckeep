@@ -203,7 +203,7 @@ Required artifacts:
 
 - `spec.md` — always
 - `tasks.md` — for any feature that reaches implementation (or a `hotfix.md` for emergency fixes)
-- `plan.md` — **opt-in**: write it only for design-heavy changes; small/low-risk features close from `spec.md` + `tasks.md`
+- `plan.md` — **opt-in**: write it only for real design work (architectural choices, migration/rollout, cross-service); small/medium low-risk features close from `spec.md` + `tasks.md`
 - `data-model.md` — optional on-demand: create only when the feature actually changes data model/state/persistence; otherwise a `Data model: no change` note inside `plan.md` is enough
 - `verify.md` (when verify is persisted)
 

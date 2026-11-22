@@ -37,6 +37,10 @@ The archive keeps historical context without bloating the active workspace.
 
 `/spk-propose` is the express lane for a small or medium, low-risk change: it writes `spec.md` + `tasks.md` and may add `data-model.md` or `contracts/api.md`; it never creates `plan.md`. The default is to stay in propose. It escalates only on hard signals: the request spans several features, a breaking change or schema migration with backfill, cross-service coordination or a security boundary, or ACs that cannot be written without inventing decisions. If you are unsure, stay in propose and record the uncertainty under `## Open Questions`; `/spk-plan` remains opt-in after the spec.
 
+## I upgraded but `/spk-propose` still writes `plan.md` — why?
+
+Prompts are project-local. Upgrading the binary does not touch `.speckeep/templates/prompts/` or the generated skills, so run `speckeep refresh .` (preview it with `--dry-run`). In 1.4.1 propose no longer writes `plan.md` at all: it stops at a hard signal and hands off to `/spk-spec` or `/spk-plan`.
+
 ## Does `verify` review code quality?
 
 Yes. `verify` has two axes: AC/evidence coverage and a standards review of the implemented diff (duplicated logic, dead code, misleading names, unhandled errors, weakened tests). Findings are capped at 10, recorded in `## Review`, and only `blocker` forces `blocked`. Review never rewrites code — it reports.

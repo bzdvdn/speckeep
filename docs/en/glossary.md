@@ -16,6 +16,10 @@ A review phase that checks a spec and related artifacts for completeness, consis
 
 An opt-in technical design phase that translates one spec into implementation-oriented artifacts. Used only when the feature needs design work; small/low-risk features go straight to tasks.
 
+## Propose
+
+The default new-feature lane: `spec.md` + `tasks.md` in one pass, plus `data-model.md` or `contracts/*` when the change really touches them. It never writes `plan.md`; uncertainty stays in `## Open Questions`, and only hard signals (several features, a breaking change or schema migration, cross-service work) escalate to `/spk-spec`.
+
 ## Feature Artifact Set
 
 The group of files stored under `specs/active/<slug>/`, typically including `spec.md`, `plan.md`, `tasks.md`, `data-model.md`, `verify.md`, `contracts/`, and optional `research.md`.

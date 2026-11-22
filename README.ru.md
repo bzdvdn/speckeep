@@ -65,7 +65,7 @@ speckeep решает это через **discipline per token** — миним�
 - **Быстрый цикл закрытия** (`/spk-converge`) — превращает разрывы реализации в follow-up задачи и повторяет до сходимости
 - **CI-гейт** (`speckeep guard`) — машино-проверяемый ответ «можно ли прямо сейчас закрыть каждую фичу?»
 - **Express-полоса** — крошечные/низкорисковые фичи пропускают `plan.md`/`data-model.md` и закрываются через `spec.md` + `tasks.md`
-- **Express propose** (`/spk-propose`) — маленькая/средняя низкорисковая идея → `spec.md` + `tasks.md` (+ `data-model.md`/contracts при необходимости), сразу к implement (дизайн-тяжёлое → `/spk-spec`)
+- **Express propose** (`/spk-propose`) — полоса по умолчанию: spec + tasks (+ `data-model.md`/contracts при необходимости), сразу к implement; в `/spk-spec` — только по жёстким сигналам
 - **Миграция на лету** (`speckeep import openspec|speckit`) — конвертация feature packages из OpenSpec/Spec Kit в наш layout за секунды
 - **Локальное закрытие** (`speckeep finish`) — archive, merge `--no-ff` и удаление локальной feature-ветки; `archive` остаётся для PR/ручного merge
 - **Опциональные дисциплины** — `/spk-grill` (pre-spec интервью), `/spk-research` (cited `research.md`), `/spk-diagnose` (ограниченная диагностика бага)

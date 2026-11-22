@@ -200,7 +200,7 @@ Typical findings:
 
 ## 4. Create a Plan Package (optional)
 
-Plan is opt-in: skip this section for a small/low-risk feature and go straight to tasks. Use it only when the feature needs design work (multiple realistic options, data-model/contracts changes, migration/rollout, or cross-boundary impact).
+Plan is opt-in: skip this section for a small/medium low-risk feature and go straight to tasks. Use it only when the feature needs design work (architectural choices that are hard to reverse, migration/rollout, or cross-service impact).
 
 User request:
 
@@ -571,13 +571,13 @@ requests, not to interrogate every one. If you don't answer and move straight
 to another command, the agent drafts best-effort and puts the open points
 under `## Open Questions` instead of inventing an `AC-*` to fill the gap.
 
-### Recipe: One-Shot Fast Lane With `/spk-propose`
+### Recipe: The Default Lane With `/spk-propose`
 
-Problem this solves: for a small, low-risk change, running
+Problem this solves: for a small or medium, low-risk change, running
 `spec → plan → tasks` as three separate round-trips is process overhead the
 change doesn't need. `/spk-propose` collapses idea → `spec.md` + `tasks.md`
-(skipping `plan.md` by default — the **express lane**) in one pass, then
-hands off straight to `/spk-implement`.
+in one pass, adds `data-model.md`/`contracts/api.md` when the change really
+needs them, and never writes `plan.md`.
 
 ```text
 /spk-propose Add a "copy as JSON" button next to the existing "copy as CSV"
@@ -594,11 +594,11 @@ Blockers: none
 Ready for: /spk-implement copy-as-json
 ```
 
-If the idea turns out to be bigger than it looked — multiple realistic
-implementation options, cross-boundary impact, migration risk — propose
-stops and falls back to `/spk-spec` instead of forcing a shallow plan into
-`tasks.md`. That's a `Blockers:` line, not a bug: propose is deliberately
-narrow so it never race-drafts a feature that actually needed design.
+If the idea turns out to be bigger — several features, a breaking change or
+schema migration, or cross-service work — propose stops instead of forcing a
+shallow plan into `tasks.md`. A signal found before drafting returns
+`/spk-spec`; one found after the spec returns `/spk-plan`. Uncertainty alone
+is not a reason to leave propose: it goes to `## Open Questions`.
 
 ### Recipe: Resolving a Technical Unknown With `/spk-research`
 
@@ -649,9 +649,9 @@ Problem this solves: a raw idea has too many unresolved branches to write a good
 don't create duplicates.
 ```
 
-Expected behavior: the agent asks the current design-tree frontier in rounds (1–5 questions each, each with a recommended answer), finds facts itself, and stops when the frontier is empty or after **3 rounds / 12 questions**. It writes no files; at the end it summarizes settled decisions and open questions and suggests `/spk-propose` (or `/spk-spec` for a design-heavy feature).
+Expected behavior: the agent asks the current design-tree frontier in rounds (1–5 questions each, each with a recommended answer), finds facts itself, and stops when the frontier is empty or after **3 rounds / 12 questions**. It writes no files; at the end it summarizes settled decisions and open questions and suggests `/spk-propose` (or `/spk-spec` when the idea spans several features, breaks a contract, or needs cross-service work).
 
-Use it when the idea is high-risk or genuinely ambiguous. For a normal feature, `/spk-spec`'s one-round alignment pass is enough; `/spk-challenge` reviews an existing spec/plan instead.
+Use it when the idea is high-risk or genuinely ambiguous. For a normal feature, `/spk-propose` is enough; `/spk-challenge` reviews an existing spec/plan instead.
 
 ### Recipe: Finding Blind Spots With `/spk-challenge`
 
